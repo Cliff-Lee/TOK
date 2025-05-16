@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knowledge and Arts</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background: #2d2d2d;
+      color: #fff;
+      padding: 1.5rem 1rem;
+      text-align: center;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      display: grid;
+      grid-gap: 4rem;
+    }
+
+    section {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    section h2 {
+      margin-top: 0;
+      font-size: 1.8rem;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 1rem;
+    }
+
+    @media (min-width: 700px) {
+      .media-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 */
+      height: 0;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .visual-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .visual-desc {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .download-link {
+      font-size: 0.95rem;
+      color: #1a73e8;
+      text-decoration: none;
+      align-self: flex-start;
+    }
+
+    .download-link:hover {
+      text-decoration: underline;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e0e0e0;
+      color: #555;
+      font-size: 1.2rem;
+      border-radius: 6px;
+      height: 100%;
+      aspect-ratio: 16 / 9;
+      text-align: center;
+      padding: 0 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Knowledge and Arts</h1>
+  </header>
+  <main>
+
+    <!-- SCOPE -->
+    <section id="scope">
+      <h2>Scope</h2>
+      <div class="media-grid">
+        <div class="video-wrapper">
+          <iframe src="https://www.youtube.com/embed/YOmHGcxb8so" title="Scope Video" allowfullscreen></iframe>
+        </div>
+        <div class="visual-block">
+          <p class="visual-desc">Explores <strong>what counts as art</strong>, the purposes art can serve, and how artistic knowledge overlaps with or differs from other areas of knowledge. It raises questions of definition, classification, and the <em>boundaries</em> of the arts.</p>
+          <a href="https://drive.google.com/uc?export=download&id=1vJvq5ScI4GkGkusqcCdgfI-HAAfxANY8" class="download-link" target="_blank" rel="noopener">Download visual</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- PERSPECTIVES -->
+    <section id="perspectives">
+      <h2>Perspectives</h2>
+      <div class="media-grid">
+        <div class="video-wrapper">
+          <iframe src="https://www.youtube.com/embed/JqzCHLeYoBQ" title="Perspectives Video" allowfullscreen></iframe>
+        </div>
+        <div class="visual-block">
+          <p class="visual-desc">Highlights how <strong>meaning in the arts is shaped by viewpoint</strong>—the intentions of the artist, the background of the audience, and the cultural–historical context. It stresses subjectivity, interpretation, and the plurality of possible readings.</p>
+          <a href="https://drive.google.com/uc?export=download&id=1bSKHaYP5FKL1lxQ8NYi1zAy3mBnT-EkK" class="download-link" target="_blank" rel="noopener">Download visual</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- METHODS & TOOLS -->
+    <section id="methods-tools">
+      <h2>Methods and Tools</h2>
+      <div class="media-grid">
+        <div class="video-wrapper">
+          <iframe src="https://www.youtube.com/embed/pGTSUTZ8J28" title="Methods and Tools Video" allowfullscreen></iframe>
+        </div>
+        <div class="visual-block">
+          <p class="visual-desc">Looks at the <strong>techniques, media, and processes</strong> artists use—from traditional craft skills to digital technologies—and how experimentation, critique, and collaboration build knowledge within the arts.</p>
+          <div class="placeholder">Visual coming soon</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ETHICS -->
+    <section id="ethics">
+      <h2>Ethics</h2>
+      <div class="media-grid">
+        <div class="video-wrapper">
+          <iframe src="https://www.youtube.com/embed/0nMhINlbXBU" title="Ethics Video" allowfullscreen></iframe>
+        </div>
+        <div class="visual-block">
+          <p class="visual-desc">Considers the <strong>moral questions</strong> raised by creating and engaging with art—censorship, appropriation, representation, and the societal impact of artistic expression.</p>
+          <a href="https://drive.google.com/uc?export=download&id=1dkjkTGJAcyk7LjKd10zMGDwujfacKVir" class="download-link" target="_blank" rel="noopener">Download visual</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
