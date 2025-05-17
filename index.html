@@ -1,1 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOK Knowledge Hub</title>
+  <style>
+    :root {
+      --card-bg: #ffffff;
+      --card-shadow: rgba(0, 0, 0, 0.08);
+      --primary: #0066cc;
+      --text: #222;
+      --accent: #004999;
+    }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      color: #555;
+    }
+
+    section {
+      margin-bottom: 2.5rem;
+    }
+
+    section h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.4rem;
+      border-left: 4px solid var(--primary);
+      padding-left: 0.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      background: var(--card-bg);
+      padding: 1.2rem 1.4rem;
+      border-radius: 10px;
+      color: var(--text);
+      box-shadow: 0 1px 4px var(--card-shadow);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 0.4rem;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #444;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Theory of Knowledge – Knowledge Hub</h1>
+    <p>Navigate the core theme, optional themes, and areas of knowledge through curated videos and visual organizers.</p>
+  </header>
+
+  <!-- Core Theme -->
+  <section>
+    <h2>Core Theme</h2>
+    <div class="grid">
+      <a href="Knowledge_and_knower.html" class="card">
+        <h3>Knowledge &amp; the Knower</h3>
+        <p>Investigates how personal and shared perspectives, bias, and values influence our claims to knowledge.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Optional Themes -->
+  <section>
+    <h2>Optional Themes</h2>
+    <div class="grid">
+      <a href="Knowledge_and_Technology.html" class="card">
+        <h3>Knowledge &amp; Technology</h3>
+        <p>Explores how digital tools create, shape, and distribute knowledge, raising questions about reliability and ethics.</p>
+      </a>
+      <a href="KnowledgeandLanguage.html" class="card">
+        <h3>Knowledge &amp; Language</h3>
+        <p>Looks at how language constructs meaning, the limits of translation, and power dynamics in communication.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Areas of Knowledge -->
+  <section>
+    <h2>Areas of Knowledge</h2>
+    <div class="grid">
+      <a href="Knowledge_and_history.html" class="card">
+        <h3>History</h3>
+        <p>Questions how evidence and interpretation shape historical narratives and our understanding of the past.</p>
+      </a>
+      <a href="Knowledge_and_human_science.html" class="card">
+        <h3>Human Sciences</h3>
+        <p>Examines methodologies and ethical dilemmas in disciplines like psychology, sociology, and economics.</p>
+      </a>
+      <a href="Knowledge_and_natural_science.html" class="card">
+        <h3>Natural Sciences</h3>
+        <p>Considers experimentation, objectivity, and the evolving nature of scientific theories about the natural world.</p>
+      </a>
+      <a href="TOK_Knowledge_and_Mathematics.html" class="card">
+        <h3>Mathematics</h3>
+        <p>Reflects on proof, abstraction, and the surprising applicability of mathematics to describe reality.</p>
+      </a>
+      <a href="knowledge_and_arts.html" class="card">
+        <h3>The Arts</h3>
+        <p>Investigates interpretation, creativity, and how artworks convey unique forms of knowledge and value.</p>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    Last updated: May&nbsp;17&nbsp;2025
+  </footer>
+</body>
+</html>
