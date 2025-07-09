@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>True Arithmetic Cyclic Multiplication</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    #equation {
+      background: #fff;
+      padding: 1.5rem 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      max-width: 90vw;
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 1.2rem;
+      line-height: 1.4;
+      white-space: normal;
+      word-break: break-all;
+    }
+    .line {
+      margin: 0.3em 0;
+    }
+    .digit {
+      display: inline-block;
+      width: 1ch;
+      text-align: center;
+    }
+    .digit.base  { color: #007ACC; }
+    .digit.moved { color: teal; font-weight: bold; }
+    .multiplier { color: #D35400; font-weight: bold; margin: 0.3em 0; }
+    .equals     { color: #333; font-weight: bold; margin: 0.2em 0; font-size: 1.8rem; }
+    button {
+      font-size: 1.2rem;
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #007ACC;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    button:hover { background: #005FA3; }
+  </style>
+</head>
+<body>
+  <button id="newEq">Generate New Equation</button>
+  <div id="equation"></div>
+
+  <script>
+    const primes = [
+      7,17,19,23,29,47,59,61,97,109,113,131,149,167,179,181,
+      193,223,229,233,257,263,269,313,337,367,379,383,389,419,
+      433,461,487,491,499,503,509,541,571,577,593,619,647,659,
+      701,709,727,743,811,821,823,857,863,887,937,941,953,971,977,983
+    ];
+
+    function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+    }
+
+    function computeRepetend(p) {
+      const seen = {}, digs = [];
+      let rem = 1 % p, pos = 0;
+      while (rem && seen[rem] === undefined) {
+        seen[rem] = pos++;
+        rem *= 10;
+        digs.push(Math.floor(rem / p));
+        rem %= p;
+      }
+      return digs.join('');
+    }
+
+    function colorizeLeft(str, moved) {
+      const CHUNK = 50, spans = [];
+      for (let i = 0; i < str.length; i++) {
+        const cls = i < moved ? 'moved' : 'base';
+        spans.push(`<span class="digit ${cls}">${str[i]}</span>`);
+        if ((i + 1) % CHUNK === 0 && i < str.length - 1) spans.push('<br>');
+      }
+      return spans.join('');
+    }
+
+    function colorizeRight(str, moved) {
+      const CHUNK = 50, spans = [], split = str.length - moved;
+      for (let i = 0; i < str.length; i++) {
+        const cls = i < split ? 'base' : 'moved';
+        spans.push(`<span class="digit ${cls}">${str[i]}</span>`);
+        if ((i + 1) % CHUNK === 0 && i < str.length - 1) spans.push('<br>');
+      }
+      return spans.join('');
+    }
+
+    function generateEquation() {
+      const eq = document.getElementById('equation');
+      const p  = primes[Math.floor(Math.random() * primes.length)];
+      const C  = computeRepetend(p), r = C.length;
+      const MOD = (BigInt(10) ** BigInt(r)) - BigInt(1);
+
+      // gather all non-zero-start rotations
+      const rots = [];
+      for (let rot = 0; rot < r; rot++) {
+        const cand = C.slice(rot) + C.slice(0, rot);
+        if (!cand.startsWith('0')) rots.push(cand);
+      }
+      shuffle(rots);
+
+      let found = null;
+      // look for k in [2..p-1] (skip k=1) so orig*k is exactly r digits
+      for (const orig of rots) {
+        const O = BigInt(orig), valid = [];
+        for (let k = 2; k < p; k++) {
+          const prodStr = (O * BigInt(k)).toString();
+          if (prodStr.length === r) valid.push(k);
+        }
+        if (valid.length) {
+          const k = valid[Math.floor(Math.random() * valid.length)];
+          const result = (O * BigInt(k)).toString();
+          found = { orig, k, result };
+          break;
+        }
+      }
+
+      if (!found) {
+        eq.textContent = `p=${p} produced no non-trivial multiplier.`;
+        return;
+      }
+
+      const { orig, k, result } = found;
+      const shift = (orig + orig).indexOf(result);
+
+      eq.innerHTML = `
+        <div class="line">${colorizeLeft(orig, shift)}</div>
+        <div class="multiplier">× ${k}</div>
+        <div class="equals">=</div>
+        <div class="line">${colorizeRight(result, shift)}</div>
+      `;
+    }
+
+    document.getElementById('newEq').addEventListener('click', generateEquation);
+    generateEquation();
+  </script>
+</body>
+ <footer>
+    <p>&copy; 2025 cliffpackman@gmail.com ; Number patterns</p>
+  </footer>
+</html>
