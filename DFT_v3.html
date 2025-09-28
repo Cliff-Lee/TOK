@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Interactive DFT — Time, Spectrum, and ζ-View (Spokes vs Polygon)</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#111827; --ink:#e5e7eb; --muted:#9ca3af;
+    --accent:#22d3ee; --accent2:#a78bfa; --ok:#34d399; --warn:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; color:var(--ink); background:linear-gradient(180deg,#0b1025,var(--bg));}
+  h1{font-size:1.4rem; margin:0 0 .5rem}
+  h2{font-size:1rem; margin:.6rem 0 .4rem; color:var(--muted)}
+  h3{font-size:.95rem; margin:.4rem 0 .2rem; color:var(--ink)}
+  .wrap{max-width:1180px; margin:24px auto; padding:0 16px}
+  .grid{display:grid; gap:14px; grid-template-columns: 340px 1fr}
+  .panel{background:rgba(17,24,39,.7); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .controls label{display:block; font-size:.9rem; color:var(--muted); margin:8px 0 6px}
+  .row{display:flex; gap:8px; align-items:center}
+  .row > *{flex:1}
+  input[type="range"]{width:100%}
+  input[type="number"], select{width:100%; padding:6px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:#0b1120; color:var(--ink)}
+  .chip{display:inline-block; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:.8rem}
+  .btn{display:inline-flex; align-items:center; gap:.5ch; padding:8px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.1); background:#0b1120; color:var(--ink); cursor:pointer}
+  .btn:hover{border-color:rgba(255,255,255,.25)}
+  .btn.primary{background:linear-gradient(135deg,#0ea5e9,#7c3aed); border:none}
+  .btn.ghost{background:transparent}
+  .stack{display:grid; gap:12px}
+  canvas{width:100%; height:260px; background:#020617; border-radius:12px; border:1px solid rgba(255,255,255,.06); display:block}
+  .footer{display:flex; justify-content:space-between; align-items:center; font-size:.9rem; color:var(--muted)}
+  .eq{background:#020617; border-radius:12px; padding:10px; border:1px solid rgba(255,255,255,.06); font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace; color:#c7d2fe; line-height:1.35}
+  details{border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px 10px}
+  details[open]{background:#0b1120}
+  .tbl{width:100%; border-collapse:collapse; font-size:.88rem}
+  .tbl th,.tbl td{border-bottom:1px solid rgba(255,255,255,.06); padding:6px 8px; text-align:right}
+  .tbl th{color:var(--muted); font-weight:600}
+  .tbl td:first-child,.tbl th:first-child{text-align:left}
+  .badge{padding:2px 8px; border-radius:999px; font-size:.75rem; background:#03203a; color:#8be9fd}
+  .legend{display:flex; gap:12px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:.85rem}
+  .swatch{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px}
+  .muted{color:var(--muted)}
+  .note{color:#86efac}
+  .hr{height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent); margin:10px 0}
+  .cols-2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .small{font-size:.82rem}
+  @media (max-width: 980px){
+    .grid{grid-template-columns: 1fr}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Interactive DFT: from Sines in Time → Spectrum in Frequency</h1>
+    <div class="grid">
+      <!-- Controls -->
+      <section class="panel controls" aria-label="Controls">
+        <div class="row" style="justify-content:space-between">
+          <span class="chip" id="status">Ready</span>
+          <button class="btn" id="btnReset" title="Reset to defaults">↺ Reset</button>
+        </div>
+        <div class="hr"></div>
+
+        <label for="N">Number of samples N</label>
+        <div class="row">
+          <input id="N" type="range" min="8" max="512" step="1" value="8" />
+          <input id="Nval" type="number" min="8" max="512" step="1" value="8" />
+        </div>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--accent)"></span> Time signal x[n]</span>
+          <span><span class="swatch" style="background:var(--accent2)"></span> Selected bin k vector sum</span>
+        </div>
+        <div class="hr"></div>
+
+        <h2>Signal: sum of up to three sinusoids</h2>
+        <div id="components" class="stack"></div>
+        <div class="row">
+          <button class="btn primary" id="btnRecompute">Recompute DFT</button>
+          <button class="btn ghost" id="btnRandomize">Randomize phases</button>
+        </div>
+
+        <div class="hr"></div>
+        <h2>DFT Options</h2>
+        <label>Normalization</label>
+        <select id="norm">
+          <option value="amplitude" selected>Amplitude (one-sided): Aₖ = 2|X[k]|/N (k≠0,N/2)</option>
+          <option value="unitary">Unitary: X̂[k] = X[k]/√N</option>
+          <option value="raw">Raw sum: |X[k]|</option>
+        </select>
+        <label>Detailed calculation for bin k</label>
+        <div class="row">
+          <input id="kSelect" type="range" min="0" max="64" step="1" value="1" />
+          <input id="kVal" type="number" min="0" max="64" step="1" value="1" />
+        </div>
+        <p class="small muted">Tip: Click a bar in the spectrum to select k.</p>
+      </section>
+
+      <!-- Visuals & Calculations -->
+      <section class="stack">
+        <div class="panel">
+          <h2>Time domain: samples x[n] over one window (0…N−1)</h2>
+          <canvas id="timeCanvas" aria-label="Time-domain waveform"></canvas>
+        </div>
+
+        <div class="panel">
+          <h2>Frequency domain: amplitude spectrum (one-sided)</h2>
+          <canvas id="freqCanvas" aria-label="Amplitude spectrum"></canvas>
+          <div class="footer"><span class="muted">Bars show Aₖ for k = 0…⌊N/2⌋ (click to inspect)</span><span id="hoverInfo" class="chip">—</span></div>
+        </div>
+
+        <section class="panel" aria-label="Bin k computation — separate ζ views">
+          <h2>Bin k computation — separate ζ views</h2>
+          <p class="small muted">Let ζ = e<sup>−i·2π/N</sup>. We compute X[k] = Σ x[n] ζ<sup>k·n</sup>. Left: directions ζ<sup>k·n</sup> with |x[n]|; Right: cumulative polygon of partial sums with endpoint X[k].</p>
+          <div class="cols-2">
+            <div>
+              <h3>Spokes: ζ<sup>k·n</sup> directions &amp; |x[n]|</h3>
+              <canvas id="spokesCanvas" aria-label="Roots-of-unity spokes scaled by |x[n]|"></canvas>
+            </div>
+            <div>
+              <h3>Polygon (partial sums) &amp; X[k]</h3>
+              <canvas id="polygonCanvas" aria-label="Cumulative phasor polygon"></canvas>
+            </div>
+          </div>
+          <div class="eq" id="calcBox" aria-live="polite" style="margin-top:10px"></div>
+          <details id="tableDetails"><summary>Show first 16 term contributions (n, x[n], cos, −sin, contribution)</summary>
+            <div class="hr"></div>
+            <div style="max-height:220px; overflow:auto">
+              <table class="tbl" id="termsTbl">
+                <thead><tr><th>n</th><th>x[n]</th><th>cos(θ)</th><th>−sin(θ)</th><th>term Re</th><th>term Im</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+          <div class="footer"><span id="done" class="note">Ready.</span><span class="muted">DFT cost ~ O(N²). FFT reduces to O(N log N) via roots-of-unity structure.</span></div>
+        </section>
+
+        <!-- Explanations -->
+        <section class="panel" aria-label="Explanation">
+          <h2>What are these diagrams, and how are they computed?</h2>
+          <p>Build a discrete signal <span class="badge">x[n]</span> as a sum of sinusoids, then see its DFT.</p>
+          <ul class="small">
+            <li><b>Time:</b> x[n] for n=0…N−1.</li>
+            <li><b>Frequency:</b> one-sided amplitude A<sub>k</sub> for k=0…⌊N/2⌋.</li>
+            <li><b>ζ-view:</b> spokes visualize ζ<sup>k·n</sup> and sample magnitudes; polygon is the vector sum whose endpoint is X[k].</li>
+          </ul>
+          <div class="hr"></div>
+          <div class="cols-2 small">
+            <div>
+              <h3>DFT definition & normalization</h3>
+              <div class="eq">X[k] = Σ<sub>n=0</sub><sup>N−1</sup> x[n]·e<sup>−i·2πkn/N</sup>, k=0…N−1</div>
+              <div class="eq">A<sub>k</sub> = |X[0]|/N (k=0); &nbsp; 2|X[k]|/N (1≤k&lt;N/2); &nbsp; |X[N/2]|/N (N even).</div>
+            </div>
+            <div>
+              <h3>Reading the diagrams</h3>
+              <p><b>Spokes:</b> equally spaced unit directions ζ<sup>k·n</sup>; blue lengths ∝ |x[n]|.</p>
+              <p><b>Polygon:</b> tip-to-tail partial sums of x[n]e<sup>−i2πkn/N</sup>; endpoint = X[k]; length = |X[k]|; angle = phase.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="Why complex numbers?">
+          <h2>Why complex numbers in the DFT?</h2>
+          <p>e<sup>iθ</sup>=cosθ+i·sinθ: one complex inner product captures both cosine & sine correlations. Phase is the angle of X[k]; amplitude is |X[k]|.</p>
+          <ul class="small">
+            <li><b>Orthogonality:</b> Σ e<sup>−i2πkn/N</sup>e<sup>i2πℓn/N</sup>=0 for k≠ℓ.</li>
+            <li><b>Real signals:</b> X[N−k]=conj(X[k]) ⇒ mirrored two-sided spectrum.</li>
+          </ul>
+        </section>
+
+        <section class="panel" aria-label="Manual calculation example">
+          <h2>Manual DFT walkthrough (tiny example)</h2>
+          <p>Let N=8 and x[n]=sin(2π·n/8). Then X[1]=−4i, X[7]=+4i, others 0. One-sided amplitude at k=1 is 1.</p>
+          <p><button class="btn" id="btnLoadN8Sine">Load this N=8 sine example</button> (opens terms table).</p>
+        </section>
+
+      </section>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // ---------- Utilities ----------
+  const $ = sel => document.querySelector(sel);
+  const fmt = (x, p=4) => (Math.abs(x) < 1e-12 ? 0 : +x.toFixed(p));
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const TAU = Math.PI * 2;
+
+  // ---------- State (defaults = tiny manual example) ----------
+  let N = 8;
+  let selectedK = 1;
+  let normMode = 'amplitude';
+  let x = new Float64Array(N);
+  let Xre = new Float64Array(N);
+  let Xim = new Float64Array(N);
+  let A1 = new Float64Array(Math.floor(N/2)+1); // one-sided amplitude
+
+  // Up to three sinusoidal components
+  const componentsState = [
+    { enabled:true,  type:'sin', A:1.0, f:1, phase:0, dc:0 },
+    { enabled:false, type:'sin', A:0.0, f:0, phase:0, dc:0 },
+    { enabled:false, type:'cos', A:0.0, f:0, phase:0, dc:0 }
+  ];
+
+  // Canvases & contexts
+  const timeCanvas = $('#timeCanvas');
+  const freqCanvas = $('#freqCanvas');
+  const spokesCanvas = $('#spokesCanvas');
+  const polygonCanvas = $('#polygonCanvas');
+  const tctx = timeCanvas.getContext('2d');
+  const fctx = freqCanvas.getContext('2d');
+  const sctx = spokesCanvas.getContext('2d');
+  const pctx = polygonCanvas.getContext('2d');
+
+  // HiDPI sizing
+  function sizeCanvasToDisplay(canvas){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const needW = Math.max(1, Math.round(rect.width * dpr));
+    const needH = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== needW || canvas.height !== needH){
+      canvas.width = needW;
+      canvas.height = needH;
+    }
+  }
+  function resizeAll(){
+    [timeCanvas, freqCanvas, spokesCanvas, polygonCanvas].forEach(sizeCanvasToDisplay);
+  }
+
+  // ---------- UI Setup ----------
+  function makeComponentRow(i){
+    const c = componentsState[i];
+    const wrap = document.createElement('div');
+    wrap.className = 'panel';
+
+    wrap.innerHTML = `
+      <div class="row" style="align-items:center; justify-content:space-between">
+        <div class="row" style="flex:1">
+          <label style="margin:0"><input type="checkbox" id="c${i}_en" ${c.enabled?'checked':''}/> Enable</label>
+          <select id="c${i}_type" style="max-width:90px">
+            <option value="sin" ${c.type==='sin'?'selected':''}>sin</option>
+            <option value="cos" ${c.type==='cos'?'selected':''}>cos</option>
+          </select>
+        </div>
+        <span class="chip">Component ${i+1}</span>
+      </div>
+      <label>Amplitude A</label>
+      <div class="row">
+        <input type="range" id="c${i}_A" min="0" max="3" step="0.01" value="${c.A}">
+        <input type="number" id="c${i}_A_val" min="0" max="3" step="0.01" value="${c.A}">
+      </div>
+      <label>Frequency f (bin index, cycles per window)</label>
+      <div class="row">
+        <input type="range" id="c${i}_f" min="0" max="${Math.floor(N/2)}" step="1" value="${c.f}">
+        <input type="number" id="c${i}_f_val" min="0" max="${Math.floor(N/2)}" step="1" value="${c.f}">
+      </div>
+      <label>Phase φ (degrees)</label>
+      <div class="row">
+        <input type="range" id="c${i}_p" min="-180" max="180" step="1" value="${(c.phase*180/Math.PI).toFixed(0)}">
+        <input type="number" id="c${i}_p_val" min="-180" max="180" step="1" value="${(c.phase*180/Math.PI).toFixed(0)}">
+      </div>
+      <label>DC offset</label>
+      <div class="row">
+        <input type="range" id="c${i}_dc" min="-2" max="2" step="0.01" value="${c.dc}">
+        <input type="number" id="c${i}_dc_val" min="-2" max="2" step="0.01" value="${c.dc}">
+      </div>
+    `;
+
+    // Wire events
+    const bindPair = (id1,id2, key, map=(v)=>+v, inv=(v)=>v) => {
+      wrap.querySelector('#'+id1).addEventListener('input', e=>{
+        const v = map(e.target.value);
+        c[key] = v;
+        wrap.querySelector('#'+id2).value = inv(v);
+        schedule();
+      });
+      wrap.querySelector('#'+id2).addEventListener('input', e=>{
+        const v = map(e.target.value);
+        c[key] = v;
+        wrap.querySelector('#'+id1).value = inv(v);
+        schedule();
+      });
+    };
+    wrap.querySelector('#c'+i+'_en').addEventListener('change', e=>{ c.enabled = e.target.checked; schedule(); });
+    wrap.querySelector('#c'+i+'_type').addEventListener('change', e=>{ c.type = e.target.value; schedule(); });
+    bindPair('c'+i+'_A','c'+i+'_A_val','A', v=>+v);
+    bindPair('c'+i+'_f','c'+i+'_f_val','f', v=>clamp(+v,0,Math.floor(N/2)));
+    bindPair('c'+i+'_p','c'+i+'_p_val','phase', v=> (+v)*Math.PI/180, v=> Math.round(v*180/Math.PI));
+    bindPair('c'+i+'_dc','c'+i+'_dc_val','dc', v=>+v);
+
+    return wrap;
+  }
+
+  function mountComponents(){
+    const box = $('#components');
+    box.innerHTML = '';
+    componentsState.forEach((_,i)=> box.appendChild(makeComponentRow(i)) );
+  }
+
+  function syncNUI(){
+    $('#N').value = N; $('#Nval').value = N;
+    const maxK = Math.floor(N/2);
+    $('#kSelect').max = maxK; $('#kVal').max = maxK;
+    componentsState.forEach((c,i)=>{
+      const fRange = document.querySelector(`#c${i}_f`);
+      const fVal   = document.querySelector(`#c${i}_f_val`);
+      if(fRange){ fRange.max = maxK; fRange.value = clamp(c.f,0,maxK); }
+      if(fVal){ fVal.max = maxK; fVal.value = clamp(c.f,0,maxK); }
+    });
+  }
+
+  // ---------- Signal & DFT ----------
+  function buildSignal(){
+    x = new Float64Array(N);
+    for(let n=0;n<N;n++){
+      let s = 0;
+      for(const c of componentsState){
+        if(!c.enabled) continue;
+        const theta = TAU * (c.f * n / N) + c.phase;
+        const term = (c.type==='sin' ? Math.sin(theta) : Math.cos(theta));
+        s += c.A * term + c.dc;
+      }
+      x[n] = s;
+    }
+  }
+
+  function computeDFT(){
+    const t0 = performance.now();
+    Xre = new Float64Array(N);
+    Xim = new Float64Array(N);
+
+    for(let k=0;k<N;k++){
+      let re=0, im=0;
+      for(let n=0;n<N;n++){
+        const ang = TAU * k * n / N;
+        re += x[n] * Math.cos(ang);
+        im -= x[n] * Math.sin(ang); // minus for e^{-iθ}
+      }
+      Xre[k]=re; Xim[k]=im;
+    }
+
+    // One-sided amplitude spectrum
+    const Kmax = Math.floor(N/2);
+    A1 = new Float64Array(Kmax+1);
+    for(let k=0;k<=Kmax;k++){
+      const mag = Math.hypot(Xre[k], Xim[k]);
+      if(normMode==='amplitude'){
+        if(k===0 || (N%2===0 && k===N/2)) A1[k] = mag / N;
+        else A1[k] = 2*mag / N;
+      } else if(normMode==='unitary'){
+        A1[k] = mag / Math.sqrt(N);
+      } else {
+        A1[k] = mag; // raw |X[k]|
+      }
+    }
+
+    const t1 = performance.now();
+    $('#status').textContent = `Computed DFT in ${(t1-t0).toFixed(1)} ms`;
+    $('#done').textContent = `Computation finished ✓  (N=${N})`;
+  }
+
+  // ---------- Drawing ----------
+  function clear(ctx){
+    ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height); ctx.restore();
+  }
+  function drawGrid(ctx){
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = Math.max(1, (window.devicePixelRatio||1));
+    for(let i=1;i<10;i++){
+      const y = (h*i)/10; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawTime(){
+    resizeAll();
+    const ctx = tctx; clear(ctx); drawGrid(ctx);
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+
+    // y-scale based on data range
+    let min=Infinity, max=-Infinity;
+    for(const v of x){ if(v<min) min=v; if(v>max) max=v; }
+    if(min===max){ min-=1; max+=1; }
+    const pad = 0.1*(max-min); min-=pad; max+=pad;
+
+    // zero line
+    ctx.save();
+    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=Math.max(1,(window.devicePixelRatio||1));
+    const y0 = h - (0 - min) * h / (max - min);
+    ctx.beginPath(); ctx.moveTo(0,y0); ctx.lineTo(w,y0); ctx.stroke();
+
+    // polyline through samples
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+    ctx.lineWidth = Math.max(2,(window.devicePixelRatio||1));
+    ctx.beginPath();
+    for(let n=0;n<N;n++){
+      const xpix = n*(w/(N-1||1));
+      const ypix = h - (x[n]-min)*h/(max-min);
+      if(n===0) ctx.moveTo(xpix, ypix); else ctx.lineTo(xpix, ypix);
+    }
+    ctx.stroke();
+
+    // sparse dots
+    ctx.fillStyle = 'white';
+    const step = Math.max(1, Math.floor(N/64));
+    for(let n=0;n<N; n+=step){
+      const xpix = n*(w/(N-1||1));
+      const ypix = h - (x[n]-min)*h/(max-min);
+      ctx.beginPath(); ctx.arc(xpix, ypix, 2*(window.devicePixelRatio||1), 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawSpectrum(){
+    resizeAll();
+    const ctx = fctx; clear(ctx); drawGrid(ctx);
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+    const Kmax = Math.floor(N/2);
+    const barW = w/(Kmax+1 || 1);
+
+    let ymax = 0; for(let k=0;k<=Kmax;k++) ymax = Math.max(ymax, A1[k]);
+    if(ymax<=0) ymax = 1;
+
+    ctx.save();
+    // baseline
+    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=Math.max(1,(window.devicePixelRatio||1));
+    ctx.beginPath(); ctx.moveTo(0,h-1); ctx.lineTo(w,h-1); ctx.stroke();
+
+    // bars
+    for(let k=0;k<=Kmax;k++){
+      const val = A1[k];
+      const bh = (val / ymax) * (h-12);
+      const x0 = k*barW + 2;
+      ctx.fillStyle = (k===selectedK) ? '#60a5fa' : '#38bdf8';
+      ctx.fillRect(x0, h-bh-1, Math.max(1, barW-4), bh);
+    }
+
+    // x labels (sparse)
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = `${12*(window.devicePixelRatio||1)}px system-ui, sans-serif`;
+    const tickStep = Math.max(1, Math.ceil((Kmax+1)/16));
+    for(let k=0;k<=Kmax;k+= tickStep){
+      ctx.fillText(String(k), k*barW+4, h-4);
+    }
+    ctx.restore();
+  }
+
+  // --- Spokes (roots-of-unity) ---
+  function drawSpokesForK(k){
+    resizeAll();
+    const ctx = sctx; clear(ctx); drawGrid(ctx);
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+
+    // center & radius
+    const ox = w/2, oy = h/2;
+    const r = 0.42 * Math.min(w,h);
+
+    // unit circle
+    ctx.save();
+    ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=Math.max(1,(window.devicePixelRatio||1));
+    ctx.beginPath(); ctx.arc(ox, oy, r, 0, TAU); ctx.stroke();
+
+    // scale factor for |x[n]|
+    let maxAbs = 0; for(const v of x){ const a=Math.abs(v); if(a>maxAbs) maxAbs=a; }
+
+    // direction spokes (gold), every step for readability
+    const step = Math.max(1, Math.floor(N/64));
+    for(let n=0;n<N;n+=step){
+      const ang = TAU*k*n/N;
+      const ux = Math.cos(ang), uy = -Math.sin(ang);
+      ctx.strokeStyle = 'rgba(253, 230, 138, 0.7)';  // amber-ish
+      ctx.lineWidth = Math.max(1.25,(window.devicePixelRatio||1));
+      ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + r*ux, oy + r*uy); ctx.stroke();
+    }
+
+    // magnitude spokes (blue), length ∝ |x[n]|
+    for(let n=0;n<N;n+=step){
+      const ang = TAU*k*n/N; const ux = Math.cos(ang), uy = -Math.sin(ang);
+      const len = (maxAbs>0 ? Math.abs(x[n])/maxAbs : 0) * r;
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.9)';   // blue-ish
+      ctx.lineWidth = Math.max(2,(window.devicePixelRatio||1));
+      ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + len*ux, oy + len*uy); ctx.stroke();
+    }
+
+    // label origin
+    ctx.fillStyle='rgba(255,255,255,0.6)';
+    ctx.beginPath(); ctx.arc(ox, oy, 3*(window.devicePixelRatio||1), 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+
+  // --- Polygon (partial sums) ---
+  function drawPolygonForK(k){
+    resizeAll();
+    const ctx = pctx; clear(ctx); drawGrid(ctx);
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+
+    // compute cumulative sums
+    let re=0, im=0;
+    const pts=[];
+    let xmax=0, xmin=0, ymax=0, ymin=0;
+    for(let n=0;n<N;n++){
+      const ang = TAU*k*n/N;
+      const tr = x[n]*Math.cos(ang);
+      const ti = -x[n]*Math.sin(ang);
+      re += tr; im += ti; pts.push([re, im]);
+      if(re>xmax) xmax=re; if(re<xmin) xmin=re; if(im>ymax) ymax=im; if(im<ymin) ymin=im;
+    }
+
+    // map to canvas with padding
+    const pad=0.15; const dx=(xmax-xmin)||1, dy=(ymax-ymin)||1;
+    const mapX = v => (v - xmin)/dx * (w*(1-2*pad)) + w*pad;
+    const mapY = v => h - ((v - ymin)/dy * (h*(1-2*pad)) + h*pad);
+
+    const ox = mapX(0), oy = mapY(0);
+
+    // axes
+    ctx.save();
+    ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=Math.max(1,(window.devicePixelRatio||1));
+    ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(w,oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox,h); ctx.stroke();
+
+    // polygon path
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent2');
+    ctx.lineWidth = Math.max(2,(window.devicePixelRatio||1));
+    ctx.beginPath();
+    pts.forEach(([xr,xi],i)=>{ const X=mapX(xr), Y=mapY(xi); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+    ctx.stroke();
+
+    // endpoint arrow from origin
+    const Xf = mapX(re), Yf = mapY(im);
+    ctx.strokeStyle = '#f472b6'; ctx.lineWidth = Math.max(2,(window.devicePixelRatio||1));
+    ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(Xf, Yf); ctx.stroke();
+    ctx.fillStyle = '#f472b6'; ctx.beginPath(); ctx.arc(Xf, Yf, 4*(window.devicePixelRatio||1), 0, TAU); ctx.fill();
+
+    ctx.restore();
+  }
+
+  // ---------- Calculations UI ----------
+  function updateCalcBox(k){
+    const re = Xre[k], im = Xim[k];
+    const mag = Math.hypot(re,im);
+    const phase = Math.atan2(im,re);
+    let A;
+    if(normMode==='amplitude'){
+      if(k===0 || (N%2===0 && k===N/2)) A = mag/N; else A = 2*mag/N;
+    } else if(normMode==='unitary'){
+      A = mag/Math.sqrt(N);
+    } else {
+      A = mag;
+    }
+
+    const html = `
+      <div>Selected bin: <span class="badge">k = ${k}</span> of N = ${N}</div>
+      <div style="margin:.3rem 0">X[k] = Σ x[n]·e<sup>−i2πkn/N</sup></div>
+      <div>Re(X[k]) = ${fmt(re)}, &nbsp; Im(X[k]) = ${fmt(im)}</div>
+      <div>|X[k]| = ${fmt(mag)}, &nbsp; ∠X[k] = ${fmt(phase)} rad</div>
+      <div>Displayed value (${normMode}): <b>${fmt(A)}</b></div>
+    `;
+    $('#calcBox').innerHTML = html;
+
+    // Terms table (first 16 rows)
+    const tb = $('#termsTbl tbody'); tb.innerHTML='';
+    const rows = Math.min(16, N);
+    for(let n=0;n<rows;n++){
+      const theta = TAU*k*n/N;
+      const c = Math.cos(theta), s = Math.sin(theta);
+      const tr = x[n]*c, ti = -x[n]*s;
+      const trEl = `<tr><td>${n}</td><td>${fmt(x[n])}</td><td>${fmt(c)}</td><td>${fmt(-s)}</td><td>${fmt(tr)}</td><td>${fmt(ti)}</td></tr>`;
+      tb.insertAdjacentHTML('beforeend', trEl);
+    }
+  }
+
+  // ---------- Interaction & recompute ----------
+  function recomputeAll(){
+    $('#status').textContent = 'Computing…';
+    buildSignal();
+    computeDFT();
+    drawTime();
+    drawSpectrum();
+    drawSpokesForK(selectedK);
+    drawPolygonForK(selectedK);
+    updateCalcBox(selectedK);
+  }
+
+  let timer=null; function schedule(){
+    clearTimeout(timer);
+    timer = setTimeout(()=>{ recomputeAll(); }, 50);
+  }
+
+  function initUI(){
+    // N binding
+    $('#N').addEventListener('input', e=>{ N = +e.target.value; syncNUI(); schedule(); });
+    $('#Nval').addEventListener('input', e=>{ N = +e.target.value; syncNUI(); schedule(); });
+
+    // k binding
+    const bindK = v=>{
+      selectedK = clamp(+v,0,Math.floor(N/2));
+      $('#kSelect').value = selectedK; $('#kVal').value = selectedK;
+      drawSpokesForK(selectedK);
+      drawPolygonForK(selectedK);
+      updateCalcBox(selectedK);
+      drawSpectrum();
+    };
+    $('#kSelect').addEventListener('input', e=> bindK(e.target.value));
+    $('#kVal').addEventListener('input', e=> bindK(e.target.value));
+
+    // norm mode
+    $('#norm').addEventListener('change', e=>{ normMode = e.target.value; schedule(); });
+
+    // Buttons
+    $('#btnRecompute').addEventListener('click', ()=> recomputeAll());
+    $('#btnRandomize').addEventListener('click', ()=>{
+      componentsState.forEach(c=>{ c.phase = (Math.random()*360-180)*Math.PI/180; });
+      mountComponents(); syncNUI(); schedule();
+    });
+    $('#btnReset').addEventListener('click', ()=>{
+      N=8; selectedK=1; normMode='amplitude';
+      componentsState[0] = { enabled:true, type:'sin', A:1.0, f:1, phase:0, dc:0 };
+      componentsState[1] = { enabled:false, type:'sin', A:0, f:0, phase:0, dc:0 };
+      componentsState[2] = { enabled:false, type:'cos', A:0, f:0, phase:0, dc:0 };
+      mountComponents(); syncNUI(); schedule();
+      const details = document.getElementById('tableDetails'); if(details) details.open = true;
+    });
+
+    // Spectrum hover/click -> select k
+    freqCanvas.addEventListener('mousemove', e=>{
+      const rect = freqCanvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const xpix = (e.clientX - rect.left) * dpr;
+      const Kmax = Math.floor(N/2);
+      const barW = fctx.canvas.width/(Kmax+1 || 1);
+      let k = Math.floor(xpix / barW);
+      k = clamp(k,0,Kmax);
+      $('#hoverInfo').textContent = `k=${k}, value=${fmt(A1[k])}`;
+    });
+    freqCanvas.addEventListener('mouseleave', ()=> $('#hoverInfo').textContent='—');
+    freqCanvas.addEventListener('click', e=>{
+      const rect = freqCanvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const xpix = (e.clientX - rect.left) * dpr;
+      const Kmax = Math.floor(N/2);
+      const barW = fctx.canvas.width/(Kmax+1 || 1);
+      let k = Math.floor(xpix / barW);
+      k = clamp(k,0,Kmax);
+      selectedK = k; $('#kSelect').value = k; $('#kVal').value = k;
+      drawSpokesForK(k); drawPolygonForK(k); updateCalcBox(k); drawSpectrum();
+    });
+
+    // Example button
+    const btnExample = document.getElementById('btnLoadN8Sine');
+    if(btnExample){
+      btnExample.addEventListener('click', ()=>{
+        N = 8; normMode = 'amplitude'; selectedK = 1;
+        componentsState[0] = { enabled:true, type:'sin', A:1.0, f:1, phase:0, dc:0 };
+        componentsState[1] = { enabled:false, type:'sin', A:0, f:0, phase:0, dc:0 };
+        componentsState[2] = { enabled:false, type:'cos', A:0, f:0, phase:0, dc:0 };
+        mountComponents(); syncNUI(); recomputeAll();
+        const details = document.getElementById('tableDetails'); if(details) details.open = true;
+      });
+    }
+  }
+
+  // ---------- Init ----------
+  function init(){
+    resizeAll();
+    mountComponents();
+    syncNUI();
+    initUI();
+    recomputeAll();
+    const details = document.getElementById('tableDetails'); if(details) details.open = true;
+  }
+
+  window.addEventListener('resize', ()=>{ resizeAll(); schedule(); }, {passive:true});
+
+  init();
+})();
+</script>
+</body>
+</html>
