@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cell Mutation Fractal</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    #container {
+      background: white;
+      padding: 1rem 1.5rem 1.25rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    #instructions {
+      font-size: 0.9rem;
+      max-width: 540px;
+      text-align: center;
+      color: #444;
+    }
+
+    canvas {
+      border: 1px solid #444;
+      border-radius: 0.25rem;
+      touch-action: none;
+      background: #ffffff;
+    }
+
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      width: 100%;
+      max-width: 540px;
+    }
+
+    #controls label {
+      white-space: nowrap;
+    }
+
+    #stageLabel {
+      font-weight: 600;
+      min-width: 4.5rem;
+      text-align: center;
+    }
+
+    #stageSlider {
+      flex: 1;
+    }
+
+    button {
+      border-radius: 999px;
+      border: 1px solid #444;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.85rem;
+      background: #ffffff;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    button:hover {
+      background: #f0f0f0;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    #hint {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    #counts {
+      font-size: 0.85rem;
+      color: #333;
+      margin-top: 0.25rem;
+    }
+
+    #counts span {
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Modelling Cell Mutations</h1>
+    <div id="instructions">
+      Stage 0 is a <strong>3 &times; 3</strong> grid. Click the squares to shade/unshade them.
+      Then move the slider to see how your pattern mutates and how many cells are black/white.
+    </div>
+
+    <canvas id="gridCanvas" width="540" height="540"></canvas>
+
+    <div id="controls">
+      <label for="stageSlider">Mutation stage:</label>
+      <input id="stageSlider" type="range" min="0" max="4" value="0" />
+      <span id="stageLabel">Stage 0</span>
+      <button id="resetBtn" type="button">Reset pattern</button>
+    </div>
+
+    <div id="counts">
+      <span>Black:</span> <span id="blackCount">0</span> |
+      <span>White:</span> <span id="whiteCount">0</span> |
+      <span>Total:</span> <span id="totalCount">0</span>
+    </div>
+
+    <div id="hint">
+      • Stage 0 is editable (click to colour).<br>
+      • Stages 1–4 show the mutations of your Stage 0 pattern.
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gridCanvas');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('stageSlider');
+    const stageLabel = document.getElementById('stageLabel');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const blackCountEl = document.getElementById('blackCount');
+    const whiteCountEl = document.getElementById('whiteCount');
+    const totalCountEl = document.getElementById('totalCount');
+
+    const MAX_STAGE = parseInt(slider.max, 10);
+
+    // Base 3×3 pattern (Stage 0): centre shaded
+    let basePattern = [
+      [0, 0, 0],
+      [0, 1, 0],
+      [0, 0, 0]
+    ];
+
+    let grids = [];
+    let currentStage = 0;
+
+    function copyGrid(grid) {
+      return grid.map(row => row.slice());
+    }
+
+    // Mutation rule
+    function mutate(prevGrid, template) {
+      const n = prevGrid.length;
+      const newSize = n * 3;
+      const next = Array.from({ length: newSize }, () =>
+        Array(newSize).fill(0)
+      );
+
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          const isBlack = prevGrid[i][j] === 1;
+          for (let di = 0; di < 3; di++) {
+            for (let dj = 0; dj < 3; dj++) {
+              const ni = i * 3 + di;
+              const nj = j * 3 + dj;
+              next[ni][nj] = isBlack ? 1 : template[di][dj];
+            }
+          }
+        }
+      }
+      return next;
+    }
+
+    function rebuildGrids() {
+      grids = [];
+      grids[0] = copyGrid(basePattern);
+      for (let s = 1; s <= MAX_STAGE; s++) {
+        grids[s] = mutate(grids[s - 1], basePattern);
+      }
+    }
+
+    function countCells(grid) {
+      let black = 0;
+      let white = 0;
+      for (let i = 0; i < grid.length; i++) {
+        for (let j = 0; j < grid[i].length; j++) {
+          if (grid[i][j] === 1) {
+            black++;
+          } else {
+            white++;
+          }
+        }
+      }
+      return { black, white, total: black + white };
+    }
+
+    function drawStage(stage) {
+      const grid = grids[stage];
+      const n = grid.length;
+      const cellSize = canvas.width / n;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#cccccc';
+
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          const x = j * cellSize;
+          const y = i * cellSize;
+
+          if (grid[i][j] === 1) {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x, y, cellSize, cellSize);
+          }
+          ctx.strokeRect(x, y, cellSize, cellSize);
+        }
+      }
+
+      stageLabel.textContent = 'Stage ' + stage;
+
+      // Update counts
+      const { black, white, total } = countCells(grid);
+      blackCountEl.textContent = black;
+      whiteCountEl.textContent = white;
+      totalCountEl.textContent = total;
+    }
+
+    // Handle clicks on Stage 0
+    canvas.addEventListener('click', (event) => {
+      if (currentStage !== 0) return; // only editable at Stage 0
+
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      const n = 3; // Stage 0 is 3×3
+      const cellSize = canvas.width / n;
+      const j = Math.floor(x / cellSize);
+      const i = Math.floor(y / cellSize);
+
+      if (i >= 0 && i < n && j >= 0 && j < n) {
+        basePattern[i][j] = basePattern[i][j] ? 0 : 1; // toggle
+        rebuildGrids();
+        drawStage(0);
+      }
+    });
+
+    // Slider control
+    slider.addEventListener('input', (event) => {
+      currentStage = parseInt(event.target.value, 10);
+      drawStage(currentStage);
+    });
+
+    // Reset pattern
+    resetBtn.addEventListener('click', () => {
+      basePattern = [
+        [0, 0, 0],
+        [0, 1, 0],
+        [0, 0, 0]
+      ];
+      slider.value = 0;
+      currentStage = 0;
+      rebuildGrids();
+      drawStage(0);
+    });
+
+    // Initial render
+    rebuildGrids();
+    drawStage(0);
+  </script>
+</body>
+</html>
