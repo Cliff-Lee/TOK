@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quadrilateral Reflection & Translation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #controls {
+      margin-bottom: 10px;
+    }
+    #controls label {
+      margin-right: 20px;
+    }
+    #grid {
+      border: 1px solid #333;
+      display: block;
+      margin-bottom: 15px;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 4px 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    th {
+      background-color: #eee;
+    }
+    #instructions {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+    button {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Quadrilateral Reflection & Translation Explorer</h2>
+
+  <div id="instructions">
+    1. Click on the grid to create 4 points A, B, C, D (in order) – this makes your quadrilateral.<br>
+    2. After the 4th point, clicking again will move the <b>nearest vertex</b>, so you can adjust the shape
+       (e.g. make a square, rectangle, parallelogram).<br>
+    3. Use the slider to choose translation distance <em>a</em> (right).<br>
+    4. Choose how many times to repeat: reflect over x-axis + translate right by <em>a</em>.<br>
+    5. The table shows coordinates of all vertices at each stage.
+  </div>
+
+  <div id="controls">
+    <label>
+      Translation distance a:
+      <input type="range" id="aSlider" min="1" max="6" value="3" step="1">
+      <span id="aValue">3</span> units
+    </label>
+
+    <label>
+      Number of transformations:
+      <input type="range" id="stepSlider" min="1" max="4" value="3" step="1">
+      <span id="stepValue">3</span>
+    </label>
+
+    <button id="resetBtn">Reset points</button>
+  </div>
+
+  <canvas id="grid" width="900" height="450"></canvas>
+
+  <div id="table-container"></div>
+
+  <script>
+    const canvas = document.getElementById("grid");
+    const ctx = canvas.getContext("2d");
+
+    const aSlider = document.getElementById("aSlider");
+    const aValue = document.getElementById("aValue");
+    const stepSlider = document.getElementById("stepSlider");
+    const stepValue = document.getElementById("stepValue");
+    const resetBtn = document.getElementById("resetBtn");
+    const tableContainer = document.getElementById("table-container");
+
+    // Grid window
+    const minX = -10, maxX = 24;
+    const minY = -7,  maxY = 7;
+
+    let originalPoints = []; // {x,y}
+
+    const labels = ["A", "B", "C", "D"];
+
+    function coordToPixel(x, y) {
+      const px = (x - minX) / (maxX - minX) * canvas.width;
+      const py = canvas.height - (y - minY) / (maxY - minY) * canvas.height;
+      return { x: px, y: py };
+    }
+
+    function pixelToCoord(px, py) {
+      const gx = minX + (px / canvas.width) * (maxX - minX);
+      const gy = minY + ((canvas.height - py) / canvas.height) * (maxY - minY);
+      return { x: Math.round(gx), y: Math.round(gy) }; // snap to integers
+    }
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // grid lines
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "#ddd";
+
+      for (let x = Math.ceil(minX); x <= maxX; x++) {
+        const p1 = coordToPixel(x, minY);
+        const p2 = coordToPixel(x, maxY);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+
+      for (let y = Math.ceil(minY); y <= maxY; y++) {
+        const p1 = coordToPixel(minX, y);
+        const p2 = coordToPixel(maxX, y);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+
+      // axes
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#000";
+
+      // x-axis
+      const x1 = coordToPixel(minX, 0);
+      const x2 = coordToPixel(maxX, 0);
+      ctx.beginPath();
+      ctx.moveTo(x1.x, x1.y);
+      ctx.lineTo(x2.x, x2.y);
+      ctx.stroke();
+
+      // y-axis
+      const y1 = coordToPixel(0, minY);
+      const y2 = coordToPixel(0, maxY);
+      ctx.beginPath();
+      ctx.moveTo(y1.x, y1.y);
+      ctx.lineTo(y2.x, y2.y);
+      ctx.stroke();
+
+      // axis labels
+      ctx.font = "14px Arial";
+      ctx.fillText("x axis", coordToPixel(maxX - 1, -0.3).x, coordToPixel(maxX - 1, -0.3).y);
+      ctx.fillText("y axis", coordToPixel(0.3, maxY - 1).x, coordToPixel(0.3, maxY - 1).y);
+    }
+
+    function drawPolygon(points, color) {
+      if (points.length < 2) return;
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const first = coordToPixel(points[0].x, points[0].y);
+      ctx.moveTo(first.x, first.y);
+
+      for (let i = 1; i < points.length; i++) {
+        const p = coordToPixel(points[i].x, points[i].y);
+        ctx.lineTo(p.x, p.y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
+      // vertices + labels
+      ctx.fillStyle = color;
+      ctx.font = "14px Arial";
+      points.forEach((pt, idx) => {
+        const p = coordToPixel(pt.x, pt.y);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+        // label slightly above/right
+        ctx.fillText(labels[idx], p.x + 6, p.y - 6);
+      });
+    }
+
+    function getTransformData() {
+      if (originalPoints.length < 4) return [];
+
+      const a = parseInt(aSlider.value, 10);
+      const steps = parseInt(stepSlider.value, 10);
+
+      const data = [];
+      let current = originalPoints.map(p => ({ x: p.x, y: p.y }));
+
+      data.push({ points: current });
+
+      for (let s = 1; s <= steps; s++) {
+        current = current.map(p => ({
+          x: p.x + a,
+          y: -p.y
+        }));
+        data.push({ points: current });
+      }
+      return data;
+    }
+
+    function buildTable(transformData) {
+      if (originalPoints.length < 4) {
+        tableContainer.innerHTML = "<p>Click four points on the grid to create the original quadrilateral.</p>";
+        return;
+      }
+
+      let html = "<table><thead><tr><th>Stage</th>";
+      for (const label of labels) {
+        html += `<th>${label} (x, y)</th>`;
+      }
+      html += "</tr></thead><tbody>";
+
+      transformData.forEach((stage, idx) => {
+        html += "<tr>";
+        html += `<td>${idx === 0 ? "Original" : idx}</td>`;
+        stage.points.forEach((pt, j) => {
+          html += `<td>${labels[j]} = (${pt.x}, ${pt.y})</td>`;
+        });
+        html += "</tr>";
+      });
+
+      html += "</tbody></table>";
+      tableContainer.innerHTML = html;
+    }
+
+    function update() {
+      aValue.textContent = aSlider.value;
+      stepValue.textContent = stepSlider.value;
+
+      drawGrid();
+
+      if (originalPoints.length === 0) {
+        buildTable([]);
+        return;
+      }
+
+      const transformData = getTransformData();
+      const colors = ["#0074D9", "#FF4136", "#2ECC40", "#FF851B", "#B10DC9"];
+
+      transformData.forEach((stage, idx) => {
+        const color = colors[idx % colors.length];
+        drawPolygon(stage.points, color);
+      });
+
+      buildTable(transformData);
+    }
+
+    // Find nearest vertex (in pixels) to a click
+    function findNearestVertex(px, py) {
+      if (originalPoints.length === 0) return -1;
+      let bestIndex = 0;
+      let bestDist = Infinity;
+      originalPoints.forEach((pt, idx) => {
+        const p = coordToPixel(pt.x, pt.y);
+        const dx = p.x - px;
+        const dy = p.y - py;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < bestDist) {
+          bestDist = d2;
+          bestIndex = idx;
+        }
+      });
+      return bestIndex;
+    }
+
+    canvas.addEventListener("click", (evt) => {
+      const rect = canvas.getBoundingClientRect();
+      const px = evt.clientX - rect.left;
+      const py = evt.clientY - rect.top;
+
+      const coord = pixelToCoord(px, py);
+
+      if (originalPoints.length < 4) {
+        // add new vertex
+        originalPoints.push({ x: coord.x, y: coord.y });
+      } else {
+        // move nearest vertex
+        const idx = findNearestVertex(px, py);
+        originalPoints[idx] = { x: coord.x, y: coord.y };
+      }
+      update();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      originalPoints = [];
+      update();
+    });
+
+    aSlider.addEventListener("input", update);
+    stepSlider.addEventListener("input", update);
+
+    // initial draw
+    update();
+  </script>
+</body>
+</html>
