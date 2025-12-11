@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Times-Table Circle Patterns</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 1rem 1.5rem 2rem;
+      background: #f5f5f7;
+      color: #222;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.25rem;
+    }
+    p {
+      margin: 0.25rem 0;
+    }
+    .app {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      padding: 1rem 1.5rem 1.5rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+      align-items: flex-end;
+      margin-bottom: 0.75rem;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      min-width: 120px;
+    }
+    .field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+    }
+    .field input {
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: #0070f3;
+      box-shadow: 0 0 0 2px rgba(0,112,243,0.18);
+    }
+    button {
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #0070f3;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,112,243,0.35);
+      transition: transform 0.05s ease-out, box-shadow 0.05s ease-out;
+      white-space: nowrap;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,112,243,0.4);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 7px rgba(0,112,243,0.35);
+    }
+    #canvas-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0.75rem 0 0.5rem;
+    }
+    canvas {
+      background: white;
+      border-radius: 50%;
+      max-width: 100%;
+      height: auto;
+    }
+    #error {
+      min-height: 1.1rem;
+      font-size: 0.85rem;
+      color: #c0392b;
+      margin-top: 0.2rem;
+    }
+    #mapping-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    #mapping {
+      font-family: "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin-top: 0.15rem;
+      max-height: 10rem;
+      overflow-y: auto;
+      padding: 0.4rem 0.5rem;
+      border-radius: 0.5rem;
+      background: #fafafa;
+      border: 1px solid #eee;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.2rem;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>Circle Pattern from an Equation</h1>
+  <p class="hint">
+    Points are numbered \(1,2,\dots,N\) around the circle. For each \(n\),
+    we draw a line from \(n\) to <code>f(n)</code>, where
+    <code>f(n)</code> is your expression, taken modulo \(N\).
+  </p>
+
+  <div class="controls">
+    <div class="field">
+      <label for="points">Number of points \(N\)</label>
+      <input id="points" type="number" min="3" max="360" value="60">
+    </div>
+
+    <div class="field" style="flex:1 1 220px;">
+      <label for="expression">Mapping: f(n) =</label>
+      <input id="expression" type="text" value="2*n">
+      <div class="hint">
+        Examples: <code>2*n</code>, <code>3*n</code>, <code>n+7</code>, <code>3*n+1</code>.
+      </div>
+    </div>
+
+    <button id="draw-btn">Draw pattern</button>
+  </div>
+
+  <div id="error"></div>
+
+  <div id="canvas-wrapper">
+    <canvas id="pattern" width="600" height="600"></canvas>
+  </div>
+
+  <div id="mapping-title">Mapping table (after modulo \(N\)):</div>
+  <div id="mapping"></div>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('pattern');
+  const ctx = canvas.getContext('2d');
+  const pointsInput = document.getElementById('points');
+  const exprInput = document.getElementById('expression');
+  const drawBtn = document.getElementById('draw-btn');
+  const errorBox = document.getElementById('error');
+  const mappingBox = document.getElementById('mapping');
+
+  function showError(msg) {
+    errorBox.textContent = msg || '';
+  }
+
+  function drawPattern() {
+    const N = parseInt(pointsInput.value, 10);
+    const expr = exprInput.value.trim();
+
+    showError('');
+    mappingBox.textContent = '';
+
+    if (!Number.isFinite(N) || N < 3) {
+      showError('Please choose N ≥ 3.');
+      return;
+    }
+    if (!expr) {
+      showError('Please type an expression in n, e.g. 2*n.');
+      return;
+    }
+
+    // Build f(n) safely-ish (still only for classroom/local use).
+    let f;
+    try {
+      f = new Function('n', 'return ' + expr + ';');
+    } catch (e) {
+      showError('Check your expression: ' + e.message);
+      return;
+    }
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const padding = 50;
+    const R = Math.min(w, h) / 2 - padding;
+
+    // Precompute point positions
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const angle = 2 * Math.PI * i / N - Math.PI / 2; // start at top
+      const x = cx + R * Math.cos(angle);
+      const y = cy + R * Math.sin(angle);
+      pts.push({ x, y, angle });
+    }
+
+    // Draw circle
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#444';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Draw ticks and labels
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#000';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 0.7;
+
+    for (let i = 0; i < N; i++) {
+      const p = pts[i];
+      const innerR = R - 6;
+      const outerR = R + 6;
+      const ax = cx + innerR * Math.cos(p.angle);
+      const ay = cy + innerR * Math.sin(p.angle);
+      const bx = cx + outerR * Math.cos(p.angle);
+      const by = cy + outerR * Math.sin(p.angle);
+
+      // tick
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+
+      // label slightly outside
+      const labelR = R + 16;
+      const lx = cx + labelR * Math.cos(p.angle);
+      const ly = cy + labelR * Math.sin(p.angle);
+      ctx.fillText(String(i + 1), lx, ly);
+    }
+
+    // Draw mapping lines and build mapping text
+    ctx.strokeStyle = '#c23b22';
+    ctx.lineWidth = 1.2;
+    const mappings = [];
+
+    for (let n = 1; n <= N; n++) {
+      let t;
+      try {
+        t = f(n);
+      } catch (e) {
+        showError('Problem evaluating at n = ' + n + ': ' + e.message);
+        return;
+      }
+
+      if (!Number.isFinite(t)) {
+        showError('Expression produced a non-finite value at n = ' + n + '.');
+        return;
+      }
+
+      // Force integer and wrap into 1..N
+      const rounded = Math.round(t);
+      const m = ((rounded - 1) % N + N) % N + 1;
+
+      const a = pts[n - 1];
+      const b = pts[m - 1];
+
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+
+      mappings.push(n + ' → ' + m);
+    }
+
+    mappingBox.textContent = mappings.join(', ');
+  }
+
+  drawBtn.addEventListener('click', drawPattern);
+
+  // Pressing Enter in the expression box also redraws
+  exprInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      drawPattern();
+    }
+  });
+  pointsInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      drawPattern();
+    }
+  });
+
+  // Initial drawing
+  drawPattern();
+})();
+</script>
+</body>
+</html>
