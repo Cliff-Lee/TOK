@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arcs & Chords Explorer (Theorems 10.3–10.6)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a33;
+      --panel2:#0c162c;
+      --text:#e9eefc;
+      --muted:#b8c3e6;
+      --accent:#7dd3fc;
+      --accent2:#a7f3d0;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --good:#34d399;
+      --line:#20325f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 20% 5%, #12214b 0%, var(--bg) 55%, #070b14 100%);
+      color:var(--text);
+    }
+    header{
+      padding:18px 18px 10px 18px;
+      display:flex;
+      align-items:flex-end;
+      gap:14px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    header h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+      font-weight:700;
+    }
+    header .sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:1px;
+    }
+
+    .wrap{
+      display:grid;
+      grid-template-columns: 240px 1fr;
+      min-height: calc(100vh - 54px);
+    }
+
+    nav{
+      padding:14px;
+      border-right:1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(180deg, rgba(15,26,51,0.65), rgba(15,26,51,0.25));
+    }
+    .modeBtn{
+      width:100%;
+      text-align:left;
+      padding:10px 10px;
+      margin:0 0 10px 0;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(12,22,44,0.8);
+      color:var(--text);
+      cursor:pointer;
+      transition: transform .06s ease, border-color .12s ease, background .12s ease;
+    }
+    .modeBtn:hover{ transform: translateY(-1px); border-color: rgba(125,211,252,0.45); }
+    .modeBtn.active{
+      border-color: rgba(125,211,252,0.7);
+      background: rgba(14,29,60,0.95);
+      box-shadow: 0 0 0 2px rgba(125,211,252,0.15) inset;
+    }
+    .modeBtn .t{
+      display:block;
+      font-weight:700;
+      font-size:13px;
+      margin-bottom:2px;
+    }
+    .modeBtn .d{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.25;
+    }
+
+    main{
+      display:grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap:14px;
+      padding:14px;
+      align-items:stretch;
+    }
+
+    .card{
+      background: rgba(15,26,51,0.65);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .canvasCard{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      min-height: 520px;
+    }
+    .canvasTopbar{
+      padding:10px 12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      background: rgba(12,22,44,0.55);
+    }
+    .chip{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.12);
+      color:var(--muted);
+      background: rgba(9,16,32,0.35);
+      user-select:none;
+    }
+    .chip strong{ color:var(--text); font-weight:700; }
+
+    .canvasArea{
+      flex:1;
+      position:relative;
+    }
+    canvas{
+      width:100%;
+      height:100%;
+      display:block;
+      background: radial-gradient(1200px 700px at 40% 35%, rgba(125,211,252,0.07), rgba(0,0,0,0) 55%),
+                  radial-gradient(900px 500px at 70% 85%, rgba(167,243,208,0.05), rgba(0,0,0,0) 55%),
+                  rgba(9,16,32,0.25);
+    }
+
+    .panel{
+      display:flex;
+      flex-direction:column;
+    }
+    .panelHeader{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      background: rgba(12,22,44,0.55);
+    }
+    .panelHeader h2{
+      margin:0;
+      font-size:16px;
+      font-weight:800;
+    }
+    .panelHeader p{
+      margin:6px 0 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .panelBody{ padding:12px 14px; display:flex; flex-direction:column; gap:12px; }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    button.small{
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(12,22,44,0.75);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:12px;
+      cursor:pointer;
+    }
+    button.small:hover{ border-color: rgba(125,211,252,0.55); }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:var(--muted);
+      user-select:none;
+    }
+    .toggle input{ accent-color: var(--accent); }
+
+    .box{
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(9,16,32,0.30);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    .box h3{
+      margin:0 0 6px 0;
+      font-size:13px;
+      font-weight:800;
+    }
+    .box ul{
+      margin:0;
+      padding-left:16px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+    .box li{ margin:4px 0; }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    td{
+      padding:7px 6px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      color:var(--muted);
+      vertical-align:top;
+    }
+    td.k{ width:55%; }
+    td.v{ text-align:right; color:var(--text); font-variant-numeric: tabular-nums; }
+    .status{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,0.25);
+      box-shadow:0 0 0 2px rgba(0,0,0,0.25) inset;
+    }
+    .dot.good{ background: rgba(52,211,153,0.95); }
+    .dot.bad{ background: rgba(251,113,133,0.95); }
+    .dot.warn{ background: rgba(251,191,36,0.95); }
+
+    details{
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(9,16,32,0.30);
+      border-radius:14px;
+      padding:8px 12px;
+    }
+    summary{
+      cursor:pointer;
+      color:var(--text);
+      font-weight:800;
+      font-size:13px;
+      user-select:none;
+    }
+    details p{
+      margin:8px 0 2px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .hint{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+      nav{ border-right:none; border-bottom:1px solid rgba(255,255,255,0.06); }
+      main{ grid-template-columns: 1fr; }
+      .canvasCard{ min-height: 460px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Arcs &amp; Chords Explorer</h1>
+    <div class="sub">Drag points • Compare measures • Reveal each theorem only after students test patterns</div>
+  </header>
+
+  <div class="wrap">
+    <nav>
+      <button class="modeBtn active" data-mode="t103">
+        <span class="t">Theorem 10.3</span>
+        <span class="d">Chord length ↔ minor arc size</span>
+      </button>
+      <button class="modeBtn" data-mode="t104">
+        <span class="t">Theorem 10.4</span>
+        <span class="d">Perpendicular diameter bisects chord &amp; arc</span>
+      </button>
+      <button class="modeBtn" data-mode="t105">
+        <span class="t">Theorem 10.5</span>
+        <span class="d">Perpendicular bisector passes through center</span>
+      </button>
+      <button class="modeBtn" data-mode="t106">
+        <span class="t">Theorem 10.6</span>
+        <span class="d">Equal distance from center ↔ equal chords</span>
+      </button>
+
+      <div class="hint">
+        Tip: Start with <b>measurements hidden</b>, then turn them on once students have a prediction.
+      </div>
+    </nav>
+
+    <main>
+      <section class="card canvasCard">
+        <div class="canvasTopbar">
+          <span class="chip"><strong>Drag:</strong> points on the circle</span>
+          <span class="chip"><strong>Goal:</strong> spot a “always true” relationship</span>
+          <span class="chip" id="dragHint">—</span>
+        </div>
+        <div class="canvasArea">
+          <canvas id="c"></canvas>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="panelHeader">
+          <h2 id="modeTitle">Theorem 10.3: Chords &amp; Minor Arcs</h2>
+          <p id="modeDesc">Can you make two chords match in length? What happens to the size of the minor arcs they cut off?</p>
+        </div>
+
+        <div class="panelBody">
+          <div class="controls">
+            <button class="small" id="resetBtn">Reset</button>
+            <button class="small" id="nudgeBtn">Make “nearly equal”</button>
+
+            <label class="toggle"><input type="checkbox" id="showMeasures" checked /> show measures</label>
+            <label class="toggle"><input type="checkbox" id="showRadii" checked /> show radii/arc highlights</label>
+            <label class="toggle"><input type="checkbox" id="showLabels" checked /> show labels</label>
+          </div>
+
+          <div class="box">
+            <h3>Try this</h3>
+            <ul id="prompts"></ul>
+          </div>
+
+          <div class="box">
+            <h3>Live measures</h3>
+            <div class="status" id="statusLine"><span class="dot warn" id="statusDot"></span><span id="statusText">Explore by dragging points.</span></div>
+            <div style="margin-top:8px" id="measureBox"></div>
+          </div>
+
+          <details id="theoremBox">
+            <summary>Reveal the theorem wording</summary>
+            <p id="theoremText"></p>
+          </details>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // ---------- Canvas setup ----------
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+
+  let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.floor(rect.width * DPR);
+    canvas.height = Math.floor(rect.height * DPR);
+  }
+  new ResizeObserver(() => { resizeCanvas(); draw(); }).observe(canvas);
+
+  // ---------- Geometry helpers ----------
+  const TAU = Math.PI * 2;
+  const EPS = 1e-9;
+
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const lerp = (a,b,t) => a + (b-a)*t;
+
+  function normAng(a){
+    a %= TAU;
+    if(a < 0) a += TAU;
+    return a;
+  }
+  function angDiff(a,b){
+    // smallest absolute difference [0, pi]
+    a = normAng(a); b = normAng(b);
+    let d = Math.abs(b - a);
+    return Math.min(d, TAU - d);
+  }
+  function ccw(a,b){
+    // positive angle going CCW from a to b in [0, 2pi)
+    a = normAng(a); b = normAng(b);
+    let d = b - a;
+    if(d < 0) d += TAU;
+    return d;
+  }
+  function minorArc(a,b){ return angDiff(a,b); }
+
+  function p2(x,y){ return {x,y}; }
+  function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+
+  function dot(a,b){ return a.x*b.x + a.y*b.y; }
+  function sub(a,b){ return {x:a.x-b.x, y:a.y-b.y}; }
+  function add(a,b){ return {x:a.x+b.x, y:a.y+b.y}; }
+  function mul(a,k){ return {x:a.x*k, y:a.y*k}; }
+
+  function lineIntersection(a,b,c,d){
+    // intersection of infinite lines AB and CD
+    const r = sub(b,a);
+    const s = sub(d,c);
+    const denom = r.x*s.y - r.y*s.x;
+    if(Math.abs(denom) < 1e-10) return null;
+    const t = ((c.x-a.x)*s.y - (c.y-a.y)*s.x) / denom;
+    return add(a, mul(r, t));
+  }
+
+  function projectPointToLine(p, a, b){
+    const ab = sub(b,a);
+    const t = dot(sub(p,a), ab) / (dot(ab,ab) + EPS);
+    return add(a, mul(ab, t));
+  }
+
+  function distPointToLine(p, a, b){
+    const q = projectPointToLine(p,a,b);
+    return dist(p,q);
+  }
+
+  // ---------- Drawing helpers ----------
+  function setStroke(width, color, alpha=1){
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = width * DPR;
+    ctx.strokeStyle = color;
+  }
+  function setFill(color, alpha=1){
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+  }
+  function text(str, x, y, size=12, color="#e9eefc", align="center"){
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = color;
+    ctx.font = `${Math.round(size*DPR)}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial`;
+    ctx.textAlign = align;
+    ctx.textBaseline = "middle";
+    ctx.fillText(str, x*DPR, y*DPR);
+  }
+
+  function drawCircle(cx,cy,R){
+    ctx.beginPath();
+    ctx.arc(cx*DPR, cy*DPR, R*DPR, 0, TAU);
+    setStroke(2, "rgba(125,211,252,0.75)", 1);
+    ctx.stroke();
+  }
+
+  function drawSegment(a,b, w=2, col="rgba(167,243,208,0.9)", alpha=1, dash=null){
+    ctx.beginPath();
+    if(dash) ctx.setLineDash(dash.map(v=>v*DPR));
+    else ctx.setLineDash([]);
+    ctx.moveTo(a.x*DPR, a.y*DPR);
+    ctx.lineTo(b.x*DPR, b.y*DPR);
+    setStroke(w, col, alpha);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawPoint(p, r=7, col="rgba(255,255,255,0.95)"){
+    ctx.beginPath();
+    ctx.arc(p.x*DPR, p.y*DPR, r*DPR, 0, TAU);
+    setFill(col, 1);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(p.x*DPR, p.y*DPR, (r+2)*DPR, 0, TAU);
+    setStroke(2, "rgba(0,0,0,0.45)", 1);
+    ctx.stroke();
+  }
+
+  function drawArc(cx,cy,R, a1, a2, w=6, col="rgba(251,191,36,0.75)", alpha=0.9){
+    // draw minor arc highlight
+    a1 = normAng(a1); a2 = normAng(a2);
+    // choose shorter direction
+    const ccw12 = ccw(a1,a2);
+    const ccw21 = ccw(a2,a1);
+    let start=a1, end=a2, anticlock=false;
+    if(ccw12 <= Math.PI){
+      start=a1; end=a2; anticlock=false; // canvas arc uses clockwise? Actually canvas uses CCW when anticlockwise=true.
+      // We'll draw CCW from start to end => anticlockwise=false means CW; that's confusing due to y-down.
+    }
+    // We'll avoid confusion: draw using canvas with 'anticlockwise' parameter based on angle size, but still ok visually.
+    // Determine which path is shorter in canvas coordinate system (y down flips orientation). Use absolute.
+    const d = angDiff(a1,a2);
+    // If d == ccw12 in standard math, then in canvas it's mirrored, but minor arc remains minor.
+    // We'll just draw from a1 to a2 with anticlockwise = (ccw12 > Math.PI) to force the minor.
+    const anticlockwiseParam = (ccw12 > Math.PI);
+    ctx.beginPath();
+    ctx.arc(cx*DPR, cy*DPR, R*DPR, a1, a2, anticlockwiseParam);
+    setStroke(w, col, alpha);
+    ctx.stroke();
+  }
+
+  function drawRightAngleMarker(p, u, v, size=14){
+    // u and v are unit-ish direction vectors along the two lines meeting at p
+    const u1 = mul(u, size);
+    const v1 = mul(v, size);
+    const a = add(p, u1);
+    const b = add(a, v1);
+    const c = add(p, v1);
+    ctx.beginPath();
+    ctx.moveTo(a.x*DPR, a.y*DPR);
+    ctx.lineTo(b.x*DPR, b.y*DPR);
+    ctx.lineTo(c.x*DPR, c.y*DPR);
+    setStroke(2, "rgba(251,113,133,0.9)", 1);
+    ctx.stroke();
+  }
+
+  // ---------- Model ----------
+  const state = {
+    mode: "t103",
+    showMeasures: true,
+    showRadii: true,
+    showLabels: true,
+    guessCenter: false,
+    guessedCenter: null,
+    // angles (radians) for points on the circle
+    t103: {
+      F: 2.60, G: 0.55,
+      H: 4.10, J: 5.20
+    },
+    t104: {
+      X: 0.95, Y: 5.35, // chord endpoints
+      diam: 0.0         // diameter direction angle (point B)
+    },
+    t105: {
+      P: 2.05, Q: 5.00
+    },
+    t106: {
+      A: 2.30, B: 0.35,
+      C: 4.20, D: 5.65
+    }
+  };
+
+  function randomizeAngles(obj){
+    for(const k of Object.keys(obj)){
+      obj[k] = Math.random()*TAU;
+    }
+  }
+
+  // ---------- Layout / circle ----------
+  function circleGeom(){
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    const pad = 24;
+    const R = Math.min(w,h) * 0.36;
+    const cx = w*0.52;
+    const cy = h*0.52;
+    return {cx,cy,R,w,h};
+  }
+  function onCircle(angle, geom){
+    return {x: geom.cx + geom.R*Math.cos(angle), y: geom.cy + geom.R*Math.sin(angle)};
+  }
+
+  // ---------- UI text per mode ----------
+  const modeInfo = {
+    t103: {
+      title: "Theorem 10.3: Congruent chords ↔ congruent minor arcs",
+      desc: "Drag endpoints to change chord length. Watch what happens to the minor arc size.",
+      dragHint: "Drag F, G, H, J",
+      prompts: [
+        "Make chord FG about the same length as chord HJ (just by eye).",
+        "Turn measures ON. Are the minor arc measures also close?",
+        "Now try the opposite: match the minor arcs first. What happens to chord lengths?",
+        "Does this depend on where the chords are located, or only on “how wide” they open?"
+      ],
+      theorem: "In the same circle (or in congruent circles), two minor arcs are congruent if and only if their corresponding chords are congruent."
+    },
+    t104: {
+      title: "Theorem 10.4: A perpendicular diameter bisects the chord and its arc",
+      desc: "Rotate the diameter. When it becomes perpendicular to the chord, look for “two equal halves”.",
+      dragHint: "Drag X, Y, and point B (end of the diameter)",
+      prompts: [
+        "Rotate the diameter so it crosses the chord.",
+        "Try to make the diameter meet the chord at a right angle.",
+        "When it’s close to 90°, compare XZ and ZY.",
+        "Also compare arc XB and arc BY (the diameter endpoint B should split the arc)."
+      ],
+      theorem: "If a diameter (or radius) of a circle is perpendicular to a chord, then it bisects the chord and its arc."
+    },
+    t105: {
+      title: "Theorem 10.5: The perpendicular bisector of a chord passes through the center",
+      desc: "The app draws the perpendicular bisector of a chord. What special point always lies on it?",
+      dragHint: "Drag P and Q",
+      prompts: [
+        "Drag P and Q to make lots of different chords.",
+        "Watch the perpendicular bisector line (it always stays at 90° to the chord).",
+        "Turn ON “Guess center”, click where you think the center is, then reveal it.",
+        "What do you notice about the relationship between the center and the perpendicular bisector?"
+      ],
+      theorem: "The perpendicular bisector of a chord contains a diameter (or radius) of the circle (so it passes through the center)."
+    },
+    t106: {
+      title: "Theorem 10.6: Congruent chords ↔ equal distance from the center",
+      desc: "Compare chord lengths with their perpendicular distances from the center.",
+      dragHint: "Drag A, B, C, D",
+      prompts: [
+        "Try to make the two chords look equal in length.",
+        "Now turn measures ON. Compare the distances from the center to each chord.",
+        "Try to match the distances instead. What happens to chord lengths?",
+        "Is “distance from center” a reliable test for congruent chords?"
+      ],
+      theorem: "In the same circle (or congruent circles), chords are congruent if and only if they are equidistant from the center."
+    }
+  };
+
+  // ---------- Draggables ----------
+  const drag = { active:null };
+
+  function getDraggables(geom){
+    const rPick = 14;
+    const list = [];
+    if(state.mode === "t103"){
+      for(const key of ["F","G","H","J"]){
+        list.push({ id:key, type:"angle", getPos:()=>onCircle(state.t103[key], geom), setFrom:(mx,my)=>{
+          state.t103[key] = Math.atan2(my-geom.cy, mx-geom.cx);
+        }, pick:rPick });
+      }
+    } else if(state.mode === "t104"){
+      for(const key of ["X","Y"]){
+        list.push({ id:key, type:"angle", getPos:()=>onCircle(state.t104[key], geom), setFrom:(mx,my)=>{
+          state.t104[key] = Math.atan2(my-geom.cy, mx-geom.cx);
+        }, pick:rPick });
+      }
+      // diameter endpoint B is at angle state.t104.diam
+      list.push({ id:"B", type:"diam", getPos:()=>onCircle(state.t104.diam, geom), setFrom:(mx,my)=>{
+        state.t104.diam = Math.atan2(my-geom.cy, mx-geom.cx);
+      }, pick:rPick });
+    } else if(state.mode === "t105"){
+      for(const key of ["P","Q"]){
+        list.push({ id:key, type:"angle", getPos:()=>onCircle(state.t105[key], geom), setFrom:(mx,my)=>{
+          state.t105[key] = Math.atan2(my-geom.cy, mx-geom.cx);
+        }, pick:rPick });
+      }
+    } else if(state.mode === "t106"){
+      for(const key of ["A","B","C","D"]){
+        list.push({ id:key, type:"angle", getPos:()=>onCircle(state.t106[key], geom), setFrom:(mx,my)=>{
+          state.t106[key] = Math.atan2(my-geom.cy, mx-geom.cx);
+        }, pick:rPick });
+      }
+    }
+    return list;
+  }
+
+  function canvasToLocal(e){
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left);
+    const y = (e.clientY - rect.top);
+    return {x,y};
+  }
+
+  canvas.addEventListener('mousedown', (e)=>{
+    const geom = circleGeom();
+    const m = canvasToLocal(e);
+    const drags = getDraggables(geom);
+    let best=null, bestD=1e9;
+    for(const d of drags){
+      const p = d.getPos();
+      const dd = dist(p,m);
+      if(dd < d.pick && dd < bestD){
+        best = d; bestD=dd;
+      }
+    }
+    if(best){
+      drag.active = best;
+      canvas.style.cursor = "grabbing";
+    } else {
+      // for t105 "guess center" mode: click to place guessed center
+      if(state.mode === "t105" && state.guessCenter){
+        state.guessedCenter = {x:m.x, y:m.y};
+        draw(); updatePanel();
+      }
+    }
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!drag.active) return;
+    const geom = circleGeom();
+    const m = canvasToLocal(e);
+    drag.active.setFrom(m.x, m.y);
+    draw(); updatePanel();
+  });
+  window.addEventListener('mouseup', ()=>{
+    drag.active = null;
+    canvas.style.cursor = "default";
+  });
+
+  // ---------- Mode drawing ----------
+  function clear(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+
+  function draw(){
+    resizeCanvas();
+    const geom = circleGeom();
+    clear();
+
+    // faint grid dots
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    for(let y=20; y<geom.h; y+=32){
+      for(let x=20; x<geom.w; x+=32){
+        ctx.beginPath();
+        ctx.arc(x*DPR,y*DPR,1.4*DPR,0,TAU);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    drawCircle(geom.cx, geom.cy, geom.R);
+
+    if(state.mode === "t103") drawT103(geom);
+    if(state.mode === "t104") drawT104(geom);
+    if(state.mode === "t105") drawT105(geom);
+    if(state.mode === "t106") drawT106(geom);
+  }
+
+  function drawLabel(p, label){
+    if(!state.showLabels) return;
+    text(label, p.x, p.y - 18, 13, "rgba(233,238,252,0.95)");
+  }
+
+  function drawCenter(geom, force=false){
+    if(!force && state.mode === "t105" && state.guessCenter) return; // hide center while guessing
+    drawPoint({x:geom.cx, y:geom.cy}, 5, "rgba(125,211,252,0.95)");
+    if(state.showLabels) text("Center", geom.cx, geom.cy + 18, 12, "rgba(184,195,230,0.9)");
+  }
+
+  // --- T10.3 ---
+  function drawT103(geom){
+    const F = onCircle(state.t103.F, geom);
+    const G = onCircle(state.t103.G, geom);
+    const H = onCircle(state.t103.H, geom);
+    const J = onCircle(state.t103.J, geom);
+
+    // chords
+    drawSegment(F,G, 3, "rgba(167,243,208,0.95)", 1);
+    drawSegment(H,J, 3, "rgba(125,211,252,0.85)", 1);
+
+    // arc highlights (minor arcs)
+    if(state.showRadii){
+      drawArc(geom.cx, geom.cy, geom.R, state.t103.F, state.t103.G, 7, "rgba(251,191,36,0.70)", 0.9);
+      drawArc(geom.cx, geom.cy, geom.R, state.t103.H, state.t103.J, 7, "rgba(167,243,208,0.55)", 0.9);
+      // radii to endpoints
+      drawSegment(p2(geom.cx,geom.cy), F, 2, "rgba(255,255,255,0.18)", 1, [6,6]);
+      drawSegment(p2(geom.cx,geom.cy), G, 2, "rgba(255,255,255,0.18)", 1, [6,6]);
+      drawSegment(p2(geom.cx,geom.cy), H, 2, "rgba(255,255,255,0.18)", 1, [6,6]);
+      drawSegment(p2(geom.cx,geom.cy), J, 2, "rgba(255,255,255,0.18)", 1, [6,6]);
+    }
+
+    drawCenter(geom);
+
+    // points
+    drawPoint(F, 7, "rgba(255,255,255,0.95)");
+    drawPoint(G, 7, "rgba(255,255,255,0.95)");
+    drawPoint(H, 7, "rgba(255,255,255,0.95)");
+    drawPoint(J, 7, "rgba(255,255,255,0.95)");
+
+    drawLabel(F,"F"); drawLabel(G,"G"); drawLabel(H,"H"); drawLabel(J,"J");
+
+    // chord labels
+    if(state.showLabels){
+      const m1 = mul(add(F,G), 0.5);
+      const m2 = mul(add(H,J), 0.5);
+      text("FG", m1.x, m1.y, 12, "rgba(167,243,208,0.95)");
+      text("HJ", m2.x, m2.y, 12, "rgba(125,211,252,0.95)");
+    }
+  }
+
+  // --- T10.4 ---
+  function drawT104(geom){
+    const X = onCircle(state.t104.X, geom);
+    const Y = onCircle(state.t104.Y, geom);
+
+    const B = onCircle(state.t104.diam, geom);
+    const A = onCircle(state.t104.diam + Math.PI, geom);
+
+    // draw diameter
+    drawSegment(A,B, 2.5, "rgba(125,211,252,0.85)", 1);
+
+    // chord
+    drawSegment(X,Y, 3.2, "rgba(167,243,208,0.95)", 1);
+
+    // intersection Z (infinite lines)
+    const Z = lineIntersection(A,B,X,Y);
+    if(Z){
+      drawPoint(Z, 5.5, "rgba(251,191,36,0.95)");
+      if(state.showLabels) text("Z", Z.x+14, Z.y, 12, "rgba(251,191,36,0.95)", "left");
+    }
+
+    // choose the diameter endpoint on the same side as the chord (closer to chord midpoint)
+    const chordMid = mul(add(X,Y),0.5);
+    const dB = dist(B, chordMid);
+    const dA = dist(A, chordMid);
+    const Buse = (dB <= dA) ? B : A;
+    const Bangle = (dB <= dA) ? state.t104.diam : normAng(state.t104.diam + Math.PI);
+
+    // arc highlights: minor arc XY, and its split at Buse (if Buse lies on that minor arc)
+    if(state.showRadii){
+      drawArc(geom.cx, geom.cy, geom.R, state.t104.X, state.t104.Y, 7, "rgba(251,191,36,0.65)", 0.9);
+      // show radii to X and Y and B
+      drawSegment(p2(geom.cx,geom.cy), X, 2, "rgba(255,255,255,0.18)", 1, [6,6]);
+      drawSegment(p2(geom.cx,geom.cy), Y, 2, "rgba(255,255,255,0.18)", 1, [6,6]);
+      drawSegment(p2(geom.cx,geom.cy), Buse, 2, "rgba(255,255,255,0.18)", 1, [6,6]);
+    }
+
+    drawCenter(geom);
+
+    // right angle marker if close to perpendicular
+    const chordVec = sub(Y,X);
+    const diamVec = sub(B,A);
+    const dv = Math.hypot(diamVec.x, diamVec.y) + EPS;
+    const cv = Math.hypot(chordVec.x, chordVec.y) + EPS;
+    const cosang = Math.abs(dot(diamVec, chordVec) / (dv*cv));
+    const isPerp = cosang < 0.06; // ~ within 3.4 degrees of 90°
+    if(isPerp && Z){
+      // unit-ish directions from intersection
+      const u = mul(chordVec, 1/cv);
+      const v = mul(diamVec, 1/dv);
+      drawRightAngleMarker(Z, u, v, 14);
+    }
+
+    // points
+    drawPoint(X, 7, "rgba(255,255,255,0.95)");
+    drawPoint(Y, 7, "rgba(255,255,255,0.95)");
+    drawPoint(Buse, 7, "rgba(255,255,255,0.95)");
+    drawPoint((dB <= dA) ? A : B, 6, "rgba(255,255,255,0.70)");
+
+    drawLabel(X,"X"); drawLabel(Y,"Y");
+    if(state.showLabels){
+      text((dB <= dA) ? "B" : "A", Buse.x, Buse.y - 18, 13, "rgba(233,238,252,0.95)");
+      text((dB <= dA) ? "A" : "B", ((dB <= dA) ? A : B).x, ((dB <= dA) ? A : B).y - 18, 13, "rgba(233,238,252,0.75)");
+    }
+  }
+
+  // --- T10.5 ---
+  function drawT105(geom){
+    const P = onCircle(state.t105.P, geom);
+    const Q = onCircle(state.t105.Q, geom);
+
+    drawSegment(P,Q, 3.2, "rgba(167,243,208,0.95)", 1);
+
+    // midpoint M
+    const M = mul(add(P,Q),0.5);
+    drawPoint(M, 5.5, "rgba(251,191,36,0.95)");
+    if(state.showLabels) text("M", M.x+14, M.y, 12, "rgba(251,191,36,0.95)", "left");
+
+    // perpendicular bisector line through M
+    const v = sub(Q,P);
+    const len = Math.hypot(v.x,v.y)+EPS;
+    const u = {x: -v.y/len, y: v.x/len}; // unit perp
+    const L1 = add(M, mul(u, 2000));
+    const L2 = add(M, mul(u, -2000));
+    drawSegment(L1,L2, 2.3, "rgba(125,211,252,0.85)", 1, [10,8]);
+
+    // show center (unless guessing)
+    drawCenter(geom);
+
+    // guessed center point
+    if(state.guessCenter && state.guessedCenter){
+      drawPoint(state.guessedCenter, 6, "rgba(251,113,133,0.95)");
+      if(state.showLabels) text("Your guess", state.guessedCenter.x, state.guessedCenter.y + 18, 12, "rgba(251,113,133,0.95)");
+    }
+
+    // points
+    drawPoint(P, 7, "rgba(255,255,255,0.95)");
+    drawPoint(Q, 7, "rgba(255,255,255,0.95)");
+    drawLabel(P,"P"); drawLabel(Q,"Q");
+  }
+
+  // --- T10.6 ---
+  function drawT106(geom){
+    const A = onCircle(state.t106.A, geom);
+    const B = onCircle(state.t106.B, geom);
+    const C = onCircle(state.t106.C, geom);
+    const D = onCircle(state.t106.D, geom);
+
+    // chords
+    drawSegment(A,B, 3.2, "rgba(167,243,208,0.95)", 1);
+    drawSegment(C,D, 3.2, "rgba(125,211,252,0.85)", 1);
+
+    // draw perpendicular distances from center to each chord
+    const center = p2(geom.cx, geom.cy);
+    const foot1 = projectPointToLine(center, A, B);
+    const foot2 = projectPointToLine(center, C, D);
+
+    // The perpendicular from center to chord meets the chord segment for chords in a circle.
+    if(state.showRadii){
+      drawSegment(center, foot1, 2.2, "rgba(251,191,36,0.75)", 1);
+      drawSegment(center, foot2, 2.2, "rgba(251,191,36,0.55)", 1);
+      drawPoint(foot1, 5, "rgba(251,191,36,0.9)");
+      drawPoint(foot2, 5, "rgba(251,191,36,0.75)");
+      if(state.showLabels){
+        text("d₁", (center.x+foot1.x)/2, (center.y+foot1.y)/2, 12, "rgba(251,191,36,0.9)");
+        text("d₂", (center.x+foot2.x)/2, (center.y+foot2.y)/2, 12, "rgba(251,191,36,0.75)");
+      }
+    }
+
+    drawCenter(geom);
+
+    // points
+    for(const [p,l] of [[A,"A"],[B,"B"],[C,"C"],[D,"D"]]){
+      drawPoint(p, 7, "rgba(255,255,255,0.95)");
+      drawLabel(p,l);
+    }
+  }
+
+  // ---------- Measurements / panel ----------
+  const modeTitle = document.getElementById('modeTitle');
+  const modeDesc  = document.getElementById('modeDesc');
+  const promptsEl = document.getElementById('prompts');
+  const measureBox = document.getElementById('measureBox');
+  const theoremText = document.getElementById('theoremText');
+  const dragHint = document.getElementById('dragHint');
+
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+
+  function fmt(n, d=3){ return Number.isFinite(n) ? n.toFixed(d) : "—"; }
+  function fmtDeg(rad){ return (rad*180/Math.PI).toFixed(1) + "°"; }
+
+  function setStatus(kind, msg){
+    statusDot.className = "dot " + (kind || "warn");
+    statusText.textContent = msg;
+  }
+
+  function updatePanel(){
+    const info = modeInfo[state.mode];
+    modeTitle.textContent = info.title;
+    modeDesc.textContent = info.desc;
+    dragHint.innerHTML = `<strong>Drag:</strong> ${info.dragHint}`;
+    promptsEl.innerHTML = info.prompts.map(p => `<li>${p}</li>`).join("");
+    theoremText.textContent = info.theorem;
+
+    // measures
+    if(!state.showMeasures){
+      measureBox.innerHTML = `<div class="hint">Measures are hidden. Make a prediction first, then switch “show measures” ON.</div>`;
+      setStatus("warn","Measures hidden. Try by eye first.");
+      return;
+    }
+
+    const geom = circleGeom();
+    const R = geom.R;
+
+    if(state.mode === "t103"){
+      const aF=state.t103.F, aG=state.t103.G, aH=state.t103.H, aJ=state.t103.J;
+      const theta1 = minorArc(aF,aG);
+      const theta2 = minorArc(aH,aJ);
+      const L1 = 2*R*Math.sin(theta1/2);
+      const L2 = 2*R*Math.sin(theta2/2);
+
+      const closeL = Math.abs(L1-L2)/R < 0.03;
+      const closeA = Math.abs(theta1-theta2) < (3*Math.PI/180);
+
+      setStatus(closeL && closeA ? "good" : (closeL || closeA ? "warn" : "bad"),
+        closeL && closeA
+          ? "Nice! Matching chords matches minor arcs (and matching minor arcs matches chords)."
+          : (closeL || closeA ? "You’re close — keep adjusting." : "Try matching one quantity and see what the other does.")
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">Chord FG length ÷ radius</td><td class="v">${fmt(L1/R,3)}</td></tr>
+          <tr><td class="k">Chord HJ length ÷ radius</td><td class="v">${fmt(L2/R,3)}</td></tr>
+          <tr><td class="k">Minor arc FG (central angle)</td><td class="v">${fmtDeg(theta1)}</td></tr>
+          <tr><td class="k">Minor arc HJ (central angle)</td><td class="v">${fmtDeg(theta2)}</td></tr>
+          <tr><td class="k">Difference in chord ratios</td><td class="v">${fmt(Math.abs(L1-L2)/R,3)}</td></tr>
+          <tr><td class="k">Difference in arc measures</td><td class="v">${fmtDeg(Math.abs(theta1-theta2))}</td></tr>
+        </table>
+      `;
+    }
+
+    if(state.mode === "t104"){
+      const aX=state.t104.X, aY=state.t104.Y;
+      const X = onCircle(aX, geom);
+      const Y = onCircle(aY, geom);
+
+      const B1 = onCircle(state.t104.diam, geom);
+      const A1 = onCircle(state.t104.diam + Math.PI, geom);
+
+      const chordVec = sub(Y,X);
+      const diamVec = sub(B1,A1);
+      const dv = Math.hypot(diamVec.x, diamVec.y) + EPS;
+      const cv = Math.hypot(chordVec.x, chordVec.y) + EPS;
+      const cosang = Math.abs(dot(diamVec, chordVec) / (dv*cv));
+      const angleFrom90 = Math.asin(clamp(cosang,0,1)) * 180/Math.PI; // 0 when perfectly perpendicular
+      const isPerp = cosang < 0.06;
+
+      const Z = lineIntersection(A1,B1,X,Y);
+
+      let XZ="—", ZY="—";
+      if(Z){
+        XZ = fmt(dist(X,Z)/R,3);
+        ZY = fmt(dist(Z,Y)/R,3);
+      }
+
+      // Choose endpoint of diameter on same side as chord (closer to chord midpoint)
+      const chordMid = mul(add(X,Y),0.5);
+      const dB = dist(B1, chordMid);
+      const dA = dist(A1, chordMid);
+      const BuseAngle = (dB <= dA) ? state.t104.diam : normAng(state.t104.diam + Math.PI);
+
+      // arc split within the minor arc XY (if Buse lies on it)
+      const dXY_ccw = ccw(aX,aY);
+      const useCCW = (dXY_ccw <= Math.PI);
+      const totalMinor = minorArc(aX,aY);
+
+      // compute arc measures X->B and B->Y along the minor direction
+      let arcXB="—", arcBY="—";
+      function onMinorArc(dirCCW){
+        const total = dirCCW ? ccw(aX,aY) : ccw(aY,aX);
+        const part1 = dirCCW ? ccw(aX,BuseAngle) : ccw(BuseAngle,aX);
+        const part2 = dirCCW ? ccw(BuseAngle,aY) : ccw(aY,BuseAngle);
+        return Math.abs((part1+part2) - total) < 1e-6;
+      }
+      let dirCCW = (ccw(aX,aY) <= Math.PI);
+      if(onMinorArc(dirCCW)){
+        const part1 = dirCCW ? ccw(aX,BuseAngle) : ccw(BuseAngle,aX);
+        const part2 = dirCCW ? ccw(BuseAngle,aY) : ccw(aY,BuseAngle);
+        arcXB = fmtDeg(part1);
+        arcBY = fmtDeg(part2);
+      }
+
+      setStatus(isPerp ? "good" : "warn",
+        isPerp
+          ? "Perpendicular! Now look for the two equal halves (of the chord and the arc)."
+          : "Try rotating the diameter to get as close to 90° as possible."
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">How close to 90°?</td><td class="v">${angleFrom90.toFixed(1)}° from perpendicular</td></tr>
+          <tr><td class="k">XZ ÷ radius</td><td class="v">${XZ}</td></tr>
+          <tr><td class="k">ZY ÷ radius</td><td class="v">${ZY}</td></tr>
+          <tr><td class="k">Arc XB</td><td class="v">${arcXB}</td></tr>
+          <tr><td class="k">Arc BY</td><td class="v">${arcBY}</td></tr>
+        </table>
+      `;
+    }
+
+    if(state.mode === "t105"){
+      const aP=state.t105.P, aQ=state.t105.Q;
+      const P = onCircle(aP, geom);
+      const Q = onCircle(aQ, geom);
+      const M = mul(add(P,Q),0.5);
+
+      // distance from center to perpendicular bisector line is 0 (always), but we show a check:
+      // compute line through M with direction perp to PQ, then compute distance from center to that line
+      const v = sub(Q,P);
+      const len = Math.hypot(v.x,v.y)+EPS;
+      const u = {x: -v.y/len, y: v.x/len}; // direction of bisector
+      const L1 = add(M, mul(u, 200));
+      const L2 = add(M, mul(u,-200));
+      const center = p2(geom.cx, geom.cy);
+      const dLine = distPointToLine(center, L1, L2);
+
+      let guessLine = "";
+      if(state.guessCenter){
+        if(!state.guessedCenter){
+          guessLine = `<div class="hint">Guess center is ON: click in the canvas to place your guess.</div>`;
+        } else {
+          const err = dist(state.guessedCenter, center);
+          guessLine = `<div class="hint">Your guess is <b>${(err/R).toFixed(3)}</b> radii away from the true center.</div>`;
+        }
+      }
+
+      setStatus(dLine/R < 0.002 ? "good" : "warn",
+        "Notice: the perpendicular bisector keeps passing through the same special point."
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">Distance (center → bisector) ÷ radius</td><td class="v">${fmt(dLine/R,4)}</td></tr>
+          <tr><td class="k">Chord midpoint M stays on bisector?</td><td class="v">Yes (by definition)</td></tr>
+        </table>
+        ${guessLine}
+      `;
+    }
+
+    if(state.mode === "t106"){
+      const aA=state.t106.A, aB=state.t106.B, aC=state.t106.C, aD=state.t106.D;
+      const theta1 = minorArc(aA,aB);
+      const theta2 = minorArc(aC,aD);
+
+      const L1 = 2*R*Math.sin(theta1/2);
+      const L2 = 2*R*Math.sin(theta2/2);
+
+      // distances from center to chord (perpendicular distance)
+      const d1 = R*Math.cos(theta1/2);
+      const d2 = R*Math.cos(theta2/2);
+
+      const closeL = Math.abs(L1-L2)/R < 0.03;
+      const closeD = Math.abs(d1-d2)/R < 0.03;
+
+      setStatus(closeL && closeD ? "good" : (closeL || closeD ? "warn" : "bad"),
+        closeD
+          ? "When the distances match, the chord lengths match too (try to break it!)."
+          : "Try making the distances from the center equal."
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">Chord AB length ÷ radius</td><td class="v">${fmt(L1/R,3)}</td></tr>
+          <tr><td class="k">Chord CD length ÷ radius</td><td class="v">${fmt(L2/R,3)}</td></tr>
+          <tr><td class="k">Distance center→AB (d₁) ÷ radius</td><td class="v">${fmt(d1/R,3)}</td></tr>
+          <tr><td class="k">Distance center→CD (d₂) ÷ radius</td><td class="v">${fmt(d2/R,3)}</td></tr>
+          <tr><td class="k">Difference in distances</td><td class="v">${fmt(Math.abs(d1-d2)/R,3)}</td></tr>
+          <tr><td class="k">Difference in chord ratios</td><td class="v">${fmt(Math.abs(L1-L2)/R,3)}</td></tr>
+        </table>
+      `;
+    }
+  }
+
+  // ---------- Controls ----------
+  const showMeasures = document.getElementById('showMeasures');
+  const showRadii = document.getElementById('showRadii');
+  const showLabels = document.getElementById('showLabels');
+  const resetBtn = document.getElementById('resetBtn');
+  const nudgeBtn = document.getElementById('nudgeBtn');
+
+  showMeasures.addEventListener('change', ()=>{ state.showMeasures = showMeasures.checked; updatePanel(); });
+  showRadii.addEventListener('change', ()=>{ state.showRadii = showRadii.checked; draw(); });
+  showLabels.addEventListener('change', ()=>{ state.showLabels = showLabels.checked; draw(); });
+
+  resetBtn.addEventListener('click', ()=>{
+    if(state.mode==="t103"){ randomizeAngles(state.t103); }
+    if(state.mode==="t104"){ randomizeAngles({X:0,Y:0,diam:0}); state.t104.X=Math.random()*TAU; state.t104.Y=Math.random()*TAU; state.t104.diam=Math.random()*TAU; }
+    if(state.mode==="t105"){ randomizeAngles(state.t105); state.guessedCenter=null; }
+    if(state.mode==="t106"){ randomizeAngles(state.t106); }
+    draw(); updatePanel();
+  });
+
+  nudgeBtn.addEventListener('click', ()=>{
+    // Make something "nearly equal" to kickstart discovery, without being perfect.
+    if(state.mode==="t103"){
+      const t = minorArc(state.t103.F, state.t103.G);
+      const mid = Math.random()*TAU;
+      // chord HJ gets same central angle with a slight perturbation
+      const t2 = clamp(t + (Math.random()*0.25 - 0.125), 0.25, Math.PI-0.15);
+      state.t103.H = normAng(mid - t2/2);
+      state.t103.J = normAng(mid + t2/2);
+    }
+    if(state.mode==="t104"){
+      // rotate diameter near perpendicular to chord XY
+      const geom = circleGeom();
+      const X = onCircle(state.t104.X, geom);
+      const Y = onCircle(state.t104.Y, geom);
+      const v = sub(Y,X);
+      const angChord = Math.atan2(v.y, v.x);
+      // diameter direction is perpendicular to chord direction
+      state.t104.diam = normAng(angChord + Math.PI/2 + (Math.random()*0.25 - 0.125));
+    }
+    if(state.mode==="t105"){
+      // just random chord
+      randomizeAngles(state.t105);
+      state.guessedCenter = null;
+    }
+    if(state.mode==="t106"){
+      const t = minorArc(state.t106.A, state.t106.B);
+      const mid = Math.random()*TAU;
+      const t2 = clamp(t + (Math.random()*0.25 - 0.125), 0.25, Math.PI-0.15);
+      state.t106.C = normAng(mid - t2/2);
+      state.t106.D = normAng(mid + t2/2);
+    }
+    draw(); updatePanel();
+  });
+
+  // "Guess center" toggle only relevant in t105, but we keep it simple by adding it into the showRadii checkbox area:
+  // We'll convert "show labels" long-press? No—add a small inline toggle when in t105 via panel injection.
+  function injectGuessToggle(){
+    const controls = document.querySelector('.controls');
+    const existing = document.getElementById('guessToggleWrap');
+    if(state.mode !== "t105"){
+      if(existing) existing.remove();
+      state.guessCenter = false;
+      return;
+    }
+    if(existing) return;
+    const wrap = document.createElement('label');
+    wrap.className = "toggle";
+    wrap.id = "guessToggleWrap";
+    wrap.innerHTML = `<input type="checkbox" id="guessCenter" /> guess center`;
+    controls.appendChild(wrap);
+    const cb = wrap.querySelector('input');
+    cb.addEventListener('change', ()=>{
+      state.guessCenter = cb.checked;
+      state.guessedCenter = null;
+      draw(); updatePanel();
+    });
+  }
+
+  // Mode switching
+  document.querySelectorAll('.modeBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.modeBtn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+      injectGuessToggle();
+      draw(); updatePanel();
+    });
+  });
+
+  // initial
+  resizeCanvas();
+  injectGuessToggle();
+  draw();
+  updatePanel();
+
+})();
+</script>
+</body>
+</html>
