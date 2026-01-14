@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inscribed Angles & Cyclic Shapes Explorer (Theorems 10.7–10.10)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a33;
+      --panel2:#0c162c;
+      --text:#e9eefc;
+      --muted:#b8c3e6;
+      --accent:#7dd3fc;
+      --accent2:#a7f3d0;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --good:#34d399;
+      --line:#20325f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 20% 5%, #12214b 0%, var(--bg) 55%, #070b14 100%);
+      color:var(--text);
+    }
+    header{
+      padding:18px 18px 10px 18px;
+      display:flex;
+      align-items:flex-end;
+      gap:14px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    header h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+      font-weight:700;
+    }
+    header .sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:1px;
+    }
+
+    .wrap{
+      display:grid;
+      grid-template-columns: 240px 1fr;
+      min-height: calc(100vh - 54px);
+    }
+
+    nav{
+      padding:14px;
+      border-right:1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(180deg, rgba(15,26,51,0.65), rgba(15,26,51,0.25));
+    }
+    .modeBtn{
+      width:100%;
+      text-align:left;
+      padding:10px 10px;
+      margin:0 0 10px 0;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(12,22,44,0.8);
+      color:var(--text);
+      cursor:pointer;
+      transition: transform .06s ease, border-color .12s ease, background .12s ease;
+    }
+    .modeBtn:hover{ transform: translateY(-1px); border-color: rgba(125,211,252,0.45); }
+    .modeBtn.active{
+      border-color: rgba(125,211,252,0.7);
+      background: rgba(14,29,60,0.95);
+      box-shadow: 0 0 0 2px rgba(125,211,252,0.15) inset;
+    }
+    .modeBtn .t{
+      display:block;
+      font-weight:700;
+      font-size:13px;
+      margin-bottom:2px;
+    }
+    .modeBtn .d{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.25;
+    }
+
+    main{
+      display:grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap:14px;
+      padding:14px;
+      align-items:stretch;
+    }
+
+    .card{
+      background: rgba(15,26,51,0.65);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .canvasCard{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      min-height: 520px;
+    }
+    .canvasTopbar{
+      padding:10px 12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      background: rgba(12,22,44,0.55);
+      flex-wrap:wrap;
+    }
+    .chip{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.12);
+      color:var(--muted);
+      background: rgba(9,16,32,0.35);
+      user-select:none;
+    }
+    .chip strong{ color:var(--text); font-weight:700; }
+
+    .canvasArea{ flex:1; position:relative; }
+    canvas{
+      width:100%;
+      height:100%;
+      display:block;
+      background: radial-gradient(1200px 700px at 40% 35%, rgba(125,211,252,0.07), rgba(0,0,0,0) 55%),
+                  radial-gradient(900px 500px at 70% 85%, rgba(167,243,208,0.05), rgba(0,0,0,0) 55%),
+                  rgba(9,16,32,0.25);
+    }
+
+    .panel{ display:flex; flex-direction:column; }
+    .panelHeader{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      background: rgba(12,22,44,0.55);
+    }
+    .panelHeader h2{ margin:0; font-size:16px; font-weight:800; }
+    .panelHeader p{
+      margin:6px 0 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .panelBody{ padding:12px 14px; display:flex; flex-direction:column; gap:12px; }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    button.small{
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(12,22,44,0.75);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:12px;
+      cursor:pointer;
+    }
+    button.small:hover{ border-color: rgba(125,211,252,0.55); }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:var(--muted);
+      user-select:none;
+    }
+    .toggle input{ accent-color: var(--accent); }
+
+    .box{
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(9,16,32,0.30);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    .box h3{ margin:0 0 6px 0; font-size:13px; font-weight:800; }
+    .box ul{
+      margin:0;
+      padding-left:16px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+    .box li{ margin:4px 0; }
+
+    table{ width:100%; border-collapse:collapse; font-size:13px; }
+    td{
+      padding:7px 6px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      color:var(--muted);
+      vertical-align:top;
+    }
+    td.k{ width:62%; }
+    td.v{ text-align:right; color:var(--text); font-variant-numeric: tabular-nums; }
+
+    .status{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,0.25);
+      box-shadow:0 0 0 2px rgba(0,0,0,0.25) inset;
+    }
+    .dot.good{ background: rgba(52,211,153,0.95); }
+    .dot.bad{ background: rgba(251,113,133,0.95); }
+    .dot.warn{ background: rgba(251,191,36,0.95); }
+
+    details{
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(9,16,32,0.30);
+      border-radius:14px;
+      padding:8px 12px;
+    }
+    summary{
+      cursor:pointer;
+      color:var(--text);
+      font-weight:800;
+      font-size:13px;
+      user-select:none;
+    }
+    details p{
+      margin:8px 0 2px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .hint{ color:var(--muted); font-size:12px; margin-top:4px; }
+
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+      nav{ border-right:none; border-bottom:1px solid rgba(255,255,255,0.06); }
+      main{ grid-template-columns: 1fr; }
+      .canvasCard{ min-height: 460px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Inscribed Angles &amp; Cyclic Shapes Explorer</h1>
+    <div class="sub">Drag points • Compare measures • Reveal each theorem only after students test patterns</div>
+  </header>
+
+  <div class="wrap">
+    <nav>
+      <button class="modeBtn active" data-mode="t107">
+        <span class="t">Theorem 10.7</span>
+        <span class="d">Inscribed angle = ½ intercepted arc</span>
+      </button>
+      <button class="modeBtn" data-mode="t108">
+        <span class="t">Theorem 10.8</span>
+        <span class="d">Same arc ⇒ congruent inscribed angles</span>
+      </button>
+      <button class="modeBtn" data-mode="t109">
+        <span class="t">Theorem 10.9</span>
+        <span class="d">Cyclic quadrilateral: opposite angles add to 180°</span>
+      </button>
+      <button class="modeBtn" data-mode="t110">
+        <span class="t">Theorem 10.10</span>
+        <span class="d">Triangle in a semicircle is right-angled</span>
+      </button>
+
+      <div class="hint">
+        Tip: Start with <b>show measures</b> OFF, get a prediction, then turn it ON to verify.
+      </div>
+    </nav>
+
+    <main>
+      <section class="card canvasCard">
+        <div class="canvasTopbar">
+          <span class="chip"><strong>Drag:</strong> points on the circle</span>
+          <span class="chip"><strong>Goal:</strong> find what stays “always true”</span>
+          <span class="chip" id="dragHint">—</span>
+        </div>
+        <div class="canvasArea">
+          <canvas id="c"></canvas>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="panelHeader">
+          <h2 id="modeTitle">Theorem 10.7: Inscribed Angle Theorem</h2>
+          <p id="modeDesc">Drag the points and compare an inscribed angle with the arc it intercepts.</p>
+        </div>
+
+        <div class="panelBody">
+          <div class="controls">
+            <button class="small" id="resetBtn">Reset</button>
+            <button class="small" id="nudgeBtn">Make “nearly true”</button>
+
+            <label class="toggle"><input type="checkbox" id="showMeasures" /> show measures</label>
+            <label class="toggle"><input type="checkbox" id="showRadii" checked /> show radii/arc highlights</label>
+            <label class="toggle"><input type="checkbox" id="showLabels" checked /> show labels</label>
+          </div>
+
+          <div class="box">
+            <h3>Try this</h3>
+            <ul id="prompts"></ul>
+          </div>
+
+          <div class="box">
+            <h3>Live measures</h3>
+            <div class="status" id="statusLine"><span class="dot warn" id="statusDot"></span><span id="statusText">Make a prediction, then turn measures on.</span></div>
+            <div style="margin-top:8px" id="measureBox"></div>
+          </div>
+
+          <details id="theoremBox">
+            <summary>Reveal the theorem wording</summary>
+            <p id="theoremText"></p>
+          </details>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // ---------- Canvas setup ----------
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+
+  let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.floor(rect.width * DPR);
+    canvas.height = Math.floor(rect.height * DPR);
+  }
+  new ResizeObserver(() => { resizeCanvas(); draw(); }).observe(canvas);
+
+  // ---------- Geometry helpers ----------
+  const TAU = Math.PI * 2;
+  const EPS = 1e-9;
+
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  function normAng(a){
+    a %= TAU;
+    if(a < 0) a += TAU;
+    return a;
+  }
+  function ccw(a,b){
+    a = normAng(a); b = normAng(b);
+    let d = b - a;
+    if(d < 0) d += TAU;
+    return d;
+  }
+  function angDiff(a,b){
+    a = normAng(a); b = normAng(b);
+    let d = Math.abs(b - a);
+    return Math.min(d, TAU - d);
+  }
+  function minorArc(a,b){ return angDiff(a,b); }
+
+  function p2(x,y){ return {x,y}; }
+  function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+  function dot(a,b){ return a.x*b.x + a.y*b.y; }
+  function sub(a,b){ return {x:a.x-b.x, y:a.y-b.y}; }
+  function add(a,b){ return {x:a.x+b.x, y:a.y+b.y}; }
+  function mul(a,k){ return {x:a.x*k, y:a.y*k}; }
+
+  function angleAtVertex(V, P, Q){
+    // angle PVQ in radians, in [0, pi]
+    const a = sub(P,V);
+    const b = sub(Q,V);
+    const na = Math.hypot(a.x,a.y) + EPS;
+    const nb = Math.hypot(b.x,b.y) + EPS;
+    const c = clamp(dot(a,b)/(na*nb), -1, 1);
+    return Math.acos(c);
+  }
+
+  // ---------- Drawing helpers ----------
+  function setStroke(width, color, alpha=1){
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = width * DPR;
+    ctx.strokeStyle = color;
+  }
+  function setFill(color, alpha=1){
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+  }
+  function text(str, x, y, size=12, color="#e9eefc", align="center"){
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = color;
+    ctx.font = `${Math.round(size*DPR)}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial`;
+    ctx.textAlign = align;
+    ctx.textBaseline = "middle";
+    ctx.fillText(str, x*DPR, y*DPR);
+  }
+
+  function drawCircle(cx,cy,R){
+    ctx.beginPath();
+    ctx.arc(cx*DPR, cy*DPR, R*DPR, 0, TAU);
+    setStroke(2, "rgba(125,211,252,0.75)", 1);
+    ctx.stroke();
+  }
+
+  function drawSegment(a,b, w=2, col="rgba(167,243,208,0.9)", alpha=1, dash=null){
+    ctx.beginPath();
+    if(dash) ctx.setLineDash(dash.map(v=>v*DPR)); else ctx.setLineDash([]);
+    ctx.moveTo(a.x*DPR, a.y*DPR);
+    ctx.lineTo(b.x*DPR, b.y*DPR);
+    setStroke(w, col, alpha);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawPoint(p, r=7, col="rgba(255,255,255,0.95)"){
+    ctx.beginPath();
+    ctx.arc(p.x*DPR, p.y*DPR, r*DPR, 0, TAU);
+    setFill(col, 1);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(p.x*DPR, p.y*DPR, (r+2)*DPR, 0, TAU);
+    setStroke(2, "rgba(0,0,0,0.45)", 1);
+    ctx.stroke();
+  }
+
+  function drawArcMinor(cx,cy,R, a1, a2, w=7, col="rgba(251,191,36,0.70)", alpha=0.9){
+    // draw minor arc highlight
+    a1 = normAng(a1); a2 = normAng(a2);
+    const ccw12 = ccw(a1,a2);
+    const anticlockwiseParam = (ccw12 > Math.PI); // force minor arc
+    ctx.beginPath();
+    ctx.arc(cx*DPR, cy*DPR, R*DPR, a1, a2, anticlockwiseParam);
+    setStroke(w, col, alpha);
+    ctx.stroke();
+  }
+
+  function drawAngleWedge(V, P, Q, radius=26, col="rgba(167,243,208,0.22)"){
+    // small filled wedge for the angle at V between rays VP and VQ
+    const a1 = Math.atan2(P.y - V.y, P.x - V.x);
+    const a2 = Math.atan2(Q.y - V.y, Q.x - V.x);
+
+    // choose the smaller turning direction
+    const d = angDiff(a1,a2);
+    // build wedge by stepping from a1 towards a2 along minor direction
+    const ccw12 = ccw(a1,a2);
+    const useCCW = (ccw12 <= Math.PI);
+    const start = a1;
+    const end = useCCW ? (a1 + d) : (a1 - d);
+
+    ctx.beginPath();
+    ctx.moveTo(V.x*DPR, V.y*DPR);
+    ctx.arc(V.x*DPR, V.y*DPR, radius*DPR, start, end, !useCCW);
+    ctx.closePath();
+    setFill(col, 1);
+    ctx.fill();
+  }
+
+  function drawRightAngleMarkerAtVertex(V, P, Q, size=16){
+    // draws a right-angle marker if VP ⟂ VQ visually (used in t110 when close)
+    const v1 = sub(P,V);
+    const v2 = sub(Q,V);
+    const n1 = Math.hypot(v1.x,v1.y)+EPS;
+    const n2 = Math.hypot(v2.x,v2.y)+EPS;
+    const u1 = {x:v1.x/n1, y:v1.y/n1};
+    const u2 = {x:v2.x/n2, y:v2.y/n2};
+
+    const A = add(V, mul(u1, size));
+    const C = add(V, mul(u2, size));
+    const B = add(A, mul(u2, size));
+
+    ctx.beginPath();
+    ctx.moveTo(A.x*DPR, A.y*DPR);
+    ctx.lineTo(B.x*DPR, B.y*DPR);
+    ctx.lineTo(C.x*DPR, C.y*DPR);
+    setStroke(2, "rgba(251,113,133,0.9)", 1);
+    ctx.stroke();
+  }
+
+  // ---------- Layout / circle ----------
+  function circleGeom(){
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    const R = Math.min(w,h) * 0.36;
+    const cx = w*0.52;
+    const cy = h*0.52;
+    return {cx,cy,R,w,h};
+  }
+  function onCircle(angle, geom){
+    return {x: geom.cx + geom.R*Math.cos(angle), y: geom.cy + geom.R*Math.sin(angle)};
+  }
+
+  // ---------- State ----------
+  const state = {
+    mode: "t107",
+    showMeasures: false,
+    showRadii: true,
+    showLabels: true,
+
+    t107: { A: 4.35, B: 0.65, C: 2.35 },                 // inscribed angle at C intercepts arc AB
+    t108: { A: 4.35, B: 0.65, C: 2.45, D: 5.25 },         // angles at C and D intercept arc AB
+    t109: { A: 0.20, B: 1.75, C: 3.55, D: 5.05 },         // cyclic quadrilateral in order around circle
+    t110: { diam: 0.10, C: 2.50 }                          // diameter endpoints from "diam"; point C on circle
+  };
+
+  function randomizeAngles(obj){
+    for(const k of Object.keys(obj)){
+      obj[k] = Math.random()*TAU;
+    }
+  }
+
+  // ---------- Mode text ----------
+  const modeInfo = {
+    t107: {
+      title: "Theorem 10.7: Inscribed Angle Theorem",
+      desc: "Compare an inscribed angle with the measure of its intercepted arc (central angle).",
+      dragHint: "Drag A, B, C",
+      prompts: [
+        "By eye: make ∠ACB small, then large. What seems to happen to the arc AB?",
+        "Turn measures ON. Compare: inscribed angle ∠ACB and arc AB (central angle).",
+        "Try to make the arc AB about 140°. What is ∠ACB?",
+        "Can you find any position where the relationship breaks?"
+      ],
+      theorem: "If an angle is inscribed in a circle, then the measure of the angle equals one half the measure of its intercepted arc."
+    },
+    t108: {
+      title: "Theorem 10.8: Inscribed angles that intercept the same arc",
+      desc: "Two different inscribed angles intercept the same arc AB. Compare their measures.",
+      dragHint: "Drag A, B, C, D",
+      prompts: [
+        "Keep A and B fixed, then move C around the circle. Watch ∠ACB.",
+        "Now move D around the circle. Watch ∠ADB.",
+        "Turn measures ON. Are ∠ACB and ∠ADB always equal (as long as they intercept arc AB)?",
+        "Try to ‘break’ it: can you make the angles different without changing arc AB?"
+      ],
+      theorem: "If two inscribed angles of a circle intercept the same arc (or congruent arcs), then the angles are congruent."
+    },
+    t109: {
+      title: "Theorem 10.9: Angles in a cyclic quadrilateral",
+      desc: "A quadrilateral with all vertices on a circle is cyclic. Investigate opposite angles.",
+      dragHint: "Drag A, B, C, D",
+      prompts: [
+        "Move the points and measure the interior angles at A and C.",
+        "What is the sum ∠A + ∠C? Does it stay the same?",
+        "Check the other pair: ∠B + ∠D.",
+        "Try extreme shapes (long and thin, nearly a kite, etc.). Does the pattern hold?"
+      ],
+      theorem: "In a cyclic quadrilateral, opposite angles are supplementary (they add to 180°)."
+    },
+    t110: {
+      title: "Theorem 10.10: Triangle in a semicircle",
+      desc: "If one side of a triangle is a diameter, the angle opposite that side is a right angle.",
+      dragHint: "Drag A (rotates diameter) and C",
+      prompts: [
+        "Drag C around the circle while AB stays a diameter.",
+        "Turn measures ON. What do you notice about ∠ACB?",
+        "Try to make ∠ACB not equal to 90°. Can you?",
+        "Bonus: what arc does AB represent when AB is a diameter?"
+      ],
+      theorem: "If a triangle is inscribed in a circle with one side as the diameter, then the angle opposite the diameter is a right angle (90°)."
+    }
+  };
+
+  // ---------- Draggables ----------
+  const drag = { active:null };
+
+  function getDraggables(geom){
+    const rPick = 14;
+    const list = [];
+    if(state.mode === "t107"){
+      for(const key of ["A","B","C"]){
+        list.push({
+          id:key, type:"angle",
+          getPos:()=>onCircle(state.t107[key], geom),
+          setFrom:(mx,my)=>{ state.t107[key] = Math.atan2(my-geom.cy, mx-geom.cx); },
+          pick:rPick
+        });
+      }
+    } else if(state.mode === "t108"){
+      for(const key of ["A","B","C","D"]){
+        list.push({
+          id:key, type:"angle",
+          getPos:()=>onCircle(state.t108[key], geom),
+          setFrom:(mx,my)=>{ state.t108[key] = Math.atan2(my-geom.cy, mx-geom.cx); },
+          pick:rPick
+        });
+      }
+    } else if(state.mode === "t109"){
+      for(const key of ["A","B","C","D"]){
+        list.push({
+          id:key, type:"angle",
+          getPos:()=>onCircle(state.t109[key], geom),
+          setFrom:(mx,my)=>{ state.t109[key] = Math.atan2(my-geom.cy, mx-geom.cx); },
+          pick:rPick
+        });
+      }
+    } else if(state.mode === "t110"){
+      // A is one endpoint of diameter; dragging it rotates diameter
+      list.push({
+        id:"A", type:"diam",
+        getPos:()=>onCircle(state.t110.diam, geom),
+        setFrom:(mx,my)=>{ state.t110.diam = Math.atan2(my-geom.cy, mx-geom.cx); },
+        pick:rPick
+      });
+      // C is free point on circle
+      list.push({
+        id:"C", type:"angle",
+        getPos:()=>onCircle(state.t110.C, geom),
+        setFrom:(mx,my)=>{ state.t110.C = Math.atan2(my-geom.cy, mx-geom.cx); },
+        pick:rPick
+      });
+    }
+    return list;
+  }
+
+  function canvasToLocal(e){
+    const rect = canvas.getBoundingClientRect();
+    return {x:(e.clientX-rect.left), y:(e.clientY-rect.top)};
+  }
+
+  canvas.addEventListener('mousedown', (e)=>{
+    const geom = circleGeom();
+    const m = canvasToLocal(e);
+    const drags = getDraggables(geom);
+    let best=null, bestD=1e9;
+    for(const d of drags){
+      const p = d.getPos();
+      const dd = dist(p,m);
+      if(dd < d.pick && dd < bestD){ best = d; bestD=dd; }
+    }
+    if(best){
+      drag.active = best;
+      canvas.style.cursor = "grabbing";
+    }
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!drag.active) return;
+    const geom = circleGeom();
+    const m = canvasToLocal(e);
+    drag.active.setFrom(m.x, m.y);
+    draw(); updatePanel();
+  });
+  window.addEventListener('mouseup', ()=>{
+    drag.active = null;
+    canvas.style.cursor = "default";
+  });
+
+  // ---------- Drawing ----------
+  function clear(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+
+  function draw(){
+    resizeCanvas();
+    const geom = circleGeom();
+    clear();
+
+    // faint dotted background
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    for(let y=20; y<geom.h; y+=32){
+      for(let x=20; x<geom.w; x+=32){
+        ctx.beginPath();
+        ctx.arc(x*DPR,y*DPR,1.4*DPR,0,TAU);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    drawCircle(geom.cx, geom.cy, geom.R);
+
+    if(state.mode === "t107") drawT107(geom);
+    if(state.mode === "t108") drawT108(geom);
+    if(state.mode === "t109") drawT109(geom);
+    if(state.mode === "t110") drawT110(geom);
+  }
+
+  function drawLabel(p, label){
+    if(!state.showLabels) return;
+    text(label, p.x, p.y - 18, 13, "rgba(233,238,252,0.95)");
+  }
+
+  function drawCenter(geom){
+    drawPoint({x:geom.cx, y:geom.cy}, 5, "rgba(125,211,252,0.95)");
+    if(state.showLabels) text("O", geom.cx, geom.cy + 18, 12, "rgba(184,195,230,0.9)");
+  }
+
+  // ---- 10.7 ----
+  function drawT107(geom){
+    const A = onCircle(state.t107.A, geom);
+    const B = onCircle(state.t107.B, geom);
+    const C = onCircle(state.t107.C, geom);
+    const O = p2(geom.cx, geom.cy);
+
+    // chords for inscribed angle
+    drawSegment(C,A, 3.2, "rgba(167,243,208,0.95)", 1);
+    drawSegment(C,B, 3.2, "rgba(167,243,208,0.95)", 1);
+
+    // angle wedge at C
+    drawAngleWedge(C, A, B, 30, "rgba(167,243,208,0.18)");
+
+    if(state.showRadii){
+      // highlight intercepted arc AB
+      drawArcMinor(geom.cx, geom.cy, geom.R, state.t107.A, state.t107.B, 7, "rgba(251,191,36,0.70)", 0.9);
+      // radii (central angle)
+      drawSegment(O,A, 2.2, "rgba(125,211,252,0.65)", 1, [8,7]);
+      drawSegment(O,B, 2.2, "rgba(125,211,252,0.65)", 1, [8,7]);
+      drawAngleWedge(O, A, B, 34, "rgba(125,211,252,0.16)");
+      drawCenter(geom);
+    }
+
+    // points
+    drawPoint(A); drawPoint(B); drawPoint(C);
+    drawLabel(A,"A"); drawLabel(B,"B"); drawLabel(C,"C");
+
+    if(state.showLabels){
+      text("∠ACB", C.x+42, C.y, 12, "rgba(167,243,208,0.95)", "left");
+      text("arc AB", geom.cx, geom.cy - geom.R - 18, 12, "rgba(251,191,36,0.95)");
+    }
+  }
+
+  // ---- 10.8 ----
+  function drawT108(geom){
+    const A = onCircle(state.t108.A, geom);
+    const B = onCircle(state.t108.B, geom);
+    const C = onCircle(state.t108.C, geom);
+    const D = onCircle(state.t108.D, geom);
+
+    // chords for angle at C
+    drawSegment(C,A, 3.0, "rgba(167,243,208,0.95)", 1);
+    drawSegment(C,B, 3.0, "rgba(167,243,208,0.95)", 1);
+    drawAngleWedge(C, A, B, 28, "rgba(167,243,208,0.18)");
+
+    // chords for angle at D
+    drawSegment(D,A, 3.0, "rgba(125,211,252,0.85)", 1);
+    drawSegment(D,B, 3.0, "rgba(125,211,252,0.85)", 1);
+    drawAngleWedge(D, A, B, 28, "rgba(125,211,252,0.16)");
+
+    if(state.showRadii){
+      // highlight the same intercepted arc AB
+      drawArcMinor(geom.cx, geom.cy, geom.R, state.t108.A, state.t108.B, 7, "rgba(251,191,36,0.70)", 0.9);
+      drawCenter(geom);
+    }
+
+    // points
+    drawPoint(A); drawPoint(B); drawPoint(C); drawPoint(D);
+    drawLabel(A,"A"); drawLabel(B,"B"); drawLabel(C,"C"); drawLabel(D,"D");
+
+    if(state.showLabels){
+      text("∠ACB", C.x+42, C.y, 12, "rgba(167,243,208,0.95)", "left");
+      text("∠ADB", D.x+42, D.y, 12, "rgba(125,211,252,0.95)", "left");
+    }
+  }
+
+  // ---- 10.9 ----
+  function drawT109(geom){
+    const A = onCircle(state.t109.A, geom);
+    const B = onCircle(state.t109.B, geom);
+    const C = onCircle(state.t109.C, geom);
+    const D = onCircle(state.t109.D, geom);
+
+    // draw quadrilateral
+    drawSegment(A,B, 3.0, "rgba(167,243,208,0.95)", 1);
+    drawSegment(B,C, 3.0, "rgba(167,243,208,0.95)", 1);
+    drawSegment(C,D, 3.0, "rgba(167,243,208,0.95)", 1);
+    drawSegment(D,A, 3.0, "rgba(167,243,208,0.95)", 1);
+
+    // show opposite angles wedges at A and C
+    drawAngleWedge(A, D, B, 28, "rgba(251,191,36,0.16)");
+    drawAngleWedge(C, B, D, 28, "rgba(251,191,36,0.16)");
+
+    if(state.showRadii){
+      drawCenter(geom);
+    }
+
+    // points
+    drawPoint(A); drawPoint(B); drawPoint(C); drawPoint(D);
+    drawLabel(A,"A"); drawLabel(B,"B"); drawLabel(C,"C"); drawLabel(D,"D");
+
+    if(state.showLabels){
+      text("∠A", A.x+36, A.y, 12, "rgba(251,191,36,0.95)", "left");
+      text("∠C", C.x+36, C.y, 12, "rgba(251,191,36,0.95)", "left");
+    }
+  }
+
+  // ---- 10.10 ----
+  function drawT110(geom){
+    const O = p2(geom.cx, geom.cy);
+    const A = onCircle(state.t110.diam, geom);
+    const B = onCircle(state.t110.diam + Math.PI, geom);
+    const C = onCircle(state.t110.C, geom);
+
+    // diameter AB
+    drawSegment(A,B, 3.0, "rgba(125,211,252,0.90)", 1);
+
+    // triangle
+    drawSegment(A,C, 3.0, "rgba(167,243,208,0.95)", 1);
+    drawSegment(B,C, 3.0, "rgba(167,243,208,0.95)", 1);
+
+    // angle wedge at C
+    drawAngleWedge(C, A, B, 30, "rgba(167,243,208,0.18)");
+
+    if(state.showRadii){
+      // highlight semicircle arc AB (minor arc is pi either way); show just one half by drawing from A to B along CCW
+      // We'll do a thick arc from A to B using the shorter direction; since A-B is diameter, it's exactly pi.
+      drawArcMinor(geom.cx, geom.cy, geom.R, state.t110.diam, state.t110.diam + Math.PI, 7, "rgba(251,191,36,0.60)", 0.9);
+      drawCenter(geom);
+    }
+
+    // right angle marker when close
+    const angC = angleAtVertex(C, A, B);
+    const close90 = Math.abs(angC - Math.PI/2) < (3*Math.PI/180);
+    if(close90){
+      drawRightAngleMarkerAtVertex(C, A, B, 16);
+    }
+
+    drawPoint(A); drawPoint(B); drawPoint(C);
+    drawLabel(A,"A"); drawLabel(B,"B"); drawLabel(C,"C");
+
+    if(state.showLabels){
+      text("diameter AB", (A.x+B.x)/2, (A.y+B.y)/2 - 16, 12, "rgba(125,211,252,0.95)");
+    }
+  }
+
+  // ---------- Panel / measurements ----------
+  const modeTitle = document.getElementById('modeTitle');
+  const modeDesc  = document.getElementById('modeDesc');
+  const promptsEl = document.getElementById('prompts');
+  const measureBox = document.getElementById('measureBox');
+  const theoremText = document.getElementById('theoremText');
+  const dragHint = document.getElementById('dragHint');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+
+  function fmtDeg(rad){ return (rad*180/Math.PI).toFixed(1) + "°"; }
+  function setStatus(kind, msg){
+    statusDot.className = "dot " + (kind || "warn");
+    statusText.textContent = msg;
+  }
+
+  function updatePanel(){
+    const info = modeInfo[state.mode];
+    modeTitle.textContent = info.title;
+    modeDesc.textContent = info.desc;
+    dragHint.innerHTML = `<strong>Drag:</strong> ${info.dragHint}`;
+    promptsEl.innerHTML = info.prompts.map(p => `<li>${p}</li>`).join("");
+    theoremText.textContent = info.theorem;
+
+    if(!state.showMeasures){
+      measureBox.innerHTML = `<div class="hint">Measures are hidden. Make a prediction first, then switch “show measures” ON.</div>`;
+      setStatus("warn","Measures hidden. Predict first, then verify.");
+      return;
+    }
+
+    const geom = circleGeom();
+    const O = p2(geom.cx, geom.cy);
+
+    if(state.mode === "t107"){
+      const aA=state.t107.A, aB=state.t107.B, aC=state.t107.C;
+      const A = onCircle(aA, geom), B = onCircle(aB, geom), C = onCircle(aC, geom);
+
+      const arcAB = minorArc(aA,aB);         // central angle for minor arc AB
+      const ins = angleAtVertex(C, A, B);    // inscribed angle ACB
+      const halfArc = arcAB/2;
+
+      const err = Math.abs(ins - halfArc);
+      const ok = err < (2.0*Math.PI/180);
+
+      setStatus(ok ? "good" : "warn",
+        ok ? "Nice! The inscribed angle is half the intercepted arc." : "Drag more — does ∠ACB keep matching half of arc AB?"
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">Intercepted minor arc AB (central angle)</td><td class="v">${fmtDeg(arcAB)}</td></tr>
+          <tr><td class="k">Half of arc AB</td><td class="v">${fmtDeg(halfArc)}</td></tr>
+          <tr><td class="k">Inscribed angle ∠ACB</td><td class="v">${fmtDeg(ins)}</td></tr>
+          <tr><td class="k">Difference |∠ACB − ½(arc AB)|</td><td class="v">${fmtDeg(err)}</td></tr>
+        </table>
+      `;
+    }
+
+    if(state.mode === "t108"){
+      const aA=state.t108.A, aB=state.t108.B, aC=state.t108.C, aD=state.t108.D;
+      const A = onCircle(aA, geom), B = onCircle(aB, geom), C = onCircle(aC, geom), D = onCircle(aD, geom);
+
+      const ang1 = angleAtVertex(C, A, B); // ∠ACB
+      const ang2 = angleAtVertex(D, A, B); // ∠ADB
+      const arcAB = minorArc(aA,aB);
+
+      const err = Math.abs(ang1-ang2);
+      const ok = err < (2.0*Math.PI/180);
+
+      setStatus(ok ? "good" : "warn",
+        ok ? "They match! Same intercepted arc AB gives equal inscribed angles." : "Try moving C and D: do the angles keep matching?"
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">Intercepted minor arc AB (central angle)</td><td class="v">${fmtDeg(arcAB)}</td></tr>
+          <tr><td class="k">Inscribed angle ∠ACB</td><td class="v">${fmtDeg(ang1)}</td></tr>
+          <tr><td class="k">Inscribed angle ∠ADB</td><td class="v">${fmtDeg(ang2)}</td></tr>
+          <tr><td class="k">Difference |∠ACB − ∠ADB|</td><td class="v">${fmtDeg(err)}</td></tr>
+        </table>
+      `;
+    }
+
+    if(state.mode === "t109"){
+      const aA=state.t109.A, aB=state.t109.B, aC=state.t109.C, aD=state.t109.D;
+      const A = onCircle(aA, geom), B = onCircle(aB, geom), C = onCircle(aC, geom), D = onCircle(aD, geom);
+
+      // interior angles (assuming order A-B-C-D around the circle)
+      const angA = angleAtVertex(A, D, B);
+      const angB = angleAtVertex(B, A, C);
+      const angC = angleAtVertex(C, B, D);
+      const angD = angleAtVertex(D, C, A);
+
+      const sumAC = angA + angC;
+      const sumBD = angB + angD;
+
+      const err1 = Math.abs(sumAC - Math.PI);
+      const err2 = Math.abs(sumBD - Math.PI);
+      const ok = (err1 < (2.0*Math.PI/180)) && (err2 < (2.0*Math.PI/180));
+
+      setStatus(ok ? "good" : "warn",
+        ok ? "Opposite angles add to 180° (supplementary) — try many shapes!" : "Keep exploring: do opposite angles keep summing to 180°?"
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">∠A</td><td class="v">${fmtDeg(angA)}</td></tr>
+          <tr><td class="k">∠C</td><td class="v">${fmtDeg(angC)}</td></tr>
+          <tr><td class="k">∠A + ∠C</td><td class="v">${fmtDeg(sumAC)}</td></tr>
+          <tr><td class="k">Difference from 180°</td><td class="v">${fmtDeg(err1)}</td></tr>
+          <tr><td class="k">∠B + ∠D</td><td class="v">${fmtDeg(sumBD)}</td></tr>
+          <tr><td class="k">Difference from 180°</td><td class="v">${fmtDeg(err2)}</td></tr>
+        </table>
+      `;
+    }
+
+    if(state.mode === "t110"){
+      const a = state.t110.diam;
+      const A = onCircle(a, geom);
+      const B = onCircle(a + Math.PI, geom);
+      const C = onCircle(state.t110.C, geom);
+
+      const angC = angleAtVertex(C, A, B);
+      const err = Math.abs(angC - Math.PI/2);
+      const ok = err < (2.0*Math.PI/180);
+
+      setStatus(ok ? "good" : "warn",
+        ok ? "Right angle! ∠ACB stays at 90° because AB is a diameter." : "Move C and rotate AB: does ∠ACB stay near 90°?"
+      );
+
+      measureBox.innerHTML = `
+        <table>
+          <tr><td class="k">∠ACB</td><td class="v">${fmtDeg(angC)}</td></tr>
+          <tr><td class="k">Difference from 90°</td><td class="v">${fmtDeg(err)}</td></tr>
+          <tr><td class="k">Arc AB (a semicircle)</td><td class="v">180.0°</td></tr>
+        </table>
+      `;
+    }
+  }
+
+  // ---------- Controls ----------
+  const showMeasures = document.getElementById('showMeasures');
+  const showRadii = document.getElementById('showRadii');
+  const showLabels = document.getElementById('showLabels');
+  const resetBtn = document.getElementById('resetBtn');
+  const nudgeBtn = document.getElementById('nudgeBtn');
+
+  showMeasures.addEventListener('change', ()=>{ state.showMeasures = showMeasures.checked; updatePanel(); });
+  showRadii.addEventListener('change', ()=>{ state.showRadii = showRadii.checked; draw(); });
+  showLabels.addEventListener('change', ()=>{ state.showLabels = showLabels.checked; draw(); });
+
+  resetBtn.addEventListener('click', ()=>{
+    if(state.mode==="t107"){ randomizeAngles(state.t107); }
+    if(state.mode==="t108"){ randomizeAngles(state.t108); }
+    if(state.mode==="t109"){
+      // keep them spaced a bit so it's a nice simple quadrilateral
+      const base = Math.random()*TAU;
+      state.t109.A = normAng(base + 0.20);
+      state.t109.B = normAng(base + 1.70);
+      state.t109.C = normAng(base + 3.55);
+      state.t109.D = normAng(base + 5.00);
+    }
+    if(state.mode==="t110"){ state.t110.diam = Math.random()*TAU; state.t110.C = Math.random()*TAU; }
+    draw(); updatePanel();
+  });
+
+  nudgeBtn.addEventListener('click', ()=>{
+    // "nearly true" (it is always true mathematically — this just creates a clean looking starting position)
+    if(state.mode==="t107"){
+      const mid = Math.random()*TAU;
+      const arc = (60 + Math.random()*120) * Math.PI/180; // 60..180
+      state.t107.A = normAng(mid - arc/2);
+      state.t107.B = normAng(mid + arc/2);
+      state.t107.C = normAng(mid + Math.PI/2 + (Math.random()*0.30 - 0.15));
+    }
+    if(state.mode==="t108"){
+      const mid = Math.random()*TAU;
+      const arc = (70 + Math.random()*120) * Math.PI/180;
+      state.t108.A = normAng(mid - arc/2);
+      state.t108.B = normAng(mid + arc/2);
+      state.t108.C = normAng(mid + Math.PI/2 + 0.35);
+      state.t108.D = normAng(mid + Math.PI/2 + 1.25);
+    }
+    if(state.mode==="t109"){
+      const base = Math.random()*TAU;
+      state.t109.A = normAng(base + 0.15);
+      state.t109.B = normAng(base + 1.65);
+      state.t109.C = normAng(base + 3.40);
+      state.t109.D = normAng(base + 5.05);
+    }
+    if(state.mode==="t110"){
+      state.t110.diam = Math.random()*TAU;
+      state.t110.C = normAng(state.t110.diam + 1.35);
+    }
+    draw(); updatePanel();
+  });
+
+  // Mode switching
+  document.querySelectorAll('.modeBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.modeBtn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+      draw(); updatePanel();
+    });
+  });
+
+  // initial
+  resizeCanvas();
+  draw();
+  updatePanel();
+
+})();
+</script>
+</body>
+</html>
