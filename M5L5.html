@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tangents & Circumscribed Angles Explorer (Theorems 10.11–10.13)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a33;
+      --panel2:#0c162c;
+      --text:#e9eefc;
+      --muted:#b8c3e6;
+      --accent:#7dd3fc;
+      --accent2:#a7f3d0;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --good:#34d399;
+      --line:#203054;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 20% 5%, #12214a 0%, var(--bg) 45%, #070b14 100%);
+      color:var(--text);
+    }
+
+    header{
+      padding:22px 18px 8px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    .kicker{
+      color:var(--accent);
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:.78rem;
+    }
+    h1{
+      margin:.25rem 0 0;
+      font-size:1.75rem;
+      line-height:1.2;
+      font-weight:800;
+    }
+    .sub{
+      margin:.55rem 0 0;
+      color:var(--muted);
+      max-width:70ch;
+      font-size:.98rem;
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:12px 18px 26px;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:14px;
+    }
+
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border:1px solid rgba(125,211,252,0.14);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+
+    .card .hd{
+      padding:14px 14px 10px;
+      border-bottom:1px solid rgba(125,211,252,0.12);
+      background: linear-gradient(180deg, rgba(125,211,252,0.08), transparent);
+    }
+    .card .hd .title{
+      font-weight:800;
+      font-size:1.02rem;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .pill{
+      font-size:.72rem;
+      color:var(--bg);
+      background: var(--accent);
+      padding:3px 8px;
+      border-radius:999px;
+      font-weight:800;
+    }
+
+    .card .bd{
+      padding:14px;
+    }
+
+    .hint{
+      margin:0 0 10px;
+      color:var(--muted);
+      font-size:.95rem;
+      line-height:1.4;
+    }
+
+    .steps{
+      margin:12px 0 14px;
+      padding:12px;
+      border-radius:14px;
+      background: rgba(15,26,51,0.55);
+      border:1px solid rgba(167,243,208,0.13);
+    }
+    .steps h3{
+      margin:0 0 8px;
+      font-size:.95rem;
+      color:var(--accent2);
+      font-weight:800;
+    }
+    .steps ul{
+      margin:0;
+      padding-left:18px;
+      color:var(--text);
+    }
+    .steps li{
+      margin:6px 0;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+    .steps b{ color: var(--text); }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 980px){
+      .grid2{ grid-template-columns: 1fr; }
+    }
+
+    .control{
+      padding:10px 12px;
+      background: rgba(12,22,44,0.7);
+      border:1px solid rgba(125,211,252,0.12);
+      border-radius:14px;
+    }
+    .control label{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-weight:700;
+      color:var(--text);
+      font-size:.9rem;
+      margin-bottom:6px;
+    }
+    .control small{
+      color:var(--muted);
+      display:block;
+      font-size:.82rem;
+      margin-top:6px;
+      line-height:1.35;
+    }
+
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--accent);
+    }
+
+    .checks{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px 10px;
+      margin-top:10px;
+    }
+    .checks label{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-weight:600;
+      color:var(--muted);
+      font-size:.88rem;
+      user-select:none;
+      cursor:pointer;
+    }
+    .checks input{ accent-color: var(--accent2); }
+
+    .btnrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    button{
+      border:0;
+      cursor:pointer;
+      border-radius:14px;
+      padding:10px 12px;
+      font-weight:800;
+      font-size:.9rem;
+      color:var(--bg);
+      background: var(--accent);
+      box-shadow: 0 10px 24px rgba(125,211,252,0.2);
+    }
+    button.secondary{
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border:1px solid rgba(125,211,252,0.22);
+      box-shadow:none;
+    }
+    button:active{ transform: translateY(1px); }
+
+    .readouts{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .readout{
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(125,211,252,0.14);
+      background: rgba(15,26,51,0.45);
+    }
+    .readout .name{
+      color:var(--muted);
+      font-weight:700;
+      font-size:.82rem;
+      margin-bottom:4px;
+    }
+    .readout .val{
+      font-weight:900;
+      font-size:1.05rem;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .badge{
+      font-size:.74rem;
+      padding:2px 8px;
+      border-radius:999px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .badge.good{
+      color: var(--good);
+      border-color: rgba(52,211,153,0.35);
+      background: rgba(52,211,153,0.08);
+    }
+    .badge.bad{
+      color: var(--bad);
+      border-color: rgba(251,113,133,0.35);
+      background: rgba(251,113,133,0.08);
+    }
+
+    .canvasWrap{
+      position:relative;
+      padding:0;
+    }
+    canvas{
+      width:100%;
+      height: 640px;
+      display:block;
+      background: radial-gradient(900px 500px at 50% 40%, rgba(125,211,252,0.08), transparent 60%),
+                  linear-gradient(180deg, rgba(12,22,44,0.75), rgba(11,18,32,0.85));
+      border-radius:18px;
+    }
+    @media (max-width: 980px){
+      canvas{ height: 560px; }
+    }
+
+    .overlayTag{
+      position:absolute;
+      top:12px;
+      right:12px;
+      background: rgba(0,0,0,0.35);
+      border:1px solid rgba(125,211,252,0.18);
+      color: var(--muted);
+      padding:8px 10px;
+      border-radius:14px;
+      font-size:.82rem;
+      backdrop-filter: blur(4px);
+      max-width: 360px;
+    }
+    .overlayTag b{ color: var(--text); }
+
+    .footerNote{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:.88rem;
+      line-height:1.35;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      background: rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      padding:2px 6px;
+      border-radius:8px;
+      color:var(--text);
+      font-size:.78rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="kicker">Learn</div>
+    <h1>Tangents & Circumscribed Angles Explorer</h1>
+    <p class="sub">
+      Drag the outside point <b>S</b> and watch what always stays true.
+      This applet helps you <b>discover</b> Theorems <b>10.11</b>, <b>10.12</b>, and <b>10.13</b> (tangents + circumscribed angles).
+    </p>
+  </header>
+
+  <main class="wrap">
+    <!-- LEFT PANEL -->
+    <section class="card">
+      <div class="hd">
+        <div class="title">
+          <span class="pill">Explore</span>
+          <span>Student Investigation</span>
+        </div>
+      </div>
+
+      <div class="bd">
+        <p class="hint">
+          You have a circle with center <b>P</b> and an outside point <b>S</b>.
+          From <b>S</b> we draw two tangents that touch the circle at <b>Q</b> and <b>R</b>.
+        </p>
+
+        <div class="steps">
+          <h3>What to do</h3>
+          <ul>
+            <li><b>Drag point S</b> around the outside.</li>
+            <li>Notice the <b>right angles</b> at the points of tangency (<b>Q</b> and <b>R</b>).</li>
+            <li>Compare the lengths <b>SQ</b> and <b>SR</b>.</li>
+            <li>Compare the angles <b>∠QPR</b> (central) and <b>∠QSR</b> (circumscribed).</li>
+          </ul>
+        </div>
+
+        <div class="grid2">
+          <div class="control">
+            <label>
+              Circle radius
+              <span id="rLabel" class="badge">140 px</span>
+            </label>
+            <input id="radius" type="range" min="90" max="190" value="140" />
+            <small>Change the circle size and see if the theorems still work.</small>
+          </div>
+
+          <div class="control">
+            <label>
+              Snap safety (keep S outside)
+              <span id="marginLabel" class="badge">24 px</span>
+            </label>
+            <input id="margin" type="range" min="10" max="60" value="24" />
+            <small>If you drag too close, S will be pushed slightly outward.</small>
+          </div>
+        </div>
+
+        <div class="control" style="margin-top:10px;">
+          <label>Show / Hide</label>
+          <div class="checks">
+            <label><input id="showMeasures" type="checkbox" checked /> Measurements</label>
+            <label><input id="showAngles" type="checkbox" checked /> Angle arcs</label>
+            <label><input id="showRadii" type="checkbox" checked /> Radii (PQ, PR)</label>
+            <label><input id="showRight" type="checkbox" checked /> Right-angle marks</label>
+            <label><input id="showLabels" type="checkbox" checked /> Labels (P,Q,R,S)</label>
+            <label><input id="showGuide" type="checkbox" checked /> Quick hint</label>
+          </div>
+        </div>
+
+        <div class="btnrow">
+          <button id="reset">Reset</button>
+          <button id="random" class="secondary">Random S</button>
+          <button id="challenge" class="secondary">Challenge mode</button>
+        </div>
+
+        <div class="readouts">
+          <div class="readout">
+            <div class="name">Theorem 10.11</div>
+            <div class="val">
+              <span>Angle (radius ⟂ tangent)</span>
+              <span id="perpBadge" class="badge">--</span>
+            </div>
+          </div>
+
+          <div class="readout">
+            <div class="name">Theorem 10.12</div>
+            <div class="val">
+              <span>SQ − SR</span>
+              <span id="diffBadge" class="badge">--</span>
+            </div>
+          </div>
+
+          <div class="readout">
+            <div class="name">Central angle</div>
+            <div class="val">
+              <span>m∠QPR</span>
+              <span id="centralVal" class="badge">--</span>
+            </div>
+          </div>
+
+          <div class="readout">
+            <div class="name">Circumscribed angle</div>
+            <div class="val">
+              <span>m∠QSR</span>
+              <span id="circVal" class="badge">--</span>
+            </div>
+          </div>
+
+          <div class="readout" style="grid-column:1/-1;">
+            <div class="name">Theorem 10.13</div>
+            <div class="val">
+              <span>m∠QPR + m∠QSR</span>
+              <span id="sumBadge" class="badge">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="footerNote">
+          Tip: Use your eyes first, numbers second. Your goal is to say:
+          <b>“This seems to always be true…”</b> and then explain why.
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <section class="card canvasWrap">
+      <div class="hd">
+        <div class="title">
+          <span class="pill">Diagram</span>
+          <span>Drag point <b>S</b> (outside the circle)</span>
+        </div>
+      </div>
+
+      <div class="bd" style="padding:12px;">
+        <div class="overlayTag" id="overlay">
+          <b>Try this:</b> Move <b>S</b> farther away. What happens to the circumscribed angle?
+        </div>
+        <canvas id="viz"></canvas>
+      </div>
+    </section>
+  </main>
+
+<script>
+(() => {
+  // ===== Helpers =====
+  const TAU = Math.PI * 2;
+  const rad2deg = r => r * 180 / Math.PI;
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+  const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+  const dot = (ax,ay,bx,by) => ax*bx + ay*by;
+  const angleBetween = (v1, v2) => {
+    const d = dot(v1.x,v1.y,v2.x,v2.y);
+    const m1 = Math.hypot(v1.x, v1.y);
+    const m2 = Math.hypot(v2.x, v2.y);
+    if(m1*m2 === 0) return 0;
+    const c = clamp(d/(m1*m2), -1, 1);
+    return Math.acos(c);
+  };
+
+  // ===== DOM =====
+  const canvas = document.getElementById('viz');
+  const ctx = canvas.getContext('2d');
+
+  const radiusEl = document.getElementById('radius');
+  const marginEl = document.getElementById('margin');
+
+  const rLabel = document.getElementById('rLabel');
+  const marginLabel = document.getElementById('marginLabel');
+
+  const showMeasuresEl = document.getElementById('showMeasures');
+  const showAnglesEl = document.getElementById('showAngles');
+  const showRadiiEl = document.getElementById('showRadii');
+  const showRightEl = document.getElementById('showRight');
+  const showLabelsEl = document.getElementById('showLabels');
+  const showGuideEl = document.getElementById('showGuide');
+
+  const resetBtn = document.getElementById('reset');
+  const randomBtn = document.getElementById('random');
+  const challengeBtn = document.getElementById('challenge');
+
+  const overlay = document.getElementById('overlay');
+
+  const perpBadge = document.getElementById('perpBadge');
+  const diffBadge = document.getElementById('diffBadge');
+  const centralVal = document.getElementById('centralVal');
+  const circVal = document.getElementById('circVal');
+  const sumBadge = document.getElementById('sumBadge');
+
+  // ===== State =====
+  let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+  let W = 900, H = 640;
+  let P = {x: 0, y: 0};        // circle center
+  let r = +radiusEl.value;
+  let safetyMargin = +marginEl.value;
+
+  let S = {x: 0, y: 0};        // draggable outside point
+  let draggingS = false;
+  let challengeMode = false;
+
+  // Derived points
+  let Q = {x: 0, y: 0};
+  let R = {x: 0, y: 0};
+
+  // ===== Geometry: Tangency points from external point =====
+  function computeTangencyPoints() {
+    const dx = S.x - P.x;
+    const dy = S.y - P.y;
+    const D = Math.hypot(dx, dy);
+
+    // Make sure S is outside circle
+    const minD = r + safetyMargin;
+    if (D <= minD) {
+      const a = Math.atan2(dy, dx);
+      S.x = P.x + minD * Math.cos(a);
+      S.y = P.y + minD * Math.sin(a);
+    }
+
+    const Dx = S.x - P.x;
+    const Dy = S.y - P.y;
+    const D2 = Math.hypot(Dx, Dy);
+
+    const phi = Math.atan2(Dy, Dx);
+    const alpha = Math.acos(clamp(r / D2, -1, 1)); // angle from PS to PQ
+
+    Q.x = P.x + r * Math.cos(phi + alpha);
+    Q.y = P.y + r * Math.sin(phi + alpha);
+
+    R.x = P.x + r * Math.cos(phi - alpha);
+    R.y = P.y + r * Math.sin(phi - alpha);
+
+    return {phi, alpha, D: D2};
+  }
+
+  // ===== Drawing helpers =====
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    W = Math.floor(rect.width);
+    H = Math.floor(rect.height);
+
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    P = { x: W*0.52, y: H*0.52 };
+
+    // initial S if unset or offscreen
+    if (!S._init) {
+      S = { x: P.x + r + 170, y: P.y - 80, _init: true };
+    } else {
+      // keep S roughly where it was relative to center after resize
+      const dx = S.x - P.x;
+      const dy = S.y - P.y;
+      S.x = P.x + dx;
+      S.y = P.y + dy;
+    }
+  }
+
+  function clear() {
+    ctx.clearRect(0,0,W,H);
+  }
+
+  function drawCircle() {
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(125,211,252,0.95)";
+    ctx.beginPath();
+    ctx.arc(P.x, P.y, r, 0, TAU);
+    ctx.stroke();
+
+    // subtle center glow
+    ctx.fillStyle = "rgba(125,211,252,0.07)";
+    ctx.beginPath();
+    ctx.arc(P.x, P.y, r-3, 0, TAU);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawLine(a, b, style="rgba(233,238,252,0.9)", w=2) {
+    ctx.save();
+    ctx.strokeStyle = style;
+    ctx.lineWidth = w;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPoint(pt, label, color="rgba(233,238,252,1)", r0=6) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, r0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+
+    if (!showLabelsEl.checked) return;
+
+    ctx.save();
+    ctx.font = "700 16px system-ui";
+    ctx.fillStyle = "rgba(233,238,252,0.95)";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(label, pt.x, pt.y - 10);
+    ctx.restore();
+  }
+
+  function drawAngleArc(vertex, a, b, radiusArc, color, thickness=3) {
+    // Draw arc at vertex from ray VA to ray VB
+    const angA = Math.atan2(a.y-vertex.y, a.x-vertex.x);
+    const angB = Math.atan2(b.y-vertex.y, b.x-vertex.x);
+
+    // normalize to shortest direction
+    let start = angA;
+    let end = angB;
+    let delta = end - start;
+    while (delta <= -Math.PI) delta += TAU;
+    while (delta >  Math.PI) delta -= TAU;
+
+    end = start + delta; // shortest arc
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = thickness;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.arc(vertex.x, vertex.y, radiusArc, start, end, delta < 0);
+    ctx.stroke();
+    ctx.restore();
+
+    return {start, end, delta};
+  }
+
+  function drawRightAngleMark(A, V, B, size=14, color="rgba(167,243,208,0.95)") {
+    // Draw a little square at vertex V between rays V->A and V->B.
+    // Works best when angle is near 90°.
+    const v1 = {x: A.x - V.x, y: A.y - V.y};
+    const v2 = {x: B.x - V.x, y: B.y - V.y};
+    const m1 = Math.hypot(v1.x, v1.y);
+    const m2 = Math.hypot(v2.x, v2.y);
+    if(m1===0 || m2===0) return;
+
+    const u1 = {x: v1.x/m1, y: v1.y/m1};
+    const u2 = {x: v2.x/m2, y: v2.y/m2};
+
+    const p1 = {x: V.x + u1.x*size, y: V.y + u1.y*size};
+    const p2 = {x: V.x + u2.x*size, y: V.y + u2.y*size};
+    const p3 = {x: p1.x + u2.x*size, y: p1.y + u2.y*size};
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function fmtDeg(x){
+    return `${x.toFixed(1)}°`;
+  }
+
+  // ===== Main draw =====
+  function draw() {
+    clear();
+
+    r = +radiusEl.value;
+    safetyMargin = +marginEl.value;
+
+    rLabel.textContent = `${r} px`;
+    marginLabel.textContent = `${safetyMargin} px`;
+
+    const {D} = computeTangencyPoints();
+
+    // background guide (optional)
+    if (showGuideEl.checked) {
+      ctx.save();
+      ctx.fillStyle = "rgba(233,238,252,0.06)";
+      ctx.font = "700 13px system-ui";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText("Drag S. Tangents touch at Q and R.", 14, 12);
+      ctx.fillText("Look for: 90°, equal lengths, and angles adding to 180°.", 14, 30);
+      ctx.restore();
+    }
+
+    drawCircle();
+
+    // Tangent segments
+    drawLine(S, Q, "rgba(125,211,252,0.95)", 3);
+    drawLine(S, R, "rgba(125,211,252,0.95)", 3);
+
+    // Radii
+    if (showRadiiEl.checked) {
+      drawLine(P, Q, "rgba(233,238,252,0.55)", 2);
+      drawLine(P, R, "rgba(233,238,252,0.55)", 2);
+    }
+
+    // Points
+    drawPoint(P, "P", "rgba(233,238,252,0.95)", 5);
+    drawPoint(Q, "Q", "rgba(233,238,252,0.95)", 6);
+    drawPoint(R, "R", "rgba(233,238,252,0.95)", 6);
+    drawPoint(S, "S", "rgba(251,191,36,0.98)", 7);
+
+    // Right angles at tangency points
+    if (showRightEl.checked) {
+      drawRightAngleMark(P, Q, S, 13);
+      drawRightAngleMark(P, R, S, 13);
+    }
+
+    // Angles + measures
+    const vPQ = {x: Q.x-P.x, y: Q.y-P.y};
+    const vPR = {x: R.x-P.x, y: R.y-P.y};
+    const central = angleBetween(vPQ, vPR); // radians
+
+    const vSQ = {x: Q.x-S.x, y: Q.y-S.y};
+    const vSR = {x: R.x-S.x, y: R.y-S.y};
+    const circ = angleBetween(vSQ, vSR); // radians
+
+    // Perpendicular check at Q
+    const vQP = {x: P.x-Q.x, y: P.y-Q.y};
+    const vQS = {x: S.x-Q.x, y: S.y-Q.y};
+    const angleAtQ = angleBetween(vQP, vQS);
+    const perpOK = Math.abs(rad2deg(angleAtQ) - 90) < 0.8;
+
+    // Tangent lengths
+    const SQ = dist(S, Q);
+    const SR = dist(S, R);
+    const diff = SQ - SR;
+
+    // Supplementary check
+    const sum = rad2deg(central + circ);
+    const sumOK = Math.abs(sum - 180) < 0.8;
+
+    // Draw arcs for angles
+    if (showAnglesEl.checked) {
+      // central angle arc at P
+      drawAngleArc(P, Q, R, 40, "rgba(167,243,208,0.95)", 4);
+
+      // circumscribed angle arc at S
+      drawAngleArc(S, Q, R, 34, "rgba(251,191,36,0.95)", 4);
+    }
+
+    // Show measurement text on the diagram (optional)
+    if (showMeasuresEl.checked) {
+      ctx.save();
+      ctx.font = "800 14px system-ui";
+      ctx.fillStyle = "rgba(233,238,252,0.9)";
+
+      // central angle label near the center
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`∠QPR = ${fmtDeg(rad2deg(central))}`, P.x, P.y - 58);
+
+      // circumscribed angle label near S
+      ctx.fillStyle = "rgba(251,191,36,0.95)";
+      ctx.fillText(`∠QSR = ${fmtDeg(rad2deg(circ))}`, S.x, S.y - 42);
+
+      // tangent lengths near midpoints
+      const mid1 = {x:(S.x+Q.x)/2, y:(S.y+Q.y)/2};
+      const mid2 = {x:(S.x+R.x)/2, y:(S.y+R.y)/2};
+
+      ctx.fillStyle = "rgba(125,211,252,0.95)";
+      ctx.fillText(`SQ = ${SQ.toFixed(1)}`, mid1.x, mid1.y);
+      ctx.fillText(`SR = ${SR.toFixed(1)}`, mid2.x, mid2.y);
+
+      ctx.restore();
+    }
+
+    // Update readouts
+    perpBadge.textContent = `${rad2deg(angleAtQ).toFixed(1)}°`;
+    perpBadge.className = "badge " + (perpOK ? "good" : "bad");
+
+    diffBadge.textContent = diff.toFixed(2);
+    diffBadge.className = "badge " + (Math.abs(diff) < 0.6 ? "good" : "bad");
+
+    centralVal.textContent = fmtDeg(rad2deg(central));
+    circVal.textContent = fmtDeg(rad2deg(circ));
+
+    sumBadge.textContent = `${sum.toFixed(1)}°`;
+    sumBadge.className = "badge " + (sumOK ? "good" : "bad");
+
+    // Challenge mode hides numbers from the diagram, but still checks truth
+    if (challengeMode) {
+      // Fade overlay prompt
+      overlay.innerHTML = `<b>Challenge:</b> Can you explain why the sum stays near <b>180°</b> without using the measurements?`;
+    } else {
+      // Dynamic hint prompt
+      const far = D > r + 220;
+      overlay.innerHTML = far
+        ? `<b>Try this:</b> Move <b>S</b> closer. What happens to the central angle?`
+        : `<b>Try this:</b> Move <b>S</b> farther away. What happens to the circumscribed angle?`;
+    }
+
+    // Subtle emphasis rings around key angles when true
+    if (sumOK) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(52,211,153,0.20)";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(P.x, P.y, r+12, 0, TAU);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // ===== Interactions =====
+  function toCanvasCoords(evt){
+    const rect = canvas.getBoundingClientRect();
+    const x = (evt.clientX - rect.left);
+    const y = (evt.clientY - rect.top);
+    return {x,y};
+  }
+
+  function hitTest(pt, target, rad=14){
+    return dist(pt, target) <= rad;
+  }
+
+  function pointerDown(e){
+    const p = toCanvasCoords(e);
+    if(hitTest(p, S, 18)){
+      draggingS = true;
+    }
+  }
+
+  function pointerMove(e){
+    if(!draggingS) return;
+    const p = toCanvasCoords(e);
+    S.x = p.x;
+    S.y = p.y;
+    draw();
+  }
+
+  function pointerUp(){
+    draggingS = false;
+  }
+
+  canvas.addEventListener("pointerdown", pointerDown);
+  window.addEventListener("pointermove", pointerMove);
+  window.addEventListener("pointerup", pointerUp);
+
+  // Sliders
+  radiusEl.addEventListener("input", () => draw());
+  marginEl.addEventListener("input", () => draw());
+
+  // Toggles
+  [
+    showMeasuresEl, showAnglesEl, showRadiiEl,
+    showRightEl, showLabelsEl, showGuideEl
+  ].forEach(el => el.addEventListener("change", () => draw()));
+
+  // Buttons
+  resetBtn.addEventListener("click", () => {
+    challengeMode = false;
+    S = { x: P.x + r + 170, y: P.y - 80, _init: true };
+    showMeasuresEl.checked = true;
+    showAnglesEl.checked = true;
+    showRadiiEl.checked = true;
+    showRightEl.checked = true;
+    showLabelsEl.checked = true;
+    showGuideEl.checked = true;
+    draw();
+  });
+
+  randomBtn.addEventListener("click", () => {
+    const ang = Math.random() * TAU;
+    const d = r + 110 + Math.random()*220;
+    S.x = P.x + d*Math.cos(ang);
+    S.y = P.y + d*Math.sin(ang);
+    draw();
+  });
+
+  challengeBtn.addEventListener("click", () => {
+    challengeMode = !challengeMode;
+    // In challenge mode, hide measurement overlays but keep readouts (teacher can toggle them off too)
+    showMeasuresEl.checked = !challengeMode ? true : false;
+    draw();
+  });
+
+  // Resize
+  const ro = new ResizeObserver(() => {
+    resize();
+    draw();
+  });
+  ro.observe(canvas);
+
+  // Initial
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>
