@@ -1,0 +1,2079 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tangents, Secants & Angle Measures (10.14–10.16) Explorer</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a33;
+      --panel2:#0c162c;
+      --text:#e9eefc;
+      --muted:#b8c3e6;
+      --accent:#7dd3fc;
+      --accent2:#a7f3d0;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --good:#34d399;
+      --line:#20304a;
+      --chip:#17234a;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 700px at 20% 10%, #12204a 0%, var(--bg) 52%, #070b14 100%);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    header{
+      padding:18px 18px 8px;
+      display:flex;
+      align-items:flex-end;
+      gap:14px;
+    }
+    .learn{
+      font-weight:800;
+      color:var(--accent);
+      letter-spacing:.2px;
+      font-size:18px;
+    }
+    h1{
+      margin:0;
+      font-size:26px;
+      font-weight:850;
+      line-height:1.1;
+    }
+    .sub{
+      margin:6px 18px 14px;
+      color:var(--muted);
+      max-width:1100px;
+      font-size:14.5px;
+    }
+    .wrap{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:14px;
+      padding:0 18px 18px;
+      align-items:start;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel{
+      padding:14px;
+      background: linear-gradient(180deg, rgba(15,26,51,.95), rgba(12,22,44,.85));
+    }
+    .panel h2{
+      margin:0 0 10px;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+
+    .modeRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .btn{
+      cursor:pointer;
+      border:none;
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:750;
+      font-size:13px;
+      transition:.15s transform, .15s background, .15s border;
+      border:1px solid rgba(255,255,255,.08);
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.09); }
+    .btn.active{
+      background: rgba(125,211,252,.18);
+      border:1px solid rgba(125,211,252,.5);
+      box-shadow: 0 0 0 2px rgba(125,211,252,.10) inset;
+    }
+    .btn.ghost{
+      background:transparent;
+      border:1px dashed rgba(255,255,255,.18);
+      color:var(--muted);
+      font-weight:700;
+    }
+    .btn.small{
+      padding:7px 10px;
+      font-size:12.5px;
+      border-radius:12px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .chip{
+      background: rgba(23,35,74,.9);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:10px;
+    }
+    .chip h3{
+      margin:0 0 6px;
+      font-size:13px;
+      color:var(--accent2);
+      letter-spacing:.2px;
+    }
+    .chip p{
+      margin:0;
+      color:var(--muted);
+      font-size:12.8px;
+      line-height:1.28;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+    label.toggle{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-size:12.8px;
+      color:var(--muted);
+      user-select:none;
+      cursor:pointer;
+    }
+    input[type="checkbox"]{
+      width:16px;height:16px;
+      accent-color: var(--accent);
+    }
+    select{
+      width:100%;
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      padding:9px 10px;
+      outline:none;
+      font-weight:700;
+      font-size:13px;
+    }
+    .note{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--muted);
+      font-size:12.8px;
+      line-height:1.3;
+    }
+    .note b{ color: var(--text); }
+
+    .readout{
+      margin-top:10px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(6,12,26,.35);
+      padding:12px;
+    }
+    .kv{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      gap:10px;
+      padding:6px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .kv:last-child{ border-bottom:none; }
+    .k{
+      color:var(--muted);
+      font-size:12.5px;
+      font-weight:700;
+    }
+    .v{
+      font-variant-numeric: tabular-nums;
+      font-weight:850;
+      color:var(--text);
+      font-size:13.5px;
+      text-align:right;
+    }
+    .v.good{ color: var(--good); }
+    .v.warn{ color: var(--warn); }
+    .v.bad{ color: var(--bad); }
+
+    .canvasCard{ padding:12px; }
+    .canvasTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .legend{
+      color:var(--muted);
+      font-size:12.8px;
+      line-height:1.25;
+      max-width:780px;
+    }
+    canvas{
+      width:100%;
+      height:640px;
+      display:block;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: radial-gradient(900px 520px at 30% 20%, rgba(125,211,252,.10), rgba(0,0,0,0) 50%),
+                  radial-gradient(900px 600px at 70% 80%, rgba(167,243,208,.08), rgba(0,0,0,0) 55%),
+                  rgba(6,10,20,.55);
+    }
+
+    .helpTag{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      background: rgba(125,211,252,.12);
+      border:1px solid rgba(125,211,252,.35);
+      color:var(--text);
+      font-weight:800;
+      font-size:12.5px;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    /* Mini-check */
+    .qTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .qPrompt{
+      color:var(--text);
+      font-weight:850;
+      font-size:13px;
+      line-height:1.25;
+      margin:8px 0 10px;
+    }
+    .options{ display:grid; grid-template-columns:1fr; gap:8px; margin-bottom:10px; }
+    .opt{
+      text-align:left;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.05);
+      padding:9px 10px;
+      border-radius:12px;
+      color:var(--text);
+      font-weight:800;
+      font-size:12.8px;
+      cursor:pointer;
+      transition:.12s transform, .12s background, .12s border;
+      user-select:none;
+    }
+    .opt:hover{ transform: translateY(-1px); background:rgba(255,255,255,.08); }
+    .opt.correct{
+      border:1px solid rgba(52,211,153,.65);
+      background: rgba(52,211,153,.12);
+    }
+    .opt.wrong{
+      border:1px solid rgba(251,113,133,.65);
+      background: rgba(251,113,133,.10);
+    }
+    .feedback{
+      color:var(--muted);
+      font-size:12.6px;
+      line-height:1.25;
+      padding-top:6px;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+
+    /* Proof (step-by-step) */
+    details.proof{
+      margin-top:10px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(6,12,26,.22);
+      padding:10px 12px;
+    }
+    details.proof summary{
+      cursor:pointer;
+      font-weight:900;
+      color:var(--accent2);
+      list-style:none;
+      outline:none;
+    }
+    details.proof summary::-webkit-details-marker{ display:none; }
+    .proofBody{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12.8px;
+      line-height:1.28;
+    }
+    .proofNav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .stepBadge{
+      flex:1;
+      text-align:center;
+      font-weight:900;
+      color:var(--text);
+      font-size:12.6px;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(125,211,252,.10);
+      border:1px solid rgba(125,211,252,.25);
+    }
+    .proofTitle{
+      font-weight:950;
+      color:var(--text);
+      margin:8px 0 6px;
+    }
+    .proofHint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12.6px;
+      padding:8px 10px;
+      border-radius:12px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+      canvas{ height:560px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="learn">Learn</div>
+    <div>
+      <h1>Tangents, Secants, and Angle Measures</h1>
+      <div class="sub">
+        Drag points to explore vocabulary and discover Theorems <b>10.14</b>, <b>10.15</b>, and <b>10.16</b>.
+        Open <b>Proof (step-by-step diagrams)</b> to reveal a guided proof overlay.
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- LEFT PANEL -->
+    <div class="card panel">
+      <h2>Explorer</h2>
+
+      <div class="modeRow">
+        <button class="btn active" data-mode="vocab">Vocabulary</button>
+        <button class="btn" data-mode="t1014">Theorem 10.14</button>
+        <button class="btn" data-mode="t1015">Theorem 10.15</button>
+        <button class="btn" data-mode="t1016">Theorem 10.16</button>
+      </div>
+
+      <div class="row">
+        <label class="toggle"><input id="toggleNumbers" type="checkbox" checked /> Show numbers</label>
+        <label class="toggle"><input id="toggleArcs" type="checkbox" checked /> Highlight arcs</label>
+        <label class="toggle"><input id="toggleRule" type="checkbox" /> Reveal rule</label>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button class="btn small" id="btnRandom">Randomise</button>
+        <button class="btn small ghost" id="btnReset">Reset</button>
+      </div>
+
+      <div class="note" id="taskBox"></div>
+
+      <div class="readout" id="readout"></div>
+
+      <!-- Vocabulary cards -->
+      <div class="grid2" id="vocabCards">
+        <div class="chip">
+          <h3>Secant</h3>
+          <p>A line (or ray) that intersects a circle in <b>two</b> points.</p>
+        </div>
+        <div class="chip">
+          <h3>Tangent</h3>
+          <p>A line that touches a circle in <b>one</b> point only.</p>
+        </div>
+        <div class="chip">
+          <h3>Chord</h3>
+          <p>A segment whose endpoints are on the circle.</p>
+        </div>
+        <div class="chip">
+          <h3>Arc</h3>
+          <p>A part of the circle’s edge (measured in degrees).</p>
+        </div>
+      </div>
+
+      <!-- Mini-check questions -->
+      <div class="readout" id="checkArea">
+        <div class="qTitle">
+          <b>Mini-check question</b>
+          <button class="btn small" id="btnNewQ">New question</button>
+        </div>
+        <div class="qPrompt" id="qPrompt">Loading…</div>
+        <div class="options" id="qOptions"></div>
+        <div class="feedback" id="qFeedback">Pick an answer.</div>
+      </div>
+
+      <!-- Proof section: step-by-step + overlay diagram -->
+      <details class="proof" id="proofBox">
+        <summary>Proof (step-by-step diagrams)</summary>
+
+        <div class="proofBody" id="proofBody">
+          <div class="proofTitle" id="proofTitle">Step 1</div>
+          <div id="proofText">Open this and use Next ▶</div>
+          <div class="proofHint" id="proofHint">
+            <b>Overlay:</b> while this proof is open, the canvas will show the proof-diagram layers.
+          </div>
+
+          <div class="proofNav">
+            <button class="btn small" id="proofPrev">◀ Prev</button>
+            <div class="stepBadge" id="proofStepLabel">Step 1 / 1</div>
+            <button class="btn small" id="proofNext">Next ▶</button>
+          </div>
+        </div>
+      </details>
+
+      <div class="note" style="margin-top:10px;">
+        <b>Student habit:</b> “Before you calculate, say which arcs the angle is using.”
+      </div>
+    </div>
+
+    <!-- CANVAS -->
+    <div class="card canvasCard">
+      <div class="canvasTop">
+        <div class="helpTag" id="modeTag">Vocabulary playground</div>
+        <div class="legend" id="legend">
+          Drag the orange line endpoints. Count intersections with the circle: 2 → secant, 1 → tangent, 0 → neither.
+        </div>
+      </div>
+      <canvas id="c"></canvas>
+    </div>
+
+  </div>
+
+<script>
+(() => {
+  // ---------- helpers ----------
+  const TAU = Math.PI * 2;
+  const toDeg = r => r * 180 / Math.PI;
+  const toRad = d => d * Math.PI / 180;
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const normAng = a => (a % TAU + TAU) % TAU;
+  const round1 = x => Math.round(x*10)/10;
+  const round0 = x => Math.round(x);
+
+  function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+  function dot(a,b){ return a.x*b.x + a.y*b.y; }
+  function sub(a,b){ return {x:a.x-b.x, y:a.y-b.y}; }
+  function add(a,b){ return {x:a.x+b.x, y:a.y+b.y}; }
+  function mul(a,s){ return {x:a.x*s, y:a.y*s}; }
+  function len(v){ return Math.hypot(v.x, v.y); }
+  function unit(v){ const L=len(v)||1; return {x:v.x/L, y:v.y/L}; }
+  function perp(v){ return {x:-v.y, y:v.x}; }
+
+  function angleBetween(u,v){
+    const uu = unit(u), vv = unit(v);
+    const c = clamp(dot(uu,vv), -1, 1);
+    return toDeg(Math.acos(c));
+  }
+
+  function lineCircleIntersections(P, d, O, R){
+    const f = sub(P,O);
+    const a = dot(d,d);
+    const b = 2*dot(f,d);
+    const c = dot(f,f) - R*R;
+    const disc = b*b - 4*a*c;
+    if (disc < 1e-9) return [];
+    const s = Math.sqrt(disc);
+    const t1 = (-b - s) / (2*a);
+    const t2 = (-b + s) / (2*a);
+    return [ add(P, mul(d, t1)), add(P, mul(d, t2)) ];
+  }
+
+  function lineLineIntersection(P1,P2,P3,P4){
+    const x1=P1.x,y1=P1.y,x2=P2.x,y2=P2.y;
+    const x3=P3.x,y3=P3.y,x4=P4.x,y4=P4.y;
+    const den = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+    if (Math.abs(den) < 1e-9) return null;
+    const px = ((x1*y2-y1*x2)*(x3-x4) - (x1-x2)*(x3*y4-y3*x4)) / den;
+    const py = ((x1*y2-y1*x2)*(y3-y4) - (y1-y2)*(x3*y4-y3*x4)) / den;
+    return {x:px,y:py};
+  }
+
+  function thetaOf(p){ return normAng(Math.atan2(p.y, p.x)); }
+  function minorArcDegrees(t1,t2){
+    const d = normAng(t2 - t1);
+    const m = Math.min(d, TAU - d);
+    return toDeg(m);
+  }
+
+  function isAngleBetweenCCW(a, start, end){
+    a = normAng(a); start = normAng(start); end = normAng(end);
+    const delta = normAng(end - start);
+    const t = normAng(a - start);
+    return t > 1e-6 && t < delta - 1e-6;
+  }
+
+  function chooseArc(p1, p2, excludedPoints){
+    const t1 = thetaOf(p1);
+    const t2 = thetaOf(p2);
+    const ccw = normAng(t2 - t1);
+    const excludes = excludedPoints.map(thetaOf);
+
+    let blocked = false;
+    for(const te of excludes){
+      if(isAngleBetweenCCW(te, t1, t2)) { blocked = true; break; }
+    }
+    if(!blocked){
+      return {dir:'ccw', deg: toDeg(ccw), t1, t2};
+    }else{
+      return {dir:'cw', deg: toDeg(TAU - ccw), t1, t2};
+    }
+  }
+
+  function arcMidpoint(arc){
+    const t1 = arc.t1, t2 = arc.t2;
+    const ccw = normAng(t2 - t1);
+    if(arc.dir === "ccw"){
+      return t1 + 0.5*ccw;
+    } else {
+      const cw = normAng(t1 - t2);
+      return t1 - 0.5*cw;
+    }
+  }
+
+  function drawArcPolyline(ctx, O, R, arc, strokeStyle, width=4, alpha=1){
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = strokeStyle;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    const N = 90;
+    for(let i=0;i<=N;i++){
+      let t;
+      if(arc.dir === 'ccw'){
+        const ccw = normAng(arc.t2 - arc.t1);
+        t = arc.t1 + ccw*(i/N);
+      }else{
+        const cw = normAng(arc.t1 - arc.t2);
+        t = arc.t1 - cw*(i/N);
+      }
+      const x = O.x + R*Math.cos(t);
+      const y = O.y + R*Math.sin(t);
+      if(i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawText(ctx, s, x, y, color="#e9eefc", size=13, weight=700){
+    ctx.save();
+    ctx.scale(1,-1);
+    ctx.fillStyle = color;
+    ctx.font = `${weight} ${size}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto`;
+    ctx.fillText(s, x, -y);
+    ctx.restore();
+  }
+
+  function drawPoint(ctx, p, r, fill, stroke="rgba(255,255,255,.25)"){
+    ctx.save();
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,r,0,TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawLine(ctx, a, b, stroke, width=3, alpha=1){
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawDashedLine(ctx, a, b, stroke="rgba(233,238,252,.45)", width=2.6, alpha=1, dash=[9,7]){
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.setLineDash(dash);
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function drawInfiniteLine(ctx, P, d, stroke, width=2.8, alpha=1){
+    const L = 5000;
+    const a = add(P, mul(d, -L));
+    const b = add(P, mul(d,  L));
+    drawLine(ctx, a, b, stroke, width, alpha);
+  }
+
+  function drawAngleMark(ctx, V, ray1, ray2, r=40, stroke="rgba(167,243,208,.95)", width=4){
+    const a1 = Math.atan2(ray1.y, ray1.x);
+    const a2 = Math.atan2(ray2.y, ray2.x);
+    let d = normAng(a2 - a1);
+    if(d > Math.PI){ d = d - TAU; }
+    const steps = 40;
+    ctx.save();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    for(let i=0;i<=steps;i++){
+      const t = a1 + d*(i/steps);
+      const x = V.x + r*Math.cos(t);
+      const y = V.y + r*Math.sin(t);
+      if(i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawRightAngle(ctx, V, u, v, size=18, color="rgba(167,243,208,.95)"){
+    const p1 = add(V, mul(u, size));
+    const p2 = add(p1, mul(v, size));
+    const p3 = add(V, mul(v, size));
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(p1.x,p1.y);
+    ctx.lineTo(p2.x,p2.y);
+    ctx.lineTo(p3.x,p3.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawArcLabel(ctx, arc, label, color, R, O){
+    const mid = arcMidpoint(arc);
+    const r = R + 22;
+    const x = O.x + r*Math.cos(mid);
+    const y = O.y + r*Math.sin(mid);
+    drawText(ctx, label, x-10, y+6, color, 12, 900);
+  }
+
+  function fmt(x){ return `${round1(x).toFixed(1)}°`; }
+
+  // ---------- canvas setup ----------
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+
+  function resize(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = canvas.getBoundingClientRect();
+    canvas.width  = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener("resize", () => { resize(); requestDraw(); });
+  resize();
+
+  // ---------- App state ----------
+  const UI = {
+    mode: "vocab",
+    showNumbers: true,
+    showArcs: true,
+    revealRule: false,
+    t1016Case: "twoSecants"
+  };
+
+  const geom = { O: {x:0,y:0}, R: 220 };
+
+  const LIVE = {
+    intersections: 0,
+    classification: "Neither",
+    angle: null,
+    arc1: null,
+    arc2: null,
+    predicted: null
+  };
+
+  const Pts = {
+    L1: {x:-360,y:120, kind:"free", name:"L1"},
+    L2: {x: 360,y:-60, kind:"free", name:"L2"},
+
+    A: {ang: toRad(35),  kind:"circle", name:"A"},
+    B: {ang: toRad(120), kind:"circle", name:"B"},
+    C: {ang: toRad(210), kind:"circle", name:"C"},
+    D: {ang: toRad(300), kind:"circle", name:"D"},
+
+    T: {ang: toRad(60),  kind:"circle", name:"T"},
+    S: {ang: toRad(220), kind:"circle", name:"S"},
+
+    EXT:   {x: 0, y: -520, kind:"external", name:"P"},
+    Near1: {ang: toRad(140), kind:"circle", name:"A"},
+    Near2: {ang: toRad(50),  kind:"circle", name:"C"}
+  };
+
+  function pointFromCircle(ang){
+    return { x: geom.O.x + geom.R * Math.cos(ang), y: geom.O.y + geom.R * Math.sin(ang) };
+  }
+  function getCirclePoint(obj){ return pointFromCircle(obj.ang); }
+
+  function keepExternalOutside(){
+    const P = Pts.EXT;
+    const d = Math.hypot(P.x, P.y);
+    const minD = geom.R + 70;
+    if(d < minD){
+      const u = {x:P.x/(d||1), y:P.y/(d||1)};
+      P.x = u.x * minD;
+      P.y = u.y * minD;
+    }
+  }
+
+  // ---------- UI wiring ----------
+  const modeButtons = document.querySelectorAll("[data-mode]");
+  const toggleNumbers = document.getElementById("toggleNumbers");
+  const toggleArcs = document.getElementById("toggleArcs");
+  const toggleRule = document.getElementById("toggleRule");
+  const btnRandom = document.getElementById("btnRandom");
+  const btnReset = document.getElementById("btnReset");
+  const taskBox = document.getElementById("taskBox");
+  const readout = document.getElementById("readout");
+  const vocabCards = document.getElementById("vocabCards");
+  const modeTag = document.getElementById("modeTag");
+  const legend = document.getElementById("legend");
+
+  const proofBox = document.getElementById("proofBox");
+  const proofTitle = document.getElementById("proofTitle");
+  const proofText = document.getElementById("proofText");
+  const proofHint = document.getElementById("proofHint");
+  const proofPrev = document.getElementById("proofPrev");
+  const proofNext = document.getElementById("proofNext");
+  const proofStepLabel = document.getElementById("proofStepLabel");
+
+  const btnNewQ = document.getElementById("btnNewQ");
+  const qPrompt = document.getElementById("qPrompt");
+  const qOptions = document.getElementById("qOptions");
+  const qFeedback = document.getElementById("qFeedback");
+
+  const PROOF = { overlay:false, step:0 };
+
+  // ------------------- NEW PROOF SCRIPTS -------------------
+  function getCurrentProofSteps(){
+    if(UI.mode !== "t1016") return proofSteps[UI.mode] || proofSteps.vocab;
+    return proofSteps.t1016[UI.t1016Case] || proofSteps.t1016.twoSecants;
+  }
+
+  const proofSteps = {
+    vocab: [
+      {
+        title:"Vocabulary: what to look for",
+        text:
+          `A <b>secant</b> intersects the circle in <b>two</b> points.<br>
+           A <b>tangent</b> touches the circle in <b>one</b> point only.<br>
+           The segment between the two intersection points is a <b>chord</b>.`
+      }
+    ],
+
+    // -------- 10.14 (interior chords) --------
+    t1014: [
+      {
+        title:"Step 1 — What are we trying to prove?",
+        text:
+          `Two chords <b>AC</b> and <b>BD</b> intersect at <b>P</b> (inside the circle).<br>
+           We want to prove:<br>
+           <b>m∠APB = ½( m(arc AB) + m(arc CD) )</b>.`
+      },
+      {
+        title:"Step 2 — Split the angle using a helper chord",
+        text:
+          `Draw the helper chord <b>AD</b>.<br>
+           We can “turn” from <b>AC → AD → BD</b>, so:<br>
+           <b>∠APB = ∠CAD + ∠ADB</b>.`
+      },
+      {
+        title:"Step 3 — Convert each part into an arc",
+        text:
+          `Use the inscribed-angle fact:<br>
+           <b>inscribed angle = ½(intercepted arc)</b>.<br><br>
+           • <b>∠CAD</b> intercepts <b>arc CD</b> ⇒ <b>∠CAD = ½ arc CD</b><br>
+           • <b>∠ADB</b> intercepts <b>arc AB</b> ⇒ <b>∠ADB = ½ arc AB</b>`
+      },
+      {
+        title:"Step 4 — Combine the two halves",
+        text:
+          `Add them:<br>
+           <b>∠APB = ∠CAD + ∠ADB</b><br>
+           <b>= ½ arc CD + ½ arc AB</b><br>
+           <b>= ½(arc AB + arc CD)</b> ✅`
+      }
+    ],
+
+    // -------- 10.15 (tangent + chord) --------
+    t1015: [
+      {
+        title:"Step 1 — What are we trying to prove?",
+        text:
+          `A tangent touches the circle at <b>T</b>, and we draw chord <b>TS</b>.<br>
+           We want to prove:<br>
+           <b>m∠(tangent, TS) = ½ m(arc TS)</b>.`
+      },
+      {
+        title:"Step 2 — Use the radius + a right angle",
+        text:
+          `Draw the radius <b>OT</b>.<br>
+           Tangent ⟂ radius at the touch point, so:<br>
+           <b>OT ⟂ tangent</b>.<br><br>
+           If the tangent–chord angle is <b>x</b>, then inside the triangle:<br>
+           <b>∠OTS = 90° − x</b>.`
+      },
+      {
+        title:"Step 3 — Make an isosceles triangle",
+        text:
+          `In triangle <b>OTS</b>, <b>OT = OS</b> (radii), so it’s isosceles.<br>
+           Base angles match:<br>
+           <b>∠OTS = ∠OST = 90° − x</b>.`
+      },
+      {
+        title:"Step 4 — Central angle → arc → final result",
+        text:
+          `Central angle:<br>
+           <b>∠TOS = 180° − 2(90° − x) = 2x</b>.<br><br>
+           But <b>∠TOS</b> equals <b>arc TS</b>, so:<br>
+           <b>arc TS = 2x ⇒ x = ½ arc TS</b> ✅`
+      }
+    ],
+
+    // -------- 10.16 (outside angles) --------
+    t1016: {
+      twoSecants: [
+        {
+          title:"Step 1 — What are we trying to prove?",
+          text:
+            `Two secants from external point <b>P</b> hit the circle at:<br>
+             <b>P–A–B</b> and <b>P–C–D</b> (A and C are the “near” points).<br><br>
+             Goal:<br>
+             <b>m∠P = ½( big arc BD − small arc AC )</b>.`
+        },
+        {
+          title:"Step 2 — Split the outside angle using a helper chord",
+          text:
+            `Draw helper chord <b>AD</b>.<br>
+             A useful fact for this picture is:<br>
+             <b>∠P = ∠BAD − ∠ADC</b>.<br><br>
+             (Outside angles use a <i>difference</i>.)`
+        },
+        {
+          title:"Step 3 — Turn angles into arcs",
+          text:
+            `Inscribed angle = ½ arc:<br><br>
+             • <b>∠BAD</b> intercepts <b>big arc BD</b> ⇒ <b>∠BAD = ½ arc BD</b><br>
+             • <b>∠ADC</b> intercepts <b>small arc AC</b> ⇒ <b>∠ADC = ½ arc AC</b>`
+        },
+        {
+          title:"Step 4 — Combine (outside = subtract)",
+          text:
+            `<b>∠P = ½ arc BD − ½ arc AC</b><br>
+             <b>= ½(arc BD − arc AC)</b> ✅`
+        }
+      ],
+
+      secantTangent: [
+        {
+          title:"Step 1 — Goal",
+          text:
+            `One ray is a <b>secant</b> (P–A–B) and the other is a <b>tangent</b> at <b>T</b>.<br>
+             Goal:<br>
+             <b>m∠P = ½( big arc BT − small arc AT )</b>.`
+        },
+        {
+          title:"Step 2 — Use a helper chord AT",
+          text:
+            `Draw chord <b>AT</b>.<br>
+             You can think of the outside angle as a <b>difference</b> between:<br>
+             • an inscribed angle <b>∠BAT</b><br>
+             • and the tangent–chord angle at <b>T</b> with chord <b>AT</b><br><br>
+             So: <b>∠P = ∠BAT − ∠(tangent, AT)</b>.`
+        },
+        {
+          title:"Step 3 — Convert both into arcs",
+          text:
+            `• <b>∠BAT = ½ arc BT</b> (inscribed)<br>
+             • <b>∠(tangent, AT) = ½ arc AT</b> (Theorem 10.15)<br><br>
+             Subtract them.`
+        },
+        {
+          title:"Step 4 — Final",
+          text:
+            `<b>∠P = ½ arc BT − ½ arc AT</b><br>
+             <b>= ½( big − small )</b> ✅`
+        }
+      ],
+
+      twoTangents: [
+        {
+          title:"Step 1 — Goal",
+          text:
+            `Two tangents from <b>P</b> touch the circle at <b>T1</b> and <b>T2</b>.<br>
+             Goal:<br>
+             <b>m∠P = ½( big arc − small arc )</b>.`
+        },
+        {
+          title:"Step 2 — Radii make right angles",
+          text:
+            `Draw radii <b>OT1</b> and <b>OT2</b>.<br>
+             Tangents are perpendicular to radii, so there are two right angles at <b>T1</b> and <b>T2</b>.`
+        },
+        {
+          title:"Step 3 — Angle sum relationship",
+          text:
+            `Quadrilateral <b>OT1PT2</b> has two 90° angles, so:<br>
+             <b>∠P + ∠T1OT2 = 180°</b><br>
+             ⇒ <b>∠P = 180° − ∠T1OT2</b>.`
+        },
+        {
+          title:"Step 4 — Central angle equals arc",
+          text:
+            `<b>∠T1OT2</b> equals the <b>minor arc</b> between <b>T1</b> and <b>T2</b>.<br>
+             So:<br>
+             <b>∠P = 180° − (minor arc)</b><br>
+             which is the same as <b>½(major − minor)</b> ✅`
+        }
+      ]
+    }
+  };
+
+  // ------------------- UPDATED updateProofUI -------------------
+  function updateProofUI(){
+    const steps = getCurrentProofSteps();
+    PROOF.step = clamp(PROOF.step, 0, steps.length-1);
+    const s = steps[PROOF.step];
+
+    proofTitle.innerHTML = s.title;
+    proofText.innerHTML  = s.text;
+    proofStepLabel.textContent = `Step ${PROOF.step+1} / ${steps.length}`;
+
+    proofPrev.disabled = (PROOF.step === 0);
+    proofNext.disabled = (PROOF.step === steps.length-1);
+
+    proofHint.innerHTML =
+      `<b>Overlay:</b> while this proof is open, the canvas highlights <b>exactly the parts used in this step</b>.`;
+  }
+
+  proofPrev.addEventListener("click", ()=>{
+    PROOF.step--;
+    updateProofUI();
+    requestDraw();
+  });
+  proofNext.addEventListener("click", ()=>{
+    PROOF.step++;
+    updateProofUI();
+    requestDraw();
+  });
+
+  proofBox.addEventListener("toggle", ()=>{
+    PROOF.overlay = proofBox.open;
+    PROOF.step = 0;
+    updateProofUI();
+    requestDraw();
+  });
+
+  modeButtons.forEach(b=>{
+    b.addEventListener("click", ()=>{
+      modeButtons.forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      UI.mode = b.dataset.mode;
+
+      UI.revealRule = false;
+      toggleRule.checked = false;
+
+      PROOF.step = 0;
+      updatePanelText();
+      buildNewQuestion(true);
+      updateProofUI();
+      requestDraw();
+    });
+  });
+
+  toggleNumbers.addEventListener("change", ()=>{ UI.showNumbers = toggleNumbers.checked; requestDraw(); });
+  toggleArcs.addEventListener("change", ()=>{ UI.showArcs = toggleArcs.checked; requestDraw(); });
+  toggleRule.addEventListener("change", ()=>{
+    UI.revealRule = toggleRule.checked;
+    updatePanelText();
+    requestDraw();
+  });
+
+  btnReset.addEventListener("click", ()=>{
+    resetDefaults();
+    updatePanelText();
+    PROOF.step = 0;
+    updateProofUI();
+    buildNewQuestion(true);
+    requestDraw();
+  });
+
+  btnRandom.addEventListener("click", ()=>{
+    randomise();
+    updatePanelText();
+    PROOF.step = 0;
+    updateProofUI();
+    buildNewQuestion(true);
+    requestDraw();
+  });
+
+  // ---------- Panel text ----------
+  function updatePanelText(){
+    vocabCards.style.display = (UI.mode === "vocab") ? "grid" : "none";
+
+    if(UI.mode === "vocab"){
+      modeTag.textContent = "Vocabulary playground";
+      legend.textContent = "Drag the orange line endpoints. Count intersections with the circle: 2 → secant, 1 → tangent, 0 → neither.";
+      taskBox.innerHTML =
+        `<b>Mission:</b> Make the orange line a <b>tangent</b> (1 intersection).<br>
+         Then make it a <b>secant</b> (2 intersections).`;
+      return;
+    }
+
+    if(UI.mode === "t1014"){
+      modeTag.textContent = "Theorem 10.14 — chords intersect inside";
+      legend.textContent = "Drag A, B, C, D. Two chords intersect inside the circle. Interior angle = half the SUM of two arcs.";
+      taskBox.innerHTML =
+        `<b>Conjecture first:</b> Which <b>two arcs</b> matter for the angle at P?<br>
+         ${UI.revealRule ? `<b>Rule:</b> Angle = 1/2 (arc AB + arc CD)` : `<b>Tip:</b> Use the angle’s endpoints and the vertical angle’s endpoints.`}`;
+      return;
+    }
+
+    if(UI.mode === "t1015"){
+      modeTag.textContent = "Theorem 10.15 — tangent + chord";
+      legend.textContent = "Drag T and S. Tangent touches at T. Angle between tangent and chord TS = half intercepted arc TS.";
+      taskBox.innerHTML =
+        `<b>Conjecture first:</b> How is the angle at T linked to arc TS?<br>
+         ${UI.revealRule ? `<b>Rule:</b> Angle = 1/2 (arc TS)` : `<b>Tip:</b> Watch the highlighted arc TS as you drag S.`}`;
+      return;
+    }
+
+    if(UI.mode === "t1016"){
+      modeTag.textContent = "Theorem 10.16 — outside the circle";
+      legend.textContent = "Drag the outside point P. Exterior angles use HALF the DIFFERENCE: (big arc − small arc).";
+      taskBox.innerHTML =
+        `<div style="margin-bottom:8px;"><b>Choose a case:</b></div>
+         <select id="caseSelect">
+           <option value="twoSecants">Two secants</option>
+           <option value="secantTangent">Secant + tangent</option>
+           <option value="twoTangents">Two tangents</option>
+         </select>
+         <div style="margin-top:8px;">
+           ${UI.revealRule
+            ? `<b>Rule:</b> Exterior angle = 1/2 (big arc − small arc)`
+            : `<b>Conjecture:</b> Why do we <i>subtract</i> arcs outside the circle?`
+           }
+         </div>`;
+
+      setTimeout(()=>{
+        const sel = document.getElementById("caseSelect");
+        if(sel){
+          sel.value = UI.t1016Case;
+          sel.addEventListener("change", ()=>{
+            UI.t1016Case = sel.value;
+            PROOF.step = 0;
+            updateProofUI();
+            buildNewQuestion(true);
+            requestDraw();
+          });
+        }
+      }, 0);
+      return;
+    }
+  }
+
+  // ---------- readout ----------
+  function setReadout(rows){
+    readout.innerHTML = rows.map(r=>`
+      <div class="kv">
+        <div class="k">${r.k}</div>
+        <div class="v ${r.cls||""}">${r.v}</div>
+      </div>
+    `).join("");
+  }
+
+  // ---------- drag interactions ----------
+  let active = null;
+
+  function canvasToWorld(px, py){
+    const rect = canvas.getBoundingClientRect();
+    const x = px - rect.left - rect.width/2;
+    const y = -(py - rect.top - rect.height/2);
+    return {x,y};
+  }
+
+  function hitTest(p, candidates){
+    for(const c of candidates){
+      if(dist(p, c.pos) <= c.r) return c.key;
+    }
+    return null;
+  }
+
+  function getActiveCandidates(){
+    const list = [];
+    if(UI.mode === "vocab"){
+      list.push({key:"L1", pos:Pts.L1, r:14});
+      list.push({key:"L2", pos:Pts.L2, r:14});
+    }
+    if(UI.mode === "t1014"){
+      list.push({key:"A", pos:getCirclePoint(Pts.A), r:14});
+      list.push({key:"B", pos:getCirclePoint(Pts.B), r:14});
+      list.push({key:"C", pos:getCirclePoint(Pts.C), r:14});
+      list.push({key:"D", pos:getCirclePoint(Pts.D), r:14});
+    }
+    if(UI.mode === "t1015"){
+      list.push({key:"T", pos:getCirclePoint(Pts.T), r:14});
+      list.push({key:"S", pos:getCirclePoint(Pts.S), r:14});
+    }
+    if(UI.mode === "t1016"){
+      list.push({key:"EXT", pos:Pts.EXT, r:16});
+      list.push({key:"Near1", pos:getCirclePoint(Pts.Near1), r:14});
+      list.push({key:"Near2", pos:getCirclePoint(Pts.Near2), r:14});
+    }
+    return list;
+  }
+
+  canvas.addEventListener("pointerdown", (e)=>{
+    canvas.setPointerCapture(e.pointerId);
+    const w = canvasToWorld(e.clientX, e.clientY);
+    active = hitTest(w, getActiveCandidates());
+  });
+
+  canvas.addEventListener("pointermove", (e)=>{
+    if(!active) return;
+    const w = canvasToWorld(e.clientX, e.clientY);
+
+    if(active === "L1" || active === "L2"){
+      Pts[active].x = w.x; Pts[active].y = w.y;
+    }
+
+    if(["A","B","C","D","T","S","Near1","Near2"].includes(active)){
+      Pts[active].ang = Math.atan2(w.y - geom.O.y, w.x - geom.O.x);
+    }
+
+    if(active === "EXT"){
+      Pts.EXT.x = w.x;
+      Pts.EXT.y = w.y;
+      keepExternalOutside();
+    }
+
+    requestDraw();
+  });
+
+  canvas.addEventListener("pointerup", ()=>{ active = null; });
+
+  // ---------- Random / reset ----------
+  function resetDefaults(){
+    Pts.L1.x = -360; Pts.L1.y = 120;
+    Pts.L2.x =  360; Pts.L2.y = -60;
+
+    Pts.A.ang = toRad(35);
+    Pts.B.ang = toRad(120);
+    Pts.C.ang = toRad(210);
+    Pts.D.ang = toRad(300);
+
+    Pts.T.ang = toRad(60);
+    Pts.S.ang = toRad(220);
+
+    Pts.EXT.x = 0; Pts.EXT.y = -520;
+    Pts.Near1.ang = toRad(140);
+    Pts.Near2.ang = toRad(50);
+    UI.t1016Case = "twoSecants";
+    keepExternalOutside();
+  }
+
+  function randomAngle(){ return toRad(Math.random()*360); }
+
+  function randomise(){
+    if(UI.mode === "vocab"){
+      Pts.L1.x = -420 + Math.random()*160;
+      Pts.L1.y = -160 + Math.random()*320;
+      Pts.L2.x =  260 + Math.random()*220;
+      Pts.L2.y = -260 + Math.random()*520;
+    }
+    if(UI.mode === "t1014"){
+      Pts.A.ang = randomAngle();
+      Pts.B.ang = randomAngle();
+      Pts.C.ang = randomAngle();
+      Pts.D.ang = randomAngle();
+    }
+    if(UI.mode === "t1015"){
+      Pts.T.ang = randomAngle();
+      Pts.S.ang = randomAngle();
+    }
+    if(UI.mode === "t1016"){
+      Pts.EXT.x = (-240 + Math.random()*480);
+      Pts.EXT.y = (-620 + Math.random()*160);
+      keepExternalOutside();
+      Pts.Near1.ang = randomAngle();
+      Pts.Near2.ang = randomAngle();
+      const cases = ["twoSecants","secantTangent","twoTangents"];
+      UI.t1016Case = cases[Math.floor(Math.random()*cases.length)];
+    }
+  }
+
+  // ---------- mini-check questions ----------
+  let CURRENT_Q = null;
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function makeOptionsFromCorrect(correct, distractors){
+    const pool = [correct, ...distractors];
+    const uniq = [];
+    for(const x of pool){
+      if(!uniq.some(u => Math.abs(u-x) < 0.01)) uniq.push(x);
+    }
+    while(uniq.length < 4){
+      uniq.push(correct + (Math.random()<0.5?-1:1)*(5 + 7*Math.random()));
+    }
+    return shuffle(uniq.slice(0,4));
+  }
+
+  function setQuestion(q){
+    CURRENT_Q = { ...q, locked:false, mode:UI.mode };
+    qPrompt.textContent = q.prompt;
+    qOptions.innerHTML = "";
+    qFeedback.textContent = "Pick an answer.";
+
+    q.options.forEach(opt=>{
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.textContent = opt;
+      b.addEventListener("click", ()=> chooseOption(b, opt));
+      qOptions.appendChild(b);
+    });
+  }
+
+  function chooseOption(btn, optText){
+    if(!CURRENT_Q || CURRENT_Q.locked) return;
+    CURRENT_Q.locked = true;
+
+    const all = [...qOptions.querySelectorAll(".opt")];
+    all.forEach(b => b.disabled = true);
+
+    const correct = CURRENT_Q.correct;
+
+    if(optText === correct){
+      btn.classList.add("correct");
+      qFeedback.innerHTML = `<span style="color:var(--good);font-weight:900;">Correct ✅</span> — ${CURRENT_Q.explain}`;
+    }else{
+      btn.classList.add("wrong");
+      const correctBtn = all.find(b => b.textContent === correct);
+      if(correctBtn) correctBtn.classList.add("correct");
+      qFeedback.innerHTML = `<span style="color:var(--bad);font-weight:900;">Not quite ❌</span> — ${CURRENT_Q.explain}`;
+    }
+  }
+
+  function buildNewQuestion(force=false){
+    if(!force && CURRENT_Q && CURRENT_Q.mode === UI.mode && !CURRENT_Q.locked) return;
+
+    if(UI.mode === "vocab"){
+      setQuestion({
+        prompt: "If a line intersects a circle in exactly TWO points, it is a…",
+        options: ["Tangent", "Secant", "Chord", "Radius"],
+        correct: "Secant",
+        explain: "A secant intersects the circle in two points."
+      });
+      return;
+    }
+
+    if(UI.mode === "t1014"){
+      const a1 = (LIVE.arc1 ?? 120);
+      const a2 = (LIVE.arc2 ?? 100);
+      const correct = 0.5*(a1+a2);
+      const optsNum = makeOptionsFromCorrect(correct, [
+        (a1+a2),
+        0.5*Math.abs(a1-a2),
+        (a1+a2)/4
+      ]).map(x => round0(x));
+      setQuestion({
+        prompt: `Arcs are ${round0(a1)}° and ${round0(a2)}°. What is the interior angle?`,
+        options: optsNum.map(x => `${x}°`),
+        correct: `${round0(correct)}°`,
+        explain: "Inside the circle: angle = ½(arc + arc)."
+      });
+      return;
+    }
+
+    if(UI.mode === "t1015"){
+      const arc = (LIVE.arc1 ?? 140);
+      const correct = 0.5*arc;
+      const optsNum = makeOptionsFromCorrect(correct, [
+        arc,
+        arc/3,
+        arc/2 + 10
+      ]).map(x => round0(x));
+      setQuestion({
+        prompt: `Arc TS is ${round0(arc)}°. What is the tangent–chord angle?`,
+        options: optsNum.map(x => `${x}°`),
+        correct: `${round0(correct)}°`,
+        explain: "Tangent + chord: angle = ½(intercepted arc)."
+      });
+      return;
+    }
+
+    if(UI.mode === "t1016"){
+      const big = (LIVE.arc1 ?? 220);
+      const small = (LIVE.arc2 ?? 80);
+      const correct = 0.5*(big-small);
+      const optsNum = makeOptionsFromCorrect(correct, [
+        0.5*(big+small),
+        (big-small),
+        0.5*(small-big)
+      ]).map(x => Math.max(0, round0(x)));
+      setQuestion({
+        prompt: `Big arc = ${round0(big)}°, small arc = ${round0(small)}°. What is the exterior angle?`,
+        options: optsNum.map(x => `${x}°`),
+        correct: `${Math.max(0, round0(correct))}°`,
+        explain: "Outside the circle: angle = ½(big arc − small arc)."
+      });
+      return;
+    }
+  }
+
+  btnNewQ.addEventListener("click", ()=> buildNewQuestion(true));
+
+  // ---------- drawing loop ----------
+  let raf = 0;
+  function requestDraw(){
+    if(raf) return;
+    raf = requestAnimationFrame(()=>{
+      raf = 0;
+      draw();
+      if(!CURRENT_Q || CURRENT_Q.mode !== UI.mode) buildNewQuestion(true);
+    });
+  }
+
+  function drawBackground(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.translate(rect.width/2, rect.height/2);
+    ctx.scale(1,-1);
+
+    // circle
+    ctx.save();
+    ctx.strokeStyle = "rgba(233,238,252,.25)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(geom.O.x, geom.O.y, geom.R, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
+
+    // center
+    drawPoint(ctx, geom.O, 6, "rgba(125,211,252,.85)", "rgba(125,211,252,.25)");
+
+    ctx.restore();
+  }
+
+  // ---------- Proof overlay helpers ----------
+  function drawCentralAngle(ctx, O, p1, p2, r=48, color="rgba(167,243,208,.95)"){
+    const u1 = unit(sub(p1,O));
+    const u2 = unit(sub(p2,O));
+    drawAngleMark(ctx, O, u1, u2, r, color, 4);
+    drawLine(ctx, O, p1, color, 2.2, 0.45);
+    drawLine(ctx, O, p2, color, 2.2, 0.45);
+  }
+
+  // ✅ NEW: central angle that matches the chosen arc (minor or major, cw or ccw)
+  function drawCentralAngleFromArc(ctx, O, arc, r=62, color="rgba(167,243,208,.95)", label=null){
+    const a1 = arc.t1;
+    let delta = toRad(arc.deg);
+    if(arc.dir === "cw") delta = -delta;
+
+    const a2 = a1 + delta;
+
+    // rays from the center
+    const rayLen = r + 10;
+    const p1 = { x: O.x + rayLen * Math.cos(a1), y: O.y + rayLen * Math.sin(a1) };
+    const p2 = { x: O.x + rayLen * Math.cos(a2), y: O.y + rayLen * Math.sin(a2) };
+    drawLine(ctx, O, p1, color, 2.2, 0.55);
+    drawLine(ctx, O, p2, color, 2.2, 0.55);
+
+    // curved central mark
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.globalAlpha = 0.95;
+    ctx.beginPath();
+    const steps = 80;
+    for(let i=0;i<=steps;i++){
+      const t = a1 + delta*(i/steps);
+      const x = O.x + r * Math.cos(t);
+      const y = O.y + r * Math.sin(t);
+      if(i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // label
+    const mid = a1 + delta/2;
+    const lx = O.x + (r + 18) * Math.cos(mid);
+    const ly = O.y + (r + 18) * Math.sin(mid);
+    const txt = label ?? `${round0(arc.deg)}°`;
+    drawText(ctx, txt, lx - 12, ly + 6, color, 12, 950);
+  }
+
+  // ---------- PROOF OVERLAYS (EASIER + MATCH STEPS) ----------
+  function proofOverlay1014(ctx, O, R, A, B, C, D, P){
+    const step = PROOF.step;
+
+    // Step 2+: helper chord AD (key split)
+    if(step >= 1){
+      drawDashedLine(ctx, A, D, "rgba(233,238,252,.35)", 2.8, 0.95);
+      drawText(ctx, "helper chord AD", (A.x+D.x)/2 + 8, (A.y+D.y)/2 + 10, "rgba(233,238,252,.85)", 12, 800);
+
+      // angles to add
+      const u1 = unit(sub(C,A));
+      const u2 = unit(sub(D,A));
+      drawAngleMark(ctx, A, u1, u2, 32, "rgba(167,243,208,.95)", 4);
+      drawText(ctx, "∠CAD", A.x+16, A.y-28, "rgba(167,243,208,.95)", 12, 900);
+
+      const v1 = unit(sub(A,D));
+      const v2 = unit(sub(B,D));
+      drawAngleMark(ctx, D, v1, v2, 32, "rgba(251,191,36,.95)", 4);
+      drawText(ctx, "∠ADB", D.x+16, D.y-28, "rgba(251,191,36,.95)", 12, 900);
+
+      drawText(ctx, "∠APB = ∠CAD + ∠ADB", O.x - R, O.y + R + 34, "rgba(233,238,252,.92)", 14, 950);
+    }
+
+    // Step 3+: arcs that match those angles + CENTRAL angles
+    if(step >= 2){
+      const arcAB = chooseArc(A,B,[C,D]);
+      const arcCD = chooseArc(C,D,[A,B]);
+
+      drawArcPolyline(ctx, O, R, arcAB, "rgba(251,191,36,.70)", 7, 0.9);
+      drawArcPolyline(ctx, O, R, arcCD, "rgba(125,211,252,.70)", 7, 0.9);
+
+      drawArcLabel(ctx, arcAB, "arc AB", "rgba(251,191,36,.95)", R, O);
+      drawArcLabel(ctx, arcCD, "arc CD", "rgba(125,211,252,.95)", R, O);
+
+      // ✅ Central angles show arc measures
+      drawCentralAngleFromArc(ctx, O, arcAB, 58, "rgba(251,191,36,.95)");
+      drawCentralAngleFromArc(ctx, O, arcCD, 88, "rgba(125,211,252,.95)");
+
+      drawText(ctx, "∠ADB = ½ arc AB", D.x-130, D.y+70, "rgba(251,191,36,.95)", 12, 900);
+      drawText(ctx, "∠CAD = ½ arc CD", A.x-130, A.y+70, "rgba(125,211,252,.95)", 12, 900);
+    }
+
+    // Step 4: final statement
+    if(step >= 3){
+      drawText(ctx, "m∠APB = ½(arc AB + arc CD)", O.x - R, O.y + R + 58, "rgba(167,243,208,.95)", 14, 950);
+    }
+  }
+
+  function proofOverlay1015(ctx, O, R, T, S, tangentDir){
+    const step = PROOF.step;
+
+    const chordDir = unit(sub(S,T));
+    const x1 = angleBetween(chordDir, tangentDir);
+    const x2 = angleBetween(chordDir, mul(tangentDir,-1));
+    const tanUse = (x1 <= x2) ? tangentDir : mul(tangentDir,-1);
+
+    if(step >= 1){
+      // radius + right angle
+      drawLine(ctx, O, T, "rgba(167,243,208,.45)", 2.8, 0.95);
+      drawRightAngle(ctx, T, unit(sub(O,T)), unit(tanUse), 16, "rgba(167,243,208,.95)");
+      drawText(ctx, "OT ⟂ tangent", T.x+18, T.y+20, "rgba(167,243,208,.95)", 12, 900);
+
+      // mark x
+      drawAngleMark(ctx, T, chordDir, unit(tanUse), 40, "rgba(251,191,36,.95)", 4);
+      drawText(ctx, "x", T.x+16, T.y-28, "rgba(251,191,36,.95)", 14, 950);
+    }
+
+    if(step >= 2){
+      // isosceles triangle OTS
+      drawLine(ctx, O, T, "rgba(233,238,252,.30)", 2.4, 0.9);
+      drawLine(ctx, O, S, "rgba(233,238,252,.30)", 2.4, 0.9);
+
+      drawText(ctx, "OT = OS (radii)", O.x + 10, O.y - 40, "rgba(233,238,252,.85)", 12, 900);
+      drawText(ctx, "base angles equal", O.x + 10, O.y - 60, "rgba(233,238,252,.85)", 12, 900);
+    }
+
+    if(step >= 3){
+      // central angle and arc (use arc object so it *matches* arc measure)
+      const arcTS = chooseArc(T, S, []);
+      drawCentralAngleFromArc(ctx, O, arcTS, 56, "rgba(167,243,208,.95)", "∠TOS");
+
+      drawText(ctx, "∠TOS = 2x", O.x + 16, O.y + 78, "rgba(167,243,208,.95)", 12, 900);
+      drawText(ctx, "arc TS = ∠TOS = 2x", O.x - R, O.y + R + 34, "rgba(233,238,252,.92)", 13, 900);
+      drawText(ctx, "⇒ x = ½ arc TS", O.x - R, O.y + R + 56, "rgba(167,243,208,.95)", 14, 950);
+    }
+  }
+
+  function proofOverlay1016(ctx, O, R, bigArc, smallArc, P, data){
+    const step = PROOF.step;
+
+    // Step 1+: big/small arcs + CENTRAL angles
+    if(step >= 0){
+      drawArcPolyline(ctx, O, R, bigArc,   "rgba(167,243,208,.65)", 7, 0.9);
+      drawArcPolyline(ctx, O, R, smallArc, "rgba(233,238,252,.25)", 6, 0.85);
+      drawArcLabel(ctx, bigArc, "big arc", "rgba(167,243,208,.95)", R, O);
+      drawArcLabel(ctx, smallArc, "small arc", "rgba(233,238,252,.85)", R, O);
+
+      // ✅ Central angles match arc measures
+      drawCentralAngleFromArc(ctx, O, smallArc, 58, "rgba(233,238,252,.85)");
+      drawCentralAngleFromArc(ctx, O, bigArc,   92, "rgba(167,243,208,.95)");
+    }
+
+    // two secants
+    if(data.case === "twoSecants"){
+      const {A,B,C,D} = data;
+
+      if(step >= 1){
+        drawDashedLine(ctx, A, D, "rgba(233,238,252,.35)", 2.8, 0.95);
+        drawText(ctx, "helper chord AD", (A.x+D.x)/2 + 8, (A.y+D.y)/2 + 10, "rgba(233,238,252,.85)", 12, 800);
+
+        drawAngleMark(ctx, A, unit(sub(B,A)), unit(sub(D,A)), 34, "rgba(167,243,208,.95)", 4);
+        drawText(ctx, "∠BAD", A.x+16, A.y-28, "rgba(167,243,208,.95)", 12, 900);
+
+        drawAngleMark(ctx, D, unit(sub(A,D)), unit(sub(C,D)), 34, "rgba(251,191,36,.95)", 4);
+        drawText(ctx, "∠ADC", D.x+16, D.y-28, "rgba(251,191,36,.95)", 12, 900);
+
+        drawText(ctx, "Outside = difference", O.x - R, O.y + R + 34, "rgba(233,238,252,.92)", 13, 900);
+        drawText(ctx, "∠P = ∠BAD − ∠ADC", O.x - R, O.y + R + 54, "rgba(167,243,208,.95)", 14, 950);
+      }
+
+      if(step >= 3){
+        drawText(ctx, "m∠P = ½(big − small)", O.x - R, O.y + R + 78, "rgba(167,243,208,.95)", 14, 950);
+      }
+    }
+
+    // secant + tangent
+    if(data.case === "secantTangent"){
+      const {A,B,T} = data;
+
+      if(step >= 1){
+        drawDashedLine(ctx, A, T, "rgba(233,238,252,.35)", 2.8, 0.95);
+        drawText(ctx, "helper chord AT", (A.x+T.x)/2 + 8, (A.y+T.y)/2 + 10, "rgba(233,238,252,.85)", 12, 800);
+
+        drawAngleMark(ctx, A, unit(sub(B,A)), unit(sub(T,A)), 34, "rgba(167,243,208,.95)", 4);
+        drawText(ctx, "∠BAT", A.x+16, A.y-28, "rgba(167,243,208,.95)", 12, 900);
+
+        drawAngleMark(ctx, T, unit(sub(A,T)), unit(sub(P,T)), 34, "rgba(251,191,36,.95)", 4);
+        drawText(ctx, "tangent–chord", T.x+16, T.y-28, "rgba(251,191,36,.95)", 12, 900);
+
+        drawText(ctx, "∠P = ∠BAT − (tangent–chord)", O.x - R, O.y + R + 52, "rgba(167,243,208,.95)", 14, 950);
+      }
+
+      if(step >= 3){
+        drawText(ctx, "m∠P = ½(big − small)", O.x - R, O.y + R + 78, "rgba(167,243,208,.95)", 14, 950);
+      }
+    }
+
+    // two tangents
+    if(data.case === "twoTangents"){
+      const {T1,T2} = data;
+
+      if(step >= 1){
+        drawLine(ctx, O, T1, "rgba(233,238,252,.30)", 2.4, 0.95);
+        drawLine(ctx, O, T2, "rgba(233,238,252,.30)", 2.4, 0.95);
+        drawRightAngle(ctx, T1, unit(sub(O,T1)), unit(sub(P,T1)), 16, "rgba(167,243,208,.95)");
+        drawRightAngle(ctx, T2, unit(sub(O,T2)), unit(sub(P,T2)), 16, "rgba(167,243,208,.95)");
+        drawText(ctx, "right angles at tangency", O.x - R, O.y + R + 40, "rgba(233,238,252,.9)", 12, 900);
+      }
+
+      if(step >= 2){
+        // the central angle is the minor arc (smallArc)
+        drawText(ctx, "∠P + ∠T1OT2 = 180°", O.x - R, O.y + R + 58, "rgba(233,238,252,.92)", 13, 900);
+      }
+
+      if(step >= 3){
+        drawText(ctx, "m∠P = ½(big − small)", O.x - R, O.y + R + 78, "rgba(167,243,208,.95)", 14, 950);
+      }
+    }
+  }
+
+  // ---------- Mode drawings ----------
+  function drawVocab(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.translate(rect.width/2, rect.height/2);
+    ctx.scale(1,-1);
+
+    const L1 = Pts.L1, L2 = Pts.L2;
+    const d = unit(sub(L2,L1));
+    const ints = lineCircleIntersections(L1, d, geom.O, geom.R);
+
+    drawInfiniteLine(ctx, L1, d, "rgba(251,191,36,.95)", 3.2, 0.95);
+
+    if(ints.length === 2){
+      drawPoint(ctx, ints[0], 7, "rgba(167,243,208,.9)");
+      drawPoint(ctx, ints[1], 7, "rgba(167,243,208,.9)");
+      drawLine(ctx, ints[0], ints[1], "rgba(167,243,208,.55)", 3.2, 1);
+    }
+
+    drawPoint(ctx, L1, 9, "rgba(125,211,252,.95)");
+    drawPoint(ctx, L2, 9, "rgba(125,211,252,.95)");
+    drawText(ctx, "Drag", L1.x+10, L1.y+12, "rgba(233,238,252,.9)", 12, 900);
+    drawText(ctx, "Drag", L2.x+10, L2.y+12, "rgba(233,238,252,.9)", 12, 900);
+
+    let label = "Neither (0 intersections)";
+    let cls = "warn";
+    let approxIntersections = 0;
+
+    if(ints.length === 2){
+      const chordLen = dist(ints[0], ints[1]);
+      if(chordLen < 10){
+        label = "Tangent (1 intersection)";
+        cls = "good";
+        approxIntersections = 1;
+      }else{
+        label = "Secant (2 intersections)";
+        cls = "good";
+        approxIntersections = 2;
+      }
+    }
+
+    LIVE.intersections = approxIntersections;
+    LIVE.classification = label;
+
+    setReadout([
+      {k:"Intersections", v: `${approxIntersections}`, cls},
+      {k:"Classification", v: label, cls},
+      {k:"Try this", v: (label.startsWith("Tangent")) ? "✅ Tangent found!" : "Make it a tangent", cls: (label.startsWith("Tangent")) ? "good":"warn"}
+    ]);
+
+    drawText(ctx, label, -geom.R, geom.R + 40, "rgba(251,191,36,.95)", 14, 950);
+
+    ctx.restore();
+  }
+
+  function draw1014(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.translate(rect.width/2, rect.height/2);
+    ctx.scale(1,-1);
+
+    const A = getCirclePoint(Pts.A);
+    const B = getCirclePoint(Pts.B);
+    const C = getCirclePoint(Pts.C);
+    const D = getCirclePoint(Pts.D);
+
+    // chords: AC and BD
+    drawLine(ctx, A, C, "rgba(251,191,36,.85)", 3.2, 0.95);
+    drawLine(ctx, B, D, "rgba(125,211,252,.85)", 3.2, 0.95);
+
+    const P = lineLineIntersection(A,C,B,D);
+    if(!P){
+      setReadout([{k:"Status", v:"Chords are parallel / no intersection", cls:"bad"}]);
+      ctx.restore();
+      return;
+    }
+
+    const inside = dist(P, geom.O) < geom.R * 0.98;
+
+    drawPoint(ctx, A, 9, "rgba(251,191,36,.95)");
+    drawPoint(ctx, C, 9, "rgba(251,191,36,.95)");
+    drawPoint(ctx, B, 9, "rgba(125,211,252,.95)");
+    drawPoint(ctx, D, 9, "rgba(125,211,252,.95)");
+    drawText(ctx, "A", A.x+10, A.y+10, "rgba(251,191,36,.95)", 14, 950);
+    drawText(ctx, "C", C.x+10, C.y+10, "rgba(251,191,36,.95)", 14, 950);
+    drawText(ctx, "B", B.x+10, B.y+10, "rgba(125,211,252,.95)", 14, 950);
+    drawText(ctx, "D", D.x+10, D.y+10, "rgba(125,211,252,.95)", 14, 950);
+
+    drawPoint(ctx, P, 7, "rgba(167,243,208,.95)");
+    drawText(ctx, "P", P.x+10, P.y+10, "rgba(167,243,208,.95)", 14, 950);
+
+    const u1 = unit(sub(A,P));
+    const u2 = unit(sub(B,P));
+    const ang = angleBetween(u1,u2);
+    drawAngleMark(ctx, P, u1, u2, 42, "rgba(167,243,208,.95)", 4);
+
+    // ✅ Use the SAME arcs that are actually drawn (not always the minor arc)
+    const arcObjAB = chooseArc(A, B, [C, D]);
+    const arcObjCD = chooseArc(C, D, [A, B]);
+    const arcAB = arcObjAB.deg;
+    const arcCD = arcObjCD.deg;
+
+    const predicted = 0.5*(arcAB + arcCD);
+
+    LIVE.angle = ang; LIVE.arc1 = arcAB; LIVE.arc2 = arcCD; LIVE.predicted = predicted;
+
+    // discovery arcs + CENTRAL angles (normal mode)
+    if(UI.showArcs && !PROOF.overlay){
+      const arc1 = chooseArc(A, B, [C,D]);
+      const arc2 = chooseArc(C, D, [A,B]);
+
+      drawArcPolyline(ctx, geom.O, geom.R, arc1, "rgba(251,191,36,.75)", 6, 0.85);
+      drawArcPolyline(ctx, geom.O, geom.R, arc2, "rgba(125,211,252,.75)", 6, 0.85);
+      drawArcLabel(ctx, arc1, "arc AB", "rgba(251,191,36,.95)", geom.R, geom.O);
+      drawArcLabel(ctx, arc2, "arc CD", "rgba(125,211,252,.95)", geom.R, geom.O);
+
+      // ✅ Central angles show arc measures
+      drawCentralAngleFromArc(ctx, geom.O, arc1, 56, "rgba(251,191,36,.95)");
+      drawCentralAngleFromArc(ctx, geom.O, arc2, 86, "rgba(125,211,252,.95)");
+    }
+
+    if(UI.showNumbers){
+      drawText(ctx, `∠APB ≈ ${fmt(ang)}`, P.x + 16, P.y - 26, "rgba(167,243,208,.95)", 13, 900);
+      if(UI.revealRule){
+        drawText(ctx, `½(AB + CD) ≈ ${fmt(predicted)}`, P.x + 16, P.y - 44, "rgba(233,238,252,.85)", 12, 850);
+      }
+    }
+
+    if(!inside){
+      setReadout([
+        {k:"Angle at P", v: fmt(ang), cls:"warn"},
+        {k:"Status", v:"Move points so P is INSIDE the circle", cls:"bad"},
+        {k:"Hint", v:"Theorem 10.14 applies to interior intersections", cls:"warn"}
+      ]);
+    } else if(UI.revealRule){
+      setReadout([
+        {k:"Angle at intersection", v: fmt(ang)},
+        {k:"Arc AB", v: fmt(arcAB)},
+        {k:"Arc CD", v: fmt(arcCD)},
+        {k:"½(arc AB + arc CD)", v: fmt(predicted), cls: Math.abs(predicted-ang) < 2 ? "good" : "warn"}
+      ]);
+    } else {
+      setReadout([
+        {k:"Angle at intersection", v: UI.showNumbers ? fmt(ang) : "Hidden"},
+        {k:"Arcs to use", v:"arc AB and arc CD", cls:"warn"},
+        {k:"Goal", v:"Spot the “half of a sum” pattern", cls:"good"}
+      ]);
+    }
+
+    // proof overlay
+    if(PROOF.overlay){
+      proofOverlay1014(ctx, geom.O, geom.R, A, B, C, D, P);
+    }
+
+    ctx.restore();
+  }
+
+  function draw1015(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.translate(rect.width/2, rect.height/2);
+    ctx.scale(1,-1);
+
+    const T = getCirclePoint(Pts.T);
+    const S = getCirclePoint(Pts.S);
+
+    drawLine(ctx, T, S, "rgba(251,191,36,.9)", 3.4, 0.95);
+
+    const rad = unit(sub(T, geom.O));
+    const tan = perp(rad);
+    drawInfiniteLine(ctx, T, tan, "rgba(125,211,252,.85)", 3.0, 0.85);
+
+    const chordDir = unit(sub(S,T));
+    const ang1 = angleBetween(chordDir, tan);
+    const ang2 = angleBetween(chordDir, mul(tan,-1));
+    const ang = Math.min(ang1, ang2);
+    const tanUse = (ang1 <= ang2) ? tan : mul(tan,-1);
+
+    const arcTS = minorArcDegrees(thetaOf(T), thetaOf(S));
+    const predicted = 0.5*arcTS;
+
+    LIVE.angle = ang; LIVE.arc1 = arcTS; LIVE.arc2 = null; LIVE.predicted = predicted;
+
+    drawAngleMark(ctx, T, chordDir, unit(tanUse), 44, "rgba(167,243,208,.95)", 4);
+    drawLine(ctx, geom.O, T, "rgba(167,243,208,.35)", 2.5, 1);
+
+    if(UI.showArcs && !PROOF.overlay){
+      const tT = thetaOf(T), tS = thetaOf(S);
+      const ccw = normAng(tS - tT);
+      const shortArc = ccw <= Math.PI ? {dir:"ccw",deg:toDeg(ccw),t1:tT,t2:tS}
+                                      : {dir:"cw", deg:toDeg(TAU-ccw),t1:tT,t2:tS};
+
+      drawArcPolyline(ctx, geom.O, geom.R, shortArc, "rgba(251,191,36,.75)", 6, 0.85);
+      drawArcLabel(ctx, shortArc, "arc TS", "rgba(251,191,36,.95)", geom.R, geom.O);
+
+      // ✅ Central angle equals arc measure
+      drawCentralAngleFromArc(ctx, geom.O, shortArc, 70, "rgba(251,191,36,.95)");
+    }
+
+    drawPoint(ctx, T, 9, "rgba(125,211,252,.95)");
+    drawPoint(ctx, S, 9, "rgba(251,191,36,.95)");
+    drawText(ctx, "T", T.x+10, T.y+10, "rgba(125,211,252,.95)", 14, 950);
+    drawText(ctx, "S", S.x+10, S.y+10, "rgba(251,191,36,.95)", 14, 950);
+
+    if(UI.showNumbers){
+      drawText(ctx, `Angle ≈ ${fmt(ang)}`, T.x + 16, T.y - 28, "rgba(167,243,208,.95)", 13, 900);
+      if(UI.revealRule){
+        drawText(ctx, `½(arc TS) ≈ ${fmt(predicted)}`, T.x + 16, T.y - 46, "rgba(233,238,252,.85)", 12, 850);
+      }
+    }
+
+    if(UI.revealRule){
+      setReadout([
+        {k:"Angle (tangent vs chord)", v: fmt(ang)},
+        {k:"Arc TS (minor)", v: fmt(arcTS)},
+        {k:"½(arc TS)", v: fmt(predicted), cls: Math.abs(predicted-ang) < 2 ? "good" : "warn"}
+      ]);
+    }else{
+      setReadout([
+        {k:"Angle", v: UI.showNumbers ? fmt(ang) : "Hidden"},
+        {k:"Arc to use", v:"arc TS", cls:"warn"},
+        {k:"Goal", v:"Spot the “half of an arc” pattern", cls:"good"}
+      ]);
+    }
+
+    // proof overlay
+    if(PROOF.overlay){
+      proofOverlay1015(ctx, geom.O, geom.R, T, S, tanUse);
+    }
+
+    ctx.restore();
+  }
+
+  // tangent points from external point P to circle
+  function tangentPointsFromExternal(P){
+    const d = Math.hypot(P.x - geom.O.x, P.y - geom.O.y);
+    if(d <= geom.R + 1e-6) return [];
+    const base = Math.atan2(P.y - geom.O.y, P.x - geom.O.x);
+    const alpha = Math.acos(geom.R / d);
+    return [ pointFromCircle(base + alpha), pointFromCircle(base - alpha) ];
+  }
+
+  function farIntersection(P, Q){
+    const d = unit(sub(Q,P));
+    const ints = lineCircleIntersections(P, d, geom.O, geom.R);
+    if(ints.length !== 2) return null;
+    const d0 = dist(P, ints[0]);
+    const d1 = dist(P, ints[1]);
+    const far = d0 > d1 ? ints[0] : ints[1];
+    const near = d0 > d1 ? ints[1] : ints[0];
+    return {near, far};
+  }
+
+  function draw1016(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.translate(rect.width/2, rect.height/2);
+    ctx.scale(1,-1);
+
+    keepExternalOutside();
+    const P = Pts.EXT;
+
+    drawPoint(ctx, P, 9, "rgba(167,243,208,.95)");
+    drawText(ctx, "P", P.x+12, P.y+12, "rgba(167,243,208,.95)", 14, 950);
+
+    let angleAtP = null;
+    let bigArcObj = null, smallArcObj = null;
+    let arcBig = null, arcSmall = null;
+    let predicted = null;
+
+    // for proof overlay data
+    let big1=null, big2=null, small1=null, small2=null;
+
+    if(UI.t1016Case === "twoSecants"){
+      const A = getCirclePoint(Pts.Near1);
+      const C = getCirclePoint(Pts.Near2);
+      const s1 = farIntersection(P, A);
+      const s2 = farIntersection(P, C);
+      if(!s1 || !s2){ setReadout([{k:"Status", v:"Move P further away", cls:"bad"}]); ctx.restore(); return; }
+      const B = s1.far;
+      const D = s2.far;
+
+      drawLine(ctx, P, B, "rgba(251,191,36,.9)", 3.2, 0.95);
+      drawLine(ctx, P, D, "rgba(125,211,252,.9)", 3.2, 0.95);
+
+      drawPoint(ctx, A, 8, "rgba(251,191,36,.95)");
+      drawPoint(ctx, B, 8, "rgba(251,191,36,.95)");
+      drawPoint(ctx, C, 8, "rgba(125,211,252,.95)");
+      drawPoint(ctx, D, 8, "rgba(125,211,252,.95)");
+
+      const u1 = unit(sub(A,P));
+      const u2 = unit(sub(C,P));
+      angleAtP = angleBetween(u1,u2);
+      drawAngleMark(ctx, P, u1, u2, 52, "rgba(167,243,208,.95)", 4);
+
+      bigArcObj = chooseArc(B, D, [A,C]);
+      smallArcObj = chooseArc(A, C, [B,D]);
+
+      arcBig = bigArcObj.deg;
+      arcSmall = smallArcObj.deg;
+      predicted = 0.5*(arcBig - arcSmall);
+
+      big1=B; big2=D; small1=A; small2=C;
+
+    } else if(UI.t1016Case === "secantTangent"){
+      const A = getCirclePoint(Pts.Near1);
+      const sec = farIntersection(P, A);
+      if(!sec){ setReadout([{k:"Status", v:"Move P further away", cls:"bad"}]); ctx.restore(); return; }
+      const B = sec.far;
+
+      const tangPts = tangentPointsFromExternal(P);
+      if(tangPts.length !== 2){ setReadout([{k:"Status", v:"No tangents possible (P too close)", cls:"bad"}]); ctx.restore(); return; }
+      const T = (tangPts[0].y > tangPts[1].y) ? tangPts[0] : tangPts[1];
+
+      drawLine(ctx, P, B, "rgba(251,191,36,.9)", 3.2, 0.95);
+      drawLine(ctx, P, T, "rgba(125,211,252,.9)", 3.2, 0.95);
+
+      const u1 = unit(sub(A,P));
+      const u2 = unit(sub(T,P));
+      angleAtP = angleBetween(u1,u2);
+      drawAngleMark(ctx, P, u1, u2, 52, "rgba(167,243,208,.95)", 4);
+
+      bigArcObj = chooseArc(B, T, [A]);
+      smallArcObj = chooseArc(A, T, [B]);
+
+      arcBig = bigArcObj.deg;
+      arcSmall = smallArcObj.deg;
+      predicted = 0.5*(arcBig - arcSmall);
+
+      big1=B; big2=T; small1=A; small2=T;
+
+    } else if(UI.t1016Case === "twoTangents"){
+      const tangPts = tangentPointsFromExternal(P);
+      if(tangPts.length !== 2){ setReadout([{k:"Status", v:"Move P further away", cls:"bad"}]); ctx.restore(); return; }
+      const T1 = tangPts[0];
+      const T2 = tangPts[1];
+
+      drawLine(ctx, P, T1, "rgba(251,191,36,.9)", 3.2, 0.95);
+      drawLine(ctx, P, T2, "rgba(125,211,252,.9)", 3.2, 0.95);
+
+      const u1 = unit(sub(T1,P));
+      const u2 = unit(sub(T2,P));
+      angleAtP = angleBetween(u1,u2);
+      drawAngleMark(ctx, P, u1, u2, 52, "rgba(167,243,208,.95)", 4);
+
+      const mMinor = minorArcDegrees(thetaOf(T1), thetaOf(T2));
+      const mMajor = 360 - mMinor;
+      arcBig = mMajor;
+      arcSmall = mMinor;
+      predicted = 0.5*(arcBig - arcSmall);
+
+      const t1 = thetaOf(T1), t2 = thetaOf(T2);
+      const ccw = normAng(t2 - t1);
+      const minorArc = (ccw <= Math.PI)
+        ? {dir:"ccw", deg:toDeg(ccw), t1, t2}
+        : {dir:"cw",  deg:toDeg(TAU-ccw), t1, t2};
+      const majorArc = {dir: minorArc.dir === "ccw" ? "cw" : "ccw", deg: 360 - minorArc.deg, t1, t2};
+
+      bigArcObj = majorArc;
+      smallArcObj = minorArc;
+
+      big1=T1; big2=T2; small1=T1; small2=T2;
+    }
+
+    LIVE.angle = angleAtP;
+    LIVE.arc1 = arcBig;
+    LIVE.arc2 = arcSmall;
+    LIVE.predicted = predicted;
+
+    if(angleAtP == null){
+      setReadout([{k:"Status", v:"Move points to create the case", cls:"warn"}]);
+    } else if(UI.revealRule){
+      setReadout([
+        {k:"Exterior angle at P", v: fmt(angleAtP)},
+        {k:"Big arc", v: fmt(arcBig)},
+        {k:"Small arc", v: fmt(arcSmall)},
+        {k:"½(Big − Small)", v: fmt(predicted), cls: Math.abs(predicted-angleAtP) < 2 ? "good" : "warn"}
+      ]);
+    } else {
+      setReadout([
+        {k:"Exterior angle", v: UI.showNumbers ? fmt(angleAtP) : "Hidden"},
+        {k:"Rule shape", v:"½( big − small )", cls:"warn"},
+        {k:"Goal", v:"See why outside uses a difference", cls:"good"}
+      ]);
+    }
+
+    if(UI.showNumbers && angleAtP != null){
+      drawText(ctx, `∠P ≈ ${fmt(angleAtP)}`, P.x + 18, P.y + 28, "rgba(167,243,208,.95)", 13, 900);
+      if(UI.revealRule && predicted != null){
+        drawText(ctx, `½(big − small) ≈ ${fmt(predicted)}`, P.x + 18, P.y + 8, "rgba(233,238,252,.85)", 12, 850);
+      }
+    }
+
+    // Normal (non-proof) arc highlight + CENTRAL angles
+    if(UI.showArcs && !PROOF.overlay && bigArcObj && smallArcObj){
+      drawArcPolyline(ctx, geom.O, geom.R, bigArcObj,   "rgba(167,243,208,.55)", 6, 0.85);
+      drawArcPolyline(ctx, geom.O, geom.R, smallArcObj, "rgba(233,238,252,.25)", 5.5, 0.8);
+
+      // ✅ central angles show the arc measures (big and small)
+      drawCentralAngleFromArc(ctx, geom.O, smallArcObj, 58, "rgba(233,238,252,.85)", `small ${round0(smallArcObj.deg)}°`);
+      drawCentralAngleFromArc(ctx, geom.O, bigArcObj,   92, "rgba(167,243,208,.95)", `big ${round0(bigArcObj.deg)}°`);
+    }
+
+    // Proof overlay (case-aware)
+    if(PROOF.overlay && bigArcObj && smallArcObj && angleAtP != null){
+      if(UI.t1016Case === "twoSecants"){
+        proofOverlay1016(ctx, geom.O, geom.R, bigArcObj, smallArcObj, P, {
+          case:"twoSecants",
+          A: small1, B: big1, C: small2, D: big2
+        });
+      }
+      if(UI.t1016Case === "secantTangent"){
+        proofOverlay1016(ctx, geom.O, geom.R, bigArcObj, smallArcObj, P, {
+          case:"secantTangent",
+          A: small1, B: big1, T: big2
+        });
+      }
+      if(UI.t1016Case === "twoTangents"){
+        proofOverlay1016(ctx, geom.O, geom.R, bigArcObj, smallArcObj, P, {
+          case:"twoTangents",
+          T1: big1, T2: big2
+        });
+      }
+    }
+
+    ctx.restore();
+  }
+
+  // ---------- main draw ----------
+  function draw(){
+    const rect = canvas.getBoundingClientRect();
+    geom.R = Math.min(rect.width, rect.height) * 0.32;
+    keepExternalOutside();
+
+    drawBackground();
+
+    LIVE.angle = null; LIVE.arc1 = null; LIVE.arc2 = null; LIVE.predicted = null;
+
+    if(UI.mode === "vocab") drawVocab();
+    if(UI.mode === "t1014") draw1014();
+    if(UI.mode === "t1015") draw1015();
+    if(UI.mode === "t1016") draw1016();
+  }
+
+  // ---------- init ----------
+  updatePanelText();
+  resetDefaults();
+  updateProofUI();
+  buildNewQuestion(true);
+  requestDraw();
+
+})();
+</script>
+</body>
+</html>
