@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Math Lab: Probability Simulations</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --primary:#2c3e50; --secondary:#3498db; --accent:#e74c3c; --success:#27ae60;
+      --bg:#f8f9fa; --card:#ffffff; --muted:#6c757d;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;margin:0;background:var(--bg);color:#333}
+    nav{
+      background:var(--primary);padding:12px;display:flex;gap:8px;position:sticky;top:0;z-index:1000;
+      overflow-x:auto;box-shadow:0 4px 10px rgba(0,0,0,0.1)
+    }
+    .nav-btn{
+      background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);
+      padding:10px 18px;border-radius:20px;cursor:pointer;white-space:nowrap;transition:0.2s;font-size:0.9rem
+    }
+    .nav-btn:hover{background:rgba(255,255,255,0.2)}
+    .nav-btn.active{background:var(--secondary);border-color:var(--secondary);font-weight:700}
+
+    .container{max-width:1100px;margin:25px auto;padding:0 20px}
+    .slide{
+      display:none;background:var(--card);padding:35px;border-radius:12px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.08);animation:fadeIn 0.35s ease-out
+    }
+    .slide.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    .sim-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:30px}
+    .card{background:#f1f3f5;border-radius:12px;padding:18px}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef2f7;color:var(--primary);font-weight:700;font-size:0.85rem}
+    .muted{color:var(--muted)}
+    .divider{height:1px;background:#e9ecef;margin:18px 0}
+
+    /* Dice box */
+    .dice-box{background:#f1f3f5;border-radius:12px;padding:22px;text-align:center}
+    .dice-container{display:flex;justify-content:center;gap:20px;margin:15px 0}
+    .die-face{
+      font-size:70px;width:90px;height:90px;background:white;border-radius:12px;display:flex;
+      align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,0.1);line-height:1
+    }
+    .dice-shake{animation:shake 0.15s infinite}
+    @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(8deg)}75%{transform:rotate(-8deg)}}
+    .sum-label{font-size:0.95rem;color:#666;margin-top:10px}
+    .sum-val{font-size:3.6rem;font-weight:900;color:var(--accent);display:block;line-height:1}
+
+    /* Bingo grid */
+    .bingo-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:12px 0}
+    .bingo-cell{
+      height:46px;border:2px solid #dee2e6;border-radius:8px;overflow:hidden;background:#fff;
+      display:flex;align-items:center;justify-content:center
+    }
+    .bingo-cell input{
+      width:100%;height:100%;border:none;text-align:center;font-size:1.1rem;font-weight:800;color:var(--primary);
+      outline:none;transition:0.2s;background:transparent
+    }
+    .bingo-cell input:focus{background:#eef2f7}
+    .bingo-cell.ready{outline:3px solid rgba(52,152,219,0.35)}
+    .bingo-cell.marked{background:var(--accent);border-color:#c0392b}
+    .bingo-cell.marked input{color:#fff}
+    .bingo-cell.disabled input{color:#adb5bd}
+    .hint{font-size:0.9rem;color:#555;margin:8px 0 0}
+
+    /* controls */
+    .btn-group{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap}
+    button{
+      flex:1;padding:13px;border:none;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.95rem;transition:0.2s
+    }
+    .btn-main{background:var(--secondary);color:white}
+    .btn-alt{background:var(--success);color:white}
+    .btn-reset{background:#adb5bd;color:white;max-width:150px;flex:0 0 150px}
+    button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    button:active{transform:translateY(0)}
+    button:disabled{background:#cfd4da;cursor:not-allowed;transform:none;filter:none}
+
+    .chart-wrapper{position:relative;height:360px;width:100%}
+    .tiny{font-size:0.85rem}
+    .kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .kpi{background:#fff;border:1px solid #e9ecef;border-radius:12px;padding:10px 12px;min-width:160px}
+    .kpi .val{font-size:1.3rem;font-weight:900;color:var(--primary)}
+
+    /* Theory table */
+    table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e9ecef}
+    th,td{padding:10px;border-bottom:1px solid #e9ecef;text-align:center}
+    th{background:#eef2f7;color:var(--primary);font-weight:900}
+    tr:last-child td{border-bottom:none}
+
+    /* Locker */
+    .locker-results{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    #sampleSpaceOutput{
+      background:#2c3e50;color:#ecf0f1;padding:15px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:0.85rem;height:310px;overflow-y:auto;white-space:pre-wrap
+    }
+
+    /* Responsive */
+    @media (max-width: 850px){
+      .sim-grid,.locker-results{grid-template-columns:1fr}
+      .btn-reset{max-width:none;flex:1}
+    }
+  </style>
+</head>
+<body>
+
+<nav id="navbar">
+  <button class="nav-btn active" onclick="navTo(0)">1. Overview</button>
+  <button class="nav-btn" onclick="navTo(1)">2. Dice Bingo</button>
+  <button class="nav-btn" onclick="navTo(2)">3. Theory vs Experiment</button>
+  <button class="nav-btn" onclick="navTo(3)">4. Locker Simulation</button>
+  <button class="nav-btn" onclick="navTo(4)">5. Group Task</button>
+  <button class="nav-btn" onclick="navTo(5)">6. Plenary</button>
+</nav>
+
+<div class="container">
+
+  <!-- Slide 1 -->
+  <div class="slide active">
+    <h1>Lesson 1: Probability & Simulations</h1>
+    <p class="muted">
+      We use <strong>models</strong> to build logical approximations that help us understand real situations.
+    </p>
+
+    <div class="sim-grid">
+      <div class="card" style="background:#eef2f7;">
+        <h3><span class="pill">Learning goals</span></h3>
+        <div class="divider"></div>
+        <p><strong>By the end, you should be able to:</strong></p>
+        <ul>
+          <li>Explain the difference between <strong>theoretical</strong> and <strong>experimental</strong> probability.</li>
+          <li>Run a simulation and collect results fairly.</li>
+          <li>Compare results and judge how accurate your simulation is.</li>
+        </ul>
+        <p class="tiny muted">
+          Helpful idea: More trials usually gives results closer to the theoretical probabilities.
+        </p>
+      </div>
+
+      <div class="card" style="border-left: 4px solid var(--accent);">
+        <h3><span class="pill">Key words</span></h3>
+        <div class="divider"></div>
+        <p><strong>Model:</strong> a simplified representation of a real situation.</p>
+        <p><strong>Approximation:</strong> nearly correct, but not exact.</p>
+        <p><strong>Validity:</strong> the model makes sense logically for the situation.</p>
+        <div class="divider"></div>
+        <p class="muted"><strong>Quick check:</strong> When would a simulation be “not valid”?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="slide">
+    <h1>🎲 Dice Bingo Starter</h1>
+    <p>
+      Fill your 6×6 grid with numbers from <strong>2 to 12</strong>. Each round: roll two dice, add them, then you may
+      mark <strong>only one</strong> matching square.
+    </p>
+
+    <div class="sim-grid">
+      <div>
+        <div class="dice-box">
+          <div class="dice-container">
+            <div id="d1" class="die-face">⚀</div>
+            <div id="d2" class="die-face">⚀</div>
+          </div>
+          <div class="sum-label">CURRENT SUM</div>
+          <span id="sumDisplay" class="sum-val">--</span>
+          <p id="markPrompt" class="hint muted">
+            Roll to start. After you roll, click ONE highlighted square to mark it.
+          </p>
+        </div>
+
+        <div class="btn-group">
+          <button id="rollBtn" class="btn-main" onclick="rollOne()">🎲 ROLL ONE ROUND</button>
+          <button id="simBtn" class="btn-alt" onclick="runFastSim()">⚡ SIMULATE</button>
+          <button class="btn-reset" onclick="resetAll()">RESET</button>
+        </div>
+
+        <div class="card" style="background:#fff;border:1px solid #eee;">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <div>
+              <p style="margin:0"><strong>Total Rolls:</strong> <span id="rollCount">0</span></p>
+              <p style="margin:0"><strong>Marks Placed:</strong> <span id="marksCount">0</span> / 36</p>
+            </div>
+            <div style="min-width:280px">
+              <label class="tiny"><strong>Fast simulation trials:</strong> <span id="simNLabel">50</span></label>
+              <input id="simN" type="range" min="10" max="500" step="10" value="50" style="width:100%"/>
+              <p class="tiny muted" style="margin:6px 0 0;">
+                This updates the chart only (it does not auto-mark your Bingo grid).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin-bottom:6px;">Bingo Grid</h3>
+        <p class="tiny muted" style="margin-top:0;">
+          Tip: Use more 6s, 7s, and 8s if you want numbers that happen more often.
+        </p>
+        <div class="bingo-grid" id="bingoDisplay"></div>
+
+        <div class="card" style="background:#fff;border:1px solid #eee;">
+          <h3 style="margin:0 0 8px;">Reflection (write short answers)</h3>
+          <p style="margin:0 0 8px;"><strong>1)</strong> Which sums seem most common so far? Why?</p>
+          <p style="margin:0 0 8px;"><strong>2)</strong> If you doubled the number of rolls, what do you think would happen to the bar chart?</p>
+          <p style="margin:0;"><strong>3)</strong> One improvement I could make to my strategy is…</p>
+        </div>
+      </div>
+
+      <div style="background:#fff;padding:10px;border-radius:12px;border:1px solid #eee;">
+        <h3 style="text-align:center;margin-top:0;">Observed vs Theoretical</h3>
+        <div class="chart-wrapper"><canvas id="probChart"></canvas></div>
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="tiny muted">Most common (observed)</div>
+            <div class="val" id="modeObs">—</div>
+          </div>
+          <div class="kpi">
+            <div class="tiny muted">Relative frequency of 7</div>
+            <div class="val" id="rf7">—</div>
+          </div>
+          <div class="kpi">
+            <div class="tiny muted">Difference from theory (7)</div>
+            <div class="val" id="diff7">—</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <button class="btn-main" onclick="downloadCSV()">⬇️ Download results (CSV)</button>
+        <p class="tiny muted" style="margin-bottom:0;">
+          CSV includes outcomes 2–12 with observed counts and relative frequencies.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="slide">
+    <h1>Theory vs Experiment</h1>
+    <div class="sim-grid">
+      <div class="card" style="background:#eef2f7;">
+        <h3>Theoretical probabilities for two fair dice</h3>
+        <p class="muted tiny" style="margin-top:0;">These do not change. They come from counting equally likely outcomes (36 total).</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Sum</th><th>Ways</th><th>Theoretical P</th>
+            </tr>
+          </thead>
+          <tbody id="theoryTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="background:#fdf2f2;">
+        <h3>Validity and Accuracy</h3>
+        <p><strong>Validity:</strong> Does the method match the real situation?</p>
+        <p><strong>Accuracy:</strong> How close are the results to the theoretical probabilities?</p>
+        <div class="divider"></div>
+        <p><strong>Sentence starters (use at least one):</strong></p>
+        <p class="muted" style="margin:0 0 8px;">
+          My experimental results are close to the theoretical results because…
+        </p>
+        <p class="muted" style="margin:0 0 8px;">
+          A reason my results might be different is…
+        </p>
+        <p class="muted" style="margin:0;">
+          If we increase the number of trials, I predict that…
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4 -->
+  <div class="slide">
+    <h1>School Locker Passcodes</h1>
+    <p>
+      Passcodes must be <strong>2 digits</strong> (from 1–4) and <strong>1 symbol</strong> (from # or $).
+    </p>
+
+    <div class="locker-results">
+      <div>
+        <div class="btn-group" style="margin-top:0;">
+          <button class="btn-main" onclick="genSampleSpace()">📂 GENERATE SAMPLE SPACE (32 CODES)</button>
+          <button class="btn-reset" onclick="clearLocker()">CLEAR</button>
+        </div>
+
+        <div class="dice-box">
+          <h3 style="margin-top:0;">Run a Random Simulation</h3>
+          <p class="muted" style="margin-top:0;">
+            Valid tool idea: spinner (1–4) twice + coin flip for the symbol.
+          </p>
+
+          <div class="btn-group">
+            <button class="btn-alt" onclick="simPasscode()">🏃 RUN ONE</button>
+            <button class="btn-main" onclick="simPasscodeMany()">⚡ RUN 50</button>
+          </div>
+
+          <h2 id="lockerRes" style="color:var(--accent);margin:10px 0 0;font-size:3rem;">---</h2>
+          <p class="tiny muted" id="lockerStats" style="margin:10px 0 0;">No trials yet.</p>
+        </div>
+
+        <div class="card" style="background:#fff;border:1px solid #eee;">
+          <h3 style="margin:0 0 8px;">Check your thinking</h3>
+          <p style="margin:0 0 8px;"><strong>1)</strong> How many total outcomes are possible? Explain.</p>
+          <p style="margin:0 0 8px;"><strong>2)</strong> What is P(getting “11#”)?</p>
+          <p style="margin:0;"><strong>3)</strong> One way to improve the simulation is…</p>
+        </div>
+      </div>
+
+      <div>
+        <strong>Theoretical outcomes:</strong>
+        <div id="sampleSpaceOutput">Click “Generate sample space” to list all codes…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5 -->
+  <div class="slide">
+    <h1>Task: Group Simulation</h1>
+    <div class="card" style="background:var(--primary);color:#fff;">
+      <h3 style="margin-top:0;">Simulation Requirements</h3>
+      <ol>
+        <li><strong>Design:</strong> define Success and Failure, then find theoretical probabilities.</li>
+        <li><strong>Choose tools:</strong> pick a tool that matches the probabilities fairly.</li>
+        <li><strong>Run:</strong> do at least <strong>50</strong> trials and record results.</li>
+        <li><strong>Compare:</strong> experimental vs theoretical.</li>
+        <li><strong>Evaluate:</strong> one thing that worked well, and one improvement (validity/accuracy).</li>
+      </ol>
+    </div>
+
+    <div class="card" style="background:#fff;border:1px solid #eee;margin-top:18px;">
+      <h3 style="margin:0 0 10px;">Useful sentence starters</h3>
+      <p style="margin:0 0 8px;">Our simulation is valid because…</p>
+      <p style="margin:0 0 8px;">A limitation of our method is…</p>
+      <p style="margin:0 0 8px;">To improve accuracy, we could…</p>
+      <p style="margin:0;">Our results are different from the theory because…</p>
+    </div>
+  </div>
+
+  <!-- Slide 6 -->
+  <div class="slide">
+    <h1>Plenary</h1>
+    <div class="sim-grid">
+      <div style="text-align:center">
+        <div style="width:180px;height:180px;border-radius:50%;background:conic-gradient(#e74c3c 0deg 120deg,#3498db 120deg 360deg);margin:auto;border:4px solid #333;position:relative;">
+          <div style="position:absolute;top:50%;left:50%;width:80px;height:4px;background:#333;transform-origin:left;transform:translate(0,-50%) rotate(-30deg);border-radius:4px;"></div>
+        </div>
+        <p><strong>120° Red Section</strong></p>
+      </div>
+
+      <div class="card" style="background:#fff;border:1px solid #eee;">
+        <p><strong>Challenge:</strong> An experiment has three equally likely outcomes A, B, and C.</p>
+        <p>Is it possible to use this spinner (120° red) to model the probability of outcome C?</p>
+        <div class="divider"></div>
+        <p class="muted"><strong>Write:</strong> Yes/No, and give a reason.</p>
+        <p class="muted tiny" style="margin-bottom:0;">Tip: Think about what probabilities this spinner can represent.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---------- Navigation ----------
+  function navTo(idx){
+    const slides = document.querySelectorAll('.slide');
+    const btns = document.querySelectorAll('.nav-btn');
+    slides.forEach((s,i)=>s.classList.toggle('active', i===idx));
+    btns.forEach((b,i)=>b.classList.toggle('active', i===idx));
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  // ---------- Theoretical distribution (two dice) ----------
+  const labels = [2,3,4,5,6,7,8,9,10,11,12];
+  const ways =   [1,2,3,4,5,6,5,4, 3, 2, 1];
+  const theoryP = ways.map(w => w/36);
+
+  function formatP(p){
+    return (p*100).toFixed(1) + "%";
+  }
+
+  // Fill theory table
+  function buildTheoryTable(){
+    const body = document.getElementById('theoryTableBody');
+    body.innerHTML = "";
+    for(let i=0;i<labels.length;i++){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><strong>${labels[i]}</strong></td><td>${ways[i]}</td><td>${formatP(theoryP[i])}</td>`;
+      body.appendChild(tr);
+    }
+  }
+
+  // ---------- Chart & data ----------
+  const counts = Array(11).fill(0);
+  let totalRolls = 0;
+
+  let chart;
+
+  function updateKPIs(){
+    // mode observed
+    let maxIdx = 0;
+    for(let i=1;i<counts.length;i++){
+      if(counts[i] > counts[maxIdx]) maxIdx = i;
+    }
+    document.getElementById('modeObs').innerText = (totalRolls===0) ? "—" : String(labels[maxIdx]);
+
+    // relative frequency of 7
+    const idx7 = 7 - 2; // sum 7 corresponds to index 5
+    const rf = (totalRolls===0) ? null : counts[idx7] / totalRolls;
+    document.getElementById('rf7').innerText = (rf===null) ? "—" : formatP(rf);
+
+    // diff from theory (7)
+    const diff = (rf===null) ? null : (rf - (6/36));
+    document.getElementById('diff7').innerText = (diff===null) ? "—" : ((diff*100).toFixed(1) + " pp");
+  }
+
+  function updateChart(){
+    chart.update();
+    updateKPIs();
+  }
+
+  window.onload = () => {
+    buildTheoryTable();
+
+    // Slider label
+    const simRange = document.getElementById('simN');
+    const simLabel = document.getElementById('simNLabel');
+    simRange.addEventListener('input', ()=> simLabel.innerText = simRange.value);
+
+    // Chart
+    const ctx = document.getElementById('probChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Observed count',
+            data: counts,
+            borderRadius: 6,
+            backgroundColor: '#3498db'
+          },
+          {
+            type: 'line',
+            label: 'Theoretical (scaled)',
+            data: theoryP.map(p => p * Math.max(1,totalRolls)), // scaled to rolls
+            borderWidth: 3,
+            pointRadius: 2,
+            tension: 0.25
+          }
+        ]
+      },
+      options: {
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{
+          y:{beginAtZero:true, ticks:{stepSize:1}}
+        },
+        plugins:{
+          tooltip:{mode:'index', intersect:false}
+        }
+      }
+    });
+
+    // Build Bingo grid
+    const bGrid = document.getElementById('bingoDisplay');
+    for(let i=0;i<36;i++){
+      const cell = document.createElement('div');
+      cell.className = 'bingo-cell';
+      cell.innerHTML = `<input type="number" min="2" max="12" placeholder="?" aria-label="bingo value">`;
+      bGrid.appendChild(cell);
+    }
+
+    // Add click-to-mark behavior
+    document.querySelectorAll('.bingo-cell').forEach(cell => {
+      cell.addEventListener('click', () => tryMarkCell(cell));
+    });
+
+    updateKPIs();
+  };
+
+  // ---------- Dice logic + Bingo rule enforcement ----------
+  const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+  let pendingSum = null;        // sum waiting to be marked in grid
+  let canMarkThisRound = false; // enforce ONE mark
+  let marksPlaced = 0;
+
+  function setMarkPrompt(text, tone="muted"){
+    const el = document.getElementById('markPrompt');
+    el.classList.remove('muted');
+    el.style.color = (tone==="warn") ? "#b02a37" : "#6c757d";
+    if(tone==="good") el.style.color = "#1e7e34";
+    el.innerText = text;
+    if(tone==="muted") el.classList.add('muted');
+  }
+
+  function highlightMatches(sum){
+    document.querySelectorAll('.bingo-cell').forEach(cell => {
+      cell.classList.remove('ready');
+      const input = cell.querySelector('input');
+      if(cell.classList.contains('marked')) return; // already used
+      const v = parseInt(input.value);
+      if(!Number.isNaN(v) && v === sum){
+        cell.classList.add('ready');
+      }
+    });
+  }
+
+  function clearHighlights(){
+    document.querySelectorAll('.bingo-cell').forEach(cell => cell.classList.remove('ready'));
+  }
+
+  function tryMarkCell(cell){
+    if(!canMarkThisRound || pendingSum===null) return;
+
+    if(!cell.classList.contains('ready')){
+      setMarkPrompt("Click a highlighted matching square only.", "warn");
+      return;
+    }
+    if(cell.classList.contains('marked')) return;
+
+    // Mark it
+    cell.classList.add('marked');
+    marksPlaced++;
+    document.getElementById('marksCount').innerText = marksPlaced;
+
+    // End round marking
+    canMarkThisRound = false;
+    clearHighlights();
+    setMarkPrompt("Marked! Now roll the next round.", "good");
+
+    // Check win
+    if(marksPlaced >= 36){
+      setMarkPrompt("BINGO! You filled all 36 squares. Reset to play again.", "good");
+      document.getElementById('rollBtn').disabled = true;
+    }
+  }
+
+  function rollOne(){
+    const btn = document.getElementById('rollBtn');
+    const d1 = document.getElementById('d1');
+    const d2 = document.getElementById('d2');
+
+    // if they haven't marked from last roll, remind them
+    if(canMarkThisRound){
+      setMarkPrompt("You still need to mark ONE square from the last roll.", "warn");
+      return;
+    }
+
+    btn.disabled = true;
+    d1.classList.add('dice-shake');
+    d2.classList.add('dice-shake');
+
+    setTimeout(()=>{
+      const r1 = Math.floor(Math.random()*6)+1;
+      const r2 = Math.floor(Math.random()*6)+1;
+      const sum = r1 + r2;
+
+      d1.innerText = faces[r1-1];
+      d2.innerText = faces[r2-1];
+      document.getElementById('sumDisplay').innerText = sum;
+
+      updateStats(sum);
+
+      // Prepare marking
+      pendingSum = sum;
+      canMarkThisRound = true;
+      highlightMatches(sum);
+
+      const anyMatch = document.querySelectorAll('.bingo-cell.ready').length > 0;
+      if(anyMatch){
+        setMarkPrompt(`Sum = ${sum}. Click ONE highlighted square to mark it.`, "muted");
+      }else{
+        setMarkPrompt(`Sum = ${sum}. No matches available (or those squares are already marked). Roll next round.`, "muted");
+        canMarkThisRound = false;
+      }
+
+      d1.classList.remove('dice-shake');
+      d2.classList.remove('dice-shake');
+      btn.disabled = false;
+    }, 550);
+  }
+
+  function updateStats(sum){
+    counts[sum-2]++;
+    totalRolls++;
+    document.getElementById('rollCount').innerText = totalRolls;
+
+    // keep theoretical line scaled
+    chart.data.datasets[1].data = theoryP.map(p => p * totalRolls);
+    updateChart();
+  }
+
+  // Fast simulation (chart only)
+  function runFastSim(){
+    const n = parseInt(document.getElementById('simN').value);
+    if(!Number.isFinite(n) || n<=0) return;
+
+    for(let i=0;i<n;i++){
+      const sum = (Math.floor(Math.random()*6)+1) + (Math.floor(Math.random()*6)+1);
+      counts[sum-2]++;
+      totalRolls++;
+    }
+    document.getElementById('rollCount').innerText = totalRolls;
+    chart.data.datasets[1].data = theoryP.map(p => p * totalRolls);
+    updateChart();
+    setMarkPrompt(`Simulated ${n} trials (chart only). You can still play Bingo normally.`, "muted");
+  }
+
+  function resetAll(){
+    // reset dice stats
+    counts.fill(0);
+    totalRolls = 0;
+    document.getElementById('rollCount').innerText = '0';
+    document.getElementById('sumDisplay').innerText = '--';
+    chart.data.datasets[1].data = theoryP.map(p => 0);
+    updateChart();
+
+    // reset bingo
+    document.querySelectorAll('.bingo-cell').forEach(cell=>{
+      cell.classList.remove('marked','ready');
+      const input = cell.querySelector('input');
+      input.value = "";
+    });
+    marksPlaced = 0;
+    document.getElementById('marksCount').innerText = '0';
+    pendingSum = null;
+    canMarkThisRound = false;
+    document.getElementById('rollBtn').disabled = false;
+
+    setMarkPrompt("Roll to start. After you roll, click ONE highlighted square to mark it.", "muted");
+  }
+
+  // ---------- CSV download ----------
+  function downloadCSV(){
+    let rows = [["sum","theoretical_p","observed_count","relative_frequency"]];
+    for(let i=0;i<labels.length;i++){
+      const rf = (totalRolls===0) ? 0 : counts[i]/totalRolls;
+      rows.push([labels[i], theoryP[i], counts[i], rf]);
+    }
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "dice_results.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- Locker simulation ----------
+  let lockerTrials = 0;
+  const lockerCounts = {}; // code -> count
+
+  function genSampleSpace(){
+    const digits = [1,2,3,4];
+    const symbols = ['#','$'];
+    let space = [];
+    digits.forEach(d1=>{
+      digits.forEach(d2=>{
+        symbols.forEach(s=>space.push(`${d1}${d2}${s}`));
+      });
+    });
+    document.getElementById('sampleSpaceOutput').innerText =
+      "TOTAL CODES (32):\n\n" + space.join(", ");
+  }
+
+  function simPasscode(){
+    const r1 = Math.floor(Math.random()*4)+1;
+    const r2 = Math.floor(Math.random()*4)+1;
+    const r3 = Math.random() > 0.5 ? '#' : '$';
+    const code = `${r1}${r2}${r3}`;
+    document.getElementById('lockerRes').innerText = code;
+
+    lockerTrials++;
+    lockerCounts[code] = (lockerCounts[code] || 0) + 1;
+
+    updateLockerStats();
+  }
+
+  function simPasscodeMany(){
+    for(let i=0;i<50;i++) simPasscode();
+  }
+
+  function updateLockerStats(){
+    // show top 3
+    const entries = Object.entries(lockerCounts).sort((a,b)=>b[1]-a[1]);
+    const top = entries.slice(0,3).map(([k,v])=>{
+      const rf = v/lockerTrials;
+      return `${k}: ${v} (${(rf*100).toFixed(1)}%)`;
+    });
+
+    document.getElementById('lockerStats').innerText =
+      `Trials: ${lockerTrials}. Most common so far: ${top.length? top.join(" | ") : "—"}`;
+  }
+
+  function clearLocker(){
+    lockerTrials = 0;
+    for(const k in lockerCounts) delete lockerCounts[k];
+    document.getElementById('lockerRes').innerText = "---";
+    document.getElementById('lockerStats').innerText = "No trials yet.";
+    document.getElementById('sampleSpaceOutput').innerText = "Click “Generate sample space” to list all codes…";
+  }
+</script>
+
+</body>
+</html>
