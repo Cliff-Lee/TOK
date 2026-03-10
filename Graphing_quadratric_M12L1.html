@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quadratic Functions Discovery Lab</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3f0;
+      --accent: #2563eb;
+      --accent-2: #0f766e;
+      --good: #15803d;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: 0 10px 30px rgba(31, 41, 55, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 180px);
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1d4ed8, #0f766e);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 900px;
+      line-height: 1.5;
+      font-size: 1.02rem;
+      opacity: 0.96;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid #e8eef8;
+      overflow: hidden;
+    }
+
+    .card h2, .card h3 {
+      margin: 0;
+    }
+
+    .card-header {
+      padding: 18px 20px 10px;
+    }
+
+    .card-body {
+      padding: 0 20px 20px;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 16px;
+    }
+
+    .control-group {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .control-group h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 28px 1fr 60px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .slider-row:last-child { margin-bottom: 0; }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .value-pill, .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #eef4ff;
+      color: #1d4ed8;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      transition: 0.15s transform ease, 0.15s opacity ease;
+    }
+
+    button.secondary {
+      background: #e8f0ff;
+      color: #1d4ed8;
+    }
+
+    button.ghost {
+      background: #edf7f5;
+      color: #0f766e;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .info-grid { grid-template-columns: 1fr; }
+    }
+
+    .info-box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fcfdff;
+    }
+
+    .info-box .k {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+    }
+
+    .info-box .v {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .main-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .graph-wrap {
+      padding: 0 20px 20px;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      background: linear-gradient(180deg, #ffffff, #fcfdff);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .discovery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .discovery-grid { grid-template-columns: 1fr; }
+    }
+
+    .prompt {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .prompt strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .prompt textarea {
+      width: 100%;
+      min-height: 90px;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 10px;
+      font: inherit;
+      resize: vertical;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+    }
+
+    th {
+      background: #eef4ff;
+      color: #1d4ed8;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .challenge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .challenge-grid { grid-template-columns: 1fr; }
+    }
+
+    .challenge {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fcfdff;
+    }
+
+    .challenge .tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      padding: 5px 9px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .mild { background: #ecfdf5; color: var(--good); }
+    .medium { background: #fffbeb; color: var(--warn); }
+    .spicy { background: #fef2f2; color: var(--bad); }
+
+    .equation {
+      font-family: "Times New Roman", serif;
+      font-size: 1.15rem;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      margin: 8px 0 10px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .checkitem {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfdff;
+    }
+
+    .checkitem input { margin-top: 3px; }
+
+    .monospace { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Quadratic Functions Discovery Lab</h1>
+      <p>
+        Explore how the graph of <span class="monospace">y = ax² + bx + c</span> changes. Move the sliders, study the graph,
+        and discover the axis of symmetry, vertex, y-intercept, end behavior, domain, and range.
+        Then test your ideas with challenge cards and real-world contexts.
+      </p>
+    </section>
+
+    <div class="layout">
+      <aside class="card">
+        <div class="card-header">
+          <div class="section-label">Controls</div>
+          <h2>Build your parabola</h2>
+        </div>
+        <div class="card-body controls">
+          <div class="control-group">
+            <h3>Adjust the coefficients</h3>
+            <div class="slider-row">
+              <label for="a"><strong>a</strong></label>
+              <input id="a" type="range" min="-5" max="5" step="0.5" value="1" />
+              <div class="value-pill" id="aVal">1</div>
+            </div>
+            <div class="slider-row">
+              <label for="b"><strong>b</strong></label>
+              <input id="b" type="range" min="-10" max="10" step="1" value="0" />
+              <div class="value-pill" id="bVal">0</div>
+            </div>
+            <div class="slider-row">
+              <label for="c"><strong>c</strong></label>
+              <input id="c" type="range" min="-12" max="12" step="1" value="0" />
+              <div class="value-pill" id="cVal">0</div>
+            </div>
+            <div class="btn-row">
+              <button id="randomBtn">Random parabola</button>
+              <button class="secondary" id="resetBtn">Reset</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>Display options</h3>
+            <div class="checklist">
+              <label class="checkitem"><input type="checkbox" id="showTable" checked /> <span>Show a table of values</span></label>
+              <label class="checkitem"><input type="checkbox" id="showHints" checked /> <span>Show feature hints</span></label>
+              <label class="checkitem"><input type="checkbox" id="showAxis" checked /> <span>Show axis of symmetry</span></label>
+              <label class="checkitem"><input type="checkbox" id="showPoints" checked /> <span>Show key points</span></label>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>Quick investigations</h3>
+            <div class="btn-row">
+              <button class="ghost preset" data-a="1" data-b="0" data-c="0">Parent graph</button>
+              <button class="ghost preset" data-a="1" data-b="-4" data-c="3">Has a minimum</button>
+              <button class="ghost preset" data-a="-1" data-b="6" data-c="0">Has a maximum</button>
+              <button class="ghost preset" data-a="2" data-b="4" data-c="7">Narrower</button>
+              <button class="ghost preset" data-a="0.5" data-b="-2" data-c="-1">Wider</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>Notice and wonder</h3>
+            <div class="small">
+              1. What changes when <strong>a</strong> becomes negative?<br />
+              2. What stays true about the <strong>x</strong>-coordinate of the vertex and the axis of symmetry?<br />
+              3. What does <strong>c</strong> tell you straight away?<br />
+              4. How does symmetry help you sketch faster?
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-grid">
+        <section class="card">
+          <div class="card-header">
+            <div class="section-label">Live graph</div>
+            <h2 id="equationText">y = x²</h2>
+          </div>
+          <div class="graph-wrap">
+            <canvas id="graphCanvas" width="860" height="520"></canvas>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="section-label">Key features</div>
+            <h2>Read the graph</h2>
+          </div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div class="info-box">
+                <div class="k">Axis of symmetry</div>
+                <div class="v" id="axisText">x = 0</div>
+              </div>
+              <div class="info-box">
+                <div class="k">Vertex</div>
+                <div class="v" id="vertexText">(0, 0)</div>
+              </div>
+              <div class="info-box">
+                <div class="k">y-intercept</div>
+                <div class="v" id="yintText">(0, 0)</div>
+              </div>
+              <div class="info-box">
+                <div class="k">Opening / turning point</div>
+                <div class="v" id="openText">Opens up, minimum</div>
+              </div>
+              <div class="info-box">
+                <div class="k">End behavior</div>
+                <div class="v" id="endText">As x increases or decreases, y increases.</div>
+              </div>
+              <div class="info-box">
+                <div class="k">Domain and range</div>
+                <div class="v" id="rangeText">Domain: all real numbers<br>Range: y ≥ 0</div>
+              </div>
+            </div>
+            <p class="footer-note" id="hintText">
+              Hint: the axis of symmetry always passes through the vertex. The y-intercept happens where x = 0.
+            </p>
+          </div>
+        </section>
+
+        <section class="card" id="tableCard">
+          <div class="card-header">
+            <div class="section-label">Table</div>
+            <h2>Use symmetry to build points</h2>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead>
+                <tr>
+                  <th>x</th>
+                  <th>y</th>
+                  <th>What do you notice?</th>
+                </tr>
+              </thead>
+              <tbody id="valueTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="section-label">Student thinking</div>
+            <h2>Discover the patterns</h2>
+          </div>
+          <div class="card-body discovery-grid">
+            <div class="prompt">
+              <strong>Investigation 1: Coefficient a</strong>
+              Predict what happens when the value of <span class="monospace">a</span> changes from positive to negative. Then test it.
+              <textarea placeholder="Write your prediction and what you discovered..."></textarea>
+            </div>
+            <div class="prompt">
+              <strong>Investigation 2: Coefficient c</strong>
+              Move only <span class="monospace">c</span>. What stays the same? What changes straight away on the graph?
+              <textarea placeholder="Write what c tells you instantly..."></textarea>
+            </div>
+            <div class="prompt">
+              <strong>Investigation 3: Symmetry</strong>
+              Use the axis of symmetry to find pairs of points that are the same distance from the axis.
+              <textarea placeholder="Record at least two symmetric pairs of points..."></textarea>
+            </div>
+            <div class="prompt">
+              <strong>Investigation 4: Vertex meaning</strong>
+              Explain why the vertex is a maximum for some graphs and a minimum for others.
+              <textarea placeholder="Explain in your own words..."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="section-label">Challenge zone</div>
+            <h2>Try these without being told the answer first</h2>
+          </div>
+          <div class="card-body challenge-grid">
+            <div class="challenge">
+              <span class="tag mild">🌶 Mild</span>
+              <div class="equation">y = x² - 2x + 2</div>
+              <div class="small">Find the axis of symmetry, vertex, and y-intercept. Decide whether the graph has a minimum or maximum.</div>
+            </div>
+            <div class="challenge">
+              <span class="tag medium">🌶🌶 Medium</span>
+              <div class="equation">y = -2x² - 8x + 2</div>
+              <div class="small">Sketch the graph using key features. How do you know it opens downward? Use symmetry to get extra points.</div>
+            </div>
+            <div class="challenge">
+              <span class="tag spicy">🌶🌶🌶 Spicy</span>
+              <div class="equation">h = -16t² + 64t</div>
+              <div class="small">This models a ball thrown upward. What is the maximum height? When does it happen? When is the ball back on the ground?</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="section-label">Exit reflection</div>
+            <h2>Can you explain it?</h2>
+          </div>
+          <div class="card-body">
+            <div class="checklist">
+              <label class="checkitem"><input type="checkbox" /> <span>I can identify the axis of symmetry from a quadratic graph.</span></label>
+              <label class="checkitem"><input type="checkbox" /> <span>I can find the vertex and decide if it is a maximum or minimum.</span></label>
+              <label class="checkitem"><input type="checkbox" /> <span>I can find the y-intercept by using x = 0.</span></label>
+              <label class="checkitem"><input type="checkbox" /> <span>I can use symmetry to sketch a parabola more efficiently.</span></label>
+              <label class="checkitem"><input type="checkbox" /> <span>I can connect a quadratic graph to a real-world situation.</span></label>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const aSlider = document.getElementById('a');
+    const bSlider = document.getElementById('b');
+    const cSlider = document.getElementById('c');
+
+    const aVal = document.getElementById('aVal');
+    const bVal = document.getElementById('bVal');
+    const cVal = document.getElementById('cVal');
+
+    const equationText = document.getElementById('equationText');
+    const axisText = document.getElementById('axisText');
+    const vertexText = document.getElementById('vertexText');
+    const yintText = document.getElementById('yintText');
+    const openText = document.getElementById('openText');
+    const endText = document.getElementById('endText');
+    const rangeText = document.getElementById('rangeText');
+    const hintText = document.getElementById('hintText');
+    const valueTable = document.getElementById('valueTable');
+    const tableCard = document.getElementById('tableCard');
+
+    const showTable = document.getElementById('showTable');
+    const showHints = document.getElementById('showHints');
+    const showAxis = document.getElementById('showAxis');
+    const showPoints = document.getElementById('showPoints');
+
+    const world = {
+      xMin: -10,
+      xMax: 10,
+      yMin: -16,
+      yMax: 16
+    };
+
+    function fmt(num) {
+      if (Math.abs(num) < 1e-9) return '0';
+      if (Math.abs(num - Math.round(num)) < 1e-9) return String(Math.round(num));
+      return Number(num.toFixed(2)).toString();
+    }
+
+    function fmtSigned(num, variable) {
+      if (Math.abs(num) < 1e-9) return '';
+      const sign = num > 0 ? ' + ' : ' - ';
+      const abs = Math.abs(num);
+      const coeff = abs === 1 && variable ? '' : fmt(abs);
+      return sign + coeff + (variable || '');
+    }
+
+    function equationString(a, b, c) {
+      let s = 'y = ';
+      if (a === 1) s += 'x²';
+      else if (a === -1) s += '-x²';
+      else s += `${fmt(a)}x²`;
+      s += fmtSigned(b, 'x');
+      s += fmtSigned(c, '');
+      return s.replace('=  -', '= -');
+    }
+
+    function yValue(x, a, b, c) {
+      return a * x * x + b * x + c;
+    }
+
+    function toCanvasX(x) {
+      return ((x - world.xMin) / (world.xMax - world.xMin)) * canvas.width;
+    }
+
+    function toCanvasY(y) {
+      return canvas.height - ((y - world.yMin) / (world.yMax - world.yMin)) * canvas.height;
+    }
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#e5edf7';
+      for (let x = Math.ceil(world.xMin); x <= world.xMax; x++) {
+        ctx.beginPath();
+        ctx.moveTo(toCanvasX(x), 0);
+        ctx.lineTo(toCanvasX(x), canvas.height);
+        ctx.stroke();
+      }
+      for (let y = Math.ceil(world.yMin); y <= world.yMax; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, toCanvasY(y));
+        ctx.lineTo(canvas.width, toCanvasY(y));
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(0), 0);
+      ctx.lineTo(toCanvasX(0), canvas.height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, toCanvasY(0));
+      ctx.lineTo(canvas.width, toCanvasY(0));
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '14px Inter, Arial';
+      for (let x = Math.ceil(world.xMin); x <= world.xMax; x++) {
+        if (x !== 0) ctx.fillText(x, toCanvasX(x) + 3, toCanvasY(0) - 6);
+      }
+      for (let y = Math.ceil(world.yMin); y <= world.yMax; y++) {
+        if (y !== 0) ctx.fillText(y, toCanvasX(0) + 6, toCanvasY(y) - 3);
+      }
+      ctx.fillText('0', toCanvasX(0) + 6, toCanvasY(0) - 6);
+    }
+
+    function drawParabola(a, b, c) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#2563eb';
+      ctx.beginPath();
+      let started = false;
+      for (let px = 0; px <= canvas.width; px++) {
+        const x = world.xMin + (px / canvas.width) * (world.xMax - world.xMin);
+        const y = yValue(x, a, b, c);
+        const cy = toCanvasY(y);
+        if (!started) {
+          ctx.moveTo(px, cy);
+          started = true;
+        } else {
+          ctx.lineTo(px, cy);
+        }
+      }
+      ctx.stroke();
+    }
+
+    function drawDashedAxis(xVal) {
+      ctx.save();
+      ctx.setLineDash([8, 7]);
+      ctx.strokeStyle = '#0f766e';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(xVal), 0);
+      ctx.lineTo(toCanvasX(xVal), canvas.height);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawPoint(x, y, color = '#dc2626', label = '') {
+      const cx = toCanvasX(x);
+      const cy = toCanvasY(y);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+      ctx.fill();
+      if (label) {
+        ctx.font = '14px Inter, Arial';
+        ctx.fillText(label, cx + 8, cy - 8);
+      }
+    }
+
+    function roots(a, b, c) {
+      const d = b * b - 4 * a * c;
+      if (d < 0) return [];
+      if (Math.abs(d) < 1e-9) return [(-b) / (2 * a)];
+      const r1 = (-b - Math.sqrt(d)) / (2 * a);
+      const r2 = (-b + Math.sqrt(d)) / (2 * a);
+      return [r1, r2];
+    }
+
+    function updateTable(a, b, c, vx) {
+      valueTable.innerHTML = '';
+      const center = Math.round(vx);
+      const xs = [center - 2, center - 1, center, center + 1, center + 2];
+      xs.forEach((x) => {
+        const y = yValue(x, a, b, c);
+        let note = '';
+        if (Math.abs(x - vx) < 0.001) note = 'vertex x-value';
+        else if (Math.abs((x - vx) + 1) < 0.001 || Math.abs((x - vx) - 1) < 0.001) note = '1 unit from axis';
+        else note = 'same distance idea';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${fmt(x)}</td><td>${fmt(y)}</td><td>${note}</td>`;
+        valueTable.appendChild(tr);
+      });
+    }
+
+    function update() {
+      let a = parseFloat(aSlider.value);
+      const b = parseFloat(bSlider.value);
+      const c = parseFloat(cSlider.value);
+
+      if (Math.abs(a) < 1e-9) {
+        a = 0.5;
+        aSlider.value = 0.5;
+      }
+
+      aVal.textContent = fmt(a);
+      bVal.textContent = fmt(b);
+      cVal.textContent = fmt(c);
+
+      equationText.textContent = equationString(a, b, c);
+
+      const vx = -b / (2 * a);
+      const vy = yValue(vx, a, b, c);
+      const yi = c;
+      const openingUp = a > 0;
+
+      axisText.textContent = `x = ${fmt(vx)}`;
+      vertexText.textContent = `(${fmt(vx)}, ${fmt(vy)})`;
+      yintText.textContent = `(0, ${fmt(yi)})`;
+      openText.textContent = openingUp ? 'Opens up, minimum' : 'Opens down, maximum';
+      endText.textContent = openingUp
+        ? 'As x increases or decreases, y increases.'
+        : 'As x increases or decreases, y decreases.';
+      rangeText.innerHTML = openingUp
+        ? `Domain: all real numbers<br>Range: y ≥ ${fmt(vy)}`
+        : `Domain: all real numbers<br>Range: y ≤ ${fmt(vy)}`;
+
+      hintText.style.display = showHints.checked ? 'block' : 'none';
+      hintText.textContent = `The vertex x-value comes from x = -b / (2a). Here, x = ${fmt(vx)}. The axis of symmetry passes through the vertex.`;
+      tableCard.style.display = showTable.checked ? 'block' : 'none';
+
+      updateTable(a, b, c, vx);
+
+      drawGrid();
+      if (showAxis.checked) drawDashedAxis(vx);
+      drawParabola(a, b, c);
+
+      if (showPoints.checked) {
+        drawPoint(vx, vy, '#dc2626', 'vertex');
+        drawPoint(0, yi, '#7c3aed', 'y-int');
+        const xs = roots(a, b, c);
+        xs.forEach((r, i) => {
+          if (r >= world.xMin && r <= world.xMax) {
+            drawPoint(r, 0, '#ea580c', xs.length === 1 ? 'x-int' : `x-int ${i + 1}`);
+          }
+        });
+      }
+    }
+
+    [aSlider, bSlider, cSlider, showTable, showHints, showAxis, showPoints].forEach(el => el.addEventListener('input', update));
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      aSlider.value = 1;
+      bSlider.value = 0;
+      cSlider.value = 0;
+      update();
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      const aChoices = [-4, -3, -2, -1, -0.5, 0.5, 1, 2, 3, 4];
+      aSlider.value = aChoices[Math.floor(Math.random() * aChoices.length)];
+      bSlider.value = Math.floor(Math.random() * 17) - 8;
+      cSlider.value = Math.floor(Math.random() * 17) - 8;
+      update();
+    });
+
+    document.querySelectorAll('.preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        aSlider.value = btn.dataset.a;
+        bSlider.value = btn.dataset.b;
+        cSlider.value = btn.dataset.c;
+        update();
+      });
+    });
+
+    update();
+  </script>
+</body>
+</html>
