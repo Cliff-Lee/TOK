@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quadratic Transformations Explorer</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #2563eb;
+      --accent-2: #7c3aed;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+      color: white;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 950px;
+      line-height: 1.5;
+      opacity: 0.97;
+    }
+
+    .lo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .lo-card {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 16px;
+      padding: 14px;
+      backdrop-filter: blur(6px);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .panel h2, .panel h3 {
+      margin-top: 0;
+    }
+
+    .controls .row {
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .controls .row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .label-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .value-badge {
+      background: #eef2ff;
+      color: #1d4ed8;
+      padding: 4px 10px;
+      border-radius: 999px;
+      min-width: 52px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.45;
+      margin-top: 8px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: #e5e7eb;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; }
+    button.secondary { background: var(--accent-2); color: white; }
+    button.good { background: #d1fae5; color: #065f46; }
+    button.warn { background: #fef3c7; color: #92400e; }
+
+    .toggle-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .toggle {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle input { transform: scale(1.15); }
+
+    .graph-panel {
+      background: var(--panel);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .equation-box {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .equation-card, .insight-card {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .math {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 10px 0;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .sub-math {
+      font-family: "Courier New", monospace;
+      font-size: 1rem;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px;
+      display: inline-block;
+      margin-top: 8px;
+    }
+
+    .graph-wrap {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 10px;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border-radius: 14px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 5px;
+      border-radius: 999px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .info-card {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .info-card .big {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .discover-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .prompt {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-left: 6px solid var(--accent-2);
+      border-radius: 14px;
+      padding: 14px;
+      line-height: 1.5;
+    }
+
+    .challenge-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .challenge-side {
+      display: grid;
+      gap: 12px;
+    }
+
+    .answer-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .answer-row input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 1rem;
+    }
+
+    .feedback {
+      min-height: 26px;
+      margin-top: 12px;
+      font-weight: 700;
+    }
+
+    .feedback.good { color: var(--good); }
+    .feedback.bad { color: var(--bad); }
+    .feedback.warn { color: var(--warn); }
+
+    .mini-equation {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 6px 0 0;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 1100px) {
+      .main-grid,
+      .challenge-grid,
+      .equation-box {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .page { padding: 12px; }
+      .hero h1 { font-size: 1.6rem; }
+      .math { font-size: 1.35rem; }
+      .answer-row { grid-template-columns: 1fr; }
+      .toggle-group { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Explore Quadratic Transformations</h1>
+      <p>
+        Discover how the parent graph <strong>y = x²</strong> changes into <strong>y = a(x - h)² + k</strong>.
+        Move the sliders, compare graphs, describe the transformation, and use the vertex form to write equations from graphs.
+      </p>
+      <div class="lo-grid">
+        <div class="lo-card"><strong>Learning Objective 1</strong><br>Apply translations to quadratic functions.</div>
+        <div class="lo-card"><strong>Learning Objective 2</strong><br>Apply dilations to quadratic functions.</div>
+        <div class="lo-card"><strong>Learning Objective 3</strong><br>Use transformations to identify quadratic functions from graphs and write equations.</div>
+        <div class="lo-card"><strong>Focus</strong><br>Vertex form, graph features, and transformation language.</div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <div>
+        <section class="panel controls">
+          <h2>Controls</h2>
+
+          <div class="row">
+            <div class="label-line">
+              <span>a value</span>
+              <span class="value-badge" id="aValue">1</span>
+            </div>
+            <input type="range" id="aSlider" min="-3" max="3" step="0.5" value="1" />
+            <div class="small-note">
+              <strong>a</strong> changes the width and direction. If <strong>|a| &gt; 1</strong>, the graph becomes narrower.
+              If <strong>0 &lt; |a| &lt; 1</strong>, it becomes wider. If <strong>a &lt; 0</strong>, it reflects in the x-axis.
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="label-line">
+              <span>h value</span>
+              <span class="value-badge" id="hValue">0</span>
+            </div>
+            <input type="range" id="hSlider" min="-8" max="8" step="0.5" value="0" />
+            <div class="small-note">
+              <strong>h</strong> moves the graph left or right. In <strong>(x - h)</strong>, a positive <strong>h</strong> moves the graph to the <strong>right</strong>.
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="label-line">
+              <span>k value</span>
+              <span class="value-badge" id="kValue">0</span>
+            </div>
+            <input type="range" id="kSlider" min="-8" max="8" step="0.5" value="0" />
+            <div class="small-note">
+              <strong>k</strong> moves the graph up or down. Positive <strong>k</strong> moves the graph <strong>up</strong>.
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="primary" id="resetBtn">Reset to y = x²</button>
+            <button class="secondary" id="randomBtn">Random example</button>
+          </div>
+
+          <div class="btn-row">
+            <button data-preset="right2">Right 2</button>
+            <button data-preset="left3">Left 3</button>
+            <button data-preset="up4">Up 4</button>
+            <button data-preset="down2">Down 2</button>
+            <button data-preset="narrow">Narrower</button>
+            <button data-preset="wider">Wider</button>
+            <button data-preset="reflect">Reflect</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Show / Hide</h3>
+          <div class="toggle-group">
+            <label class="toggle">
+              <span>Show parent graph</span>
+              <input type="checkbox" id="showParent" checked />
+            </label>
+            <label class="toggle">
+              <span>Show transformed graph</span>
+              <input type="checkbox" id="showTransformed" checked />
+            </label>
+            <label class="toggle">
+              <span>Show vertex</span>
+              <input type="checkbox" id="showVertex" checked />
+            </label>
+            <label class="toggle">
+              <span>Show axis of symmetry</span>
+              <input type="checkbox" id="showAxis" checked />
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>What do you notice?</h3>
+          <div class="prompt">How does the graph move when you increase <strong>h</strong>? Why is it easy to get the direction wrong at first?</div>
+          <div class="prompt">What happens to the graph when <strong>a = 2</strong> compared with <strong>a = 0.5</strong>?</div>
+          <div class="prompt">What information can you read straight away from the vertex form <strong>y = a(x - h)^2 + k</strong>?</div>
+        </section>
+      </div>
+
+      <div>
+        <section class="graph-panel">
+          <div class="equation-box">
+            <div class="equation-card">
+              <div><strong>Vertex form</strong></div>
+              <div class="math" id="equationText">y = (x - 0)² + 0</div>
+              <div class="small-note" id="transformationText">
+                This is the parent graph. No translation and no dilation.
+              </div>
+              <div class="sub-math" id="standardHint">Vertex: (0, 0)</div>
+            </div>
+            <div class="insight-card">
+              <div><strong>How to read the equation</strong></div>
+              <div class="small-note">
+                <strong>Vertex</strong> = <span id="vertexRead">(0, 0)</span><br>
+                <strong>Axis of symmetry</strong> = <span id="axisRead">x = 0</span><br>
+                <strong>Opening</strong> = <span id="openingRead">upwards</span><br>
+                <strong>Width</strong> = <span id="widthRead">same as y = x²</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="graph-wrap">
+            <canvas id="graphCanvas" width="900" height="560"></canvas>
+          </div>
+
+          <div class="legend">
+            <div class="legend-item"><span class="swatch" style="background:#9ca3af"></span> Parent graph: y = x²</div>
+            <div class="legend-item"><span class="swatch" style="background:#2563eb"></span> Transformed graph: y = a(x - h)² + k</div>
+            <div class="legend-item"><span class="swatch" style="background:#ef4444"></span> Vertex and axis of symmetry</div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-card">
+              <div>Vertex</div>
+              <div class="big" id="vertexBox">(0, 0)</div>
+            </div>
+            <div class="info-card">
+              <div>Axis of symmetry</div>
+              <div class="big" id="axisBox">x = 0</div>
+            </div>
+            <div class="info-card">
+              <div>y-intercept</div>
+              <div class="big" id="yintBox">(0, 0)</div>
+            </div>
+            <div class="info-card">
+              <div>Nature of graph</div>
+              <div class="big" id="shapeBox">Opens up</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Discover the pattern</h2>
+          <div class="discover-grid">
+            <div class="prompt">
+              <strong>Translation horizontally</strong><br>
+              Compare <strong>y = x²</strong> and <strong>y = (x - 3)²</strong>.<br>
+              What stayed the same? What changed?
+            </div>
+            <div class="prompt">
+              <strong>Translation vertically</strong><br>
+              Compare <strong>y = x²</strong> and <strong>y = x² + 4</strong>.<br>
+              How does the vertex move?
+            </div>
+            <div class="prompt">
+              <strong>Dilation</strong><br>
+              Compare <strong>y = x²</strong> and <strong>y = 2x²</strong> or <strong>y = 0.5x²</strong>.<br>
+              Which graph is narrower? Which is wider?
+            </div>
+            <div class="prompt">
+              <strong>Reflection</strong><br>
+              Compare <strong>y = x²</strong> and <strong>y = -x²</strong>.<br>
+              What does a negative value of <strong>a</strong> do?
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Identify the equation from the graph</h2>
+          <div class="challenge-grid">
+            <div>
+              <div class="graph-wrap">
+                <canvas id="challengeCanvas" width="800" height="460"></canvas>
+              </div>
+              <div class="legend">
+                <div class="legend-item"><span class="swatch" style="background:#7c3aed"></span> Mystery parabola</div>
+              </div>
+            </div>
+            <div class="challenge-side">
+              <div class="info-card">
+                <div><strong>Student task</strong></div>
+                <div class="small-note">
+                  Look at the mystery graph. Estimate the values of <strong>a</strong>, <strong>h</strong>, and <strong>k</strong>, then write the equation in vertex form.
+                </div>
+              </div>
+
+              <div class="info-card">
+                <div><strong>Your equation</strong></div>
+                <div class="mini-equation">y = a(x - h)² + k</div>
+                <div class="answer-row">
+                  <input id="guessA" type="number" step="0.5" placeholder="a" />
+                  <input id="guessH" type="number" step="0.5" placeholder="h" />
+                  <input id="guessK" type="number" step="0.5" placeholder="k" />
+                </div>
+                <div class="btn-row">
+                  <button class="primary" id="checkBtn">Check answer</button>
+                  <button class="secondary" id="newChallengeBtn">New graph</button>
+                  <button class="warn" id="showAnswerBtn">Show answer</button>
+                </div>
+                <div class="feedback" id="challengeFeedback"></div>
+              </div>
+
+              <div class="info-card">
+                <div><strong>Teacher extension</strong></div>
+                <div class="small-note">
+                  Ask students to justify how they know the vertex, the direction of opening, and whether the graph is wider or narrower than <strong>y = x²</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-note">
+            Tip: For easy classroom use, ask students to first state the <strong>vertex</strong>, then the <strong>direction</strong>, then whether it is <strong>wider/narrower</strong>, and finally write the equation.
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const aSlider = document.getElementById('aSlider');
+    const hSlider = document.getElementById('hSlider');
+    const kSlider = document.getElementById('kSlider');
+
+    const aValue = document.getElementById('aValue');
+    const hValue = document.getElementById('hValue');
+    const kValue = document.getElementById('kValue');
+
+    const equationText = document.getElementById('equationText');
+    const transformationText = document.getElementById('transformationText');
+    const standardHint = document.getElementById('standardHint');
+    const vertexRead = document.getElementById('vertexRead');
+    const axisRead = document.getElementById('axisRead');
+    const openingRead = document.getElementById('openingRead');
+    const widthRead = document.getElementById('widthRead');
+
+    const vertexBox = document.getElementById('vertexBox');
+    const axisBox = document.getElementById('axisBox');
+    const yintBox = document.getElementById('yintBox');
+    const shapeBox = document.getElementById('shapeBox');
+
+    const showParent = document.getElementById('showParent');
+    const showTransformed = document.getElementById('showTransformed');
+    const showVertex = document.getElementById('showVertex');
+    const showAxis = document.getElementById('showAxis');
+
+    const graphCanvas = document.getElementById('graphCanvas');
+    const ctx = graphCanvas.getContext('2d');
+
+    const challengeCanvas = document.getElementById('challengeCanvas');
+    const cctx = challengeCanvas.getContext('2d');
+
+    const guessA = document.getElementById('guessA');
+    const guessH = document.getElementById('guessH');
+    const guessK = document.getElementById('guessK');
+    const challengeFeedback = document.getElementById('challengeFeedback');
+
+    const state = {
+      a: 1,
+      h: 0,
+      k: 0,
+      scale: 32,
+      xMin: -12,
+      xMax: 12,
+      yMin: -10,
+      yMax: 10
+    };
+
+    let challenge = { a: 1, h: 0, k: 0 };
+
+    function fmt(n) {
+      if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+      return String(n);
+    }
+
+    function closeEnough(a, b) {
+      return Math.abs(a - b) < 1e-9;
+    }
+
+    function buildEquation(a, h, k) {
+      let partA = '';
+      if (closeEnough(a, 1)) partA = '';
+      else if (closeEnough(a, -1)) partA = '-';
+      else partA = fmt(a);
+
+      let partH = '';
+      if (closeEnough(h, 0)) partH = 'x';
+      else if (h > 0) partH = `x - ${fmt(h)}`;
+      else partH = `x + ${fmt(Math.abs(h))}`;
+
+      let eq = `y = ${partA}(${partH})²`;
+      if (closeEnough(h, 0)) {
+        eq = `y = ${partA}x²`;
+      }
+
+      if (!closeEnough(k, 0)) {
+        eq += k > 0 ? ` + ${fmt(k)}` : ` - ${fmt(Math.abs(k))}`;
+      }
+      return eq.replace('= x²', '= x²').replace('= -x²', '= -x²');
+    }
+
+    function describeTransformation(a, h, k) {
+      const parts = [];
+
+      if (closeEnough(h, 0) && closeEnough(k, 0) && closeEnough(a, 1)) {
+        return 'This is the parent graph. No translation and no dilation.';
+      }
+
+      if (!closeEnough(h, 0)) {
+        parts.push(`translated ${Math.abs(h)} unit${Math.abs(h) === 1 ? '' : 's'} ${h > 0 ? 'right' : 'left'}`);
+      }
+      if (!closeEnough(k, 0)) {
+        parts.push(`translated ${Math.abs(k)} unit${Math.abs(k) === 1 ? '' : 's'} ${k > 0 ? 'up' : 'down'}`);
+      }
+
+      if (!closeEnough(Math.abs(a), 1)) {
+        if (Math.abs(a) > 1) parts.push(`vertically stretched by a scale factor of ${fmt(Math.abs(a))} (narrower)`);
+        else parts.push(`vertically compressed by a scale factor of ${fmt(Math.abs(a))} (wider)`);
+      }
+
+      if (a < 0) {
+        parts.push('reflected in the x-axis');
+      }
+
+      const sentence = parts.length ? parts.join(', ') : 'same shape as the parent graph';
+      return 'Compared with y = x², the graph is ' + sentence + '.';
+    }
+
+    function getWidthText(a) {
+      const absA = Math.abs(a);
+      if (closeEnough(absA, 1)) return 'same as y = x²';
+      return absA > 1 ? 'narrower than y = x²' : 'wider than y = x²';
+    }
+
+    function getOpeningText(a) {
+      return a > 0 ? 'upwards' : 'downwards';
+    }
+
+    function worldToScreen(x, y, canvas, s = state.scale) {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      return { x: cx + x * s, y: cy - y * s };
+    }
+
+    function drawGrid(context, canvas, scale) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      context.lineWidth = 1;
+      for (let x = -Math.floor(canvas.width / (2 * scale)); x <= Math.floor(canvas.width / (2 * scale)); x++) {
+        const sx = canvas.width / 2 + x * scale;
+        context.strokeStyle = x === 0 ? '#94a3b8' : '#e5e7eb';
+        context.beginPath();
+        context.moveTo(sx, 0);
+        context.lineTo(sx, canvas.height);
+        context.stroke();
+      }
+
+      for (let y = -Math.floor(canvas.height / (2 * scale)); y <= Math.floor(canvas.height / (2 * scale)); y++) {
+        const sy = canvas.height / 2 - y * scale;
+        context.strokeStyle = y === 0 ? '#94a3b8' : '#e5e7eb';
+        context.beginPath();
+        context.moveTo(0, sy);
+        context.lineTo(canvas.width, sy);
+        context.stroke();
+      }
+
+      context.fillStyle = '#64748b';
+      context.font = '12px Arial';
+      for (let x = -Math.floor(canvas.width / (2 * scale)); x <= Math.floor(canvas.width / (2 * scale)); x++) {
+        if (x === 0) continue;
+        const pt = worldToScreen(x, 0, canvas, scale);
+        context.fillText(x, pt.x - 4, canvas.height / 2 + 14);
+      }
+      for (let y = -Math.floor(canvas.height / (2 * scale)); y <= Math.floor(canvas.height / (2 * scale)); y++) {
+        if (y === 0) continue;
+        const pt = worldToScreen(0, y, canvas, scale);
+        context.fillText(y, canvas.width / 2 + 6, pt.y + 4);
+      }
+
+      context.fillStyle = '#334155';
+      context.fillText('x', canvas.width - 18, canvas.height / 2 - 8);
+      context.fillText('y', canvas.width / 2 + 8, 16);
+    }
+
+    function drawParabola(context, canvas, fn, color, width, scale, dashed = false) {
+      context.save();
+      context.strokeStyle = color;
+      context.lineWidth = width;
+      if (dashed) context.setLineDash([10, 8]);
+      context.beginPath();
+      let first = true;
+      for (let px = 0; px <= canvas.width; px++) {
+        const x = (px - canvas.width / 2) / scale;
+        const y = fn(x);
+        const sy = canvas.height / 2 - y * scale;
+        if (first) {
+          context.moveTo(px, sy);
+          first = false;
+        } else {
+          context.lineTo(px, sy);
+        }
+      }
+      context.stroke();
+      context.restore();
+    }
+
+    function drawPoint(context, canvas, x, y, color, scale) {
+      const pt = worldToScreen(x, y, canvas, scale);
+      context.beginPath();
+      context.fillStyle = color;
+      context.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
+      context.fill();
+      context.strokeStyle = '#ffffff';
+      context.lineWidth = 2;
+      context.stroke();
+    }
+
+    function drawAxisOfSymmetry(context, canvas, h, color, scale) {
+      const p1 = worldToScreen(h, -canvas.height / (2 * scale), canvas, scale);
+      const p2 = worldToScreen(h, canvas.height / (2 * scale), canvas, scale);
+      context.save();
+      context.strokeStyle = color;
+      context.lineWidth = 2;
+      context.setLineDash([8, 6]);
+      context.beginPath();
+      context.moveTo(p1.x, 0);
+      context.lineTo(p2.x, canvas.height);
+      context.stroke();
+      context.restore();
+    }
+
+    function updateMainReadouts() {
+      const a = parseFloat(aSlider.value);
+      const h = parseFloat(hSlider.value);
+      const k = parseFloat(kSlider.value);
+      state.a = a;
+      state.h = h;
+      state.k = k;
+
+      aValue.textContent = fmt(a);
+      hValue.textContent = fmt(h);
+      kValue.textContent = fmt(k);
+
+      equationText.textContent = buildEquation(a, h, k);
+      transformationText.textContent = describeTransformation(a, h, k);
+      standardHint.textContent = `Vertex: (${fmt(h)}, ${fmt(k)})`;
+
+      const vertexText = `(${fmt(h)}, ${fmt(k)})`;
+      const axisText = `x = ${fmt(h)}`;
+      const yInt = a * (0 - h) * (0 - h) + k;
+      const yIntText = `(0, ${fmt(Number(yInt.toFixed(2)))})`;
+
+      vertexRead.textContent = vertexText;
+      axisRead.textContent = axisText;
+      openingRead.textContent = getOpeningText(a);
+      widthRead.textContent = getWidthText(a);
+
+      vertexBox.textContent = vertexText;
+      axisBox.textContent = axisText;
+      yintBox.textContent = yIntText;
+      shapeBox.textContent = `${a > 0 ? 'Opens up' : 'Opens down'} · ${getWidthText(a)}`;
+    }
+
+    function renderMainGraph() {
+      const { a, h, k } = state;
+      drawGrid(ctx, graphCanvas, state.scale);
+
+      if (showParent.checked) {
+        drawParabola(ctx, graphCanvas, x => x * x, '#9ca3af', 3, state.scale);
+      }
+
+      if (showAxis.checked) {
+        drawAxisOfSymmetry(ctx, graphCanvas, h, '#ef4444', state.scale);
+      }
+
+      if (showTransformed.checked) {
+        drawParabola(ctx, graphCanvas, x => a * (x - h) * (x - h) + k, '#2563eb', 4, state.scale);
+      }
+
+      if (showVertex.checked) {
+        drawPoint(ctx, graphCanvas, h, k, '#ef4444', state.scale);
+        const pt = worldToScreen(h, k, graphCanvas, state.scale);
+        ctx.fillStyle = '#b91c1c';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText(`(${fmt(h)}, ${fmt(k)})`, pt.x + 10, pt.y - 10);
+      }
+    }
+
+    function updateAll() {
+      updateMainReadouts();
+      renderMainGraph();
+    }
+
+    function setValues(a, h, k) {
+      aSlider.value = a;
+      hSlider.value = h;
+      kSlider.value = k;
+      updateAll();
+    }
+
+    function randomFrom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function randomizeMain() {
+      let a = randomFrom([-2, -1, -0.5, 0.5, 1, 2, 3]);
+      if (a === 0) a = 1;
+      const h = randomFrom([-6, -4, -3, -2, -1, 0, 1, 2, 3, 4, 6]);
+      const k = randomFrom([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]);
+      setValues(a, h, k);
+    }
+
+    function applyPreset(name) {
+      switch (name) {
+        case 'right2': setValues(1, 2, 0); break;
+        case 'left3': setValues(1, -3, 0); break;
+        case 'up4': setValues(1, 0, 4); break;
+        case 'down2': setValues(1, 0, -2); break;
+        case 'narrow': setValues(2, 0, 0); break;
+        case 'wider': setValues(0.5, 0, 0); break;
+        case 'reflect': setValues(-1, 0, 0); break;
+      }
+    }
+
+    function newChallenge() {
+      challenge = {
+        a: randomFrom([-2, -1, -0.5, 0.5, 1, 2]),
+        h: randomFrom([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]),
+        k: randomFrom([-4, -3, -2, -1, 0, 1, 2, 3, 4])
+      };
+      if (Math.abs(challenge.a) < 0.001) challenge.a = 1;
+      challengeFeedback.textContent = '';
+      challengeFeedback.className = 'feedback';
+      guessA.value = '';
+      guessH.value = '';
+      guessK.value = '';
+      renderChallenge();
+    }
+
+    function renderChallenge() {
+      const scale = 34;
+      drawGrid(cctx, challengeCanvas, scale);
+      drawAxisOfSymmetry(cctx, challengeCanvas, challenge.h, '#c084fc', scale);
+      drawParabola(cctx, challengeCanvas, x => challenge.a * (x - challenge.h) * (x - challenge.h) + challenge.k, '#7c3aed', 4, scale);
+      drawPoint(cctx, challengeCanvas, challenge.h, challenge.k, '#7c3aed', scale);
+    }
+
+    function checkChallenge() {
+      const ga = parseFloat(guessA.value);
+      const gh = parseFloat(guessH.value);
+      const gk = parseFloat(guessK.value);
+
+      if ([ga, gh, gk].some(v => Number.isNaN(v))) {
+        challengeFeedback.textContent = 'Enter values for a, h, and k first.';
+        challengeFeedback.className = 'feedback warn';
+        return;
+      }
+
+      const okA = Math.abs(ga - challenge.a) < 0.001;
+      const okH = Math.abs(gh - challenge.h) < 0.001;
+      const okK = Math.abs(gk - challenge.k) < 0.001;
+
+      if (okA && okH && okK) {
+        challengeFeedback.textContent = `Correct! The equation is ${buildEquation(challenge.a, challenge.h, challenge.k)}.`;
+        challengeFeedback.className = 'feedback good';
+      } else {
+        const hints = [];
+        if (!okH) hints.push('Check the vertex x-coordinate.');
+        if (!okK) hints.push('Check the vertex y-coordinate.');
+        if (!okA) hints.push('Check whether the graph is wider or narrower, and whether it opens up or down.');
+        challengeFeedback.textContent = 'Not quite yet. ' + hints.join(' ');
+        challengeFeedback.className = 'feedback bad';
+      }
+    }
+
+    function showChallengeAnswer() {
+      challengeFeedback.textContent = `Answer: ${buildEquation(challenge.a, challenge.h, challenge.k)}   with vertex (${fmt(challenge.h)}, ${fmt(challenge.k)}).`;
+      challengeFeedback.className = 'feedback warn';
+    }
+
+    aSlider.addEventListener('input', updateAll);
+    hSlider.addEventListener('input', updateAll);
+    kSlider.addEventListener('input', updateAll);
+
+    showParent.addEventListener('change', renderMainGraph);
+    showTransformed.addEventListener('change', renderMainGraph);
+    showVertex.addEventListener('change', renderMainGraph);
+    showAxis.addEventListener('change', renderMainGraph);
+
+    document.getElementById('resetBtn').addEventListener('click', () => setValues(1, 0, 0));
+    document.getElementById('randomBtn').addEventListener('click', randomizeMain);
+
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+      btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+    });
+
+    document.getElementById('checkBtn').addEventListener('click', checkChallenge);
+    document.getElementById('newChallengeBtn').addEventListener('click', newChallenge);
+    document.getElementById('showAnswerBtn').addEventListener('click', showChallengeAnswer);
+
+    updateAll();
+    newChallenge();
+  </script>
+</body>
+</html>
