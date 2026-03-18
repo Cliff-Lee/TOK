@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AHL 3.16A — Graph Structure Explorer</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --green: #15803d;
+      --amber: #b45309;
+      --red: #b91c1c;
+      --shadow: 0 10px 26px rgba(0,0,0,0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 240px);
+    }
+    .wrap {
+      width: min(1460px, 96vw);
+      margin: 24px auto 40px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid #e5e7eb;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3 { margin: 0 0 10px; }
+    p { line-height: 1.55; }
+    .hero p { color: var(--muted); margin: 8px 0 0; }
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 16px;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+    }
+    .tab-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .tab-btn small {
+      display: block;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .tab-btn.active {
+      border-color: #93c5fd;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      transform: translateX(2px);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .content { display: grid; gap: 16px; }
+    .panel { padding: 16px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: #fafafa;
+    }
+    .term {
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    .toolbar, .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    button, input { font: inherit; }
+    .tool {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 12px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tool.active {
+      background: #dbeafe;
+      border-color: #60a5fa;
+      color: #1d4ed8;
+    }
+    .primary { background: var(--blue); color: white; border-color: var(--blue); }
+    .good { background: var(--green); color: white; border-color: var(--green); }
+    .warn { background: var(--amber); color: white; border-color: var(--amber); }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 3px 4px 0 0;
+      border: 1px solid #cbd5e1;
+      background: white;
+    }
+    .activity {
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border-left: 5px solid #60a5fa;
+      background: #eff6ff;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.18fr 0.82fr;
+      gap: 14px;
+    }
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .stack { display: grid; gap: 12px; }
+    .info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .subtle { color: var(--muted); font-size: 0.95rem; }
+    #svgWrap {
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border: 1px solid #dbe1ea;
+      border-radius: 18px;
+      overflow: hidden;
+      min-height: 600px;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: 600px;
+      touch-action: none;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #dbe1ea;
+      min-height: 74px;
+      white-space: pre-wrap;
+      line-height: 1.55;
+    }
+    .quiz-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: white;
+    }
+    .quiz-item.correct { border-color: #86efac; background: #f0fdf4; }
+    .quiz-item.wrong { border-color: #fca5a5; background: #fef2f2; }
+    .choice {
+      width: 100%;
+      margin-top: 8px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .choice:hover { background: #f8fafc; }
+    .matrix { overflow: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 320px;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 8px;
+      text-align: center;
+    }
+    th { background: #f3f4f6; }
+    .inline-input {
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: white;
+      min-width: 90px;
+    }
+    @media (max-width: 1100px) {
+      .layout, .two-col, .three-col { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      svg { height: 470px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>AHL 3.16A — Graph Structure Explorer</h1>
+      <p>Build graphs, classify routes, test Eulerian and Hamiltonian properties, and explore Kruskal’s and Prim’s minimum spanning tree algorithms.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel sidebar">
+        <button class="tab-btn active" data-tab="overview">Overview<small>What this applet covers</small></button>
+        <button class="tab-btn" data-tab="definitions">Definitions Lab<small>Flashcards and mini quiz</small></button>
+        <button class="tab-btn" data-tab="builder">Graph Builder<small>Create and inspect graphs</small></button>
+        <button class="tab-btn" data-tab="classifier">Route Classifier<small>Walk, trail, path, circuit, cycle</small></button>
+        <button class="tab-btn" data-tab="eulerham">Euler and Hamiltonian<small>Existence tests and search</small></button>
+        <button class="tab-btn" data-tab="mst">MST Lab<small>Kruskal and Prim</small></button>
+        <button class="tab-btn" data-tab="challenges">Student Challenges<small>Try these tasks</small></button>
+      </aside>
+
+      <main class="content">
+        <section id="overview" class="tab-pane active panel">
+          <h2>Main ideas</h2>
+          <div class="cards">
+            <div class="card"><div class="term">Route types</div><p>Distinguish between walk, trail, path, circuit, and cycle by checking what repeats.</p></div>
+            <div class="card"><div class="term">Eulerian</div><p>Use connectedness and odd/even degree to decide whether an Eulerian trail or circuit exists.</p></div>
+            <div class="card"><div class="term">Hamiltonian</div><p>Investigate paths and cycles that visit every vertex exactly once.</p></div>
+            <div class="card"><div class="term">Spanning trees</div><p>Understand what a tree is and how a minimum spanning tree connects all vertices with smallest total weight.</p></div>
+          </div>
+          <div class="activity">
+            <strong>Big distinction:</strong> Eulerian questions are about using <strong>every edge</strong>. Hamiltonian questions are about visiting <strong>every vertex</strong>.
+          </div>
+          <div class="two-col">
+            <div class="info">
+              <h3>What students should be able to do</h3>
+              <p>Tell whether a sequence is a valid walk, trail, path, circuit, or cycle.</p>
+              <p>Determine whether an Eulerian trail or circuit exists and explain why.</p>
+              <p>Search for Hamiltonian paths and cycles.</p>
+              <p>Build a minimum spanning tree using Kruskal or Prim.</p>
+              <p>Use a weighted adjacency table to support Prim’s algorithm.</p>
+            </div>
+            <div class="info">
+              <h3>What is not in this applet</h3>
+              <p>Chinese postman, travelling salesman, nearest neighbour, and deleted vertex lower bound are left for a separate optimisation applet.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="definitions" class="tab-pane panel">
+          <h2>Definitions Lab</h2>
+          <p class="subtle">Click a card to reveal the definition, then use the quick quiz underneath.</p>
+          <div class="cards" id="flashcards"></div>
+          <div style="height:12px"></div>
+          <h3>Quick check</h3>
+          <div class="stack" id="definitionQuiz"></div>
+        </section>
+
+        <section id="builder" class="tab-pane panel">
+          <h2>Graph Builder</h2>
+          <div class="toolbar">
+            <button class="tool active" data-mode="move">Move</button>
+            <button class="tool" data-mode="vertex">Add vertex</button>
+            <button class="tool" data-mode="edge">Add edge</button>
+            <button class="tool" data-mode="delete">Delete</button>
+            <span class="pill">Graph settings</span>
+            <label><input type="checkbox" id="directedToggle"> Directed</label>
+            <label><input type="checkbox" id="weightedToggle" checked> Weighted</label>
+            <button class="tool" id="clearGraph">Clear</button>
+          </div>
+          <div class="toolbar">
+            <button class="tool" id="sampleEulerCircuit">Sample Eulerian circuit</button>
+            <button class="tool" id="sampleEulerTrail">Sample Eulerian trail only</button>
+            <button class="tool" id="sampleHamiltonian">Sample Hamiltonian cycle</button>
+            <button class="tool" id="sampleMST">Sample weighted MST graph</button>
+            <button class="tool" id="sampleTree">Sample tree</button>
+            <button class="tool" id="sampleDisconnected">Sample disconnected graph</button>
+          </div>
+
+          <div class="two-col">
+            <div id="svgWrap">
+              <svg id="graphSvg" viewBox="0 0 920 600" aria-label="graph canvas">
+                <defs>
+                  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L10,3 L0,6 z" fill="#334155"></path>
+                  </marker>
+                </defs>
+              </svg>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>Instructions</h3>
+                <p>Use <strong>Add vertex</strong> to place vertices. Use <strong>Add edge</strong> and click two vertices. In a weighted graph, click a weight label to edit it.</p>
+                <p>The applet defaults to undirected graphs. Directed mode is available, but the core AHL 3.16A tools are mainly intended for undirected graphs.</p>
+              </div>
+              <div class="info"><h3>Live graph properties</h3><div id="graphProperties"></div></div>
+              <div class="info"><h3>Selection details</h3><div id="selectionInfo">Nothing selected.</div></div>
+              <div class="info"><h3>Weighted adjacency table</h3><div class="matrix" id="weightedMatrix"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="classifier" class="tab-pane panel">
+          <h2>Route Classifier</h2>
+          <div class="two-col">
+            <div class="stack">
+              <div class="info">
+                <h3>Enter a vertex sequence</h3>
+                <p class="subtle">Example: A, B, C, B, D</p>
+                <div class="row">
+                  <input class="inline-input" style="min-width:280px;" id="seqInput" type="text" value="A, B, C" />
+                  <button class="tool primary" id="checkSequence">Check sequence</button>
+                </div>
+                <div class="status" id="sequenceStatus"></div>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>What the applet checks</h3>
+                <p><strong>Walk:</strong> every consecutive pair must be joined by an edge.</p>
+                <p><strong>Trail:</strong> no repeated edge.</p>
+                <p><strong>Path:</strong> no repeated vertex.</p>
+                <p><strong>Circuit:</strong> closed trail.</p>
+                <p><strong>Cycle:</strong> closed path.</p>
+              </div>
+              <div class="info">
+                <h3>Visual feedback</h3>
+                <p>The route’s edges and vertices are highlighted on the graph so students can see exactly what is being checked.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="eulerham" class="tab-pane panel">
+          <h2>Euler and Hamiltonian</h2>
+          <div class="three-col">
+            <div class="info">
+              <h3>Eulerian tool</h3>
+              <button class="tool primary" id="checkEuler">Check Eulerian status</button>
+              <div class="status" id="eulerStatus"></div>
+            </div>
+            <div class="info">
+              <h3>Hamiltonian tool</h3>
+              <button class="tool primary" id="checkHamiltonian">Search for Hamiltonian path/cycle</button>
+              <div class="status" id="hamStatus"></div>
+            </div>
+            <div class="info">
+              <h3>Key reminder</h3>
+              <p>For Eulerian questions, look at <strong>odd and even degrees</strong>.</p>
+              <p>For Hamiltonian questions, search for a route through <strong>every vertex once</strong>.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="mst" class="tab-pane panel">
+          <h2>MST Lab</h2>
+          <div class="two-col">
+            <div class="stack">
+              <div class="info">
+                <h3>Run the algorithms</h3>
+                <div class="row">
+                  <button class="tool good" id="runKruskal">Run Kruskal</button>
+                  <button class="tool good" id="runPrim">Run Prim</button>
+                </div>
+                <div class="status" id="mstStatus"></div>
+              </div>
+              <div class="info">
+                <h3>When MST makes sense</h3>
+                <p>MST is appropriate for a graph that is <strong>weighted</strong>, <strong>undirected</strong>, and <strong>connected</strong>.</p>
+                <p>The applet explains when one of these conditions fails.</p>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>Algorithm summaries</h3>
+                <p><strong>Kruskal:</strong> choose the lightest available edge that does not create a cycle.</p>
+                <p><strong>Prim:</strong> start at one vertex and repeatedly add the lightest edge that joins the current tree to a new vertex.</p>
+              </div>
+              <div class="info">
+                <h3>Matrix support for Prim</h3>
+                <p>Use the weighted adjacency table in the Graph Builder tab to follow Prim in a matrix-style way.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="challenges" class="tab-pane panel">
+          <h2>Student Challenges</h2>
+          <div class="activity"><strong>Challenge 1:</strong> Make a sequence that is a trail but not a path.</div>
+          <div class="activity"><strong>Challenge 2:</strong> Build a graph with exactly two odd vertices and predict the Eulerian result.</div>
+          <div class="activity"><strong>Challenge 3:</strong> Create a graph with a Hamiltonian cycle but no Eulerian circuit.</div>
+          <div class="activity"><strong>Challenge 4:</strong> Create a tree with 6 vertices and explain why it is a tree.</div>
+          <div class="activity"><strong>Challenge 5:</strong> Run Kruskal and Prim on the same weighted graph and compare the results.</div>
+          <div class="info">
+            <h3>Reflection prompts</h3>
+            <p>Why does an Eulerian trail depend on odd vertices?</p>
+            <p>Why can a graph have a Hamiltonian cycle but fail to have an Eulerian circuit?</p>
+            <p>Why do MST algorithms avoid cycles?</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const defs = [
+      { term: 'Walk', definition: 'A sequence of vertices connected by edges. Vertices and edges may repeat.' },
+      { term: 'Trail', definition: 'A walk with no repeated edge.' },
+      { term: 'Path', definition: 'A walk with no repeated vertex.' },
+      { term: 'Circuit', definition: 'A closed trail.' },
+      { term: 'Cycle', definition: 'A closed path.' },
+      { term: 'Spanning tree', definition: 'A tree that includes all the vertices of the graph.' },
+      { term: 'Eulerian trail', definition: 'A trail that uses every edge exactly once.' },
+      { term: 'Eulerian circuit', definition: 'A circuit that uses every edge exactly once.' },
+      { term: 'Hamiltonian path', definition: 'A path that visits every vertex exactly once.' },
+      { term: 'Hamiltonian cycle', definition: 'A cycle that visits every vertex exactly once before returning to the start.' },
+      { term: 'Minimum spanning tree', definition: 'A spanning tree with the smallest possible total weight.' }
+    ];
+
+    const quizData = [
+      { q: 'Which statement describes a trail?', choices: ['No repeated vertex', 'No repeated edge', 'Closed path', 'Uses every edge'], answer: 1, explain: 'A trail cannot repeat an edge.' },
+      { q: 'Which route is always closed?', choices: ['Path', 'Trail', 'Circuit', 'Walk'], answer: 2, explain: 'A circuit starts and ends at the same vertex.' },
+      { q: 'An Eulerian circuit exists when an undirected connected graph has:', choices: ['Exactly two odd vertices', 'All even vertices', 'No cycles', 'All equal weights'], answer: 1, explain: 'Every vertex must have even degree.' },
+      { q: 'What does Kruskal avoid while building an MST?', choices: ['Odd vertices', 'Repeated weights', 'Cycles', 'Hamiltonian paths'], answer: 2, explain: 'Kruskal rejects edges that would create a cycle.' }
+    ];
+
+    const state = {
+      vertices: [],
+      edges: [],
+      directed: false,
+      weighted: true,
+      mode: 'move',
+      dragId: null,
+      selected: null,
+      edgeStart: null,
+      nextLabelCode: 65,
+      highlightEdges: new Set(),
+      highlightVertices: new Set()
+    };
+
+    const svg = document.getElementById('graphSvg');
+    const propsBox = document.getElementById('graphProperties');
+    const selectionInfo = document.getElementById('selectionInfo');
+    const directedToggle = document.getElementById('directedToggle');
+    const weightedToggle = document.getElementById('weightedToggle');
+    const NL = String.fromCharCode(10);
+
+    function initTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab).classList.add('active');
+          renderAll();
+        });
+      });
+    }
+
+    function initDefinitions() {
+      const flash = document.getElementById('flashcards');
+      defs.forEach(item => {
+        const card = document.createElement('button');
+        card.className = 'card';
+        card.style.textAlign = 'left';
+        card.style.cursor = 'pointer';
+        let open = false;
+        const paint = () => {
+          card.innerHTML = `<div class="term">${item.term}</div><div>${open ? item.definition : '<span class="subtle">Click to reveal definition</span>'}</div>`;
+        };
+        paint();
+        card.addEventListener('click', () => { open = !open; paint(); });
+        flash.appendChild(card);
+      });
+
+      const quizBox = document.getElementById('definitionQuiz');
+      quizData.forEach(item => {
+        const wrap = document.createElement('div');
+        wrap.className = 'quiz-item';
+        wrap.innerHTML = `<strong>${item.q}</strong>`;
+        item.choices.forEach((choice, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'choice';
+          btn.textContent = choice;
+          btn.addEventListener('click', () => {
+            wrap.classList.remove('correct', 'wrong');
+            wrap.classList.add(i === item.answer ? 'correct' : 'wrong');
+            feedback.textContent = i === item.answer ? `Correct. ${item.explain}` : `Not quite. ${item.explain}`;
+          });
+          wrap.appendChild(btn);
+        });
+        const feedback = document.createElement('div');
+        feedback.className = 'subtle';
+        feedback.style.marginTop = '8px';
+        wrap.appendChild(feedback);
+        quizBox.appendChild(wrap);
+      });
+    }
+
+    function getSvgPoint(evt) {
+      const rect = svg.getBoundingClientRect();
+      return {
+        x: (evt.clientX - rect.left) * (svg.viewBox.baseVal.width / rect.width),
+        y: (evt.clientY - rect.top) * (svg.viewBox.baseVal.height / rect.height)
+      };
+    }
+
+    function vertexLabel() { return String.fromCharCode(state.nextLabelCode++); }
+    function labelOf(id) { return state.vertices.find(v => v.id === id)?.label || '?'; }
+
+    function addVertex(x, y) {
+      state.vertices.push({ id: crypto.randomUUID(), x, y, label: vertexLabel() });
+      renderAll();
+    }
+
+    function addEdge(a, b, weight = 1) {
+      if (a === b) return;
+      const exists = state.edges.some(e => e.from === a && e.to === b) || (!state.directed && state.edges.some(e => e.from === b && e.to === a));
+      if (exists) return;
+      state.edges.push({ id: crypto.randomUUID(), from: a, to: b, weight: Number(weight) || 1 });
+      renderAll();
+    }
+
+    function deleteVertex(id) {
+      state.vertices = state.vertices.filter(v => v.id !== id);
+      state.edges = state.edges.filter(e => e.from !== id && e.to !== id);
+      state.selected = null;
+      renderAll();
+    }
+
+    function deleteEdge(id) {
+      state.edges = state.edges.filter(e => e.id !== id);
+      state.selected = null;
+      renderAll();
+    }
+
+    function degree(id) { return state.edges.filter(e => e.from === id || e.to === id).length; }
+    function inDegree(id) { return state.edges.filter(e => e.to === id).length; }
+    function outDegree(id) { return state.edges.filter(e => e.from === id).length; }
+
+    function connectedUndirected() {
+      if (!state.vertices.length) return false;
+      const adj = new Map(state.vertices.map(v => [v.id, []]));
+      state.edges.forEach(e => {
+        adj.get(e.from).push(e.to);
+        adj.get(e.to).push(e.from);
+      });
+      const seen = new Set();
+      const stack = [state.vertices[0].id];
+      while (stack.length) {
+        const u = stack.pop();
+        if (seen.has(u)) continue;
+        seen.add(u);
+        adj.get(u).forEach(v => { if (!seen.has(v)) stack.push(v); });
+      }
+      return seen.size === state.vertices.length;
+    }
+
+    function isTree() {
+      return !state.directed && connectedUndirected() && state.edges.length === state.vertices.length - 1;
+    }
+
+    function isCompleteGraph() {
+      if (state.directed) return false;
+      const n = state.vertices.length;
+      if (n < 2) return false;
+      return state.edges.length === n * (n - 1) / 2;
+    }
+
+    function hasEdge(u, v) {
+      return state.edges.some(e => e.from === u && e.to === v) || (!state.directed && state.edges.some(e => e.from === v && e.to === u));
+    }
+
+    function clearHighlights() {
+      state.highlightEdges.clear();
+      state.highlightVertices.clear();
+    }
+
+    function weightedAdjacencyMatrix() {
+      const ids = state.vertices.map(v => v.id);
+      const matrix = Array.from({ length: ids.length }, () => Array(ids.length).fill(0));
+      state.edges.forEach(e => {
+        const i = ids.indexOf(e.from), j = ids.indexOf(e.to);
+        matrix[i][j] = state.weighted ? e.weight : 1;
+        if (!state.directed) matrix[j][i] = state.weighted ? e.weight : 1;
+      });
+      return { ids, matrix };
+    }
+
+    function renderMatrix(targetId, matrix, labels, formatter = x => x) {
+      const box = document.getElementById(targetId);
+      if (!labels.length) {
+        box.innerHTML = '<div class="subtle">Add vertices to see the table.</div>';
+        return;
+      }
+      let html = '<table><tr><th></th>' + labels.map(l => `<th>${l}</th>`).join('') + '</tr>';
+      matrix.forEach((row, i) => {
+        html += `<tr><th>${labels[i]}</th>` + row.map(x => `<td>${formatter(x)}</td>`).join('') + '</tr>';
+      });
+      html += '</table>';
+      box.innerHTML = html;
+    }
+
+    function renderWeightedMatrix() {
+      const labels = state.vertices.map(v => v.label);
+      const W = weightedAdjacencyMatrix().matrix.map(row => row.map(v => v === 0 ? '–' : v));
+      renderMatrix('weightedMatrix', W, labels, x => x);
+    }
+
+    function describeVertex(id) {
+      return state.directed ? `Vertex ${labelOf(id)}. In-degree = ${inDegree(id)}, out-degree = ${outDegree(id)}.` : `Vertex ${labelOf(id)}. Degree = ${degree(id)}.`;
+    }
+
+    function describeEdge(id) {
+      const e = state.edges.find(x => x.id === id);
+      if (!e) return 'Nothing selected.';
+      return `Edge ${labelOf(e.from)}${state.directed ? ' → ' : ' — '}${labelOf(e.to)}${state.weighted ? `, weight ${e.weight}` : ''}.`;
+    }
+
+    function renderProperties() {
+      const tags = [];
+      tags.push(state.directed ? 'Directed' : 'Undirected');
+      tags.push(state.weighted ? 'Weighted' : 'Unweighted');
+      if (!state.directed && connectedUndirected()) tags.push('Connected');
+      if (isTree()) tags.push('Tree');
+      if (isCompleteGraph()) tags.push('Complete');
+      const degreeText = state.vertices.map(v => state.directed ? `${v.label}: in ${inDegree(v.id)}, out ${outDegree(v.id)}` : `${v.label}: degree ${degree(v.id)}`).join('<br>');
+      propsBox.innerHTML = `<p><strong>Vertices:</strong> ${state.vertices.length} &nbsp;&nbsp; <strong>Edges:</strong> ${state.edges.length}</p><p>${tags.map(t => `<span class="badge">${t}</span>`).join(' ')}</p><p>${degreeText || '<span class="subtle">Add some vertices to begin.</span>'}</p>`;
+    }
+
+    function renderGraph() {
+      svg.innerHTML = '<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,3 L0,6 z" fill="#334155"></path></marker></defs>';
+      state.edges.forEach(e => {
+        const a = state.vertices.find(v => v.id === e.from);
+        const b = state.vertices.find(v => v.id === e.to);
+        if (!a || !b) return;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', a.x);
+        line.setAttribute('y1', a.y);
+        line.setAttribute('x2', b.x);
+        line.setAttribute('y2', b.y);
+        line.setAttribute('stroke', state.highlightEdges.has(e.id) ? '#dc2626' : '#334155');
+        line.setAttribute('stroke-width', state.highlightEdges.has(e.id) ? '5' : '3');
+        if (state.directed) line.setAttribute('marker-end', 'url(#arrow)');
+        line.style.cursor = 'pointer';
+        line.addEventListener('click', evt => {
+          evt.stopPropagation();
+          if (state.mode === 'delete') return deleteEdge(e.id);
+          state.selected = { type: 'edge', id: e.id };
+          selectionInfo.textContent = describeEdge(e.id);
+          renderAll();
+        });
+        svg.appendChild(line);
+
+        const midX = (a.x + b.x) / 2;
+        const midY = (a.y + b.y) / 2;
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', midX - 18);
+        rect.setAttribute('y', midY - 14);
+        rect.setAttribute('width', 36);
+        rect.setAttribute('height', 24);
+        rect.setAttribute('rx', 10);
+        rect.setAttribute('fill', 'white');
+        rect.setAttribute('stroke', '#cbd5e1');
+        svg.appendChild(rect);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', midX);
+        text.setAttribute('y', midY + 5);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '14');
+        text.setAttribute('font-weight', '700');
+        text.textContent = state.weighted ? e.weight : 1;
+        text.style.cursor = 'pointer';
+        text.addEventListener('click', evt => {
+          evt.stopPropagation();
+          if (!state.weighted) return;
+          const n = prompt('Enter a new weight:', e.weight);
+          if (n !== null && n !== '' && !isNaN(Number(n))) {
+            e.weight = Number(n);
+            renderAll();
+          }
+        });
+        svg.appendChild(text);
+      });
+
+      state.vertices.forEach(v => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', v.x);
+        c.setAttribute('cy', v.y);
+        c.setAttribute('r', 23);
+        c.setAttribute('fill', state.highlightVertices.has(v.id) ? '#fee2e2' : '#ffffff');
+        c.setAttribute('stroke', state.selected?.id === v.id ? '#2563eb' : '#334155');
+        c.setAttribute('stroke-width', state.selected?.id === v.id ? '4' : '3');
+        c.style.cursor = 'pointer';
+        c.addEventListener('pointerdown', evt => handleVertexPointerDown(evt, v));
+        svg.appendChild(c);
+
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', v.x);
+        t.setAttribute('y', v.y + 5);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('font-size', '16');
+        t.setAttribute('font-weight', '800');
+        t.textContent = v.label;
+        t.style.pointerEvents = 'none';
+        svg.appendChild(t);
+      });
+    }
+
+    function handleVertexPointerDown(evt, v) {
+      evt.stopPropagation();
+      if (state.mode === 'delete') return deleteVertex(v.id);
+      if (state.mode === 'move') {
+        state.dragId = v.id;
+        state.selected = { type: 'vertex', id: v.id };
+        selectionInfo.textContent = describeVertex(v.id);
+        renderAll();
+        return;
+      }
+      if (state.mode === 'edge') {
+        if (!state.edgeStart) {
+          state.edgeStart = v.id;
+          state.selected = { type: 'vertex', id: v.id };
+          selectionInfo.textContent = `Start edge from ${v.label}. Now click another vertex.`;
+          renderAll();
+        } else if (state.edgeStart !== v.id) {
+          const weight = state.weighted ? (prompt('Edge weight?', '1') || '1') : 1;
+          addEdge(state.edgeStart, v.id, weight);
+          state.edgeStart = null;
+        }
+        return;
+      }
+      state.selected = { type: 'vertex', id: v.id };
+      selectionInfo.textContent = describeVertex(v.id);
+      renderAll();
+    }
+
+    svg.addEventListener('pointermove', evt => {
+      if (!state.dragId) return;
+      const pt = getSvgPoint(evt);
+      const v = state.vertices.find(x => x.id === state.dragId);
+      if (v) {
+        v.x = Math.max(30, Math.min(890, pt.x));
+        v.y = Math.max(30, Math.min(570, pt.y));
+        renderAll();
+      }
+    });
+
+    window.addEventListener('pointerup', () => state.dragId = null);
+
+    svg.addEventListener('click', evt => {
+      const pt = getSvgPoint(evt);
+      if (state.mode === 'vertex') addVertex(pt.x, pt.y);
+      if (evt.target === svg) {
+        state.selected = null;
+        selectionInfo.textContent = state.edgeStart ? 'Choose the second vertex for the edge.' : 'Nothing selected.';
+        renderAll();
+      }
+    });
+
+    function parseSequence() {
+      const raw = document.getElementById('seqInput').value.trim().toUpperCase();
+      if (!raw) return [];
+      return raw.split(/[\s,]+/).filter(Boolean);
+    }
+
+    function labelToId(label) {
+      return state.vertices.find(v => v.label === label)?.id || null;
+    }
+
+    function edgeIdBetween(a, b) {
+      const e = state.edges.find(e => (e.from === a && e.to === b) || (!state.directed && e.from === b && e.to === a));
+      return e ? e.id : null;
+    }
+
+    function classifySequence() {
+      clearHighlights();
+      const seq = parseSequence();
+      const box = document.getElementById('sequenceStatus');
+      if (seq.length < 2) {
+        box.textContent = 'Enter at least two vertex labels.';
+        renderAll();
+        return;
+      }
+      const ids = seq.map(labelToId);
+      if (ids.some(id => !id)) {
+        box.textContent = 'One or more labels do not exist in the current graph.';
+        renderAll();
+        return;
+      }
+      const edgeIds = [];
+      for (let i = 0; i < ids.length - 1; i++) {
+        const eId = edgeIdBetween(ids[i], ids[i + 1]);
+        if (!eId) {
+          box.textContent = `This is not a valid walk because ${seq[i]} and ${seq[i + 1]} are not joined by an edge in the required direction.`;
+          renderAll();
+          return;
+        }
+        edgeIds.push(eId);
+      }
+      ids.forEach(id => state.highlightVertices.add(id));
+      edgeIds.forEach(id => state.highlightEdges.add(id));
+
+      const repeatedEdge = new Set(edgeIds).size !== edgeIds.length;
+      const repeatedVertex = new Set(ids).size !== ids.length;
+      const closed = ids[0] === ids[ids.length - 1];
+      const inner = ids.slice(0, -1);
+      const repeatedInnerVertex = new Set(inner).size !== inner.length;
+      const isTrail = !repeatedEdge;
+      const isPath = !repeatedVertex;
+      const isCircuit = closed && isTrail;
+      const isCycle = closed && !repeatedEdge && !repeatedInnerVertex;
+
+      const lines = [];
+      lines.push('Sequence: ' + seq.join(' → '));
+      lines.push('Valid walk: Yes');
+      lines.push('Trail: ' + (isTrail ? 'Yes' : 'No'));
+      lines.push('Path: ' + (isPath ? 'Yes' : 'No'));
+      lines.push('Circuit: ' + (isCircuit ? 'Yes' : 'No'));
+      lines.push('Cycle: ' + (isCycle ? 'Yes' : 'No'));
+      lines.push('');
+      lines.push('Why:');
+      lines.push(repeatedEdge ? 'A trail fails because an edge is repeated.' : 'No edge is repeated, so it qualifies as a trail.');
+      lines.push(repeatedVertex ? 'A path fails because a vertex is repeated.' : 'No vertex is repeated, so it qualifies as a path.');
+      lines.push(closed ? 'The sequence is closed because it starts and ends at the same vertex.' : 'It is not closed, so it cannot be a circuit or cycle.');
+      if (closed && repeatedInnerVertex) lines.push('A cycle fails because an interior vertex is repeated.');
+      if (closed && !repeatedInnerVertex && !repeatedEdge) lines.push('Because it is closed and no edge or interior vertex is repeated, it is a cycle.');
+      box.textContent = lines.join(NL);
+      renderAll();
+    }
+
+    function checkEuler() {
+      clearHighlights();
+      const box = document.getElementById('eulerStatus');
+      if (state.directed) {
+        box.textContent = 'This Eulerian checker is intended for undirected graphs.';
+        renderAll();
+        return;
+      }
+      if (!connectedUndirected()) {
+        box.textContent = 'No Eulerian trail or circuit exists because the graph is not connected.';
+        renderAll();
+        return;
+      }
+      const odd = state.vertices.filter(v => degree(v.id) % 2 === 1);
+      odd.forEach(v => state.highlightVertices.add(v.id));
+      if (odd.length === 0) {
+        box.textContent = 'Eulerian circuit exists because the graph is connected and every vertex has even degree.';
+      } else if (odd.length === 2) {
+        box.textContent = `Eulerian trail exists but not a circuit because the graph is connected and exactly two vertices are odd: ${odd.map(v => v.label).join(' and ')}.`;
+      } else {
+        box.textContent = `No Eulerian trail or circuit exists because the graph has ${odd.length} odd vertices.`;
+      }
+      renderAll();
+    }
+
+    function findHamiltonian() {
+      clearHighlights();
+      const box = document.getElementById('hamStatus');
+      const ids = state.vertices.map(v => v.id);
+      if (!ids.length) {
+        box.textContent = 'Create a graph first.';
+        renderAll();
+        return;
+      }
+      if (ids.length > 8) {
+        box.textContent = 'Hamiltonian search is limited to graphs with at most 8 vertices in this applet.';
+        renderAll();
+        return;
+      }
+      let foundPath = null;
+      let foundCycle = null;
+
+      function backtrack(path, used) {
+        if (foundCycle) return;
+        if (path.length === ids.length) {
+          foundPath = path.slice();
+          if (hasEdge(path[path.length - 1], path[0])) foundCycle = path.slice();
+          return;
+        }
+        for (const next of ids) {
+          if (used.has(next)) continue;
+          if (path.length === 0 || hasEdge(path[path.length - 1], next)) {
+            used.add(next);
+            path.push(next);
+            backtrack(path, used);
+            path.pop();
+            used.delete(next);
+          }
+        }
+      }
+
+      backtrack([], new Set());
+      if (!foundPath) {
+        box.textContent = 'No Hamiltonian path found.';
+      } else if (foundCycle) {
+        foundCycle.forEach(id => state.highlightVertices.add(id));
+        const labels = foundCycle.map(labelOf);
+        box.textContent = `Hamiltonian cycle found: ${labels.join(' → ')} → ${labels[0]}.`;
+      } else {
+        foundPath.forEach(id => state.highlightVertices.add(id));
+        box.textContent = `Hamiltonian path found: ${foundPath.map(labelOf).join(' → ')}. No Hamiltonian cycle was found.`;
+      }
+      renderAll();
+    }
+
+    function unionFind(ids) {
+      const parent = new Map(ids.map(id => [id, id]));
+      const find = x => parent.get(x) === x ? x : (parent.set(x, find(parent.get(x))), parent.get(x));
+      const union = (a, b) => {
+        const ra = find(a), rb = find(b);
+        if (ra === rb) return false;
+        parent.set(ra, rb);
+        return true;
+      };
+      return { union };
+    }
+
+    function runKruskal() {
+      clearHighlights();
+      const box = document.getElementById('mstStatus');
+      if (state.directed) {
+        box.textContent = 'MST is not appropriate here because the graph is directed.';
+        renderAll();
+        return;
+      }
+      if (!state.weighted) {
+        box.textContent = 'MST is not appropriate here because the graph is unweighted.';
+        renderAll();
+        return;
+      }
+      if (!connectedUndirected()) {
+        box.textContent = 'MST is not appropriate here because the graph is disconnected.';
+        renderAll();
+        return;
+      }
+      const sorted = state.edges.slice().sort((a, b) => a.weight - b.weight);
+      const uf = unionFind(state.vertices.map(v => v.id));
+      const chosen = [];
+      const rejected = [];
+      let total = 0;
+      for (const e of sorted) {
+        if (uf.union(e.from, e.to)) {
+          chosen.push(e);
+          total += e.weight;
+        } else {
+          rejected.push(e);
+        }
+      }
+      chosen.forEach(e => state.highlightEdges.add(e.id));
+      const lines = [];
+      lines.push('Chosen edges in order: ' + chosen.map(e => `${labelOf(e.from)}-${labelOf(e.to)}(${e.weight})`).join(', '));
+      if (rejected.length) lines.push('Rejected because they would create a cycle: ' + rejected.map(e => `${labelOf(e.from)}-${labelOf(e.to)}(${e.weight})`).join(', '));
+      lines.push('Total MST weight = ' + total);
+      box.textContent = lines.join(NL);
+      renderAll();
+    }
+
+    function runPrim() {
+      clearHighlights();
+      const box = document.getElementById('mstStatus');
+      if (state.directed) {
+        box.textContent = 'MST is not appropriate here because the graph is directed.';
+        renderAll();
+        return;
+      }
+      if (!state.weighted) {
+        box.textContent = 'MST is not appropriate here because the graph is unweighted.';
+        renderAll();
+        return;
+      }
+      if (!connectedUndirected()) {
+        box.textContent = 'MST is not appropriate here because the graph is disconnected.';
+        renderAll();
+        return;
+      }
+      const start = state.vertices[0].id;
+      const visited = new Set([start]);
+      const chosen = [];
+      let total = 0;
+      const steps = [`Start at vertex ${labelOf(start)}.`];
+      while (visited.size < state.vertices.length) {
+        let best = null;
+        for (const e of state.edges) {
+          const aIn = visited.has(e.from), bIn = visited.has(e.to);
+          if ((aIn && !bIn) || (!aIn && bIn)) {
+            if (!best || e.weight < best.weight) best = e;
+          }
+        }
+        if (!best) break;
+        chosen.push(best);
+        total += best.weight;
+        visited.add(best.from);
+        visited.add(best.to);
+        steps.push(`Add ${labelOf(best.from)}-${labelOf(best.to)}(${best.weight}).`);
+      }
+      chosen.forEach(e => state.highlightEdges.add(e.id));
+      steps.push('Total MST weight = ' + total);
+      box.textContent = steps.join(NL);
+      renderAll();
+    }
+
+    function resetGraph() {
+      state.vertices = [];
+      state.edges = [];
+      state.selected = null;
+      state.edgeStart = null;
+      state.nextLabelCode = 65;
+      clearHighlights();
+      document.getElementById('sequenceStatus').textContent = '';
+      document.getElementById('eulerStatus').textContent = '';
+      document.getElementById('hamStatus').textContent = '';
+      document.getElementById('mstStatus').textContent = '';
+      renderAll();
+    }
+
+    function loadSample(type) {
+      resetGraph();
+      if (type === 'eulerCircuit') {
+        state.directed = false;
+        state.weighted = false;
+        directedToggle.checked = false;
+        weightedToggle.checked = false;
+        addVertex(220, 120); addVertex(520, 120); addVertex(520, 380); addVertex(220, 380);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[1], ids[2]); addEdge(ids[2], ids[3]); addEdge(ids[3], ids[0]);
+      } else if (type === 'eulerTrail') {
+        state.directed = false;
+        state.weighted = false;
+        directedToggle.checked = false;
+        weightedToggle.checked = false;
+        addVertex(180, 150); addVertex(420, 120); addVertex(680, 180); addVertex(320, 360);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[1], ids[2]); addEdge(ids[1], ids[3]);
+      } else if (type === 'hamiltonian') {
+        state.directed = false;
+        state.weighted = false;
+        directedToggle.checked = false;
+        weightedToggle.checked = false;
+        addVertex(250, 120); addVertex(530, 120); addVertex(650, 330); addVertex(400, 470);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[1], ids[2]); addEdge(ids[2], ids[3]); addEdge(ids[3], ids[0]); addEdge(ids[0], ids[2]); addEdge(ids[1], ids[3]);
+      } else if (type === 'mst') {
+        state.directed = false;
+        state.weighted = true;
+        directedToggle.checked = false;
+        weightedToggle.checked = true;
+        addVertex(150, 140); addVertex(360, 100); addVertex(620, 150); addVertex(250, 350); addVertex(520, 370);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1], 4); addEdge(ids[1], ids[2], 7); addEdge(ids[0], ids[3], 3); addEdge(ids[1], ids[3], 5); addEdge(ids[1], ids[4], 6); addEdge(ids[2], ids[4], 2); addEdge(ids[3], ids[4], 4);
+      } else if (type === 'tree') {
+        state.directed = false;
+        state.weighted = false;
+        directedToggle.checked = false;
+        weightedToggle.checked = false;
+        addVertex(380, 90); addVertex(220, 210); addVertex(540, 210); addVertex(120, 380); addVertex(300, 380); addVertex(620, 380);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[0], ids[2]); addEdge(ids[1], ids[3]); addEdge(ids[1], ids[4]); addEdge(ids[2], ids[5]);
+      } else if (type === 'disconnected') {
+        state.directed = false;
+        state.weighted = false;
+        directedToggle.checked = false;
+        weightedToggle.checked = false;
+        addVertex(220, 180); addVertex(390, 180); addVertex(560, 180); addVertex(300, 380); addVertex(620, 380);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[1], ids[2]); addEdge(ids[3], ids[4]);
+      }
+      renderAll();
+    }
+
+    function bindUI() {
+      document.querySelectorAll('[data-mode]').forEach(btn => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
+      directedToggle.addEventListener('change', () => { state.directed = directedToggle.checked; clearHighlights(); renderAll(); });
+      weightedToggle.addEventListener('change', () => { state.weighted = weightedToggle.checked; renderAll(); });
+      document.getElementById('clearGraph').addEventListener('click', resetGraph);
+      document.getElementById('sampleEulerCircuit').addEventListener('click', () => loadSample('eulerCircuit'));
+      document.getElementById('sampleEulerTrail').addEventListener('click', () => loadSample('eulerTrail'));
+      document.getElementById('sampleHamiltonian').addEventListener('click', () => loadSample('hamiltonian'));
+      document.getElementById('sampleMST').addEventListener('click', () => loadSample('mst'));
+      document.getElementById('sampleTree').addEventListener('click', () => loadSample('tree'));
+      document.getElementById('sampleDisconnected').addEventListener('click', () => loadSample('disconnected'));
+      document.getElementById('checkSequence').addEventListener('click', classifySequence);
+      document.getElementById('checkEuler').addEventListener('click', checkEuler);
+      document.getElementById('checkHamiltonian').addEventListener('click', findHamiltonian);
+      document.getElementById('runKruskal').addEventListener('click', runKruskal);
+      document.getElementById('runPrim').addEventListener('click', runPrim);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      state.edgeStart = null;
+      document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+      selectionInfo.textContent = 'Nothing selected.';
+    }
+
+    initTabs();
+    initDefinitions();
+    bindUI();
+    loadSample('mst');
+  </script>
+</body>
+</html>
