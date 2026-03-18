@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AHL 3.16B — Route Optimisation Explorer</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d6dce8;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: 0 10px 30px rgba(31, 41, 55, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .app {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 520px 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .left-panel {
+      padding: 14px;
+      position: sticky;
+      top: 18px;
+      height: fit-content;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 10px;
+      line-height: 1.2;
+    }
+
+    p { line-height: 1.55; }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 14px;
+      font-size: 0.97rem;
+    }
+
+    .toolbar, .sample-row, .mini-controls, .solver-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    button, select, input {
+      font: inherit;
+    }
+
+    button, .pill {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    button:hover, select:hover {
+      border-color: var(--accent);
+    }
+
+    button.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #0b3ea8;
+      border-color: #bfdbfe;
+    }
+
+    select, input[type="text"], input[type="number"] {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 9px 12px;
+      background: #fff;
+      min-width: 120px;
+    }
+
+    .canvas-wrap {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fbfdff 0%, #f7faff 100%);
+    }
+
+    #graphSvg {
+      display: block;
+      width: 100%;
+      height: 520px;
+      touch-action: none;
+      cursor: crosshair;
+      background-image:
+        linear-gradient(to right, rgba(37, 99, 235, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .status-box, .legend {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafcff;
+    }
+
+    .status-box div { margin: 4px 0; }
+    .muted { color: var(--muted); }
+    .small { font-size: 0.92rem; }
+
+    .tabs-panel { padding: 14px; }
+
+    .tab-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tab-content {
+      display: none;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+    }
+
+    .tab-content.active { display: block; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: white;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      background: #f8fbff;
+      border-radius: 0 14px 14px 0;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff9f1;
+    }
+
+    .good {
+      border-left-color: var(--good);
+      background: #f3fffc;
+    }
+
+    .bad {
+      border-left-color: var(--bad);
+      background: #fff5f5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    th {
+      background: #f4f7fc;
+      font-weight: 700;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+
+    .quiz-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: white;
+    }
+
+    .quiz-item label {
+      display: block;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+
+    .quiz-result {
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .edge-line {
+      stroke: #64748b;
+      stroke-width: 3;
+    }
+
+    .edge-hit {
+      stroke: transparent;
+      stroke-width: 18;
+      cursor: pointer;
+    }
+
+    .edge-line.highlight {
+      stroke: #dc2626;
+      stroke-width: 5;
+    }
+
+    .edge-label rect {
+      fill: white;
+      stroke: #cbd5e1;
+      rx: 8;
+      ry: 8;
+    }
+
+    .edge-label text {
+      fill: #0f172a;
+      font-size: 14px;
+      font-weight: 700;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .edge-label.editable { cursor: pointer; }
+
+    .vertex-circle {
+      fill: white;
+      stroke: #1e40af;
+      stroke-width: 3;
+    }
+
+    .vertex-circle.highlight {
+      fill: #fee2e2;
+      stroke: #dc2626;
+    }
+
+    .vertex-circle.selected {
+      fill: #dbeafe;
+      stroke: #2563eb;
+    }
+
+    .vertex-text {
+      fill: #0f172a;
+      font-size: 16px;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+      .left-panel {
+        position: static;
+      }
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="panel left-panel">
+      <h1>AHL 3.16B — Route Optimisation Explorer</h1>
+      <div class="subtitle">Build weighted graphs, investigate the Chinese postman problem, complete least-distance tables, and compare TSP upper and lower bounds.</div>
+
+      <div class="toolbar">
+        <button id="modeMove" class="active">Move / Select</button>
+        <button id="modeAddVertex">Add Vertex</button>
+        <button id="modeAddEdge">Add Edge</button>
+        <button id="modeDelete">Delete</button>
+      </div>
+
+      <div class="sample-row">
+        <select id="sampleSelect">
+          <option value="">Load a sample graph…</option>
+          <option value="euler0">Connected weighted graph with 0 odd vertices</option>
+          <option value="odd2">Connected weighted graph with 2 odd vertices</option>
+          <option value="odd4">Connected weighted graph with 4 odd vertices</option>
+          <option value="incomplete">Incomplete road network for least-distance completion</option>
+          <option value="completeTSP">Complete weighted graph for TSP</option>
+        </select>
+        <button id="loadSampleBtn" class="secondary">Load sample</button>
+        <button id="clearBtn">Clear graph</button>
+      </div>
+
+      <div class="canvas-wrap">
+        <svg id="graphSvg" viewBox="0 0 520 520" aria-label="Graph drawing area"></svg>
+      </div>
+
+      <div class="status-box small">
+        <div><strong>Mode:</strong> <span id="modeReadout">Move / Select</span></div>
+        <div><strong>Tip:</strong> <span id="modeTip">Drag vertices to rearrange the graph, or click an edge label to edit a weight.</span></div>
+        <div><strong>Selected:</strong> <span id="selectionReadout">None</span></div>
+      </div>
+
+      <div class="legend small">
+        <div><strong>Teacher-friendly controls</strong></div>
+        <div>• In <strong>Add Vertex</strong>, click the canvas to place a new vertex.</div>
+        <div>• In <strong>Add Edge</strong>, click two vertices and enter a weight.</div>
+        <div>• In <strong>Delete</strong>, click a vertex or edge to remove it.</div>
+        <div>• <strong>Red</strong> highlighting is used for odd vertices or a selected route.</div>
+      </div>
+    </section>
+
+    <section class="panel tabs-panel">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="methods">Definitions and Method</button>
+        <button class="tab-btn" data-tab="postman">Postman Lab</button>
+        <button class="tab-btn" data-tab="leastDistance">Least-Distance Completion Lab</button>
+        <button class="tab-btn" data-tab="tsp">TSP Lab</button>
+        <button class="tab-btn" data-tab="challenges">Student Challenges</button>
+      </div>
+
+      <div id="overview" class="tab-content active">
+        <h2>Overview</h2>
+        <p>This applet focuses on route optimisation methods in the AHL 3.16B syllabus. It is built around weighted, undirected graphs and helps students see how practical road networks can become route problems that can be solved step by step.</p>
+        <div class="card-grid">
+          <div class="card">
+            <h3>Chinese postman</h3>
+            <p>Find the shortest closed route that uses every edge at least once. The key idea is to look at the <strong>odd vertices</strong> and work out the smallest extra distance needed to make all degrees even.</p>
+          </div>
+          <div class="card">
+            <h3>Least-distance completion</h3>
+            <p>Turn a practical road network into a complete weighted graph by replacing missing direct links with <strong>shortest-path distances</strong>. This creates the table needed for classical TSP methods.</p>
+          </div>
+          <div class="card">
+            <h3>Travelling salesman problem</h3>
+            <p>On a complete weighted graph, compare a <strong>nearest neighbour upper bound</strong> with a <strong>deleted vertex lower bound</strong>. For small graphs, you can also check the exact best Hamiltonian cycle.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>Suggested classroom flow:</strong> load a sample graph, discuss what the graph represents, predict what should happen, then run the algorithm and compare the output with student reasoning.
+        </div>
+        <div class="card-grid">
+          <div class="card">
+            <h3>Included</h3>
+            <p>Chinese postman for up to 4 odd vertices, least-distance tables, nearest neighbour, deleted vertex lower bound, and an optional exact TSP check for small graphs.</p>
+          </div>
+          <div class="card">
+            <h3>Not the main focus here</h3>
+            <p>General walk/trail/path/cycle classification, Euler/Hamiltonian existence as a main topic, and MST as a main topic.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="methods" class="tab-content">
+        <h2>Definitions and Method</h2>
+        <div class="two-col">
+          <div>
+            <div class="card-grid">
+              <div class="card"><h3>Odd vertex</h3><p>A vertex with an odd number of incident edges. Chinese postman depends on these because an Eulerian circuit needs every degree to be even.</p></div>
+              <div class="card"><h3>Least-distance table</h3><p>A table of the shortest distances between every pair of vertices. This lets us treat a road network as a complete weighted graph.</p></div>
+              <div class="card"><h3>Upper bound</h3><p>A route length we know can be achieved. Nearest neighbour gives an upper bound because it constructs an actual Hamiltonian cycle.</p></div>
+              <div class="card"><h3>Lower bound</h3><p>A value the true optimal route cannot go below. Deleted vertex gives a lower bound, but not usually the exact answer.</p></div>
+              <div class="card"><h3>Nearest neighbour</h3><p>Start at one vertex, go to the nearest unvisited vertex, repeat, then return to the start. It is quick but not always optimal.</p></div>
+              <div class="card"><h3>Deleted vertex method</h3><p>Delete one vertex, find an MST on the remaining vertices, and add the two smallest edges from the deleted vertex. Repeat and take the largest result.</p></div>
+            </div>
+            <div class="callout good">
+              <strong>Method summary:</strong> Chinese postman is about repeating as little distance as possible. TSP is about visiting each vertex exactly once in a Hamiltonian cycle with minimum total weight.
+            </div>
+          </div>
+          <div>
+            <h3>Mini-quiz</h3>
+            <div class="quiz-item">
+              <div><strong>1.</strong> Why do odd vertices matter in Chinese postman?</div>
+              <label><input type="radio" name="q1" value="a"> They show the largest edge weights.</label>
+              <label><input type="radio" name="q1" value="b"> They stop an Eulerian circuit unless extra edges are effectively repeated.</label>
+              <label><input type="radio" name="q1" value="c"> They guarantee a Hamiltonian cycle.</label>
+              <button onclick="checkQuiz('q1','b', this.nextElementSibling)">Check</button>
+              <div class="quiz-result"></div>
+            </div>
+            <div class="quiz-item">
+              <div><strong>2.</strong> What does nearest neighbour give?</div>
+              <label><input type="radio" name="q2" value="a"> A guaranteed exact answer.</label>
+              <label><input type="radio" name="q2" value="b"> A lower bound.</label>
+              <label><input type="radio" name="q2" value="c"> An upper bound.</label>
+              <button onclick="checkQuiz('q2','c', this.nextElementSibling)">Check</button>
+              <div class="quiz-result"></div>
+            </div>
+            <div class="quiz-item">
+              <div><strong>3.</strong> Why might we need a least-distance completion table?</div>
+              <label><input type="radio" name="q3" value="a"> Because the original road graph may not be complete.</label>
+              <label><input type="radio" name="q3" value="b"> Because MST requires a directed graph.</label>
+              <label><input type="radio" name="q3" value="c"> Because odd vertices must be removed.</label>
+              <button onclick="checkQuiz('q3','a', this.nextElementSibling)">Check</button>
+              <div class="quiz-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="postman" class="tab-content">
+        <h2>Postman Lab</h2>
+        <p>Use a connected weighted graph. The applet shows the degree of each vertex, identifies the odd vertices, and explains the extra distance needed to make the route Eulerian.</p>
+        <div class="solver-row">
+          <button id="solvePostmanBtn" class="primary">Solve Chinese postman</button>
+          <button id="showOddBtn">Highlight odd vertices</button>
+          <button id="clearHighlightBtn1">Clear highlighting</button>
+        </div>
+        <div class="card-grid">
+          <div class="card"><h3>Vertex degrees</h3><div id="degreeReadout" class="mono small"></div></div>
+          <div class="card"><h3>Odd vertices</h3><div id="oddReadout" class="mono small"></div></div>
+          <div class="card"><h3>Total original edge weight</h3><div id="totalWeightReadout" class="mono small"></div></div>
+        </div>
+        <div id="postmanOutput" class="callout">Build or load a graph, then click <strong>Solve Chinese postman</strong>.</div>
+      </div>
+
+      <div id="leastDistance" class="tab-content">
+        <h2>Least-Distance Completion Lab</h2>
+        <p>This converts a practical weighted network into the complete table needed for a classical TSP treatment.</p>
+        <div class="solver-row">
+          <button id="computeLeastBtn" class="primary">Compute least-distance matrix</button>
+          <button id="clearHighlightBtn2">Clear highlighting</button>
+        </div>
+        <div id="leastDistanceOutput" class="callout">Click <strong>Compute least-distance matrix</strong> to generate the shortest-distance table.</div>
+        <div id="matrixContainer"></div>
+      </div>
+
+      <div id="tsp" class="tab-content">
+        <h2>TSP Lab</h2>
+        <p>These methods require a <strong>weighted, undirected, complete graph</strong>. If your graph is not complete, use the least-distance completion lab first.</p>
+        <div class="mini-controls">
+          <label for="startVertexSelect"><strong>Starting vertex:</strong></label>
+          <select id="startVertexSelect"></select>
+        </div>
+        <div class="solver-row">
+          <button id="nearestBtn" class="primary">Run nearest neighbour</button>
+          <button id="deletedVertexBtn" class="primary">Run deleted vertex lower bound</button>
+          <button id="exactTspBtn">Extension / Teacher Check Only: exact TSP (≤ 8 vertices)</button>
+          <button id="clearHighlightBtn3">Clear highlighting</button>
+        </div>
+        <div class="card-grid">
+          <div class="card"><h3>Nearest neighbour</h3><div id="nearestOutput" class="small">No result yet.</div></div>
+          <div class="card"><h3>Deleted vertex lower bound</h3><div id="deletedOutput" class="small">No result yet.</div></div>
+        </div>
+        <div class="card">
+          <h3>Extension / Teacher Check Only</h3>
+          <div id="exactOutput" class="small">No exact TSP result yet.</div>
+        </div>
+      </div>
+
+      <div id="challenges" class="tab-content">
+        <h2>Student Challenges</h2>
+        <div class="card-grid">
+          <div class="card">
+            <h3>Challenge 1</h3>
+            <p>Load a graph with <strong>2 odd vertices</strong>. Predict which extra path will be repeated before you run the Chinese postman solver.</p>
+          </div>
+          <div class="card">
+            <h3>Challenge 2</h3>
+            <p>Load a graph with <strong>4 odd vertices</strong>. Write down all three pairings and decide which one should give the smallest extra cost.</p>
+          </div>
+          <div class="card">
+            <h3>Challenge 3</h3>
+            <p>Load the incomplete road network. Use the least-distance matrix to explain how a non-complete graph becomes a complete TSP table.</p>
+          </div>
+          <div class="card">
+            <h3>Challenge 4</h3>
+            <p>On the complete weighted graph, run nearest neighbour and deleted vertex. Compare the upper and lower bounds and explain what the gap means.</p>
+          </div>
+          <div class="card">
+            <h3>Challenge 5</h3>
+            <p>Change one edge weight and see how the postman length, upper bound, and lower bound respond. Which method is most sensitive to the change?</p>
+          </div>
+          <div class="card">
+            <h3>Discussion prompt</h3>
+            <p>Why is a Chinese postman route allowed to repeat edges, but a travelling salesman route must instead visit each vertex exactly once?</p>
+          </div>
+        </div>
+        <div class="callout good">
+          <strong>Success looks like this:</strong> students can explain why Chinese postman depends on odd vertices, compute the route length correctly, create a least-distance table, and compare TSP upper and lower bounds with confidence.
+        </div>
+      </div>
+
+      <div class="footer-note">Pure HTML, CSS, and JavaScript. No external libraries are required.</div>
+    </section>
+  </div>
+
+  <script>
+    const svg = document.getElementById('graphSvg');
+    const ns = 'http://www.w3.org/2000/svg';
+
+    let vertices = [];
+    let edges = [];
+    let nextVertexId = 1;
+    let mode = 'move';
+    let draggingVertexId = null;
+    let selectedVertexForEdge = null;
+    let selectedVertexId = null;
+    let highlightedVertices = new Set();
+    let highlightedEdges = new Set();
+    let hoverDeleteEdgeKey = null;
+
+    const modeReadout = document.getElementById('modeReadout');
+    const modeTip = document.getElementById('modeTip');
+    const selectionReadout = document.getElementById('selectionReadout');
+    const degreeReadout = document.getElementById('degreeReadout');
+    const oddReadout = document.getElementById('oddReadout');
+    const totalWeightReadout = document.getElementById('totalWeightReadout');
+    const postmanOutput = document.getElementById('postmanOutput');
+    const leastDistanceOutput = document.getElementById('leastDistanceOutput');
+    const matrixContainer = document.getElementById('matrixContainer');
+    const startVertexSelect = document.getElementById('startVertexSelect');
+    const nearestOutput = document.getElementById('nearestOutput');
+    const deletedOutput = document.getElementById('deletedOutput');
+    const exactOutput = document.getElementById('exactOutput');
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    function checkQuiz(name, correct, outputEl) {
+      const selected = document.querySelector(`input[name="${name}"]:checked`);
+      if (!selected) {
+        outputEl.textContent = 'Choose an answer first.';
+        outputEl.style.color = 'var(--warn)';
+        return;
+      }
+      if (selected.value === correct) {
+        outputEl.textContent = 'Correct — good reasoning.';
+        outputEl.style.color = 'var(--good)';
+      } else {
+        outputEl.textContent = 'Not quite — try again and focus on the role of the method.';
+        outputEl.style.color = 'var(--bad)';
+      }
+    }
+    window.checkQuiz = checkQuiz;
+
+    function edgeKey(a, b) {
+      return [a, b].sort((x, y) => x - y).join('-');
+    }
+
+    function getVertex(id) {
+      return vertices.find(v => v.id === id);
+    }
+
+    function getVertexLabel(id) {
+      const v = getVertex(id);
+      return v ? v.label : '?';
+    }
+
+    function vertexNameFromIndex(index) {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if (index < 26) return alphabet[index];
+      const first = alphabet[index % 26];
+      const suffix = Math.floor(index / 26);
+      return `${first}${suffix}`;
+    }
+
+    function addVertex(x, y, label = null) {
+      const v = {
+        id: nextVertexId++,
+        x,
+        y,
+        label: label || vertexNameFromIndex(vertices.length)
+      };
+      vertices.push(v);
+      refreshAll();
+      return v.id;
+    }
+
+    function addEdge(a, b, w) {
+      if (a === b) return false;
+      const key = edgeKey(a, b);
+      if (edges.some(e => edgeKey(e.a, e.b) === key)) return false;
+      const weight = Number(w);
+      if (!Number.isFinite(weight) || weight <= 0) return false;
+      edges.push({ a, b, w: weight });
+      refreshAll();
+      return true;
+    }
+
+    function removeVertex(id) {
+      vertices = vertices.filter(v => v.id !== id);
+      edges = edges.filter(e => e.a !== id && e.b !== id);
+      if (selectedVertexId === id) selectedVertexId = null;
+      if (selectedVertexForEdge === id) selectedVertexForEdge = null;
+      highlightedVertices.delete(id);
+      refreshAll();
+    }
+
+    function removeEdgeByKey(key) {
+      edges = edges.filter(e => edgeKey(e.a, e.b) !== key);
+      highlightedEdges.delete(key);
+      refreshAll();
+    }
+
+    function clearGraph() {
+      vertices = [];
+      edges = [];
+      nextVertexId = 1;
+      draggingVertexId = null;
+      selectedVertexForEdge = null;
+      selectedVertexId = null;
+      clearHighlights();
+      refreshAll();
+      setDefaultOutputs();
+    }
+
+    function clearHighlights() {
+      highlightedVertices = new Set();
+      highlightedEdges = new Set();
+      renderGraph();
+    }
+
+    function totalEdgeWeight() {
+      return edges.reduce((sum, e) => sum + e.w, 0);
+    }
+
+    function adjacencyMap() {
+      const map = new Map();
+      vertices.forEach(v => map.set(v.id, []));
+      edges.forEach(e => {
+        if (!map.has(e.a)) map.set(e.a, []);
+        if (!map.has(e.b)) map.set(e.b, []);
+        map.get(e.a).push({ to: e.b, w: e.w, edgeKey: edgeKey(e.a, e.b) });
+        map.get(e.b).push({ to: e.a, w: e.w, edgeKey: edgeKey(e.a, e.b) });
+      });
+      return map;
+    }
+
+    function degreeMap() {
+      const deg = new Map();
+      vertices.forEach(v => deg.set(v.id, 0));
+      edges.forEach(e => {
+        deg.set(e.a, (deg.get(e.a) || 0) + 1);
+        deg.set(e.b, (deg.get(e.b) || 0) + 1);
+      });
+      return deg;
+    }
+
+    function oddVerticesList() {
+      const deg = degreeMap();
+      return vertices.filter(v => (deg.get(v.id) || 0) % 2 === 1).map(v => v.id);
+    }
+
+    function isConnected() {
+      if (vertices.length === 0) return false;
+      const adj = adjacencyMap();
+      const start = vertices[0].id;
+      const seen = new Set([start]);
+      const stack = [start];
+      while (stack.length) {
+        const cur = stack.pop();
+        for (const nxt of adj.get(cur) || []) {
+          if (!seen.has(nxt.to)) {
+            seen.add(nxt.to);
+            stack.push(nxt.to);
+          }
+        }
+      }
+      return seen.size === vertices.length;
+    }
+
+    function isCompleteGraph() {
+      const n = vertices.length;
+      if (n < 3) return false;
+      const needed = n * (n - 1) / 2;
+      if (edges.length !== needed) return false;
+      for (let i = 0; i < vertices.length; i++) {
+        for (let j = i + 1; j < vertices.length; j++) {
+          if (!getEdge(vertices[i].id, vertices[j].id)) return false;
+        }
+      }
+      return true;
+    }
+
+    function getEdge(a, b) {
+      return edges.find(e => edgeKey(e.a, e.b) === edgeKey(a, b)) || null;
+    }
+
+    function dijkstra(startId) {
+      const adj = adjacencyMap();
+      const dist = new Map();
+      const prev = new Map();
+      const prevEdge = new Map();
+      const unvisited = new Set(vertices.map(v => v.id));
+      vertices.forEach(v => dist.set(v.id, Infinity));
+      dist.set(startId, 0);
+
+      while (unvisited.size) {
+        let u = null;
+        let best = Infinity;
+        for (const id of unvisited) {
+          const d = dist.get(id);
+          if (d < best) {
+            best = d;
+            u = id;
+          }
+        }
+        if (u === null || best === Infinity) break;
+        unvisited.delete(u);
+        for (const nb of adj.get(u) || []) {
+          if (!unvisited.has(nb.to)) continue;
+          const alt = dist.get(u) + nb.w;
+          if (alt < dist.get(nb.to)) {
+            dist.set(nb.to, alt);
+            prev.set(nb.to, u);
+            prevEdge.set(nb.to, nb.edgeKey);
+          }
+        }
+      }
+      return { dist, prev, prevEdge };
+    }
+
+    function reconstructPath(prev, prevEdge, source, target) {
+      if (source === target) return { vertices: [source], edgeKeys: [] };
+      if (!prev.has(target)) return null;
+      const pathVertices = [target];
+      const pathEdges = [];
+      let cur = target;
+      while (cur !== source) {
+        pathEdges.push(prevEdge.get(cur));
+        cur = prev.get(cur);
+        if (cur == null) return null;
+        pathVertices.push(cur);
+      }
+      pathVertices.reverse();
+      pathEdges.reverse();
+      return { vertices: pathVertices, edgeKeys: pathEdges };
+    }
+
+    function shortestPathInfo(a, b) {
+      const res = dijkstra(a);
+      return {
+        distance: res.dist.get(b),
+        path: reconstructPath(res.prev, res.prevEdge, a, b)
+      };
+    }
+
+    function allPairsShortest() {
+      const matrix = {};
+      const paths = {};
+      vertices.forEach(v => {
+        const dj = dijkstra(v.id);
+        matrix[v.id] = {};
+        paths[v.id] = {};
+        vertices.forEach(u => {
+          matrix[v.id][u.id] = dj.dist.get(u.id);
+          paths[v.id][u.id] = reconstructPath(dj.prev, dj.prevEdge, v.id, u.id);
+        });
+      });
+      return { matrix, paths };
+    }
+
+    function mstCostOnVertices(vertexIds) {
+      if (vertexIds.length <= 1) return { cost: 0, edges: [] };
+      const chosen = new Set([vertexIds[0]]);
+      const edgeList = [];
+      let cost = 0;
+
+      while (chosen.size < vertexIds.length) {
+        let bestEdge = null;
+        for (const a of chosen) {
+          for (const b of vertexIds) {
+            if (chosen.has(b)) continue;
+            const e = getEdge(a, b);
+            if (!e) continue;
+            if (!bestEdge || e.w < bestEdge.w || (e.w === bestEdge.w && edgeKey(e.a, e.b) < edgeKey(bestEdge.a, bestEdge.b))) {
+              bestEdge = e;
+            }
+          }
+        }
+        if (!bestEdge) return { cost: Infinity, edges: [] };
+        cost += bestEdge.w;
+        edgeList.push(edgeKey(bestEdge.a, bestEdge.b));
+        chosen.add(chosen.has(bestEdge.a) ? bestEdge.b : bestEdge.a);
+      }
+      return { cost, edges: edgeList };
+    }
+
+    function nearestNeighbour(startId) {
+      const unvisited = new Set(vertices.map(v => v.id));
+      let current = startId;
+      const route = [current];
+      const steps = [];
+      let total = 0;
+      unvisited.delete(current);
+      const highlight = [];
+
+      while (unvisited.size) {
+        let best = null;
+        for (const candidate of unvisited) {
+          const e = getEdge(current, candidate);
+          if (!e) return null;
+          if (!best || e.w < best.w || (e.w === best.w && getVertexLabel(candidate) < getVertexLabel(best.to))) {
+            best = { to: candidate, w: e.w, key: edgeKey(current, candidate) };
+          }
+        }
+        total += best.w;
+        steps.push(`${getVertexLabel(current)} → ${getVertexLabel(best.to)} (weight ${best.w})`);
+        highlight.push(best.key);
+        current = best.to;
+        route.push(current);
+        unvisited.delete(current);
+      }
+      const lastEdge = getEdge(current, startId);
+      if (!lastEdge) return null;
+      total += lastEdge.w;
+      route.push(startId);
+      steps.push(`${getVertexLabel(current)} → ${getVertexLabel(startId)} (return, weight ${lastEdge.w})`);
+      highlight.push(edgeKey(current, startId));
+      return { route, steps, total, highlight };
+    }
+
+    function deletedVertexLowerBound() {
+      const results = [];
+      for (const deleted of vertices) {
+        const remaining = vertices.filter(v => v.id !== deleted.id).map(v => v.id);
+        const mst = mstCostOnVertices(remaining);
+        if (!Number.isFinite(mst.cost)) {
+          results.push({ deleted: deleted.id, bound: Infinity, mstCost: Infinity, mstEdges: [], twoSmallest: [] });
+          continue;
+        }
+        const incident = edges
+          .filter(e => e.a === deleted.id || e.b === deleted.id)
+          .map(e => ({ w: e.w, other: e.a === deleted.id ? e.b : e.a, key: edgeKey(e.a, e.b) }))
+          .sort((x, y) => x.w - y.w || getVertexLabel(x.other).localeCompare(getVertexLabel(y.other)));
+        const two = incident.slice(0, 2);
+        const bound = mst.cost + two.reduce((s, e) => s + e.w, 0);
+        results.push({
+          deleted: deleted.id,
+          bound,
+          mstCost: mst.cost,
+          mstEdges: mst.edges,
+          twoSmallest: two,
+          highlight: [...mst.edges, ...two.map(e => e.key)]
+        });
+      }
+      const finite = results.filter(r => Number.isFinite(r.bound));
+      if (!finite.length) return null;
+      const best = finite.reduce((acc, cur) => cur.bound > acc.bound ? cur : acc);
+      return { results, best };
+    }
+
+    function exactTsp() {
+      const n = vertices.length;
+      if (!isCompleteGraph() || n < 3 || n > 8) return null;
+      const ids = vertices.map(v => v.id);
+      const start = ids[0];
+      const rest = ids.slice(1);
+      let best = { cost: Infinity, cycle: null };
+
+      function permute(arr, l) {
+        if (l === arr.length) {
+          const cycle = [start, ...arr, start];
+          let cost = 0;
+          for (let i = 0; i < cycle.length - 1; i++) {
+            const e = getEdge(cycle[i], cycle[i + 1]);
+            if (!e) return;
+            cost += e.w;
+          }
+          if (cost < best.cost) best = { cost, cycle: [...cycle] };
+          return;
+        }
+        for (let i = l; i < arr.length; i++) {
+          [arr[l], arr[i]] = [arr[i], arr[l]];
+          permute(arr, l + 1);
+          [arr[l], arr[i]] = [arr[i], arr[l]];
+        }
+      }
+
+      permute(rest, 0);
+      if (!best.cycle) return null;
+      const highlight = [];
+      for (let i = 0; i < best.cycle.length - 1; i++) {
+        highlight.push(edgeKey(best.cycle[i], best.cycle[i + 1]));
+      }
+      return { ...best, highlight };
+    }
+
+    function renderGraph() {
+      svg.innerHTML = '';
+
+      edges.forEach(e => {
+        const va = getVertex(e.a);
+        const vb = getVertex(e.b);
+        if (!va || !vb) return;
+
+        const line = document.createElementNS(ns, 'line');
+        line.setAttribute('x1', va.x);
+        line.setAttribute('y1', va.y);
+        line.setAttribute('x2', vb.x);
+        line.setAttribute('y2', vb.y);
+        line.setAttribute('class', `edge-line${highlightedEdges.has(edgeKey(e.a, e.b)) ? ' highlight' : ''}`);
+        svg.appendChild(line);
+
+        const hit = document.createElementNS(ns, 'line');
+        hit.setAttribute('x1', va.x);
+        hit.setAttribute('y1', va.y);
+        hit.setAttribute('x2', vb.x);
+        hit.setAttribute('y2', vb.y);
+        hit.setAttribute('class', 'edge-hit');
+        hit.addEventListener('click', ev => {
+          ev.stopPropagation();
+          if (mode === 'delete') {
+            removeEdgeByKey(edgeKey(e.a, e.b));
+          }
+        });
+        svg.appendChild(hit);
+
+        const mx = (va.x + vb.x) / 2;
+        const my = (va.y + vb.y) / 2;
+        const group = document.createElementNS(ns, 'g');
+        group.setAttribute('class', 'edge-label editable');
+        const rect = document.createElementNS(ns, 'rect');
+        rect.setAttribute('x', mx - 22);
+        rect.setAttribute('y', my - 14);
+        rect.setAttribute('width', 44);
+        rect.setAttribute('height', 28);
+        const text = document.createElementNS(ns, 'text');
+        text.setAttribute('x', mx);
+        text.setAttribute('y', my + 1);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.textContent = e.w;
+        group.appendChild(rect);
+        group.appendChild(text);
+        group.addEventListener('click', ev => {
+          ev.stopPropagation();
+          const answer = prompt(`Edit weight for edge ${getVertexLabel(e.a)}–${getVertexLabel(e.b)}:`, e.w);
+          if (answer === null) return;
+          const num = Number(answer);
+          if (!Number.isFinite(num) || num <= 0) {
+            alert('Please enter a positive number.');
+            return;
+          }
+          e.w = num;
+          refreshAll();
+        });
+        svg.appendChild(group);
+      });
+
+      vertices.forEach(v => {
+        const group = document.createElementNS(ns, 'g');
+        group.style.cursor = mode === 'addEdge' ? 'pointer' : 'grab';
+
+        const circle = document.createElementNS(ns, 'circle');
+        circle.setAttribute('cx', v.x);
+        circle.setAttribute('cy', v.y);
+        circle.setAttribute('r', 22);
+        let classes = 'vertex-circle';
+        if (highlightedVertices.has(v.id)) classes += ' highlight';
+        if (selectedVertexId === v.id || selectedVertexForEdge === v.id) classes += ' selected';
+        circle.setAttribute('class', classes);
+        group.appendChild(circle);
+
+        const text = document.createElementNS(ns, 'text');
+        text.setAttribute('x', v.x);
+        text.setAttribute('y', v.y + 1);
+        text.setAttribute('class', 'vertex-text');
+        text.textContent = v.label;
+        group.appendChild(text);
+
+        group.addEventListener('pointerdown', ev => {
+          ev.stopPropagation();
+          selectedVertexId = v.id;
+          updateSelectionReadout();
+          if (mode === 'move') {
+            draggingVertexId = v.id;
+            svg.setPointerCapture(ev.pointerId);
+          } else if (mode === 'addEdge') {
+            if (selectedVertexForEdge == null) {
+              selectedVertexForEdge = v.id;
+            } else if (selectedVertexForEdge === v.id) {
+              selectedVertexForEdge = null;
+            } else {
+              const existing = getEdge(selectedVertexForEdge, v.id);
+              if (existing) {
+                alert('That edge already exists.');
+              } else {
+                const weight = prompt(`Weight for edge ${getVertexLabel(selectedVertexForEdge)}–${getVertexLabel(v.id)}:`, '1');
+                if (weight !== null) {
+                  const ok = addEdge(selectedVertexForEdge, v.id, weight);
+                  if (!ok) alert('Please enter a valid positive weight.');
+                }
+              }
+              selectedVertexForEdge = null;
+            }
+            renderGraph();
+            updateSelectionReadout();
+          } else if (mode === 'delete') {
+            removeVertex(v.id);
+          }
+        });
+
+        svg.appendChild(group);
+      });
+    }
+
+    function updateSelectionReadout() {
+      const parts = [];
+      if (selectedVertexId != null) parts.push(`Vertex ${getVertexLabel(selectedVertexId)}`);
+      if (selectedVertexForEdge != null) parts.push(`Edge start ${getVertexLabel(selectedVertexForEdge)}`);
+      selectionReadout.textContent = parts.length ? parts.join(' | ') : 'None';
+    }
+
+    svg.addEventListener('pointermove', ev => {
+      if (draggingVertexId == null) return;
+      const pt = svgPoint(ev);
+      const v = getVertex(draggingVertexId);
+      if (!v) return;
+      v.x = clamp(pt.x, 28, 492);
+      v.y = clamp(pt.y, 28, 492);
+      refreshAll(false);
+    });
+
+    svg.addEventListener('pointerup', () => {
+      draggingVertexId = null;
+    });
+
+    svg.addEventListener('pointerleave', () => {
+      draggingVertexId = null;
+    });
+
+    svg.addEventListener('click', ev => {
+      if (mode !== 'addVertex') return;
+      const pt = svgPoint(ev);
+      addVertex(clamp(pt.x, 28, 492), clamp(pt.y, 28, 492));
+    });
+
+    function svgPoint(evt) {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function setMode(newMode) {
+      mode = newMode;
+      draggingVertexId = null;
+      if (newMode !== 'addEdge') selectedVertexForEdge = null;
+      document.querySelectorAll('.toolbar button').forEach(btn => btn.classList.remove('active'));
+      const map = {
+        move: ['modeMove', 'Move / Select', 'Drag vertices to rearrange the graph, or click an edge label to edit a weight.'],
+        addVertex: ['modeAddVertex', 'Add Vertex', 'Click the canvas to place a new vertex.'],
+        addEdge: ['modeAddEdge', 'Add Edge', 'Click two vertices to add a weighted edge.'],
+        delete: ['modeDelete', 'Delete', 'Click a vertex or edge to remove it.']
+      };
+      const [btnId, label, tip] = map[newMode];
+      document.getElementById(btnId).classList.add('active');
+      modeReadout.textContent = label;
+      modeTip.textContent = tip;
+      updateSelectionReadout();
+      renderGraph();
+    }
+
+    document.getElementById('modeMove').addEventListener('click', () => setMode('move'));
+    document.getElementById('modeAddVertex').addEventListener('click', () => setMode('addVertex'));
+    document.getElementById('modeAddEdge').addEventListener('click', () => setMode('addEdge'));
+    document.getElementById('modeDelete').addEventListener('click', () => setMode('delete'));
+    document.getElementById('clearBtn').addEventListener('click', clearGraph);
+
+    function refreshStatus() {
+      const deg = degreeMap();
+      const degreeParts = vertices.map(v => `${v.label}: ${deg.get(v.id) || 0}`);
+      degreeReadout.textContent = degreeParts.length ? degreeParts.join('   ') : 'No vertices yet.';
+      const odd = oddVerticesList().map(getVertexLabel);
+      oddReadout.textContent = odd.length ? odd.join(', ') : 'None';
+      totalWeightReadout.textContent = vertices.length ? `${totalEdgeWeight()}` : '0';
+      updateStartVertexSelect();
+    }
+
+    function updateStartVertexSelect() {
+      const current = startVertexSelect.value;
+      startVertexSelect.innerHTML = '';
+      vertices.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = String(v.id);
+        opt.textContent = v.label;
+        startVertexSelect.appendChild(opt);
+      });
+      if (vertices.some(v => String(v.id) === current)) startVertexSelect.value = current;
+    }
+
+    function refreshAll(resetOutputs = true) {
+      renderGraph();
+      refreshStatus();
+      updateSelectionReadout();
+      if (resetOutputs) {
+        nearestOutput.innerHTML = 'No result yet.';
+        deletedOutput.innerHTML = 'No result yet.';
+        exactOutput.innerHTML = 'No exact TSP result yet.';
+      }
+    }
+
+    function setDefaultOutputs() {
+      postmanOutput.innerHTML = 'Build or load a graph, then click <strong>Solve Chinese postman</strong>.';
+      leastDistanceOutput.innerHTML = 'Click <strong>Compute least-distance matrix</strong> to generate the shortest-distance table.';
+      matrixContainer.innerHTML = '';
+      nearestOutput.innerHTML = 'No result yet.';
+      deletedOutput.innerHTML = 'No result yet.';
+      exactOutput.innerHTML = 'No exact TSP result yet.';
+    }
+
+    function showOddVertices() {
+      highlightedVertices = new Set(oddVerticesList());
+      highlightedEdges = new Set();
+      renderGraph();
+    }
+
+    function solveChinesePostman() {
+      clearHighlights();
+      if (vertices.length === 0 || edges.length === 0) {
+        postmanOutput.innerHTML = '<div class="bad">Please build or load a connected weighted graph first.</div>';
+        return;
+      }
+      if (!isConnected()) {
+        postmanOutput.innerHTML = '<div class="callout bad"><strong>This graph is disconnected.</strong> Chinese postman needs a connected graph so that one route can reach every edge.</div>';
+        return;
+      }
+      const odd = oddVerticesList();
+      const oddLabels = odd.map(getVertexLabel);
+      highlightedVertices = new Set(odd);
+      const original = totalEdgeWeight();
+
+      if (odd.length === 0) {
+        postmanOutput.innerHTML = `
+          <div class="callout good">
+            <strong>Odd vertices:</strong> none.<br>
+            Every vertex already has even degree, so the graph already has an Eulerian circuit.<br><br>
+            <strong>Original total edge weight:</strong> ${original}<br>
+            <strong>Extra cost needed:</strong> 0<br>
+            <strong>Chinese postman route length:</strong> ${original}
+          </div>`;
+        renderGraph();
+        return;
+      }
+
+      if (odd.length === 2) {
+        const info = shortestPathInfo(odd[0], odd[1]);
+        highlightedEdges = new Set(info.path ? info.path.edgeKeys : []);
+        postmanOutput.innerHTML = `
+          <div class="callout good">
+            <strong>Odd vertices:</strong> ${oddLabels.join(', ')}<br>
+            To make all degrees even, one shortest path between these two odd vertices must effectively be repeated.<br><br>
+            <strong>Shortest path distance:</strong> ${info.distance}<br>
+            <strong>Path used:</strong> ${info.path ? info.path.vertices.map(getVertexLabel).join(' → ') : 'No path found'}<br>
+            <strong>Original total edge weight:</strong> ${original}<br>
+            <strong>Added extra cost:</strong> ${info.distance}<br>
+            <strong>Final Chinese postman route length:</strong> ${original + info.distance}
+          </div>`;
+        renderGraph();
+        return;
+      }
+
+      if (odd.length === 4) {
+        const pairings = [
+          [[odd[0], odd[1]], [odd[2], odd[3]]],
+          [[odd[0], odd[2]], [odd[1], odd[3]]],
+          [[odd[0], odd[3]], [odd[1], odd[2]]]
+        ];
+        const evaluated = pairings.map(pairs => {
+          const details = pairs.map(([a, b]) => ({ a, b, ...shortestPathInfo(a, b) }));
+          const added = details.reduce((s, d) => s + d.distance, 0);
+          const edgeKeys = details.flatMap(d => d.path ? d.path.edgeKeys : []);
+          return { pairs, details, added, edgeKeys };
+        });
+        const best = evaluated.reduce((acc, cur) => cur.added < acc.added ? cur : acc);
+        highlightedEdges = new Set(best.edgeKeys);
+
+        const pairingHtml = evaluated.map((item, i) => {
+          const label = item.details.map(d => `${getVertexLabel(d.a)}–${getVertexLabel(d.b)} (${d.distance})`).join(' and ');
+          return `<li>Pairing ${i + 1}: ${label} → extra cost ${item.added}</li>`;
+        }).join('');
+
+        const bestLabel = best.details.map(d => `${getVertexLabel(d.a)}–${getVertexLabel(d.b)}`).join(' and ');
+        const bestPaths = best.details.map(d => `${getVertexLabel(d.a)} to ${getVertexLabel(d.b)}: ${d.path ? d.path.vertices.map(getVertexLabel).join(' → ') : 'No path'}`).join('<br>');
+
+        postmanOutput.innerHTML = `
+          <div class="callout good">
+            <strong>Odd vertices:</strong> ${oddLabels.join(', ')}<br>
+            With 4 odd vertices, compare all 3 possible pairings. Choose the pairing with the smallest total repeated distance.<br><br>
+            <strong>Pairing comparison:</strong>
+            <ul>${pairingHtml}</ul>
+            <strong>Chosen pairing:</strong> ${bestLabel}<br>
+            <strong>Shortest paths used:</strong><br>${bestPaths}<br><br>
+            <strong>Original total edge weight:</strong> ${original}<br>
+            <strong>Added extra cost:</strong> ${best.added}<br>
+            <strong>Final Chinese postman route length:</strong> ${original + best.added}
+          </div>`;
+        renderGraph();
+        return;
+      }
+
+      highlightedEdges = new Set();
+      postmanOutput.innerHTML = `
+        <div class="callout warn">
+          <strong>Odd vertices:</strong> ${oddLabels.join(', ')}<br>
+          This graph has ${odd.length} odd vertices, which is outside the intended syllabus/tool scope for this applet. Use graphs with 0, 2, or 4 odd vertices.
+        </div>`;
+      renderGraph();
+    }
+
+    function renderMatrix(matrix) {
+      const ids = vertices.map(v => v.id);
+      let html = '<table><thead><tr><th></th>';
+      ids.forEach(id => html += `<th>${getVertexLabel(id)}</th>`);
+      html += '</tr></thead><tbody>';
+      ids.forEach(r => {
+        html += `<tr><th>${getVertexLabel(r)}</th>`;
+        ids.forEach(c => {
+          const val = matrix[r][c];
+          html += `<td>${Number.isFinite(val) ? val : '∞'}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      matrixContainer.innerHTML = html;
+    }
+
+    function computeLeastDistance() {
+      clearHighlights();
+      if (vertices.length === 0 || edges.length === 0) {
+        leastDistanceOutput.innerHTML = '<div class="callout bad">Please build or load a graph first.</div>';
+        matrixContainer.innerHTML = '';
+        return;
+      }
+      const { matrix } = allPairsShortest();
+      renderMatrix(matrix);
+      const disconnected = vertices.some(a => vertices.some(b => !Number.isFinite(matrix[a.id][b.id])));
+      if (disconnected) {
+        leastDistanceOutput.innerHTML = `
+          <div class="callout bad">
+            <strong>Warning:</strong> the graph is disconnected, so a valid least-distance completion table does not exist across all vertices.
+          </div>`;
+        return;
+      }
+      leastDistanceOutput.innerHTML = `
+        <div class="callout good">
+          The least-distance matrix has been computed using shortest paths between every pair of vertices.<br>
+          This lets you treat the original road network as a <strong>complete weighted graph</strong> for classical TSP methods.
+        </div>`;
+    }
+
+    function ensureCompleteForTsp() {
+      if (vertices.length < 3) {
+        return 'Please use at least 3 vertices.';
+      }
+      if (!isConnected()) {
+        return 'The graph must be connected.';
+      }
+      if (!isCompleteGraph()) {
+        return 'This graph is not complete. Use the least-distance completion table first, or load a complete weighted sample graph.';
+      }
+      return null;
+    }
+
+    function runNearestNeighbour() {
+      clearHighlights();
+      const error = ensureCompleteForTsp();
+      if (error) {
+        nearestOutput.innerHTML = `<div class="callout warn">${error}</div>`;
+        return;
+      }
+      const startId = Number(startVertexSelect.value || vertices[0]?.id);
+      const result = nearestNeighbour(startId);
+      if (!result) {
+        nearestOutput.innerHTML = '<div class="callout bad">Nearest neighbour could not be completed on this graph.</div>';
+        return;
+      }
+      highlightedEdges = new Set(result.highlight);
+      highlightedVertices = new Set(result.route.slice(0, -1));
+      renderGraph();
+      nearestOutput.innerHTML = `
+        <div class="callout good">
+          <strong>Chosen starting vertex:</strong> ${getVertexLabel(startId)}<br>
+          <strong>Step-by-step route:</strong><br>${result.steps.join('<br>')}<br><br>
+          <strong>Final cycle:</strong> ${result.route.map(getVertexLabel).join(' → ')}<br>
+          <strong>Total route length:</strong> ${result.total}<br>
+          <strong>This is an upper bound.</strong> It is a valid Hamiltonian cycle, but not guaranteed to be optimal.
+        </div>`;
+    }
+
+    function runDeletedVertex() {
+      clearHighlights();
+      const error = ensureCompleteForTsp();
+      if (error) {
+        deletedOutput.innerHTML = `<div class="callout warn">${error}</div>`;
+        return;
+      }
+      const result = deletedVertexLowerBound();
+      if (!result) {
+        deletedOutput.innerHTML = '<div class="callout bad">Deleted vertex could not be completed.</div>';
+        return;
+      }
+      highlightedEdges = new Set(result.best.highlight || []);
+      highlightedVertices = new Set([result.best.deleted]);
+      renderGraph();
+
+      const rows = result.results.map(r => {
+        if (!Number.isFinite(r.bound)) {
+          return `<tr><td>${getVertexLabel(r.deleted)}</td><td>—</td><td>—</td><td>—</td></tr>`;
+        }
+        const two = r.twoSmallest.map(e => `${getVertexLabel(r.deleted)}–${getVertexLabel(e.other)} (${e.w})`).join(', ');
+        return `<tr><td>${getVertexLabel(r.deleted)}</td><td>${r.mstCost}</td><td>${two}</td><td>${r.bound}</td></tr>`;
+      }).join('');
+
+      deletedOutput.innerHTML = `
+        <div class="callout good">
+          For each deleted vertex, the applet found an MST on the remaining vertices and then added the two smallest edges from the deleted vertex.<br><br>
+          <table>
+            <thead><tr><th>Deleted vertex</th><th>MST cost on remaining vertices</th><th>Two smallest incident edges</th><th>Lower bound</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <br>
+          <strong>Best lower bound obtained:</strong> ${result.best.bound}<br>
+          <strong>Deleted vertex giving this bound:</strong> ${getVertexLabel(result.best.deleted)}<br>
+          <strong>This is a lower bound.</strong> It is not necessarily the exact TSP length.
+        </div>`;
+    }
+
+    function runExactTsp() {
+      clearHighlights();
+      const error = ensureCompleteForTsp();
+      if (error) {
+        exactOutput.innerHTML = `<div class="callout warn">${error}</div>`;
+        return;
+      }
+      const result = exactTsp();
+      if (!result) {
+        exactOutput.innerHTML = '<div class="callout warn">Exact TSP is only enabled here for complete graphs with 3 to 8 vertices.</div>';
+        return;
+      }
+      highlightedEdges = new Set(result.highlight);
+      highlightedVertices = new Set(result.cycle.slice(0, -1));
+      renderGraph();
+      exactOutput.innerHTML = `
+        <div class="callout">
+          <strong>Extension / Teacher Check Only</strong><br>
+          Exact best Hamiltonian cycle: ${result.cycle.map(getVertexLabel).join(' → ')}<br>
+          Exact route length: ${result.cost}
+        </div>`;
+    }
+
+    document.getElementById('solvePostmanBtn').addEventListener('click', solveChinesePostman);
+    document.getElementById('showOddBtn').addEventListener('click', showOddVertices);
+    document.getElementById('computeLeastBtn').addEventListener('click', computeLeastDistance);
+    document.getElementById('nearestBtn').addEventListener('click', runNearestNeighbour);
+    document.getElementById('deletedVertexBtn').addEventListener('click', runDeletedVertex);
+    document.getElementById('exactTspBtn').addEventListener('click', runExactTsp);
+    document.getElementById('clearHighlightBtn1').addEventListener('click', clearHighlights);
+    document.getElementById('clearHighlightBtn2').addEventListener('click', clearHighlights);
+    document.getElementById('clearHighlightBtn3').addEventListener('click', clearHighlights);
+
+    function loadSample(name) {
+      clearGraph();
+      const add = (x, y, label) => addVertex(x, y, label);
+      if (name === 'euler0') {
+        const A = add(120, 120, 'A');
+        const B = add(400, 120, 'B');
+        const C = add(400, 390, 'C');
+        const D = add(120, 390, 'D');
+        addEdge(A, B, 4);
+        addEdge(B, C, 7);
+        addEdge(C, D, 5);
+        addEdge(D, A, 6);
+      }
+      if (name === 'odd2') {
+        const A = add(100, 120, 'A');
+        const B = add(260, 90, 'B');
+        const C = add(420, 140, 'C');
+        const D = add(360, 360, 'D');
+        const E = add(140, 360, 'E');
+        addEdge(A, B, 4);
+        addEdge(B, C, 6);
+        addEdge(C, D, 3);
+        addEdge(D, E, 5);
+        addEdge(E, A, 7);
+        addEdge(B, D, 2);
+      }
+      if (name === 'odd4') {
+        const A = add(120, 120, 'A');
+        const B = add(400, 120, 'B');
+        const C = add(400, 390, 'C');
+        const D = add(120, 390, 'D');
+        const E = add(260, 255, 'E');
+        addEdge(A, B, 5);
+        addEdge(B, C, 6);
+        addEdge(C, D, 4);
+        addEdge(D, A, 7);
+        addEdge(E, A, 3);
+        addEdge(E, B, 2);
+        addEdge(E, C, 5);
+        addEdge(E, D, 4);
+      }
+      if (name === 'incomplete') {
+        const A = add(100, 120, 'A');
+        const B = add(240, 70, 'B');
+        const C = add(410, 130, 'C');
+        const D = add(430, 340, 'D');
+        const E = add(250, 430, 'E');
+        const F = add(90, 320, 'F');
+        addEdge(A, B, 4);
+        addEdge(B, C, 6);
+        addEdge(C, D, 5);
+        addEdge(D, E, 3);
+        addEdge(E, F, 7);
+        addEdge(F, A, 2);
+        addEdge(B, F, 5);
+        addEdge(B, E, 9);
+        addEdge(C, E, 4);
+      }
+      if (name === 'completeTSP') {
+        const A = add(130, 110, 'A');
+        const B = add(390, 110, 'B');
+        const C = add(430, 280, 'C');
+        const D = add(260, 410, 'D');
+        const E = add(90, 280, 'E');
+        const ws = [
+          [A, B, 5], [A, C, 9], [A, D, 8], [A, E, 4],
+          [B, C, 3], [B, D, 7], [B, E, 6],
+          [C, D, 5], [C, E, 8],
+          [D, E, 6]
+        ];
+        ws.forEach(([u, v, w]) => addEdge(u, v, w));
+      }
+      setMode('move');
+      setDefaultOutputs();
+      refreshAll(false);
+    }
+
+    document.getElementById('loadSampleBtn').addEventListener('click', () => {
+      const value = document.getElementById('sampleSelect').value;
+      if (!value) {
+        alert('Choose a sample first.');
+        return;
+      }
+      loadSample(value);
+    });
+
+    // Initial state
+    setMode('move');
+    refreshAll(false);
+    setDefaultOutputs();
+    loadSample('odd2');
+  </script>
+</body>
+</html>
