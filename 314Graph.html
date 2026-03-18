@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AHL 3.14 Graph Theory Explorer</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --green: #15803d;
+      --amber: #b45309;
+      --red: #b91c1c;
+      --shadow: 0 10px 26px rgba(0,0,0,0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 240px);
+    }
+    .wrap {
+      width: min(1380px, 96vw);
+      margin: 24px auto 40px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid #e5e7eb;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3 { margin: 0 0 10px; }
+    p { line-height: 1.55; }
+    .hero p { color: var(--muted); margin: 8px 0 0; }
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 16px;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+    }
+    .tab-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .tab-btn small {
+      display: block;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .tab-btn.active {
+      border-color: #93c5fd;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      transform: translateX(2px);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .content { display: grid; gap: 16px; }
+    .panel { padding: 16px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: #fafafa;
+    }
+    .term {
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    .activity {
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border-left: 5px solid #60a5fa;
+      background: #eff6ff;
+    }
+    .toolbar, .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    button, input, select { font: inherit; }
+    .tool {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 12px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tool.active {
+      background: #dbeafe;
+      border-color: #60a5fa;
+      color: #1d4ed8;
+    }
+    .primary { background: var(--blue); color: white; border-color: var(--blue); }
+    .good { background: var(--green); color: white; border-color: var(--green); }
+    .warn { background: var(--amber); color: white; border-color: var(--amber); }
+    .danger { background: var(--red); color: white; border-color: var(--red); }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 3px 4px 0 0;
+      border: 1px solid #cbd5e1;
+      background: white;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+    }
+    .stack { display: grid; gap: 12px; }
+    .info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .subtle { color: var(--muted); font-size: 0.95rem; }
+    #svgWrap {
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border: 1px solid #dbe1ea;
+      border-radius: 18px;
+      overflow: hidden;
+      min-height: 580px;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: 580px;
+      touch-action: none;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #dbe1ea;
+      min-height: 66px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+    .quiz-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: white;
+    }
+    .quiz-item.correct { border-color: #86efac; background: #f0fdf4; }
+    .quiz-item.wrong { border-color: #fca5a5; background: #fef2f2; }
+    .choice {
+      width: 100%;
+      margin-top: 8px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .choice:hover { background: #f8fafc; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 300px;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 8px;
+      text-align: center;
+    }
+    th { background: #f3f4f6; }
+    .matrix { overflow: auto; }
+    @media (max-width: 1080px) {
+      .layout, .two-col { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      svg { height: 470px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>AHL 3.14 Graph Theory Explorer</h1>
+      <p>Interactive learning for graphs, vertices, edges, adjacent vertices, adjacent edges, degree, simple graphs, complete graphs, weighted graphs, directed graphs, in-degree, out-degree, connected and strongly connected graphs, subgraphs, and trees.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel sidebar">
+        <button class="tab-btn active" data-tab="overview">Overview<small>What AHL 3.14 includes</small></button>
+        <button class="tab-btn" data-tab="definitions">Definitions Lab<small>Learn the key vocabulary</small></button>
+        <button class="tab-btn" data-tab="builder">Graph Builder<small>Construct and inspect graphs</small></button>
+        <button class="tab-btn" data-tab="subgraph">Subgraph & Tree Lab<small>Investigate subsets and trees</small></button>
+        <button class="tab-btn" data-tab="activities">Student Activities<small>Tasks and prompts</small></button>
+      </aside>
+
+      <main class="content">
+        <section id="overview" class="tab-pane active panel">
+          <h2>AHL 3.14 syllabus focus</h2>
+          <div class="cards">
+            <div class="card">
+              <div class="term">Core graph terms</div>
+              <p>Graphs, vertices, edges, adjacent vertices, adjacent edges, degree of a vertex.</p>
+            </div>
+            <div class="card">
+              <div class="term">Types of graphs</div>
+              <p>Simple graphs, complete graphs, weighted graphs, directed graphs.</p>
+            </div>
+            <div class="card">
+              <div class="term">Extra ideas</div>
+              <p>In-degree, out-degree, connected and strongly connected graphs, subgraphs, and trees.</p>
+            </div>
+          </div>
+
+          <div class="activity">
+            <strong>Real-world modelling link:</strong> students should be able to represent real-world structures such as circuits, maps, transport links, websites, and friendship networks as graphs.
+          </div>
+
+          <div class="two-col">
+            <div class="info">
+              <h3>Big questions</h3>
+              <p>When should edges have <strong>weights</strong>?</p>
+              <p>When should edges have <strong>directions</strong>?</p>
+              <p>How can you tell whether a graph is <strong>complete</strong>, a <strong>tree</strong>, or a <strong>subgraph</strong> of another graph?</p>
+            </div>
+            <div class="info">
+              <h3>What students should be able to do</h3>
+              <p>Identify graph vocabulary from diagrams.</p>
+              <p>Construct examples and non-examples.</p>
+              <p>Interpret degree, in-degree and out-degree.</p>
+              <p>Explain whether a graph is connected or strongly connected.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="definitions" class="tab-pane panel">
+          <h2>Definitions Lab</h2>
+          <p class="subtle">Click each card to reveal the meaning, then answer the quick-check questions.</p>
+          <div class="cards" id="flashcards"></div>
+          <div style="height:12px"></div>
+          <h3>Quick check</h3>
+          <div class="stack" id="definitionQuiz"></div>
+        </section>
+
+        <section id="builder" class="tab-pane panel">
+          <h2>Graph Builder</h2>
+          <div class="toolbar">
+            <button class="tool active" data-mode="move">Move</button>
+            <button class="tool" data-mode="vertex">Add vertex</button>
+            <button class="tool" data-mode="edge">Add edge</button>
+            <button class="tool" data-mode="select">Select</button>
+            <button class="tool" data-mode="delete">Delete</button>
+            <span class="pill">Graph settings</span>
+            <label><input type="checkbox" id="directedToggle"> Directed</label>
+            <label><input type="checkbox" id="weightedToggle" checked> Weighted</label>
+            <button class="tool" id="clearGraph">Clear</button>
+            <button class="tool" id="sampleSimple">Sample simple graph</button>
+            <button class="tool" id="sampleDirected">Sample directed graph</button>
+            <button class="tool" id="sampleTree">Sample tree</button>
+            <button class="tool" id="sampleComplete">Sample complete graph</button>
+          </div>
+
+          <div class="two-col">
+            <div id="svgWrap">
+              <svg id="graphSvg" viewBox="0 0 900 580" aria-label="graph canvas">
+                <defs>
+                  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L10,3 L0,6 z" fill="#334155"></path>
+                  </marker>
+                </defs>
+              </svg>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>Instructions</h3>
+                <p>Use <strong>Add vertex</strong> to place vertices. Use <strong>Add edge</strong> and click two vertices. In a weighted graph, click a weight label to edit it.</p>
+                <p>Use <strong>Select</strong> to inspect a vertex or edge and to build a highlighted subgraph.</p>
+              </div>
+              <div class="info">
+                <h3>Live graph properties</h3>
+                <div id="graphProperties"></div>
+              </div>
+              <div class="info">
+                <h3>Selection details</h3>
+                <div id="selectionInfo">Nothing selected.</div>
+              </div>
+              <div class="info">
+                <h3>Adjacency matrix</h3>
+                <div class="matrix" id="adjMatrix"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="subgraph" class="tab-pane panel">
+          <h2>Subgraph & Tree Lab</h2>
+          <div class="two-col">
+            <div class="stack">
+              <div class="info">
+                <h3>Build a subgraph</h3>
+                <p>Select vertices in <strong>Select</strong> mode. Any edges joining selected vertices will be highlighted automatically as the induced subgraph.</p>
+                <div class="row">
+                  <button class="tool primary" id="selectAllSubgraph">Select all vertices</button>
+                  <button class="tool" id="clearSubgraph">Clear subgraph selection</button>
+                </div>
+                <div class="status" id="subgraphStatus"></div>
+              </div>
+              <div class="info">
+                <h3>Tree checker</h3>
+                <button class="tool good" id="checkTree">Check if selected subgraph is a tree</button>
+                <div class="status" id="treeStatus"></div>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>What to notice</h3>
+                <p>A <strong>subgraph</strong> uses some of the vertices and some of the edges of the original graph.</p>
+                <p>A <strong>tree</strong> is a connected graph with no cycles.</p>
+                <p>For an undirected tree with <strong>n</strong> vertices, the number of edges is <strong>n − 1</strong>.</p>
+              </div>
+              <div class="info">
+                <h3>Helpful checks</h3>
+                <p>Does the selected graph stay connected?</p>
+                <p>Does it contain any cycle?</p>
+                <p>Does it have exactly one fewer edge than vertices?</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="activities" class="tab-pane panel">
+          <h2>Student Activities</h2>
+          <div class="activity"><strong>Activity 1:</strong> Create a graph with 5 vertices. Identify two adjacent vertices and two adjacent edges.</div>
+          <div class="activity"><strong>Activity 2:</strong> Make a complete graph on 4 vertices. What is the degree of each vertex?</div>
+          <div class="activity"><strong>Activity 3:</strong> Switch on <strong>Directed</strong>. Create a graph where one vertex has in-degree 2 and out-degree 1.</div>
+          <div class="activity"><strong>Activity 4:</strong> Create a weighted graph to model roads between towns. Explain what the weights mean.</div>
+          <div class="activity"><strong>Activity 5:</strong> Select part of a graph to form a subgraph. Explain why it is a subgraph.</div>
+          <div class="activity"><strong>Activity 6:</strong> Build a tree with 6 vertices. What pattern do you notice between the number of vertices and edges?</div>
+          <div class="activity"><strong>Activity 7:</strong> Try to build a graph that is connected but not complete. Then build one that is complete but not a tree.</div>
+          <div class="info">
+            <h3>Reflection prompts</h3>
+            <p>How does a graph picture help you model a real situation more clearly?</p>
+            <p>What changes when you turn an undirected graph into a directed graph?</p>
+            <p>Why can a complete graph never be a tree once the number of vertices is 4 or more?</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const definitions = [
+      { term: 'Graph', definition: 'A collection of vertices connected by edges.' },
+      { term: 'Vertex', definition: 'A node in a graph.' },
+      { term: 'Edge', definition: 'A connection between two vertices.' },
+      { term: 'Adjacent vertices', definition: 'Two vertices joined directly by an edge.' },
+      { term: 'Adjacent edges', definition: 'Two edges that share a common vertex.' },
+      { term: 'Degree of a vertex', definition: 'In an undirected graph, the number of edges incident to the vertex.' },
+      { term: 'Simple graph', definition: 'A graph with no loops and no multiple edges between the same two vertices.' },
+      { term: 'Complete graph', definition: 'A graph in which every pair of distinct vertices is connected by an edge.' },
+      { term: 'Weighted graph', definition: 'A graph where edges have values such as distance, time, or cost.' },
+      { term: 'Directed graph', definition: 'A graph where edges have directions.' },
+      { term: 'In-degree', definition: 'The number of edges directed into a vertex.' },
+      { term: 'Out-degree', definition: 'The number of edges directed out of a vertex.' },
+      { term: 'Connected graph', definition: 'An undirected graph in which every vertex can be reached from every other vertex.' },
+      { term: 'Strongly connected graph', definition: 'A directed graph in which every vertex can be reached from every other vertex following directions.' },
+      { term: 'Subgraph', definition: 'A graph formed from some of the vertices and some of the edges of a larger graph.' },
+      { term: 'Tree', definition: 'A connected graph with no cycles.' }
+    ];
+
+    const quizData = [
+      {
+        q: 'Which description fits a complete graph?',
+        choices: ['Every vertex has degree 1', 'Every pair of vertices is connected', 'It has no weights', 'It must be directed'],
+        answer: 1,
+        explain: 'In a complete graph, every pair of distinct vertices is joined by an edge.'
+      },
+      {
+        q: 'What is the degree of a vertex in an undirected graph?',
+        choices: ['Number of vertices in the graph', 'Number of edges meeting the vertex', 'Number of outgoing edges only', 'Number of cycles'],
+        answer: 1,
+        explain: 'Degree counts how many edges are incident to the vertex.'
+      },
+      {
+        q: 'Which statement is true about a tree?',
+        choices: ['It is connected and has no cycles', 'It is always complete', 'It must be directed', 'It must be weighted'],
+        answer: 0,
+        explain: 'A tree is a connected graph with no cycles.'
+      },
+      {
+        q: 'In a directed graph, what does in-degree measure?',
+        choices: ['Edges leaving a vertex', 'Edges entering a vertex', 'Total weight only', 'Number of adjacent edges'],
+        answer: 1,
+        explain: 'In-degree is the number of incoming directed edges.'
+      }
+    ];
+
+    const state = {
+      vertices: [],
+      edges: [],
+      directed: false,
+      weighted: true,
+      mode: 'move',
+      dragId: null,
+      selected: null,
+      edgeStart: null,
+      nextLabelCode: 65,
+      subgraphVertices: new Set(),
+      highlightEdges: new Set()
+    };
+
+    const svg = document.getElementById('graphSvg');
+    const propsBox = document.getElementById('graphProperties');
+    const selectionInfo = document.getElementById('selectionInfo');
+    const directedToggle = document.getElementById('directedToggle');
+    const weightedToggle = document.getElementById('weightedToggle');
+
+    function initTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab).classList.add('active');
+          renderAll();
+        });
+      });
+    }
+
+    function initDefinitions() {
+      const flash = document.getElementById('flashcards');
+      definitions.forEach(item => {
+        const card = document.createElement('button');
+        card.className = 'card';
+        card.style.textAlign = 'left';
+        card.style.cursor = 'pointer';
+        let open = false;
+        const paint = () => {
+          card.innerHTML = `<div class="term">${item.term}</div><div>${open ? item.definition : '<span class="subtle">Click to reveal definition</span>'}</div>`;
+        };
+        paint();
+        card.addEventListener('click', () => { open = !open; paint(); });
+        flash.appendChild(card);
+      });
+
+      const quizBox = document.getElementById('definitionQuiz');
+      quizData.forEach(item => {
+        const wrap = document.createElement('div');
+        wrap.className = 'quiz-item';
+        wrap.innerHTML = `<strong>${item.q}</strong>`;
+        item.choices.forEach((choice, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'choice';
+          btn.textContent = choice;
+          btn.addEventListener('click', () => {
+            wrap.classList.remove('correct', 'wrong');
+            wrap.classList.add(i === item.answer ? 'correct' : 'wrong');
+            feedback.textContent = i === item.answer ? `Correct. ${item.explain}` : `Not quite. ${item.explain}`;
+          });
+          wrap.appendChild(btn);
+        });
+        const feedback = document.createElement('div');
+        feedback.className = 'subtle';
+        feedback.style.marginTop = '8px';
+        wrap.appendChild(feedback);
+        quizBox.appendChild(wrap);
+      });
+    }
+
+    function getSvgPoint(evt) {
+      const rect = svg.getBoundingClientRect();
+      return {
+        x: (evt.clientX - rect.left) * (svg.viewBox.baseVal.width / rect.width),
+        y: (evt.clientY - rect.top) * (svg.viewBox.baseVal.height / rect.height)
+      };
+    }
+
+    function vertexLabel() {
+      return String.fromCharCode(state.nextLabelCode++);
+    }
+
+    function addVertex(x, y) {
+      state.vertices.push({ id: crypto.randomUUID(), x, y, label: vertexLabel() });
+      renderAll();
+    }
+
+    function addEdge(a, b, weight = 1) {
+      if (a === b) return;
+      const exists = state.edges.some(e => e.from === a && e.to === b) || (!state.directed && state.edges.some(e => e.from === b && e.to === a));
+      if (exists) return;
+      state.edges.push({ id: crypto.randomUUID(), from: a, to: b, weight: Number(weight) || 1 });
+      renderAll();
+    }
+
+    function deleteVertex(id) {
+      state.vertices = state.vertices.filter(v => v.id !== id);
+      state.edges = state.edges.filter(e => e.from !== id && e.to !== id);
+      state.subgraphVertices.delete(id);
+      state.selected = null;
+      renderAll();
+    }
+
+    function deleteEdge(id) {
+      state.edges = state.edges.filter(e => e.id !== id);
+      state.selected = null;
+      renderAll();
+    }
+
+    function degree(id) { return state.edges.filter(e => e.from === id || e.to === id).length; }
+    function inDegree(id) { return state.edges.filter(e => e.to === id).length; }
+    function outDegree(id) { return state.edges.filter(e => e.from === id).length; }
+
+    function isSimpleGraph() {
+      for (const e of state.edges) if (e.from === e.to) return false;
+      const seen = new Set();
+      for (const e of state.edges) {
+        const key = state.directed ? `${e.from}->${e.to}` : [e.from, e.to].sort().join('--');
+        if (seen.has(key)) return false;
+        seen.add(key);
+      }
+      return true;
+    }
+
+    function connectedUndirected(ids = null, edges = null) {
+      const vertices = ids ? state.vertices.filter(v => ids.has(v.id)) : state.vertices;
+      const edgeList = edges || state.edges;
+      if (!vertices.length) return false;
+      const adj = new Map(vertices.map(v => [v.id, []]));
+      edgeList.forEach(e => {
+        if (!adj.has(e.from) || !adj.has(e.to)) return;
+        adj.get(e.from).push(e.to);
+        adj.get(e.to).push(e.from);
+      });
+      const seen = new Set();
+      const stack = [vertices[0].id];
+      while (stack.length) {
+        const u = stack.pop();
+        if (seen.has(u)) continue;
+        seen.add(u);
+        adj.get(u).forEach(v => { if (!seen.has(v)) stack.push(v); });
+      }
+      return seen.size === vertices.length;
+    }
+
+    function stronglyConnectedDirected() {
+      if (!state.vertices.length) return false;
+      const ids = state.vertices.map(v => v.id);
+      const adj = new Map(ids.map(id => [id, []]));
+      const rev = new Map(ids.map(id => [id, []]));
+      state.edges.forEach(e => {
+        adj.get(e.from).push(e.to);
+        rev.get(e.to).push(e.from);
+        if (!state.directed) {
+          adj.get(e.to).push(e.from);
+          rev.get(e.from).push(e.to);
+        }
+      });
+      const dfs = (graph, start) => {
+        const seen = new Set();
+        const stack = [start];
+        while (stack.length) {
+          const u = stack.pop();
+          if (seen.has(u)) continue;
+          seen.add(u);
+          graph.get(u).forEach(v => { if (!seen.has(v)) stack.push(v); });
+        }
+        return seen.size === ids.length;
+      };
+      const s = ids[0];
+      return dfs(adj, s) && dfs(rev, s);
+    }
+
+    function isCompleteGraph() {
+      const n = state.vertices.length;
+      if (n < 2) return false;
+      const needed = state.directed ? n * (n - 1) : n * (n - 1) / 2;
+      return isSimpleGraph() && state.edges.length === needed;
+    }
+
+    function adjacencyMatrix() {
+      const ids = state.vertices.map(v => v.id);
+      const matrix = Array.from({ length: ids.length }, () => Array(ids.length).fill(0));
+      state.edges.forEach(e => {
+        const i = ids.indexOf(e.from);
+        const j = ids.indexOf(e.to);
+        matrix[i][j] = 1;
+        if (!state.directed) matrix[j][i] = 1;
+      });
+      return { ids, matrix };
+    }
+
+    function renderMatrix(targetId, matrix, labels) {
+      const box = document.getElementById(targetId);
+      if (!labels.length) {
+        box.innerHTML = '<div class="subtle">Add vertices to see the matrix.</div>';
+        return;
+      }
+      let html = '<table><tr><th></th>' + labels.map(l => `<th>${l}</th>`).join('') + '</tr>';
+      matrix.forEach((row, i) => {
+        html += `<tr><th>${labels[i]}</th>` + row.map(x => `<td>${x}</td>`).join('') + '</tr>';
+      });
+      html += '</table>';
+      box.innerHTML = html;
+    }
+
+    function describeVertex(id) {
+      const v = state.vertices.find(x => x.id === id);
+      if (!v) return 'Nothing selected.';
+      if (state.directed) return `Vertex ${v.label}. In-degree = ${inDegree(id)}, out-degree = ${outDegree(id)}.`;
+      return `Vertex ${v.label}. Degree = ${degree(id)}.`;
+    }
+
+    function describeEdge(id) {
+      const e = state.edges.find(x => x.id === id);
+      if (!e) return 'Nothing selected.';
+      const a = state.vertices.find(v => v.id === e.from)?.label || '?';
+      const b = state.vertices.find(v => v.id === e.to)?.label || '?';
+      const shared = state.edges.filter(other => other.id !== e.id && (other.from === e.from || other.to === e.from || other.from === e.to || other.to === e.to)).length;
+      return `Edge ${a}${state.directed ? ' → ' : ' — '}${b}${state.weighted ? `, weight ${e.weight}` : ''}. Adjacent to ${shared} other edge${shared === 1 ? '' : 's'}.`;
+    }
+
+    function inducedSubgraphEdges() {
+      return state.edges.filter(e => state.subgraphVertices.has(e.from) && state.subgraphVertices.has(e.to));
+    }
+
+    function renderGraph() {
+      svg.innerHTML = `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,3 L0,6 z" fill="#334155"></path></marker></defs>`;
+      const subEdges = new Set(inducedSubgraphEdges().map(e => e.id));
+
+      state.edges.forEach(e => {
+        const a = state.vertices.find(v => v.id === e.from);
+        const b = state.vertices.find(v => v.id === e.to);
+        if (!a || !b) return;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', a.x);
+        line.setAttribute('y1', a.y);
+        line.setAttribute('x2', b.x);
+        line.setAttribute('y2', b.y);
+        const inSub = subEdges.has(e.id);
+        line.setAttribute('stroke', inSub ? '#2563eb' : '#334155');
+        line.setAttribute('stroke-width', inSub ? '5' : '3');
+        if (state.directed) line.setAttribute('marker-end', 'url(#arrow)');
+        line.style.cursor = 'pointer';
+        line.addEventListener('click', evt => {
+          evt.stopPropagation();
+          if (state.mode === 'delete') return deleteEdge(e.id);
+          state.selected = { type: 'edge', id: e.id };
+          selectionInfo.textContent = describeEdge(e.id);
+          renderAll();
+        });
+        svg.appendChild(line);
+
+        if (state.weighted) {
+          const midX = (a.x + b.x) / 2;
+          const midY = (a.y + b.y) / 2;
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', midX - 16);
+          rect.setAttribute('y', midY - 14);
+          rect.setAttribute('width', 32);
+          rect.setAttribute('height', 24);
+          rect.setAttribute('rx', 10);
+          rect.setAttribute('fill', 'white');
+          rect.setAttribute('stroke', '#cbd5e1');
+          svg.appendChild(rect);
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', midX);
+          text.setAttribute('y', midY + 5);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-size', '14');
+          text.setAttribute('font-weight', '700');
+          text.textContent = e.weight;
+          text.style.cursor = 'pointer';
+          text.addEventListener('click', evt => {
+            evt.stopPropagation();
+            const n = prompt('Enter a new weight:', e.weight);
+            if (n !== null && n !== '' && !isNaN(Number(n))) {
+              e.weight = Number(n);
+              renderAll();
+            }
+          });
+          svg.appendChild(text);
+        }
+      });
+
+      state.vertices.forEach(v => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', v.x);
+        c.setAttribute('cy', v.y);
+        c.setAttribute('r', 23);
+        c.setAttribute('fill', state.subgraphVertices.has(v.id) ? '#dbeafe' : '#ffffff');
+        c.setAttribute('stroke', state.selected?.id === v.id ? '#2563eb' : '#334155');
+        c.setAttribute('stroke-width', state.selected?.id === v.id ? '4' : '3');
+        c.style.cursor = 'pointer';
+        c.addEventListener('pointerdown', evt => handleVertexPointerDown(evt, v));
+        svg.appendChild(c);
+
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', v.x);
+        t.setAttribute('y', v.y + 5);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('font-size', '16');
+        t.setAttribute('font-weight', '800');
+        t.textContent = v.label;
+        t.style.pointerEvents = 'none';
+        svg.appendChild(t);
+      });
+    }
+
+    function handleVertexPointerDown(evt, v) {
+      evt.stopPropagation();
+      if (state.mode === 'delete') return deleteVertex(v.id);
+      if (state.mode === 'move') {
+        state.dragId = v.id;
+        state.selected = { type: 'vertex', id: v.id };
+        selectionInfo.textContent = describeVertex(v.id);
+        renderAll();
+        return;
+      }
+      if (state.mode === 'edge') {
+        if (!state.edgeStart) {
+          state.edgeStart = v.id;
+          state.selected = { type: 'vertex', id: v.id };
+          selectionInfo.textContent = `Start edge from ${v.label}. Now click another vertex.`;
+          renderAll();
+        } else if (state.edgeStart !== v.id) {
+          const weight = state.weighted ? (prompt('Edge weight?', '1') || '1') : 1;
+          addEdge(state.edgeStart, v.id, weight);
+          state.edgeStart = null;
+        }
+        return;
+      }
+      if (state.mode === 'select') {
+        if (state.subgraphVertices.has(v.id)) state.subgraphVertices.delete(v.id);
+        else state.subgraphVertices.add(v.id);
+        state.selected = { type: 'vertex', id: v.id };
+        selectionInfo.textContent = describeVertex(v.id);
+        renderAll();
+        return;
+      }
+      state.selected = { type: 'vertex', id: v.id };
+      selectionInfo.textContent = describeVertex(v.id);
+      renderAll();
+    }
+
+    svg.addEventListener('pointermove', evt => {
+      if (!state.dragId) return;
+      const pt = getSvgPoint(evt);
+      const v = state.vertices.find(x => x.id === state.dragId);
+      if (v) {
+        v.x = Math.max(30, Math.min(870, pt.x));
+        v.y = Math.max(30, Math.min(550, pt.y));
+        renderAll();
+      }
+    });
+
+    window.addEventListener('pointerup', () => state.dragId = null);
+
+    svg.addEventListener('click', evt => {
+      const pt = getSvgPoint(evt);
+      if (state.mode === 'vertex') addVertex(pt.x, pt.y);
+      if (evt.target === svg) {
+        state.selected = null;
+        selectionInfo.textContent = state.edgeStart ? 'Choose the second vertex for the edge.' : 'Nothing selected.';
+        renderAll();
+      }
+    });
+
+    function renderProperties() {
+      const tags = [];
+      if (isSimpleGraph()) tags.push('Simple');
+      if (!state.directed && connectedUndirected()) tags.push('Connected');
+      if (state.directed && stronglyConnectedDirected()) tags.push('Strongly connected');
+      if (isCompleteGraph()) tags.push('Complete');
+      if (!state.directed && connectedUndirected() && state.edges.length === state.vertices.length - 1) tags.push('Possible tree structure');
+      tags.push(state.directed ? 'Directed' : 'Undirected');
+      if (state.weighted) tags.push('Weighted');
+      const degreeText = state.vertices.map(v => state.directed ? `${v.label}: in ${inDegree(v.id)}, out ${outDegree(v.id)}` : `${v.label}: degree ${degree(v.id)}`).join('<br>');
+      propsBox.innerHTML = `
+        <p><strong>Vertices:</strong> ${state.vertices.length} &nbsp;&nbsp; <strong>Edges:</strong> ${state.edges.length}</p>
+        <p>${tags.map(t => `<span class="badge">${t}</span>`).join(' ') || '<span class="subtle">No properties yet.</span>'}</p>
+        <p>${degreeText || '<span class="subtle">Add some vertices to begin.</span>'}</p>
+      `;
+    }
+
+    function renderAdjMatrix() {
+      const labels = state.vertices.map(v => v.label);
+      const { matrix } = adjacencyMatrix();
+      renderMatrix('adjMatrix', matrix, labels);
+    }
+
+    function renderSubgraphInfo() {
+      const box = document.getElementById('subgraphStatus');
+      const ids = state.subgraphVertices;
+      if (!ids.size) {
+        box.textContent = 'No subgraph selected yet. Use Select mode and click some vertices.';
+        return;
+      }
+      const verts = state.vertices.filter(v => ids.has(v.id));
+      const edges = inducedSubgraphEdges();
+      const labels = verts.map(v => v.label).join(', ');
+      const connected = !state.directed && connectedUndirected(ids, edges);
+      box.textContent = `Selected vertices: ${labels}\nSubgraph vertices = ${verts.length}\nSubgraph edges = ${edges.length}\n${state.directed ? 'For AHL 3.14, discuss whether the directed subgraph is strongly connected by inspection.' : `Connected? ${connected ? 'Yes' : 'No'}`}`;
+    }
+
+    function checkSelectedTree() {
+      const box = document.getElementById('treeStatus');
+      if (state.directed) {
+        box.textContent = 'Tree checking here is for undirected graphs.';
+        return;
+      }
+      const ids = state.subgraphVertices;
+      if (ids.size === 0) {
+        box.textContent = 'Select vertices first.';
+        return;
+      }
+      const verts = state.vertices.filter(v => ids.has(v.id));
+      const edges = inducedSubgraphEdges();
+      const connected = connectedUndirected(ids, edges);
+      const condition = edges.length === verts.length - 1;
+      if (connected && condition) box.textContent = `Yes. The selected subgraph is a tree because it is connected and has ${verts.length - 1} edges for ${verts.length} vertices.`;
+      else box.textContent = `Not a tree. Connected = ${connected ? 'Yes' : 'No'}, edges = ${edges.length}, vertices = ${verts.length}, so edges should be vertices - 1 = ${verts.length - 1}.`;
+    }
+
+    function renderAll() {
+      renderGraph();
+      renderProperties();
+      renderAdjMatrix();
+      renderSubgraphInfo();
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      state.edgeStart = null;
+      document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+      selectionInfo.textContent = 'Nothing selected.';
+    }
+
+    function resetGraph() {
+      state.vertices = [];
+      state.edges = [];
+      state.selected = null;
+      state.edgeStart = null;
+      state.nextLabelCode = 65;
+      state.subgraphVertices.clear();
+      renderAll();
+    }
+
+    function loadSample(type) {
+      resetGraph();
+      if (type === 'simple') {
+        state.directed = false;
+        state.weighted = true;
+        directedToggle.checked = false;
+        weightedToggle.checked = true;
+        addVertex(140, 150); addVertex(350, 120); addVertex(600, 160); addVertex(250, 340); addVertex(520, 360);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1], 4); addEdge(ids[1], ids[2], 5); addEdge(ids[0], ids[3], 3); addEdge(ids[1], ids[3], 2); addEdge(ids[3], ids[4], 6);
+      } else if (type === 'directed') {
+        state.directed = true;
+        state.weighted = false;
+        directedToggle.checked = true;
+        weightedToggle.checked = false;
+        addVertex(180, 140); addVertex(400, 100); addVertex(650, 160); addVertex(300, 340); addVertex(560, 350);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1], 1); addEdge(ids[1], ids[2], 1); addEdge(ids[2], ids[4], 1); addEdge(ids[4], ids[3], 1); addEdge(ids[3], ids[0], 1); addEdge(ids[1], ids[3], 1);
+      } else if (type === 'tree') {
+        state.directed = false;
+        state.weighted = false;
+        directedToggle.checked = false;
+        weightedToggle.checked = false;
+        addVertex(200, 90); addVertex(110, 240); addVertex(280, 240); addVertex(70, 400); addVertex(160, 400); addVertex(300, 400);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[0], ids[2]); addEdge(ids[1], ids[3]); addEdge(ids[1], ids[4]); addEdge(ids[2], ids[5]);
+      } else if (type === 'complete') {
+        state.directed = false;
+        state.weighted = true;
+        directedToggle.checked = false;
+        weightedToggle.checked = true;
+        addVertex(220, 100); addVertex(500, 110); addVertex(650, 300); addVertex(430, 460); addVertex(170, 350);
+        const ids = state.vertices.map(v => v.id);
+        const weights = { '0-1': 4, '0-2': 7, '0-3': 6, '0-4': 3, '1-2': 5, '1-3': 2, '1-4': 8, '2-3': 4, '2-4': 6, '3-4': 5 };
+        for (let i = 0; i < ids.length; i++) {
+          for (let j = i + 1; j < ids.length; j++) {
+            addEdge(ids[i], ids[j], weights[`${i}-${j}`]);
+          }
+        }
+      }
+      renderAll();
+    }
+
+    function bindUI() {
+      document.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.addEventListener('click', () => setMode(btn.dataset.mode));
+      });
+      directedToggle.addEventListener('change', () => { state.directed = directedToggle.checked; renderAll(); });
+      weightedToggle.addEventListener('change', () => { state.weighted = weightedToggle.checked; renderAll(); });
+      document.getElementById('clearGraph').addEventListener('click', resetGraph);
+      document.getElementById('sampleSimple').addEventListener('click', () => loadSample('simple'));
+      document.getElementById('sampleDirected').addEventListener('click', () => loadSample('directed'));
+      document.getElementById('sampleTree').addEventListener('click', () => loadSample('tree'));
+      document.getElementById('sampleComplete').addEventListener('click', () => loadSample('complete'));
+      document.getElementById('selectAllSubgraph').addEventListener('click', () => {
+        state.subgraphVertices = new Set(state.vertices.map(v => v.id));
+        renderAll();
+      });
+      document.getElementById('clearSubgraph').addEventListener('click', () => {
+        state.subgraphVertices.clear();
+        renderAll();
+      });
+      document.getElementById('checkTree').addEventListener('click', checkSelectedTree);
+    }
+
+    initTabs();
+    initDefinitions();
+    bindUI();
+    loadSample('simple');
+  </script>
+</body>
+</html>

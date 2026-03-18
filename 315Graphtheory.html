@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AHL 3.15 Matrix and Walks Explorer</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --green: #15803d;
+      --amber: #b45309;
+      --red: #b91c1c;
+      --shadow: 0 10px 26px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 240px);
+    }
+    .wrap {
+      width: min(1400px, 96vw);
+      margin: 24px auto 40px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid #e5e7eb;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3 { margin: 0 0 10px; }
+    p { line-height: 1.55; }
+    .hero p { color: var(--muted); margin: 8px 0 0; }
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 16px;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+    }
+    .tab-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .tab-btn small {
+      display: block;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .tab-btn.active {
+      border-color: #93c5fd;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      transform: translateX(2px);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .content { display: grid; gap: 16px; }
+    .panel { padding: 16px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: #fafafa;
+    }
+    .term {
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    .activity {
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border-left: 5px solid #60a5fa;
+      background: #eff6ff;
+    }
+    .toolbar, .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    button, input, select { font: inherit; }
+    .tool {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 12px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tool.active {
+      background: #dbeafe;
+      border-color: #60a5fa;
+      color: #1d4ed8;
+    }
+    .primary { background: var(--blue); color: white; border-color: var(--blue); }
+    .good { background: var(--green); color: white; border-color: var(--green); }
+    .warn { background: var(--amber); color: white; border-color: var(--amber); }
+    .danger { background: var(--red); color: white; border-color: var(--red); }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 3px 4px 0 0;
+      border: 1px solid #cbd5e1;
+      background: white;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+    }
+    .stack { display: grid; gap: 12px; }
+    .info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .subtle { color: var(--muted); font-size: 0.95rem; }
+    #svgWrap {
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border: 1px solid #dbe1ea;
+      border-radius: 18px;
+      overflow: hidden;
+      min-height: 580px;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: 580px;
+      touch-action: none;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #dbe1ea;
+      min-height: 66px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+    .quiz-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: white;
+    }
+    .quiz-item.correct { border-color: #86efac; background: #f0fdf4; }
+    .quiz-item.wrong { border-color: #fca5a5; background: #fef2f2; }
+    .choice {
+      width: 100%;
+      margin-top: 8px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .choice:hover { background: #f8fafc; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 320px;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 8px;
+      text-align: center;
+    }
+    th { background: #f3f4f6; }
+    .matrix { overflow: auto; }
+    .inline-input {
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: white;
+    }
+    @media (max-width: 1080px) {
+      .layout, .two-col { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      svg { height: 470px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>AHL 3.15 Matrix and Walks Explorer</h1>
+      <p>Interactive learning for adjacency matrices, walks, the number of <em>k</em>-length walks, the number of walks of length at most <em>k</em>, weighted adjacency tables, and construction of transition matrices for connected or strongly connected graphs.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel sidebar">
+        <button class="tab-btn active" data-tab="overview">Overview<small>What AHL 3.15 includes</small></button>
+        <button class="tab-btn" data-tab="definitions">Definitions Lab<small>Learn the key vocabulary</small></button>
+        <button class="tab-btn" data-tab="builder">Graph Builder<small>Construct a graph and see its matrices</small></button>
+        <button class="tab-btn" data-tab="walks">Walks Lab<small>Explore Aᵏ and walks of length at most k</small></button>
+        <button class="tab-btn" data-tab="transition">Transition Lab<small>Transition matrices and simple PageRank idea</small></button>
+        <button class="tab-btn" data-tab="activities">Student Activities<small>Tasks and prompts</small></button>
+      </aside>
+
+      <main class="content">
+        <section id="overview" class="tab-pane active panel">
+          <h2>AHL 3.15 syllabus focus</h2>
+          <div class="cards">
+            <div class="card">
+              <div class="term">Adjacency matrices</div>
+              <p>Turn a graph into a matrix and read connection information from rows and columns.</p>
+            </div>
+            <div class="card">
+              <div class="term">Walks and Aᵏ</div>
+              <p>Use powers of the adjacency matrix to count the number of walks of length <em>k</em> between two vertices.</p>
+            </div>
+            <div class="card">
+              <div class="term">Weighted adjacency tables</div>
+              <p>Use weights to represent things such as time, cost, or distance.</p>
+            </div>
+            <div class="card">
+              <div class="term">Transition matrices</div>
+              <p>Construct a probability matrix from a graph and connect this to random movement and PageRank ideas.</p>
+            </div>
+          </div>
+
+          <div class="activity">
+            <strong>Core result:</strong> If <strong>A</strong> is an adjacency matrix, then the entry in row <em>i</em>, column <em>j</em> of <strong>Aᵏ</strong> gives the number of walks of length <em>k</em> from vertex <em>i</em> to vertex <em>j</em>.
+          </div>
+
+          <div class="two-col">
+            <div class="info">
+              <h3>What students should be able to do</h3>
+              <p>Construct an adjacency matrix from a graph.</p>
+              <p>Interpret entries in A, A², A³, and higher powers.</p>
+              <p>Count walks of exactly length <em>k</em> and at most length <em>k</em>.</p>
+              <p>Construct a weighted adjacency table.</p>
+              <p>Construct a transition matrix for a connected or strongly connected graph.</p>
+            </div>
+            <div class="info">
+              <h3>Important links</h3>
+              <p>Weights may represent <strong>distance</strong>, <strong>cost</strong>, or <strong>time</strong>.</p>
+              <p>Transition matrices link naturally to <strong>Markov chains</strong>.</p>
+              <p>Directed graphs provide a simple model for <strong>Google PageRank</strong>.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="definitions" class="tab-pane panel">
+          <h2>Definitions Lab</h2>
+          <p class="subtle">Click each card to reveal the meaning, then answer the quick-check questions.</p>
+          <div class="cards" id="flashcards"></div>
+          <div style="height:12px"></div>
+          <h3>Quick check</h3>
+          <div class="stack" id="definitionQuiz"></div>
+        </section>
+
+        <section id="builder" class="tab-pane panel">
+          <h2>Graph Builder</h2>
+          <div class="toolbar">
+            <button class="tool active" data-mode="move">Move</button>
+            <button class="tool" data-mode="vertex">Add vertex</button>
+            <button class="tool" data-mode="edge">Add edge</button>
+            <button class="tool" data-mode="delete">Delete</button>
+            <span class="pill">Graph settings</span>
+            <label><input type="checkbox" id="directedToggle"> Directed</label>
+            <label><input type="checkbox" id="weightedToggle" checked> Weighted</label>
+            <button class="tool" id="clearGraph">Clear</button>
+            <button class="tool" id="sampleUndirected">Sample undirected</button>
+            <button class="tool" id="sampleDirected">Sample directed</button>
+            <button class="tool" id="sampleWeighted">Sample weighted</button>
+          </div>
+
+          <div class="two-col">
+            <div id="svgWrap">
+              <svg id="graphSvg" viewBox="0 0 900 580" aria-label="graph canvas">
+                <defs>
+                  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L10,3 L0,6 z" fill="#334155"></path>
+                  </marker>
+                </defs>
+              </svg>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>Instructions</h3>
+                <p>Use <strong>Add vertex</strong> to place vertices. Use <strong>Add edge</strong> and click two vertices. In a weighted graph, click a weight label to edit it.</p>
+                <p>The adjacency matrix and weighted adjacency table update automatically.</p>
+              </div>
+              <div class="info">
+                <h3>Live graph properties</h3>
+                <div id="graphProperties"></div>
+              </div>
+              <div class="info">
+                <h3>Selection details</h3>
+                <div id="selectionInfo">Nothing selected.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="walks" class="tab-pane panel">
+          <h2>Walks Lab</h2>
+          <div class="two-col">
+            <div class="stack">
+              <div class="info">
+                <h3>Adjacency matrix A</h3>
+                <div class="matrix" id="adjMatrix"></div>
+              </div>
+              <div class="info">
+                <h3>Weighted adjacency table</h3>
+                <div class="matrix" id="weightedMatrix"></div>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>Exact k-length walks</h3>
+                <div class="row">
+                  <label>k <input class="inline-input" type="number" id="walkK" min="1" max="8" value="2"></label>
+                  <button class="tool primary" id="calcWalks">Calculate Aᵏ</button>
+                </div>
+                <div class="matrix" id="walkMatrix"></div>
+                <div class="subtle" id="walkExplanation"></div>
+              </div>
+              <div class="info">
+                <h3>Walks of length at most k</h3>
+                <div class="matrix" id="cumWalkMatrix"></div>
+                <div class="subtle" id="cumExplanation"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="transition" class="tab-pane panel">
+          <h2>Transition Lab</h2>
+          <div class="two-col">
+            <div class="stack">
+              <div class="info">
+                <h3>Transition matrix P</h3>
+                <p class="subtle">Each row gives the probabilities of moving to the next vertex in one step.</p>
+                <div class="matrix" id="transitionMatrix"></div>
+                <div class="status" id="transitionStatus"></div>
+              </div>
+              <div class="info">
+                <h3>Random walk / simple PageRank idea</h3>
+                <div class="row">
+                  <label>Steps <input class="inline-input" type="number" id="rankSteps" min="1" max="30" value="10"></label>
+                  <button class="tool good" id="runRank">Run from equal start</button>
+                </div>
+                <div class="matrix" id="rankVector"></div>
+                <div class="subtle" id="rankExplanation"></div>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="info">
+                <h3>What to notice</h3>
+                <p>For a <strong>directed graph</strong>, divide each row of the adjacency matrix by the row sum to make a transition matrix.</p>
+                <p>For an <strong>undirected graph</strong>, the same idea works using degree.</p>
+                <p>To use this comfortably, the graph should be <strong>connected</strong> or <strong>strongly connected</strong>, so movement does not get stuck in isolated parts.</p>
+              </div>
+              <div class="info">
+                <h3>PageRank connection</h3>
+                <p>Think of a web user following links from page to page. Repeated multiplication by the transition matrix shows how attention can settle onto certain pages.</p>
+                <p>This applet shows a <strong>simple random-walk version</strong> to build intuition.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="activities" class="tab-pane panel">
+          <h2>Student Activities</h2>
+          <div class="activity"><strong>Activity 1:</strong> Build a graph with 4 vertices and write down its adjacency matrix before checking the applet.</div>
+          <div class="activity"><strong>Activity 2:</strong> Use the sample undirected graph. Predict the number of 2-step walks from A to C, then check A².</div>
+          <div class="activity"><strong>Activity 3:</strong> Compare A² and A³. Which one counts longer walks, and how can you tell?</div>
+          <div class="activity"><strong>Activity 4:</strong> Use walks of length at most 3. Find two vertices with more than one possible route between them.</div>
+          <div class="activity"><strong>Activity 5:</strong> Turn on weights and build a road network. Explain what each weight represents and read the weighted adjacency table.</div>
+          <div class="activity"><strong>Activity 6:</strong> Use a directed graph and construct its transition matrix. Explain why each row adds to 1.</div>
+          <div class="activity"><strong>Activity 7:</strong> Run the simple PageRank tool on a directed graph. Which vertex ends up with the highest long-run share?</div>
+          <div class="info">
+            <h3>Reflection prompts</h3>
+            <p>Why does A² count walks of length 2 rather than just showing direct edges?</p>
+            <p>Why are walks of length at most <em>k</em> found by adding several matrix powers together?</p>
+            <p>What does a large entry in a transition or rank vector mean in context?</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const definitions = [
+      { term: 'Adjacency matrix', definition: 'A square matrix showing which pairs of vertices are connected.' },
+      { term: 'Walk', definition: 'A sequence of vertices connected by edges. Vertices and edges may repeat.' },
+      { term: 'k-length walk', definition: 'A walk that uses exactly k edges.' },
+      { term: 'Aᵏ', definition: 'The kth power of the adjacency matrix. Entry (i, j) gives the number of k-length walks from i to j.' },
+      { term: 'Walks of length at most k', definition: 'Counted by adding A + A² + ... + Aᵏ when using the adjacency matrix.' },
+      { term: 'Weighted adjacency table', definition: 'A matrix or table showing edge weights such as time, distance, or cost.' },
+      { term: 'Transition matrix', definition: 'A matrix of probabilities describing how movement goes from one vertex to the next in one step.' },
+      { term: 'Strongly connected', definition: 'In a directed graph, every vertex can be reached from every other vertex by following directions.' },
+      { term: 'PageRank idea', definition: 'A repeated-transition idea used to estimate the importance of pages in a directed network.' }
+    ];
+
+    const quizData = [
+      {
+        q: 'What does the (i, j) entry of A³ represent?',
+        choices: ['The weight from i to j', 'The number of 3-length walks from i to j', 'The degree of i', 'The shortest path from i to j'],
+        answer: 1,
+        explain: 'Aᵏ counts walks of length k.'
+      },
+      {
+        q: 'What should each row of a transition matrix add to?',
+        choices: ['0', 'The number of vertices', '1', 'The degree'],
+        answer: 2,
+        explain: 'Each row gives a full set of one-step probabilities, so it must add to 1.'
+      },
+      {
+        q: 'What is shown in a weighted adjacency table?',
+        choices: ['Only zeros and ones', 'Weights such as cost or distance', 'Only degrees', 'Only probabilities'],
+        answer: 1,
+        explain: 'Weighted adjacency tables record edge weights.'
+      },
+      {
+        q: 'To count walks of length at most 3, which expression is used?',
+        choices: ['A³ only', 'A + A² + A³', 'A − A²', '3A'],
+        answer: 1,
+        explain: 'Add the matrices for each allowed walk length.'
+      }
+    ];
+
+    const state = {
+      vertices: [],
+      edges: [],
+      directed: false,
+      weighted: true,
+      mode: 'move',
+      dragId: null,
+      selected: null,
+      edgeStart: null,
+      nextLabelCode: 65
+    };
+
+    const svg = document.getElementById('graphSvg');
+    const propsBox = document.getElementById('graphProperties');
+    const selectionInfo = document.getElementById('selectionInfo');
+    const directedToggle = document.getElementById('directedToggle');
+    const weightedToggle = document.getElementById('weightedToggle');
+
+    function initTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab).classList.add('active');
+          renderAll();
+        });
+      });
+    }
+
+    function initDefinitions() {
+      const flash = document.getElementById('flashcards');
+      definitions.forEach(item => {
+        const card = document.createElement('button');
+        card.className = 'card';
+        card.style.textAlign = 'left';
+        card.style.cursor = 'pointer';
+        let open = false;
+        const paint = () => {
+          card.innerHTML = `<div class="term">${item.term}</div><div>${open ? item.definition : '<span class="subtle">Click to reveal definition</span>'}</div>`;
+        };
+        paint();
+        card.addEventListener('click', () => { open = !open; paint(); });
+        flash.appendChild(card);
+      });
+
+      const quizBox = document.getElementById('definitionQuiz');
+      quizData.forEach(item => {
+        const wrap = document.createElement('div');
+        wrap.className = 'quiz-item';
+        wrap.innerHTML = `<strong>${item.q}</strong>`;
+        item.choices.forEach((choice, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'choice';
+          btn.textContent = choice;
+          btn.addEventListener('click', () => {
+            wrap.classList.remove('correct', 'wrong');
+            wrap.classList.add(i === item.answer ? 'correct' : 'wrong');
+            feedback.textContent = i === item.answer ? `Correct. ${item.explain}` : `Not quite. ${item.explain}`;
+          });
+          wrap.appendChild(btn);
+        });
+        const feedback = document.createElement('div');
+        feedback.className = 'subtle';
+        feedback.style.marginTop = '8px';
+        wrap.appendChild(feedback);
+        quizBox.appendChild(wrap);
+      });
+    }
+
+    function getSvgPoint(evt) {
+      const rect = svg.getBoundingClientRect();
+      return {
+        x: (evt.clientX - rect.left) * (svg.viewBox.baseVal.width / rect.width),
+        y: (evt.clientY - rect.top) * (svg.viewBox.baseVal.height / rect.height)
+      };
+    }
+
+    function vertexLabel() { return String.fromCharCode(state.nextLabelCode++); }
+
+    function addVertex(x, y) {
+      state.vertices.push({ id: crypto.randomUUID(), x, y, label: vertexLabel() });
+      renderAll();
+    }
+
+    function addEdge(a, b, weight = 1) {
+      if (a === b) return;
+      const exists = state.edges.some(e => e.from === a && e.to === b) || (!state.directed && state.edges.some(e => e.from === b && e.to === a));
+      if (exists) return;
+      state.edges.push({ id: crypto.randomUUID(), from: a, to: b, weight: Number(weight) || 1 });
+      renderAll();
+    }
+
+    function deleteVertex(id) {
+      state.vertices = state.vertices.filter(v => v.id !== id);
+      state.edges = state.edges.filter(e => e.from !== id && e.to !== id);
+      state.selected = null;
+      renderAll();
+    }
+
+    function deleteEdge(id) {
+      state.edges = state.edges.filter(e => e.id !== id);
+      state.selected = null;
+      renderAll();
+    }
+
+    function degree(id) { return state.edges.filter(e => e.from === id || e.to === id).length; }
+    function inDegree(id) { return state.edges.filter(e => e.to === id).length; }
+    function outDegree(id) { return state.edges.filter(e => e.from === id).length; }
+
+    function connectedUndirected() {
+      if (!state.vertices.length) return false;
+      const adj = new Map(state.vertices.map(v => [v.id, []]));
+      state.edges.forEach(e => {
+        adj.get(e.from).push(e.to);
+        adj.get(e.to).push(e.from);
+      });
+      const seen = new Set();
+      const stack = [state.vertices[0].id];
+      while (stack.length) {
+        const u = stack.pop();
+        if (seen.has(u)) continue;
+        seen.add(u);
+        adj.get(u).forEach(v => { if (!seen.has(v)) stack.push(v); });
+      }
+      return seen.size === state.vertices.length;
+    }
+
+    function stronglyConnectedDirected() {
+      if (!state.vertices.length) return false;
+      const ids = state.vertices.map(v => v.id);
+      const adj = new Map(ids.map(id => [id, []]));
+      const rev = new Map(ids.map(id => [id, []]));
+      state.edges.forEach(e => {
+        adj.get(e.from).push(e.to);
+        rev.get(e.to).push(e.from);
+      });
+      const dfs = (graph, start) => {
+        const seen = new Set();
+        const stack = [start];
+        while (stack.length) {
+          const u = stack.pop();
+          if (seen.has(u)) continue;
+          seen.add(u);
+          graph.get(u).forEach(v => { if (!seen.has(v)) stack.push(v); });
+        }
+        return seen.size === ids.length;
+      };
+      const s = ids[0];
+      return dfs(adj, s) && dfs(rev, s);
+    }
+
+    function adjacencyMatrix(weighted = false) {
+      const ids = state.vertices.map(v => v.id);
+      const matrix = Array.from({ length: ids.length }, () => Array(ids.length).fill(0));
+      state.edges.forEach(e => {
+        const i = ids.indexOf(e.from);
+        const j = ids.indexOf(e.to);
+        matrix[i][j] = weighted ? e.weight : 1;
+        if (!state.directed) matrix[j][i] = weighted ? e.weight : 1;
+      });
+      return { ids, matrix };
+    }
+
+    function renderMatrix(targetId, matrix, labels, formatter = x => x) {
+      const box = document.getElementById(targetId);
+      if (!labels.length) {
+        box.innerHTML = '<div class="subtle">Add vertices to see a matrix.</div>';
+        return;
+      }
+      let html = '<table><tr><th></th>' + labels.map(l => `<th>${l}</th>`).join('') + '</tr>';
+      matrix.forEach((row, i) => {
+        html += `<tr><th>${labels[i]}</th>` + row.map(x => `<td>${formatter(x)}</td>`).join('') + '</tr>';
+      });
+      html += '</table>';
+      box.innerHTML = html;
+    }
+
+    function multiply(A, B) {
+      const n = A.length;
+      const m = B[0].length;
+      const p = B.length;
+      const C = Array.from({ length: n }, () => Array(m).fill(0));
+      for (let i = 0; i < n; i++) {
+        for (let k = 0; k < p; k++) {
+          for (let j = 0; j < m; j++) {
+            C[i][j] += A[i][k] * B[k][j];
+          }
+        }
+      }
+      return C;
+    }
+
+    function matrixPower(A, k) {
+      let result = A.map((row, i) => row.map((_, j) => i === j ? 1 : 0));
+      let base = A.map(row => row.slice());
+      let exp = k;
+      while (exp > 0) {
+        if (exp % 2 === 1) result = multiply(result, base);
+        base = multiply(base, base);
+        exp = Math.floor(exp / 2);
+      }
+      return result;
+    }
+
+    function addMatrices(A, B) {
+      return A.map((row, i) => row.map((v, j) => v + B[i][j]));
+    }
+
+    function transitionMatrix() {
+      const { matrix: A } = adjacencyMatrix(false);
+      const P = A.map(row => {
+        const sum = row.reduce((a, b) => a + b, 0);
+        return row.map(v => sum === 0 ? 0 : v / sum);
+      });
+      return P;
+    }
+
+    function vectorTimesMatrix(v, M) {
+      const result = Array(M[0].length).fill(0);
+      for (let j = 0; j < M[0].length; j++) {
+        for (let i = 0; i < v.length; i++) result[j] += v[i] * M[i][j];
+      }
+      return result;
+    }
+
+    function describeVertex(id) {
+      const v = state.vertices.find(x => x.id === id);
+      if (!v) return 'Nothing selected.';
+      if (state.directed) return `Vertex ${v.label}. In-degree = ${inDegree(id)}, out-degree = ${outDegree(id)}.`;
+      return `Vertex ${v.label}. Degree = ${degree(id)}.`;
+    }
+
+    function describeEdge(id) {
+      const e = state.edges.find(x => x.id === id);
+      if (!e) return 'Nothing selected.';
+      const a = state.vertices.find(v => v.id === e.from)?.label || '?';
+      const b = state.vertices.find(v => v.id === e.to)?.label || '?';
+      return `Edge ${a}${state.directed ? ' → ' : ' — '}${b}${state.weighted ? `, weight ${e.weight}` : ''}.`;
+    }
+
+    function renderGraph() {
+      svg.innerHTML = `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,3 L0,6 z" fill="#334155"></path></marker></defs>`;
+      state.edges.forEach(e => {
+        const a = state.vertices.find(v => v.id === e.from);
+        const b = state.vertices.find(v => v.id === e.to);
+        if (!a || !b) return;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', a.x);
+        line.setAttribute('y1', a.y);
+        line.setAttribute('x2', b.x);
+        line.setAttribute('y2', b.y);
+        line.setAttribute('stroke', '#334155');
+        line.setAttribute('stroke-width', '3');
+        if (state.directed) line.setAttribute('marker-end', 'url(#arrow)');
+        line.style.cursor = 'pointer';
+        line.addEventListener('click', evt => {
+          evt.stopPropagation();
+          if (state.mode === 'delete') return deleteEdge(e.id);
+          state.selected = { type: 'edge', id: e.id };
+          selectionInfo.textContent = describeEdge(e.id);
+          renderAll();
+        });
+        svg.appendChild(line);
+
+        if (state.weighted) {
+          const midX = (a.x + b.x) / 2;
+          const midY = (a.y + b.y) / 2;
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', midX - 16);
+          rect.setAttribute('y', midY - 14);
+          rect.setAttribute('width', 32);
+          rect.setAttribute('height', 24);
+          rect.setAttribute('rx', 10);
+          rect.setAttribute('fill', 'white');
+          rect.setAttribute('stroke', '#cbd5e1');
+          svg.appendChild(rect);
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', midX);
+          text.setAttribute('y', midY + 5);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-size', '14');
+          text.setAttribute('font-weight', '700');
+          text.textContent = e.weight;
+          text.style.cursor = 'pointer';
+          text.addEventListener('click', evt => {
+            evt.stopPropagation();
+            const n = prompt('Enter a new weight:', e.weight);
+            if (n !== null && n !== '' && !isNaN(Number(n))) {
+              e.weight = Number(n);
+              renderAll();
+            }
+          });
+          svg.appendChild(text);
+        }
+      });
+
+      state.vertices.forEach(v => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', v.x);
+        c.setAttribute('cy', v.y);
+        c.setAttribute('r', 23);
+        c.setAttribute('fill', '#ffffff');
+        c.setAttribute('stroke', state.selected?.id === v.id ? '#2563eb' : '#334155');
+        c.setAttribute('stroke-width', state.selected?.id === v.id ? '4' : '3');
+        c.style.cursor = 'pointer';
+        c.addEventListener('pointerdown', evt => handleVertexPointerDown(evt, v));
+        svg.appendChild(c);
+
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', v.x);
+        t.setAttribute('y', v.y + 5);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('font-size', '16');
+        t.setAttribute('font-weight', '800');
+        t.textContent = v.label;
+        t.style.pointerEvents = 'none';
+        svg.appendChild(t);
+      });
+    }
+
+    function handleVertexPointerDown(evt, v) {
+      evt.stopPropagation();
+      if (state.mode === 'delete') return deleteVertex(v.id);
+      if (state.mode === 'move') {
+        state.dragId = v.id;
+        state.selected = { type: 'vertex', id: v.id };
+        selectionInfo.textContent = describeVertex(v.id);
+        renderAll();
+        return;
+      }
+      if (state.mode === 'edge') {
+        if (!state.edgeStart) {
+          state.edgeStart = v.id;
+          state.selected = { type: 'vertex', id: v.id };
+          selectionInfo.textContent = `Start edge from ${v.label}. Now click another vertex.`;
+          renderAll();
+        } else if (state.edgeStart !== v.id) {
+          const weight = state.weighted ? (prompt('Edge weight?', '1') || '1') : 1;
+          addEdge(state.edgeStart, v.id, weight);
+          state.edgeStart = null;
+        }
+        return;
+      }
+      state.selected = { type: 'vertex', id: v.id };
+      selectionInfo.textContent = describeVertex(v.id);
+      renderAll();
+    }
+
+    svg.addEventListener('pointermove', evt => {
+      if (!state.dragId) return;
+      const pt = getSvgPoint(evt);
+      const v = state.vertices.find(x => x.id === state.dragId);
+      if (v) {
+        v.x = Math.max(30, Math.min(870, pt.x));
+        v.y = Math.max(30, Math.min(550, pt.y));
+        renderAll();
+      }
+    });
+
+    window.addEventListener('pointerup', () => state.dragId = null);
+
+    svg.addEventListener('click', evt => {
+      const pt = getSvgPoint(evt);
+      if (state.mode === 'vertex') addVertex(pt.x, pt.y);
+      if (evt.target === svg) {
+        state.selected = null;
+        selectionInfo.textContent = state.edgeStart ? 'Choose the second vertex for the edge.' : 'Nothing selected.';
+        renderAll();
+      }
+    });
+
+    function renderProperties() {
+      const tags = [];
+      tags.push(state.directed ? 'Directed' : 'Undirected');
+      if (state.weighted) tags.push('Weighted');
+      if (!state.directed && connectedUndirected()) tags.push('Connected');
+      if (state.directed && stronglyConnectedDirected()) tags.push('Strongly connected');
+      const degreeText = state.vertices.map(v => state.directed ? `${v.label}: out ${outDegree(v.id)}` : `${v.label}: degree ${degree(v.id)}`).join('<br>');
+      propsBox.innerHTML = `
+        <p><strong>Vertices:</strong> ${state.vertices.length} &nbsp;&nbsp; <strong>Edges:</strong> ${state.edges.length}</p>
+        <p>${tags.map(t => `<span class="badge">${t}</span>`).join(' ') || '<span class="subtle">No properties yet.</span>'}</p>
+        <p>${degreeText || '<span class="subtle">Add some vertices to begin.</span>'}</p>
+      `;
+    }
+
+    function renderMatrices() {
+      const labels = state.vertices.map(v => v.label);
+      const A = adjacencyMatrix(false).matrix;
+      renderMatrix('adjMatrix', A, labels);
+      const W = adjacencyMatrix(true).matrix.map(row => row.map(v => v === 0 ? '–' : v));
+      renderMatrix('weightedMatrix', W, labels, x => x);
+    }
+
+    function renderWalks() {
+      const labels = state.vertices.map(v => v.label);
+      const A = adjacencyMatrix(false).matrix;
+      const k = Math.max(1, Math.min(8, Number(document.getElementById('walkK').value) || 1));
+      if (!A.length) {
+        document.getElementById('walkMatrix').innerHTML = '<div class="subtle">Create a graph to calculate Aᵏ.</div>';
+        document.getElementById('cumWalkMatrix').innerHTML = '<div class="subtle">Create a graph to calculate cumulative walks.</div>';
+        document.getElementById('walkExplanation').textContent = '';
+        document.getElementById('cumExplanation').textContent = '';
+        return;
+      }
+      const Ak = matrixPower(A, k);
+      renderMatrix('walkMatrix', Ak, labels);
+      document.getElementById('walkExplanation').textContent = `Each entry of A^${k} gives the number of ${k}-length walks from the row vertex to the column vertex.`;
+
+      let sum = A.map(row => row.map(v => v));
+      for (let p = 2; p <= k; p++) sum = addMatrices(sum, matrixPower(A, p));
+      renderMatrix('cumWalkMatrix', sum, labels);
+      document.getElementById('cumExplanation').textContent = `This matrix is A + A² + ... + A^${k}, so each entry gives the number of walks of length at most ${k}.`;
+    }
+
+    function renderTransition() {
+      const labels = state.vertices.map(v => v.label);
+      const P = transitionMatrix();
+      if (!labels.length) {
+        document.getElementById('transitionMatrix').innerHTML = '<div class="subtle">Create a graph to see the transition matrix.</div>';
+        document.getElementById('transitionStatus').textContent = '';
+        document.getElementById('rankVector').innerHTML = '<div class="subtle">Create a graph to run the rank demo.</div>';
+        document.getElementById('rankExplanation').textContent = '';
+        return;
+      }
+      renderMatrix('transitionMatrix', P, labels, x => Number(x).toFixed(2));
+      const okay = state.directed ? stronglyConnectedDirected() : connectedUndirected();
+      document.getElementById('transitionStatus').textContent = state.directed
+        ? (okay ? 'This directed graph is strongly connected, so the transition matrix is suitable for repeated movement between all vertices.' : 'This directed graph is not strongly connected. Some vertices may be unreachable in the long run.')
+        : (okay ? 'This undirected graph is connected, so the transition matrix allows movement across the whole graph.' : 'This undirected graph is not connected, so movement is trapped inside components.');
+
+      runRank(false);
+    }
+
+    function runRank(showRender = true) {
+      const labels = state.vertices.map(v => v.label);
+      if (!labels.length) return;
+      const P = transitionMatrix();
+      const n = labels.length;
+      let v = Array(n).fill(1 / n);
+      const steps = Math.max(1, Math.min(30, Number(document.getElementById('rankSteps').value) || 10));
+      for (let s = 0; s < steps; s++) v = vectorTimesMatrix(v, P);
+      renderMatrix('rankVector', [v.map(x => x)], labels, x => Number(x).toFixed(3));
+      document.getElementById('rankExplanation').textContent = `Starting from an equal share on each vertex and applying the transition matrix ${steps} times gives this simple long-run attention pattern.`;
+      if (showRender) renderAll();
+    }
+
+    function renderAll() {
+      renderGraph();
+      renderProperties();
+      renderMatrices();
+      renderWalks();
+      renderTransition();
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      state.edgeStart = null;
+      document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+      selectionInfo.textContent = 'Nothing selected.';
+    }
+
+    function resetGraph() {
+      state.vertices = [];
+      state.edges = [];
+      state.selected = null;
+      state.edgeStart = null;
+      state.nextLabelCode = 65;
+      renderAll();
+    }
+
+    function loadSample(type) {
+      resetGraph();
+      if (type === 'undirected') {
+        state.directed = false;
+        state.weighted = false;
+        directedToggle.checked = false;
+        weightedToggle.checked = false;
+        addVertex(150, 160); addVertex(360, 100); addVertex(610, 140); addVertex(260, 340); addVertex(530, 360);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[1], ids[2]); addEdge(ids[0], ids[3]); addEdge(ids[1], ids[3]); addEdge(ids[1], ids[4]); addEdge(ids[2], ids[4]); addEdge(ids[3], ids[4]);
+      } else if (type === 'directed') {
+        state.directed = true;
+        state.weighted = false;
+        directedToggle.checked = true;
+        weightedToggle.checked = false;
+        addVertex(170, 130); addVertex(400, 100); addVertex(660, 160); addVertex(280, 350); addVertex(560, 360);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1]); addEdge(ids[1], ids[2]); addEdge(ids[2], ids[4]); addEdge(ids[4], ids[3]); addEdge(ids[3], ids[0]); addEdge(ids[1], ids[3]); addEdge(ids[4], ids[1]);
+      } else if (type === 'weighted') {
+        state.directed = false;
+        state.weighted = true;
+        directedToggle.checked = false;
+        weightedToggle.checked = true;
+        addVertex(150, 160); addVertex(360, 100); addVertex(610, 140); addVertex(260, 340); addVertex(530, 360);
+        const ids = state.vertices.map(v => v.id);
+        addEdge(ids[0], ids[1], 4); addEdge(ids[1], ids[2], 7); addEdge(ids[0], ids[3], 3); addEdge(ids[1], ids[3], 5); addEdge(ids[1], ids[4], 6); addEdge(ids[2], ids[4], 2); addEdge(ids[3], ids[4], 4);
+      }
+      renderAll();
+    }
+
+    function bindUI() {
+      document.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.addEventListener('click', () => setMode(btn.dataset.mode));
+      });
+      directedToggle.addEventListener('change', () => { state.directed = directedToggle.checked; renderAll(); });
+      weightedToggle.addEventListener('change', () => { state.weighted = weightedToggle.checked; renderAll(); });
+      document.getElementById('clearGraph').addEventListener('click', resetGraph);
+      document.getElementById('sampleUndirected').addEventListener('click', () => loadSample('undirected'));
+      document.getElementById('sampleDirected').addEventListener('click', () => loadSample('directed'));
+      document.getElementById('sampleWeighted').addEventListener('click', () => loadSample('weighted'));
+      document.getElementById('calcWalks').addEventListener('click', renderWalks);
+      document.getElementById('walkK').addEventListener('input', renderWalks);
+      document.getElementById('rankSteps').addEventListener('input', () => runRank(false));
+      document.getElementById('runRank').addEventListener('click', () => runRank(false));
+    }
+
+    initTabs();
+    initDefinitions();
+    bindUI();
+    loadSample('undirected');
+  </script>
+</body>
+</html>
