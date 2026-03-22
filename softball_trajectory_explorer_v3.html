@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Softball Trajectory Explorer</title>
+<style>
+  :root{
+    --bg:#f6f8fb;
+    --card:#ffffff;
+    --ink:#17324d;
+    --muted:#5c6f82;
+    --accent:#0f6bb8;
+    --accent2:#26a69a;
+    --line:#d9e2ec;
+    --soft:#eef4fa;
+    --good:#dff4ea;
+    --warn:#fff2d6;
+    --note:#f6f1dc;
+    --shadow:0 12px 28px rgba(20,40,70,.08);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,#eef5fb 0%, #f9fbfd 55%, #f6f8fb 100%);
+  }
+  .wrap{
+    max-width:1440px;
+    margin:0 auto;
+    padding:24px;
+  }
+  header{
+    background:linear-gradient(135deg, #0f6bb8 0%, #1d8cd8 62%, #3ab4c4 100%);
+    color:white;
+    border-radius:24px;
+    padding:26px 28px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+  }
+  h1{
+    margin:0 0 8px 0;
+    font-size:clamp(1.8rem, 2.8vw, 2.8rem);
+    line-height:1.05;
+  }
+  .subtitle{
+    margin:0;
+    max-width:1020px;
+    color:rgba(255,255,255,.93);
+    font-size:1rem;
+    line-height:1.55;
+  }
+  .layout{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:20px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid rgba(12,44,80,.07);
+    border-radius:22px;
+    box-shadow:var(--shadow);
+  }
+  .controls{
+    padding:18px 18px 20px;
+    position:sticky;
+    top:18px;
+    align-self:start;
+  }
+  .controls h2,
+  .panel h2{
+    margin:0 0 8px;
+    font-size:1.15rem;
+  }
+  .mini{
+    color:var(--muted);
+    font-size:.92rem;
+    line-height:1.45;
+  }
+  .control-group{
+    background:var(--soft);
+    border:1px solid #dfe9f3;
+    border-radius:18px;
+    padding:14px 14px 10px;
+    margin-top:12px;
+  }
+  .control{
+    margin:12px 0 14px;
+  }
+  .control label{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:.94rem;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .control small{
+    display:block;
+    color:var(--muted);
+    font-size:.8rem;
+    line-height:1.35;
+    margin-top:4px;
+  }
+  input[type="range"]{
+    width:100%;
+    accent-color:var(--accent);
+  }
+  .value{
+    color:var(--accent);
+    font-weight:800;
+    white-space:nowrap;
+  }
+  .preset-row,.btn-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+  button{
+    border:none;
+    border-radius:999px;
+    padding:10px 14px;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform .14s ease, opacity .14s ease, background .14s ease;
+  }
+  button:hover{ transform:translateY(-1px); }
+  .preset{
+    background:#e6f1fb;
+    color:var(--accent);
+  }
+  .primary{
+    background:var(--accent);
+    color:white;
+  }
+  .ghost{
+    background:#edf2f7;
+    color:var(--ink);
+  }
+  .copy{
+    background:#e8f7f4;
+    color:#0e7d72;
+  }
+  .status{
+    min-height:20px;
+    margin-top:8px;
+    font-size:.84rem;
+    color:#0e7d72;
+    font-weight:700;
+  }
+  .panel{
+    padding:18px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(280px, 1fr));
+    gap:18px;
+  }
+  .span-2{ grid-column:1 / -1; }
+  canvas{
+    width:100%;
+    display:block;
+    border-radius:18px;
+    background:linear-gradient(180deg,#fbfdff 0%, #f2f7fb 100%);
+    border:1px solid #dce7f2;
+  }
+  .legend{
+    margin-top:10px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 16px;
+    color:var(--muted);
+    font-size:.85rem;
+  }
+  .dot{
+    width:12px;height:12px;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:6px;
+  }
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:12px;
+    margin-top:14px;
+  }
+  .kpi{
+    background:#f7fbff;
+    border:1px solid #d9e8f5;
+    border-radius:18px;
+    padding:14px;
+  }
+  .kpi .label{
+    color:var(--muted);
+    font-size:.82rem;
+    margin-bottom:5px;
+  }
+  .kpi .num{
+    font-size:1.22rem;
+    font-weight:800;
+    color:var(--accent);
+  }
+  .equation{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background:#f6f9fc;
+    border:1px solid #deebf7;
+    padding:12px 14px;
+    border-radius:16px;
+    line-height:1.65;
+    overflow:auto;
+    white-space:pre-wrap;
+    margin-top:12px;
+  }
+  .callouts{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+    margin-top:12px;
+  }
+  .callout{
+    border-radius:16px;
+    padding:14px;
+    font-size:.92rem;
+    line-height:1.5;
+  }
+  .good{ background:var(--good); }
+  .warn{ background:var(--warn); }
+  .note{ background:var(--note); }
+  .list{
+    margin:8px 0 0 18px;
+    padding:0;
+  }
+  .table-wrap{
+    overflow:auto;
+    margin-top:12px;
+    border:1px solid #dce7f2;
+    border-radius:16px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+  }
+  th, td{
+    padding:10px 12px;
+    border-bottom:1px solid #e7eef6;
+    text-align:left;
+    font-size:.92rem;
+    vertical-align:top;
+  }
+  th{
+    background:#f6fafe;
+    color:#36536f;
+    font-size:.86rem;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+  }
+  .foot{
+    color:var(--muted);
+    font-size:.84rem;
+    margin-top:12px;
+    line-height:1.45;
+  }
+  .tiny{
+    font-size:.8rem;
+    color:var(--muted);
+    line-height:1.45;
+    margin-top:6px;
+  }
+  @media (max-width:1180px){
+    .layout{ grid-template-columns:1fr; }
+    .controls{ position:static; }
+    .kpis{ grid-template-columns:repeat(2, 1fr); }
+    .callouts{ grid-template-columns:1fr; }
+  }
+  @media (max-width:760px){
+    .grid{ grid-template-columns:1fr; }
+    .kpis{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<noscript><div style="margin:16px;padding:12px 14px;border-radius:14px;background:#fff4d6;border:1px solid #f0d88a;color:#6a5600;font-weight:600;">This applet needs JavaScript enabled in the browser.</div></noscript>
+<div class="wrap">
+  <header>
+    <h1>Softball Trajectory Explorer</h1>
+    <p class="subtitle">An interdisciplinary Mathematics + PE applet for experimenting with softball flight paths. The side view is modeled with a quadratic, while the front and top views show how the same path looks from different viewpoints for tactics, catching, and coaching discussion.</p>
+  </header>
+
+  <div id="startupMsg" style="display:none;margin:0 0 16px 0;padding:12px 14px;border-radius:14px;background:#fff4d6;border:1px solid #f0d88a;color:#6a5600;font-weight:600;">If the applet does not display correctly when opened directly from disk, try opening it in Chrome with a small local server instead of double-clicking the file.</div>
+
+  <div class="layout">
+    <aside class="card controls">
+      <h2>Model controls</h2>
+      <p class="mini">The side view uses a quadratic in vertex form. Students can test how changing the vertex, launch height, and left-right drift changes the same ball flight.</p>
+
+      <div class="control-group">
+        <div class="control">
+          <label for="launchHeight">Launch height <span class="value" id="launchHeightVal"></span></label>
+          <input id="launchHeight" type="range" min="0.5" max="2.2" step="0.1" value="1.1">
+          <small>Starting height of the softball at release or contact.</small>
+        </div>
+
+        <div class="control">
+          <label for="vertexX">Peak distance <span class="value" id="vertexXVal"></span></label>
+          <input id="vertexX" type="range" min="6" max="35" step="1" value="18">
+          <small>Horizontal distance from home plate to the highest point.</small>
+        </div>
+
+        <div class="control">
+          <label for="vertexY">Peak height <span class="value" id="vertexYVal"></span></label>
+          <input id="vertexY" type="range" min="2" max="24" step="0.5" value="11">
+          <small>This is the vertex height in the quadratic model.</small>
+        </div>
+
+        <div class="control">
+          <label for="drift">Lateral drift <span class="value" id="driftVal"></span></label>
+          <input id="drift" type="range" min="-12" max="12" step="0.5" value="3">
+          <small>Positive values move toward right field. Negative values move toward left field.</small>
+        </div>
+
+        <div class="control">
+          <label for="speed">Estimated horizontal speed <span class="value" id="speedVal"></span></label>
+          <input id="speed" type="range" min="10" max="28" step="1" value="17">
+          <small>Used for timing and animation. It does not change the quadratic itself.</small>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <strong style="display:block;margin-bottom:6px;">Quick presets</strong>
+        <div class="preset-row">
+          <button class="preset" data-preset="line">Line drive</button>
+          <button class="preset" data-preset="popup">Pop fly</button>
+          <button class="preset" data-preset="deep">Deep fly ball</button>
+          <button class="preset" data-preset="left">Pull to left</button>
+          <button class="preset" data-preset="right">Slice to right</button>
+        </div>
+        <div class="btn-row">
+          <button class="primary" id="playBtn">Pause animation</button>
+          <button class="ghost" id="resetBtn">Reset tracer</button>
+          <button class="copy" id="copyBtn">Copy trial data</button>
+        </div>
+        <div class="status" id="statusMsg"></div>
+      </div>
+
+      <div class="control-group">
+        <strong style="display:block;margin-bottom:6px;">How to use this</strong>
+        <ol class="mini" style="padding-left:18px;margin:8px 0 0;">
+          <li>Create or choose a trajectory.</li>
+          <li>Study the same path from the side, front, and top views.</li>
+          <li>Use the equation, vertex, intercept, range, and hang time to describe the motion.</li>
+          <li>Then connect the mathematics to PE decisions such as catching, field placement, shot choice, and consistency.</li>
+        </ol>
+      </div>
+    </aside>
+
+    <main class="grid">
+      <section class="card panel">
+        <h2>Side view - quadratic path</h2>
+        <p class="mini">Height against horizontal distance. This is the main mathematical model.</p>
+        <canvas id="sideCanvas" width="640" height="360"></canvas>
+        <div class="legend">
+          <span><span class="dot" style="background:#e85d4d"></span>ball</span>
+          <span><span class="dot" style="background:#0f6bb8"></span>quadratic path</span>
+          <span><span class="dot" style="background:#26a69a"></span>vertex</span>
+          <span><span class="dot" style="background:#f6b73c"></span>key points</span>
+          <span><span class="dot" style="background:#8aa5bd"></span>guide lines</span>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <h2>Front view - from home plate</h2>
+        <p class="mini">This viewpoint helps students see left-right drift and the height of the same ball path.</p>
+        <canvas id="frontCanvas" width="640" height="360"></canvas>
+      </section>
+
+      <section class="card panel">
+        <h2>Top view - bird's-eye field view</h2>
+        <p class="mini">This view shows field placement, drift, and where the ball lands on the ground.</p>
+        <canvas id="topCanvas" width="640" height="360"></canvas>
+      </section>
+
+      <section class="card panel">
+        <h2>Mathematical model and sport interpretation</h2>
+        <div class="kpis">
+          <div class="kpi"><div class="label">Range</div><div class="num" id="rangeOut"></div></div>
+          <div class="kpi"><div class="label">Max height</div><div class="num" id="heightOut"></div></div>
+          <div class="kpi"><div class="label">Estimated hang time</div><div class="num" id="timeOut"></div></div>
+          <div class="kpi"><div class="label">Likely trajectory type</div><div class="num" id="typeOut" style="font-size:1rem;"></div></div>
+        </div>
+
+        <div class="equation" id="equationBox"></div>
+
+        <div class="callouts">
+          <div class="callout good">
+            <strong>Math viewpoint</strong>
+            <ul class="list">
+              <li>Interpret the vertex in context.</li>
+              <li>Explain what the positive x-intercept means physically.</li>
+              <li>Compare how moving the vertex changes shape and range.</li>
+            </ul>
+          </div>
+          <div class="callout warn">
+            <strong>PE viewpoint</strong>
+            <ul class="list">
+              <li>Which path gives fielders more or less time?</li>
+              <li>Which path is easiest to catch?</li>
+              <li>Which path puts the defense under pressure?</li>
+            </ul>
+          </div>
+          <div class="callout note">
+            <strong>Model assumptions</strong>
+            <ul class="list">
+              <li>The side view is quadratic.</li>
+              <li>The field is treated as level ground.</li>
+              <li>Wind, spin, and bounce are simplified.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Point</th>
+                <th>Horizontal distance (m)</th>
+                <th>Height (m)</th>
+                <th>Lateral position (m)</th>
+              </tr>
+            </thead>
+            <tbody id="sampleBody"></tbody>
+          </table>
+        </div>
+        <p class="foot">Model note: the side view is quadratic, <em>y = a(x - h)^2 + k</em>. The front and top panels are projections of the same flight path, so students can connect one mathematical model to several viewpoints. The drift is a simple coaching-style model rather than a full physics simulation.</p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+window.addEventListener('error', function(event){
+  const box = document.getElementById('startupMsg');
+  if(box){
+    box.style.display = 'block';
+    box.textContent = 'The page loaded, but a script error stopped the applet: ' + event.message;
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+const els = {
+  launchHeight: document.getElementById('launchHeight'),
+  vertexX: document.getElementById('vertexX'),
+  vertexY: document.getElementById('vertexY'),
+  drift: document.getElementById('drift'),
+  speed: document.getElementById('speed'),
+  launchHeightVal: document.getElementById('launchHeightVal'),
+  vertexXVal: document.getElementById('vertexXVal'),
+  vertexYVal: document.getElementById('vertexYVal'),
+  driftVal: document.getElementById('driftVal'),
+  speedVal: document.getElementById('speedVal'),
+  playBtn: document.getElementById('playBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  copyBtn: document.getElementById('copyBtn'),
+  statusMsg: document.getElementById('statusMsg'),
+  equationBox: document.getElementById('equationBox'),
+  rangeOut: document.getElementById('rangeOut'),
+  heightOut: document.getElementById('heightOut'),
+  timeOut: document.getElementById('timeOut'),
+  typeOut: document.getElementById('typeOut'),
+  sampleBody: document.getElementById('sampleBody')
+};
+
+const sideCanvas = document.getElementById('sideCanvas');
+const frontCanvas = document.getElementById('frontCanvas');
+const topCanvas = document.getElementById('topCanvas');
+const sctx = sideCanvas.getContext('2d');
+const fctx = frontCanvas.getContext('2d');
+const tctx = topCanvas.getContext('2d');
+
+let animT = 0.38;
+let playing = true;
+let lastTime = performance.now();
+
+function fmt(n, digits=2){ return Number(n).toFixed(digits); }
+
+function getModel(){
+  const launch = parseFloat(els.launchHeight.value);
+  const h = parseFloat(els.vertexX.value);
+  const k = Math.max(parseFloat(els.vertexY.value), launch + 0.6);
+  const drift = parseFloat(els.drift.value);
+  const speed = parseFloat(els.speed.value);
+
+  const a = (launch - k) / (h*h);
+  const b = -2*a*h;
+  const c = launch;
+  const disc = Math.max(0, b*b - 4*a*c);
+  const root1 = (-b - Math.sqrt(disc)) / (2*a);
+  const root2 = (-b + Math.sqrt(disc)) / (2*a);
+  const landing = Math.max(root1, root2);
+  const hang = landing / speed;
+
+  return {launch,h,k,drift,speed,a,b,c,landing,hang};
+}
+
+function yAt(x,m){ return m.a*x*x + m.b*x + m.c; }
+function zAt(x,m){
+  const t = Math.max(0, Math.min(1, x / m.landing));
+  const curveBump = 0.25 * m.drift * 4 * t * (1 - t);
+  return m.drift * t + curveBump;
+}
+
+function classify(m){
+  if(m.k >= 16 && m.landing >= 35) return 'Deep fly';
+  if(m.k >= 12 && m.landing < 35) return 'High pop-up';
+  if(m.k < 7 && m.landing >= 25) return 'Line drive';
+  if(Math.abs(m.drift) >= 7 && m.landing >= 28) return m.drift > 0 ? 'Right-field slice' : 'Left-field pull';
+  return 'Playable fly ball';
+}
+
+function updateLabels(m){
+  els.launchHeightVal.textContent = fmt(m.launch,1) + ' m';
+  els.vertexXVal.textContent = fmt(m.h,0) + ' m';
+  els.vertexYVal.textContent = fmt(m.k,1) + ' m';
+  els.driftVal.textContent = fmt(m.drift,1) + ' m';
+  els.speedVal.textContent = fmt(m.speed,0) + ' m/s';
+
+  els.rangeOut.textContent = fmt(m.landing,1) + ' m';
+  els.heightOut.textContent = fmt(m.k,1) + ' m';
+  els.timeOut.textContent = fmt(m.hang,2) + ' s';
+  els.typeOut.textContent = classify(m);
+
+  const eq = [
+    `Vertex form:   y = ${fmt(m.a,4)}(x - ${fmt(m.h,2)})² + ${fmt(m.k,2)}`,
+    `Standard form: y = ${fmt(m.a,4)}x² + ${fmt(m.b,4)}x + ${fmt(m.c,2)}`,
+    `Vertex:        (${fmt(m.h,2)}, ${fmt(m.k,2)})`,
+    `Launch point:  (0.00, ${fmt(m.launch,2)})`,
+    `Landing point: (${fmt(m.landing,2)}, 0.00)`,
+    `Axis of symmetry: x = ${fmt(m.h,2)}`
+  ];
+  els.equationBox.textContent = eq.join('\n');
+
+  const sampleXs = [0, m.h/2, m.h, (m.h + m.landing)/2, m.landing];
+  els.sampleBody.innerHTML = sampleXs.map((x, i) => {
+    const labels = ['Launch','Rising point','Vertex','Descending point','Landing'];
+    return `<tr>
+      <td>${labels[i]}</td>
+      <td>${fmt(x,2)}</td>
+      <td>${fmt(Math.max(0,yAt(x,m)),2)}</td>
+      <td>${fmt(zAt(x,m),2)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function clearCanvas(ctx, canvas){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function drawGridBase(ctx, canvas, labelX='', labelY=''){
+  clearCanvas(ctx, canvas);
+  ctx.save();
+  ctx.fillStyle = '#fbfdff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle = '#5c7086';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(56, 20);
+  ctx.lineTo(56, canvas.height - 42);
+  ctx.lineTo(canvas.width - 40, canvas.height - 42);
+  ctx.stroke();
+  ctx.fillStyle = '#5c7086';
+  ctx.font = '12px Inter, sans-serif';
+  ctx.fillText(labelY, 10, 18);
+  ctx.fillText(labelX, canvas.width - 120, canvas.height - 12);
+  ctx.restore();
+}
+
+function drawLabeledGrid(ctx, canvas, xSteps, ySteps, xMin, xMax, yMin, yMax, labelX, labelY){
+  drawGridBase(ctx, canvas, labelX, labelY);
+  ctx.save();
+  ctx.strokeStyle = '#e1eaf3';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#6c8197';
+  ctx.font = '11px Inter, sans-serif';
+
+  for(let i=0;i<=xSteps;i++){
+    const x = 56 + (canvas.width - 96) * i / xSteps;
+    ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, canvas.height - 42); ctx.stroke();
+    const value = xMin + (xMax - xMin) * i / xSteps;
+    ctx.fillText(fmt(value,0), x - 8, canvas.height - 24);
+  }
+
+  for(let j=0;j<=ySteps;j++){
+    const y = 20 + (canvas.height - 62) * j / ySteps;
+    ctx.beginPath(); ctx.moveTo(56, y); ctx.lineTo(canvas.width - 40, y); ctx.stroke();
+    const value = yMax - (yMax - yMin) * j / ySteps;
+    ctx.fillText(fmt(value,0), 22, y + 4);
+  }
+  ctx.restore();
+}
+
+function drawSide(m){
+  const w = sideCanvas.width, h = sideCanvas.height;
+  const maxX = Math.max(60, m.landing + 5);
+  const maxY = Math.max(24, m.k + 2);
+  drawLabeledGrid(sctx, sideCanvas, 10, 6, 0, maxX, 0, maxY, 'distance (m)', 'height (m)');
+  const px = x => 56 + (w - 96) * (x / maxX);
+  const py = y => (h - 42) - (h - 62) * (y / maxY);
+
+  sctx.save();
+  sctx.strokeStyle = '#8aa5bd';
+  sctx.lineWidth = 1.5;
+  sctx.setLineDash([6,6]);
+  sctx.beginPath();
+  sctx.moveTo(px(m.h), py(0));
+  sctx.lineTo(px(m.h), py(m.k));
+  sctx.moveTo(px(0), py(m.k));
+  sctx.lineTo(px(m.h), py(m.k));
+  sctx.moveTo(px(m.landing), py(0));
+  sctx.lineTo(px(m.landing), py(Math.max(0, yAt(m.landing,m))));
+  sctx.stroke();
+  sctx.setLineDash([]);
+
+  sctx.strokeStyle = '#0f6bb8';
+  sctx.lineWidth = 4;
+  sctx.beginPath();
+  let started = false;
+  for(let x=0; x<=m.landing; x += m.landing/180){
+    const y = Math.max(0, yAt(x,m));
+    if(!started){ sctx.moveTo(px(x), py(y)); started = true; }
+    else { sctx.lineTo(px(x), py(y)); }
+  }
+  sctx.stroke();
+
+  const sampleXs = [0, m.h/2, m.h, (m.h + m.landing)/2, m.landing];
+  sctx.fillStyle = '#f6b73c';
+  sampleXs.forEach(x=>{
+    sctx.beginPath();
+    sctx.arc(px(x), py(Math.max(0,yAt(x,m))), 4.5, 0, Math.PI*2);
+    sctx.fill();
+  });
+
+  sctx.fillStyle = '#26a69a';
+  sctx.beginPath();
+  sctx.arc(px(m.h), py(m.k), 6.5, 0, Math.PI*2);
+  sctx.fill();
+
+  const ballX = animT * m.landing;
+  const ballY = Math.max(0, yAt(ballX,m));
+  sctx.fillStyle = '#e85d4d';
+  sctx.beginPath();
+  sctx.arc(px(ballX), py(ballY), 8, 0, Math.PI*2);
+  sctx.fill();
+  sctx.strokeStyle = 'rgba(232,93,77,.25)';
+  sctx.lineWidth = 2;
+  sctx.beginPath();
+  sctx.arc(px(ballX), py(ballY), 14, 0, Math.PI*2);
+  sctx.stroke();
+
+  sctx.fillStyle = '#17324d';
+  sctx.font = '12px Inter, sans-serif';
+  sctx.fillText('Home plate', px(0)-12, h-10);
+  sctx.fillText('Landing', px(m.landing)-18, h-10);
+  sctx.restore();
+}
+
+function drawFront(m){
+  const w = frontCanvas.width, h = frontCanvas.height;
+  const maxDrift = Math.max(12, Math.abs(m.drift) + 3);
+  const maxY = Math.max(24, m.k + 2);
+  drawLabeledGrid(fctx, frontCanvas, 8, 6, -maxDrift, maxDrift, 0, maxY, 'left/right drift (m)', 'height (m)');
+  const px = z => 56 + (w - 96) * ((z + maxDrift) / (2*maxDrift));
+  const py = y => (h - 42) - (h - 62) * (y / maxY);
+
+  fctx.save();
+  fctx.strokeStyle = '#a8bfd3';
+  fctx.lineWidth = 1.5;
+  fctx.setLineDash([6,6]);
+  fctx.beginPath();
+  fctx.moveTo(px(0), 20);
+  fctx.lineTo(px(0), h - 42);
+  fctx.stroke();
+  fctx.setLineDash([]);
+
+  fctx.fillStyle = 'rgba(15,107,184,.07)';
+  fctx.fillRect(px(-1.2), py(1.1), px(1.2)-px(-1.2), py(0)-py(1.1));
+  fctx.strokeStyle = '#9eb7cc';
+  fctx.lineWidth = 2;
+  fctx.strokeRect(px(-1.2), py(1.1), px(1.2)-px(-1.2), py(0)-py(1.1));
+
+  fctx.strokeStyle = '#0f6bb8';
+  fctx.lineWidth = 4;
+  fctx.beginPath();
+  let started = false;
+  for(let x=0; x<=m.landing; x += m.landing/180){
+    const z = zAt(x,m);
+    const y = Math.max(0, yAt(x,m));
+    if(!started){ fctx.moveTo(px(z), py(y)); started = true; }
+    else { fctx.lineTo(px(z), py(y)); }
+  }
+  fctx.stroke();
+
+  const ballX = animT * m.landing;
+  const ballY = Math.max(0, yAt(ballX,m));
+  const ballZ = zAt(ballX,m);
+  fctx.fillStyle = '#e85d4d';
+  fctx.beginPath();
+  fctx.arc(px(ballZ), py(ballY), 8, 0, Math.PI*2);
+  fctx.fill();
+
+  fctx.fillStyle = '#17324d';
+  fctx.font = '12px Inter, sans-serif';
+  fctx.fillText('Left field', 60, h - 10);
+  fctx.fillText('Centre', px(0)-16, h - 10);
+  fctx.fillText('Right field', w - 95, h - 10);
+  fctx.restore();
+}
+
+function drawTop(m){
+  const w = topCanvas.width, h = topCanvas.height;
+  const maxRange = Math.max(60, m.landing + 5);
+  const maxDrift = Math.max(16, Math.abs(m.drift) + 4);
+  drawLabeledGrid(tctx, topCanvas, 10, 8, 0, maxRange, -maxDrift, maxDrift, 'field depth (m)', 'field width (m)');
+  const px = x => 56 + (w - 96) * (x / maxRange);
+  const py = z => (h - 42) - (h - 62) * ((z + maxDrift) / (2*maxDrift));
+
+  tctx.save();
+  tctx.fillStyle = '#eaf5ee';
+  tctx.beginPath();
+  tctx.moveTo(px(0), py(0));
+  tctx.lineTo(px(maxRange*0.88), py(maxDrift));
+  tctx.lineTo(px(maxRange*0.88), py(-maxDrift));
+  tctx.closePath();
+  tctx.fill();
+
+  tctx.strokeStyle = '#a8d5b5';
+  tctx.lineWidth = 2;
+  tctx.beginPath();
+  tctx.moveTo(px(0), py(0));
+  tctx.lineTo(px(maxRange*0.88), py(maxDrift));
+  tctx.moveTo(px(0), py(0));
+  tctx.lineTo(px(maxRange*0.88), py(-maxDrift));
+  tctx.stroke();
+
+  tctx.strokeStyle = '#8aa5bd';
+  tctx.lineWidth = 1.5;
+  tctx.setLineDash([6,6]);
+  tctx.beginPath();
+  tctx.moveTo(px(m.landing), py(0));
+  tctx.lineTo(px(m.landing), py(zAt(m.landing,m)));
+  tctx.stroke();
+  tctx.setLineDash([]);
+
+  tctx.strokeStyle = '#0f6bb8';
+  tctx.lineWidth = 4;
+  tctx.beginPath();
+  let started = false;
+  for(let x=0; x<=m.landing; x += m.landing/180){
+    const z = zAt(x,m);
+    if(!started){ tctx.moveTo(px(x), py(z)); started = true; }
+    else { tctx.lineTo(px(x), py(z)); }
+  }
+  tctx.stroke();
+
+  const landingZ = zAt(m.landing,m);
+  tctx.fillStyle = '#26a69a';
+  tctx.beginPath();
+  tctx.arc(px(m.landing), py(landingZ), 7, 0, Math.PI*2);
+  tctx.fill();
+
+  const ballX = animT * m.landing;
+  const ballZ = zAt(ballX,m);
+  tctx.fillStyle = '#e85d4d';
+  tctx.beginPath();
+  tctx.arc(px(ballX), py(ballZ), 8, 0, Math.PI*2);
+  tctx.fill();
+
+  tctx.fillStyle = '#17324d';
+  tctx.font = '12px Inter, sans-serif';
+  tctx.fillText('Home', px(0)-6, py(0)+18);
+  tctx.fillText('Landing zone', px(m.landing)-24, py(landingZ)-10);
+  tctx.restore();
+}
+
+function drawAll(){
+  const m = getModel();
+  updateLabels(m);
+  drawSide(m);
+  drawFront(m);
+  drawTop(m);
+}
+
+function tick(now){
+  const m = getModel();
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  if(playing){
+    animT += dt / Math.max(0.8, m.hang);
+    if(animT > 1.02) animT = 0;
+  }
+  drawAll();
+  requestAnimationFrame(tick);
+}
+
+document.querySelectorAll('input[type="range"]').forEach(el => {
+  el.addEventListener('input', drawAll);
+});
+
+document.querySelectorAll('[data-preset]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const p = btn.dataset.preset;
+    const presets = {
+      line:  {launchHeight:1.0, vertexX:13, vertexY:5.0, drift:1.0, speed:23},
+      popup: {launchHeight:1.1, vertexX:9,  vertexY:17.0, drift:0.0, speed:12},
+      deep:  {launchHeight:1.0, vertexX:24, vertexY:14.0, drift:2.5, speed:18},
+      left:  {launchHeight:1.1, vertexX:19, vertexY:10.0, drift:-8.0, speed:18},
+      right: {launchHeight:1.1, vertexX:18, vertexY:9.5, drift:8.0, speed:18},
+    }[p];
+    Object.entries(presets).forEach(([k,v]) => els[k].value = v);
+    animT = 0;
+    drawAll();
+  });
+});
+
+els.playBtn.addEventListener('click', () => {
+  playing = !playing;
+  els.playBtn.textContent = playing ? 'Pause animation' : 'Play animation';
+});
+
+els.resetBtn.addEventListener('click', () => {
+  animT = 0;
+  drawAll();
+});
+
+els.copyBtn.addEventListener('click', () => {
+  const m = getModel();
+  const line = [
+    fmt(m.launch,1),
+    fmt(m.h,1),
+    fmt(m.k,1),
+    `y = ${fmt(m.a,4)}(x - ${fmt(m.h,2)})^2 + ${fmt(m.k,2)}`,
+    fmt(m.landing,1),
+    fmt(m.hang,2),
+    fmt(m.drift,1),
+    classify(m)
+  ].join('\t');
+
+  const fallbackCopy = () => {
+    const ta = document.createElement('textarea');
+    ta.value = line;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      const ok = document.execCommand('copy');
+      els.statusMsg.textContent = ok ? 'Copied current trial data to clipboard.' : 'Copy was blocked. You can still read the values below.';
+    } catch (err) {
+      els.statusMsg.textContent = 'Copy was blocked. You can still read the values below.';
+    }
+    document.body.removeChild(ta);
+    setTimeout(() => { els.statusMsg.textContent = ''; }, 2400);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(line).then(() => {
+      els.statusMsg.textContent = 'Copied current trial data to clipboard.';
+      setTimeout(() => { els.statusMsg.textContent = ''; }, 2400);
+    }).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
+});
+
+
+drawAll();
+requestAnimationFrame(tick);
+});
+</script>
+</body>
+</html>
