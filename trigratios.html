@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Trig Ratios</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f7f7fb;
+    color: #222;
+  }
+
+  h1 { text-align: center; }
+
+  .container {
+    max-width: 1100px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  }
+
+  .top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  canvas {
+    width: 100%;
+    height: 420px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .question {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+
+  button {
+    padding: 10px 16px;
+    margin: 6px;
+    border: none;
+    border-radius: 8px;
+    background: #2f6fed;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  button:hover { background: #1f55bd; }
+
+  .answers {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .card {
+    background: #f0f3ff;
+    padding: 12px;
+    border-radius: 10px;
+    border-left: 5px solid #2f6fed;
+  }
+
+  .ratio-title {
+    font-size: 1.15rem;
+    font-weight: bold;
+  }
+
+  .answer-content {
+    margin-top: 8px;
+    font-size: 1rem;
+  }
+
+  .hidden { display: none; }
+
+  .note {
+    background: #fff8dc;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 15px;
+  }
+
+  @media print {
+    button, .answers {
+      display: none;
+    }
+
+    body {
+      background: white;
+    }
+
+    .container {
+      box-shadow: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Trig Ratios</h1>
+
+  <div style="text-align:center;">
+    <button onclick="generateQuestion()">Generate New Question</button>
+  </div>
+
+  <div class="top">
+    <canvas id="graph" width="520" height="420"></canvas>
+
+    <div class="question">
+      <p>
+        According to the figure, find the values of:
+      </p>
+
+      <p>
+        sin θ, cos θ, tan θ, cosec θ, sec θ and cot θ.
+      </p>
+
+      <p id="pointText"></p>
+
+      <div class="note">
+        First calculate the length of the hypotenuse using Pythagoras’ theorem.
+        Leave all answers as fractions.
+      </div>
+    </div>
+  </div>
+
+  <div id="answers" class="answers"></div>
+</div>
+
+<script>
+const triples = [
+  [3, 4, 5],
+  [5, 12, 13],
+  [8, 15, 17],
+  [7, 24, 25],
+  [20, 21, 29],
+  [9, 40, 41],
+  [12, 35, 37],
+  [11, 60, 61]
+];
+
+let current = {};
+
+function gcd(a, b) {
+  a = Math.abs(a);
+  b = Math.abs(b);
+  while (b) {
+    [a, b] = [b, a % b];
+  }
+  return a;
+}
+
+function frac(n, d) {
+  if (d < 0) {
+    n = -n;
+    d = -d;
+  }
+
+  const g = gcd(n, d);
+  n /= g;
+  d /= g;
+
+  if (d === 1) return `${n}`;
+  return `${n}/${d}`;
+}
+
+function generateQuestion() {
+  const triple = triples[Math.floor(Math.random() * triples.length)];
+  let [a, b, r] = triple;
+
+  if (Math.random() < 0.5) {
+    [a, b] = [b, a];
+  }
+
+  const signs = [
+    [1, 1],
+    [-1, 1],
+    [-1, -1],
+    [1, -1]
+  ];
+
+  const [sx, sy] = signs[Math.floor(Math.random() * signs.length)];
+
+  const x = sx * a;
+  const y = sy * b;
+
+  current = { x, y, r };
+
+  document.getElementById("pointText").innerHTML =
+    `The terminal side of angle θ passes through the point <strong>(${x}, ${y})</strong>.`;
+
+  drawGraph();
+  makeAnswerCards();
+}
+
+function makeAnswerCards() {
+  const { x, y, r } = current;
+
+  const pythagoras =
+    `r = √(${x}² + ${y}²) = √(${x * x} + ${y * y}) = √${r * r} = ${r}`;
+
+  const data = [
+    {
+      name: "sin θ",
+      value: frac(y, r),
+      calc: `${pythagoras}<br>sin θ = y / r = ${y}/${r} = ${frac(y, r)}`
+    },
+    {
+      name: "cos θ",
+      value: frac(x, r),
+      calc: `${pythagoras}<br>cos θ = x / r = ${x}/${r} = ${frac(x, r)}`
+    },
+    {
+      name: "tan θ",
+      value: frac(y, x),
+      calc: `${pythagoras}<br>tan θ = y / x = ${y}/${x} = ${frac(y, x)}`
+    },
+    {
+      name: "cosec θ",
+      value: frac(r, y),
+      calc: `${pythagoras}<br>cosec θ = r / y = ${r}/${y} = ${frac(r, y)}`
+    },
+    {
+      name: "sec θ",
+      value: frac(r, x),
+      calc: `${pythagoras}<br>sec θ = r / x = ${r}/${x} = ${frac(r, x)}`
+    },
+    {
+      name: "cot θ",
+      value: frac(x, y),
+      calc: `${pythagoras}<br>cot θ = x / y = ${x}/${y} = ${frac(x, y)}`
+    }
+  ];
+
+  const box = document.getElementById("answers");
+  box.innerHTML = "";
+
+  data.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <div class="ratio-title">${item.name}</div>
+      <button onclick="revealRatio(${index})">Reveal</button>
+      <div id="answer-${index}" class="answer-content hidden">
+        <strong>${item.name} = ${item.value}</strong><br>
+        ${item.calc}
+      </div>
+    `;
+
+    box.appendChild(div);
+  });
+
+  window.answerData = data;
+}
+
+function revealRatio(index) {
+  const answer = document.getElementById(`answer-${index}`);
+  answer.classList.toggle("hidden");
+}
+
+function drawGraph() {
+  const canvas = document.getElementById("graph");
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const w = canvas.width;
+  const h = canvas.height;
+  const ox = w / 2;
+  const oy = h / 2;
+
+  const { x, y, r } = current;
+  const scale = Math.min((w * 0.38) / r, (h * 0.38) / r);
+
+  const px = ox + x * scale;
+  const py = oy - y * scale;
+
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.moveTo(30, oy);
+  ctx.lineTo(w - 30, oy);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(ox, h - 30);
+  ctx.lineTo(ox, 30);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(w - 30, oy);
+  ctx.lineTo(w - 42, oy - 6);
+  ctx.lineTo(w - 42, oy + 6);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(ox, 30);
+  ctx.lineTo(ox - 6, 42);
+  ctx.lineTo(ox + 6, 42);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.font = "22px Arial";
+  ctx.fillText("x", w - 25, oy + 26);
+  ctx.fillText("y", ox + 12, 35);
+  ctx.fillText("O", ox - 24, oy + 25);
+
+  ctx.strokeStyle = "#111";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(ox, oy);
+  ctx.lineTo(px, py);
+  ctx.stroke();
+
+  ctx.setLineDash([6, 6]);
+  ctx.strokeStyle = "#777";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.lineTo(px, oy);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(px, oy);
+  ctx.lineTo(ox, oy);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = "#d62828";
+  ctx.beginPath();
+  ctx.arc(px, py, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#000";
+  ctx.font = "20px Arial";
+  ctx.fillText(`(${x}, ${y})`, px + 10, py - 10);
+
+  ctx.strokeStyle = "#2f6fed";
+  ctx.lineWidth = 2;
+
+  let angle = Math.atan2(-y, x);
+
+  ctx.beginPath();
+  ctx.arc(ox, oy, 35, 0, angle, y > 0);
+  ctx.stroke();
+
+  ctx.fillStyle = "#2f6fed";
+  ctx.font = "20px Arial";
+  ctx.fillText("θ", ox + 42, oy - 8);
+}
+
+generateQuestion();
+</script>
+
+</body>
+</html>
