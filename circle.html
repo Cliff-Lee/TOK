@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit Circle Trig Discovery Applet</title>
+
+  <style>
+    :root {
+      --bg: #f7f4ed;
+      --card: #ffffff;
+      --ink: #111827;
+      --muted: #64748b;
+      --axis: #94a3b8;
+      --circle: #111827;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --red: #ef4444;
+      --green: #15803d;
+      --orange: #ea580c;
+      --soft-blue: #eff6ff;
+      --soft-orange: #fff7ed;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e0e7ff 0, var(--bg) 42%);
+      color: var(--ink);
+    }
+
+    header {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 3vw, 2.45rem);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      max-width: 980px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 16px 20px 44px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(350px, 0.95fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(203, 213, 225, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+
+    .diagram-card {
+      padding: 14px;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      touch-action: none;
+    }
+
+    .axis {
+      stroke: var(--axis);
+      stroke-width: 2.3;
+    }
+
+    .axis-arrow {
+      fill: var(--axis);
+    }
+
+    .circle {
+      fill: none;
+      stroke: var(--circle);
+      stroke-width: 2.8;
+    }
+
+    .radius {
+      stroke: var(--blue);
+      stroke-width: 3.6;
+      stroke-linecap: round;
+    }
+
+    .tangent {
+      stroke: #111827;
+      stroke-width: 3.3;
+      stroke-linecap: round;
+    }
+
+    .helper {
+      stroke: #94a3b8;
+      stroke-width: 2.4;
+      stroke-dasharray: 7 6;
+    }
+
+    .axis-segment {
+      stroke: #334155;
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+
+    .highlight {
+      stroke: var(--red);
+      stroke-width: 7;
+      stroke-linecap: round;
+      opacity: 0.9;
+      fill: none;
+    }
+
+    .angle {
+      fill: none;
+      stroke: var(--purple);
+      stroke-width: 3.2;
+    }
+
+    .right-angle {
+      fill: none;
+      stroke: var(--purple);
+      stroke-width: 2.4;
+    }
+
+    .point {
+      fill: #111827;
+    }
+
+    .point-b {
+      fill: var(--red);
+      cursor: grab;
+    }
+
+    .label {
+      font-size: 20px;
+      font-weight: 900;
+      fill: #111827;
+      paint-order: stroke;
+      stroke: #fff;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .small-label {
+      font-size: 15px;
+      font-weight: 850;
+      fill: #334155;
+      paint-order: stroke;
+      stroke: #fff;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .seg-label {
+      font-size: 15px;
+      font-weight: 900;
+      fill: #0f172a;
+      paint-order: stroke;
+      stroke: #fff;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      align-items: center;
+      padding: 12px 6px 6px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+    }
+
+    label {
+      font-weight: 750;
+    }
+
+    input[type="range"] {
+      width: min(340px, 48vw);
+      accent-color: var(--blue);
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    select {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 6px 8px;
+      background: #fff;
+      color: #111827;
+      max-width: 100%;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: #1e3a8a;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .side {
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+
+    h2 {
+      margin: 0 0 9px;
+      font-size: 1.12rem;
+    }
+
+    .note {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.48;
+      font-size: 0.95rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 5px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #475569;
+      font-size: 0.82rem;
+    }
+
+    .ok {
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .no {
+      color: #b91c1c;
+      font-weight: 900;
+    }
+
+    .question {
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-left: 4px solid var(--blue);
+      background: var(--soft-blue);
+      border-radius: 10px;
+      line-height: 1.45;
+    }
+
+    .challenge {
+      border-left-color: var(--orange);
+      background: var(--soft-orange);
+    }
+
+    .match-row select {
+      width: 100%;
+    }
+
+    .answer-mark {
+      width: 30px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .mini-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 13px;
+      padding: 10px;
+      background: #f8fafc;
+      line-height: 1.4;
+    }
+
+    .mini-card h3 {
+      margin: 0 0 8px;
+      font-size: 0.98rem;
+    }
+
+    .value-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .value-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px dashed #cbd5e1;
+      padding: 3px 0;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      input[type="range"] {
+        width: min(320px, 72vw);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .two-cols {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Discovering trig values from a unit circle</h1>
+    <p class="subtitle">
+      The circle is centred at <strong>O = (0,0)</strong> and has radius <strong>1</strong>.
+      Move point <strong>B</strong> in the first quadrant. Compare the measured lengths with the trig values,
+      then match each segment to the correct function.
+    </p>
+  </header>
+
+  <main>
+    <section class="card diagram-card">
+      <svg id="svg" viewBox="0 0 790 590" aria-label="Interactive unit circle centred at the origin">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" class="axis-arrow" />
+          </marker>
+        </defs>
+
+        <line id="xAxis" class="axis" marker-end="url(#arrow)"></line>
+        <line id="yAxis" class="axis" marker-end="url(#arrow)"></line>
+
+        <circle id="unitCircle" class="circle"></circle>
+
+        <line id="tangentLine" class="tangent"></line>
+        <line id="radiusLine" class="radius"></line>
+
+        <line id="bdLine" class="helper"></line>
+        <line id="beLine" class="helper"></line>
+
+        <line id="odLine" class="axis-segment"></line>
+        <line id="oeLine" class="axis-segment"></line>
+        <line id="oaLine" class="axis-segment"></line>
+        <line id="ocLine" class="axis-segment"></line>
+
+        <path id="focusPath" class="highlight"></path>
+        <path id="angleArc" class="angle"></path>
+        <path id="rightAngleD" class="right-angle"></path>
+        <path id="rightAngleB" class="right-angle"></path>
+
+        <circle id="pointO" class="point" r="5"></circle>
+        <circle id="pointA" class="point" r="5"></circle>
+        <circle id="pointB" class="point-b" r="7"></circle>
+        <circle id="pointC" class="point" r="5"></circle>
+        <circle id="pointD" class="point" r="5"></circle>
+        <circle id="pointE" class="point" r="5"></circle>
+
+        <text id="labelO" class="label">O</text>
+        <text id="labelA" class="label">A</text>
+        <text id="labelB" class="label">B</text>
+        <text id="labelC" class="label">C</text>
+        <text id="labelD" class="label">D</text>
+        <text id="labelE" class="label">E</text>
+        <text id="labelTheta" class="label">θ</text>
+
+        <text id="labelX" class="small-label">x</text>
+        <text id="labelY" class="small-label">y</text>
+        <text id="unitLabel" class="small-label">OB = 1</text>
+
+        <text id="segAB" class="seg-label">AB</text>
+        <text id="segBC" class="seg-label">BC</text>
+        <text id="segOC" class="seg-label">OC</text>
+        <text id="segOD" class="seg-label">OD</text>
+        <text id="segOE" class="seg-label">OE</text>
+        <text id="segOA" class="seg-label">OA</text>
+      </svg>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="angleSlider">Angle</label>
+          <input id="angleSlider" type="range" min="8" max="82" step="1" value="35" />
+          <span id="angleReadout" class="pill">35°</span>
+        </div>
+
+        <div class="control-group">
+          <label for="focusSelect">Highlight</label>
+          <select id="focusSelect">
+            <option value="none">None</option>
+            <option value="OD">OD</option>
+            <option value="OE">OE</option>
+            <option value="AB">AB</option>
+            <option value="BC">BC</option>
+            <option value="OA">OA</option>
+            <option value="OC">OC</option>
+            <option value="OB">OB</option>
+          </select>
+        </div>
+
+        <button id="randomAngle" class="secondary">Random angle</button>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="card panel">
+        <h2>Compare the numbers</h2>
+        <p class="note">
+          The two lists are deliberately mixed up. Look for equal values, then test your ideas by changing the angle.
+        </p>
+
+        <div class="two-cols">
+          <div class="mini-card">
+            <h3>Segment lengths</h3>
+            <div id="lengthList" class="value-list"></div>
+          </div>
+
+          <div class="mini-card">
+            <h3>Trig values</h3>
+            <div id="trigList" class="value-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <h2>Match each length</h2>
+        <p class="note">
+          Choose the trig value with the same numerical value. Then change the angle and check whether your matches still work.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Segment</th>
+              <th>Your match</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="matchTable"></tbody>
+        </table>
+
+        <div class="controls" style="padding-left:0;">
+          <button id="checkAnswers">Check</button>
+          <button id="resetAnswers" class="secondary">Reset</button>
+        </div>
+
+        <p id="checkMessage" class="note"></p>
+      </section>
+
+      <section class="card panel">
+        <h2>Guiding questions</h2>
+
+        <div class="question">
+          Which segment lengths are always less than 1? Which trig values are always less than 1?
+        </div>
+
+        <div class="question">
+          Which segment lengths are always greater than 1? Which trig values are always greater than 1?
+        </div>
+
+        <div class="question">
+          As θ increases, which lengths increase? Which lengths decrease?
+        </div>
+
+        <div class="question">
+          Which lengths are measured directly from the centre O to an axis point?
+        </div>
+
+        <div class="question">
+          How does the radius 1 help you compare lengths in the small right triangle?
+        </div>
+
+        <div class="question challenge">
+          Challenge: The black line touches the circle at B. What is special about the radius and the tangent at B?
+          How could this help you justify the longer lengths?
+        </div>
+
+        <div class="question challenge">
+          After matching, write one sentence for each segment explaining why your match makes sense.
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const svg = document.getElementById("svg");
+    const slider = document.getElementById("angleSlider");
+    const angleReadout = document.getElementById("angleReadout");
+    const focusSelect = document.getElementById("focusSelect");
+    const randomAngleBtn = document.getElementById("randomAngle");
+
+    const lengthList = document.getElementById("lengthList");
+    const trigList = document.getElementById("trigList");
+    const matchTable = document.getElementById("matchTable");
+    const checkBtn = document.getElementById("checkAnswers");
+    const resetBtn = document.getElementById("resetAnswers");
+    const checkMessage = document.getElementById("checkMessage");
+
+    const els = {};
+    [
+      "xAxis", "yAxis", "unitCircle",
+      "tangentLine", "radiusLine",
+      "bdLine", "beLine",
+      "odLine", "oeLine", "oaLine", "ocLine",
+      "focusPath", "angleArc", "rightAngleD", "rightAngleB",
+      "pointO", "pointA", "pointB", "pointC", "pointD", "pointE",
+      "labelO", "labelA", "labelB", "labelC", "labelD", "labelE", "labelTheta",
+      "labelX", "labelY", "unitLabel",
+      "segAB", "segBC", "segOC", "segOD", "segOE", "segOA"
+    ].forEach(id => {
+      els[id] = document.getElementById(id);
+    });
+
+    const cx = 260;
+    const cy = 390;
+    const r = 135;
+
+    let angleDeg = 35;
+    let dragging = false;
+
+    const answerKey = {
+      OD: "cos θ",
+      OE: "sin θ",
+      AB: "tan θ",
+      BC: "cot θ",
+      OA: "sec θ",
+      OC: "cosec θ"
+    };
+
+    const segmentOrderForMatching = ["BC", "OD", "OA", "OE", "AB", "OC"];
+
+    const segmentDisplayOrder = ["AB", "OC", "OD", "BC", "OE", "OA"];
+
+    const trigDisplayOrder = ["sec θ", "tan θ", "cosec θ", "cos θ", "cot θ", "sin θ"];
+
+    const dropdownOptionOrder = ["cot θ", "sin θ", "sec θ", "cos θ", "cosec θ", "tan θ"];
+
+    function sx(x) {
+      return cx + x * r;
+    }
+
+    function sy(y) {
+      return cy - y * r;
+    }
+
+    function fmt(n) {
+      return Number(n).toFixed(3);
+    }
+
+    function midpoint(p, q) {
+      return {
+        x: (p.x + q.x) / 2,
+        y: (p.y + q.y) / 2
+      };
+    }
+
+    function setLine(el, p, q) {
+      el.setAttribute("x1", p.x);
+      el.setAttribute("y1", p.y);
+      el.setAttribute("x2", q.x);
+      el.setAttribute("y2", q.y);
+    }
+
+    function setPoint(el, p) {
+      el.setAttribute("cx", p.x);
+      el.setAttribute("cy", p.y);
+    }
+
+    function setText(el, p, text) {
+      el.setAttribute("x", p.x);
+      el.setAttribute("y", p.y);
+
+      if (text !== undefined) {
+        el.textContent = text;
+      }
+    }
+
+    function pathLine(p, q) {
+      return `M ${p.x} ${p.y} L ${q.x} ${q.y}`;
+    }
+
+    function arcPath(radius, startDeg, endDeg) {
+      const start = {
+        x: sx(Math.cos(startDeg * Math.PI / 180) * radius / r),
+        y: sy(Math.sin(startDeg * Math.PI / 180) * radius / r)
+      };
+
+      const end = {
+        x: sx(Math.cos(endDeg * Math.PI / 180) * radius / r),
+        y: sy(Math.sin(endDeg * Math.PI / 180) * radius / r)
+      };
+
+      const large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+
+      return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${large} 0 ${end.x} ${end.y}`;
+    }
+
+    function compute() {
+      const t = angleDeg * Math.PI / 180;
+
+      const sin = Math.sin(t);
+      const cos = Math.cos(t);
+      const tan = Math.tan(t);
+      const cot = 1 / tan;
+      const sec = 1 / cos;
+      const csc = 1 / sin;
+
+      const O = { x: sx(0), y: sy(0) };
+      const B = { x: sx(cos), y: sy(sin) };
+      const D = { x: sx(cos), y: sy(0) };
+      const E = { x: sx(0), y: sy(sin) };
+      const A = { x: sx(sec), y: sy(0) };
+      const C = { x: sx(0), y: sy(csc) };
+
+      return {
+        t,
+        sin,
+        cos,
+        tan,
+        cot,
+        sec,
+        csc,
+        O,
+        B,
+        D,
+        E,
+        A,
+        C
+      };
+    }
+
+    function rightAngleAtB(g) {
+      const size = 16;
+
+      const ux = Math.cos(g.t);
+      const uy = -Math.sin(g.t);
+
+      const vx = -Math.sin(g.t);
+      const vy = -Math.cos(g.t);
+
+      const p1 = {
+        x: g.B.x + ux * size,
+        y: g.B.y + uy * size
+      };
+
+      const p2 = {
+        x: p1.x + vx * size,
+        y: p1.y + vy * size
+      };
+
+      const p3 = {
+        x: g.B.x + vx * size,
+        y: g.B.y + vy * size
+      };
+
+      return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y}`;
+    }
+
+    function update() {
+      const g = compute();
+
+      angleReadout.textContent = `${angleDeg}°`;
+
+      setLine(els.xAxis, { x: 70, y: cy }, { x: 745, y: cy });
+      setLine(els.yAxis, { x: cx, y: 535 }, { x: cx, y: 45 });
+
+      els.unitCircle.setAttribute("cx", cx);
+      els.unitCircle.setAttribute("cy", cy);
+      els.unitCircle.setAttribute("r", r);
+
+      setLine(els.radiusLine, g.O, g.B);
+      setLine(els.tangentLine, g.A, g.C);
+
+      setLine(els.bdLine, g.B, g.D);
+      setLine(els.beLine, g.B, g.E);
+
+      setLine(els.odLine, g.O, g.D);
+      setLine(els.oeLine, g.O, g.E);
+      setLine(els.oaLine, g.O, g.A);
+      setLine(els.ocLine, g.O, g.C);
+
+      setPoint(els.pointO, g.O);
+      setPoint(els.pointA, g.A);
+      setPoint(els.pointB, g.B);
+      setPoint(els.pointC, g.C);
+      setPoint(els.pointD, g.D);
+      setPoint(els.pointE, g.E);
+
+      setText(els.labelO, { x: g.O.x - 28, y: g.O.y + 30 });
+      setText(els.labelA, { x: g.A.x - 3, y: g.A.y + 30 });
+      setText(els.labelB, { x: g.B.x + 10, y: g.B.y - 10 });
+      setText(els.labelC, { x: g.C.x - 28, y: g.C.y - 8 });
+      setText(els.labelD, { x: g.D.x - 8, y: g.D.y + 30 });
+      setText(els.labelE, { x: g.E.x - 28, y: g.E.y + 6 });
+
+      setText(els.labelTheta, { x: cx + 54, y: cy - 16 });
+      setText(els.labelX, { x: 730, y: cy - 12 });
+      setText(els.labelY, { x: cx + 12, y: 58 });
+
+      const midOB = midpoint(g.O, g.B);
+      setText(els.unitLabel, { x: midOB.x + 8, y: midOB.y - 8 });
+
+      els.angleArc.setAttribute("d", arcPath(47, 0, angleDeg));
+
+      const s = 14;
+      els.rightAngleD.setAttribute(
+        "d",
+        `M ${g.D.x - s} ${g.D.y} L ${g.D.x - s} ${g.D.y - s} L ${g.D.x} ${g.D.y - s}`
+      );
+
+      els.rightAngleB.setAttribute("d", rightAngleAtB(g));
+
+      const labelPositions = {
+        AB: midpoint(g.A, g.B),
+        BC: midpoint(g.B, g.C),
+        OC: midpoint(g.O, g.C),
+        OD: midpoint(g.O, g.D),
+        OE: midpoint(g.O, g.E),
+        OA: midpoint(g.O, g.A)
+      };
+
+      setText(els.segAB, { x: labelPositions.AB.x + 10, y: labelPositions.AB.y + 6 });
+      setText(els.segBC, { x: labelPositions.BC.x - 40, y: labelPositions.BC.y - 6 });
+      setText(els.segOC, { x: labelPositions.OC.x - 40, y: labelPositions.OC.y });
+      setText(els.segOD, { x: labelPositions.OD.x - 8, y: labelPositions.OD.y + 25 });
+      setText(els.segOE, { x: labelPositions.OE.x - 40, y: labelPositions.OE.y + 5 });
+      setText(els.segOA, { x: labelPositions.OA.x - 8, y: labelPositions.OA.y + 46 });
+
+      const paths = {
+        OD: pathLine(g.O, g.D),
+        OE: pathLine(g.O, g.E),
+        AB: pathLine(g.A, g.B),
+        BC: pathLine(g.B, g.C),
+        OA: pathLine(g.O, g.A),
+        OC: pathLine(g.O, g.C),
+        OB: pathLine(g.O, g.B),
+        none: ""
+      };
+
+      els.focusPath.setAttribute("d", paths[focusSelect.value] || "");
+
+      const segmentValueMap = {
+        OD: g.cos,
+        OE: g.sin,
+        AB: g.tan,
+        BC: g.cot,
+        OA: g.sec,
+        OC: g.csc
+      };
+
+      const trigValueMap = {
+        "sin θ": g.sin,
+        "cos θ": g.cos,
+        "tan θ": g.tan,
+        "cot θ": g.cot,
+        "sec θ": g.sec,
+        "cosec θ": g.csc
+      };
+
+      lengthList.innerHTML = segmentDisplayOrder.map(name => `
+        <div class="value-item">
+          <strong>${name}</strong>
+          <span>${fmt(segmentValueMap[name])}</span>
+        </div>
+      `).join("");
+
+      trigList.innerHTML = trigDisplayOrder.map(name => `
+        <div class="value-item">
+          <strong>${name}</strong>
+          <span>${fmt(trigValueMap[name])}</span>
+        </div>
+      `).join("");
+    }
+
+    function buildMatching() {
+      matchTable.innerHTML = segmentOrderForMatching.map(seg => {
+        const options = ['<option value="">Choose...</option>']
+          .concat(dropdownOptionOrder.map(option => `<option value="${option}">${option}</option>`))
+          .join("");
+
+        return `
+          <tr class="match-row">
+            <td><strong>${seg}</strong></td>
+            <td>
+              <select data-seg="${seg}">
+                ${options}
+              </select>
+            </td>
+            <td class="answer-mark" id="mark-${seg}"></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function pointerToAngle(evt) {
+      const rect = svg.getBoundingClientRect();
+
+      const x = (evt.clientX - rect.left) * 790 / rect.width;
+      const y = (evt.clientY - rect.top) * 590 / rect.height;
+
+      const dx = x - cx;
+      const dy = cy - y;
+
+      let deg = Math.atan2(dy, dx) * 180 / Math.PI;
+      deg = Math.max(8, Math.min(82, deg));
+
+      return Math.round(deg);
+    }
+
+    els.pointB.addEventListener("pointerdown", evt => {
+      dragging = true;
+      els.pointB.setPointerCapture(evt.pointerId);
+      els.pointB.style.cursor = "grabbing";
+    });
+
+    els.pointB.addEventListener("pointermove", evt => {
+      if (!dragging) return;
+
+      angleDeg = pointerToAngle(evt);
+      slider.value = angleDeg;
+      update();
+    });
+
+    els.pointB.addEventListener("pointerup", evt => {
+      dragging = false;
+      els.pointB.style.cursor = "grab";
+      els.pointB.releasePointerCapture(evt.pointerId);
+    });
+
+    slider.addEventListener("input", () => {
+      angleDeg = Number(slider.value);
+      update();
+    });
+
+    focusSelect.addEventListener("change", update);
+
+    randomAngleBtn.addEventListener("click", () => {
+      angleDeg = Math.floor(8 + Math.random() * 75);
+      slider.value = angleDeg;
+      update();
+    });
+
+    checkBtn.addEventListener("click", () => {
+      let score = 0;
+
+      const selects = matchTable.querySelectorAll("select");
+
+      selects.forEach(sel => {
+        const seg = sel.dataset.seg;
+        const mark = document.getElementById(`mark-${seg}`);
+
+        if (sel.value === answerKey[seg]) {
+          mark.textContent = "✓";
+          mark.className = "answer-mark ok";
+          score++;
+        } else {
+          mark.textContent = "×";
+          mark.className = "answer-mark no";
+        }
+      });
+
+      checkMessage.innerHTML = score === 6
+        ? '<span class="ok">All matched.</span> Now write a justification using the unit circle, right triangles, and similar triangles.'
+        : `You matched <strong>${score}/6</strong>. Try another angle and compare the numbers again.`;
+    });
+
+    resetBtn.addEventListener("click", () => {
+      matchTable.querySelectorAll("select").forEach(sel => {
+        sel.value = "";
+      });
+
+      matchTable.querySelectorAll(".answer-mark").forEach(mark => {
+        mark.textContent = "";
+        mark.className = "answer-mark";
+      });
+
+      checkMessage.textContent = "";
+    });
+
+    buildMatching();
+    update();
+  </script>
+</body>
+</html>
