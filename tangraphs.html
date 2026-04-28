@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Tan Graph from the Unit Circle</title>
+
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5c667a;
+      --line: #d6dce8;
+      --blue: #2563eb;
+      --red: #dc2626;
+      --green: #16a34a;
+      --orange: #f59e0b;
+      --purple: #7c3aed;
+      --shadow: 0 18px 45px rgba(30, 41, 59, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e0ebff 0, #f6f7fb 40%, #f8fafc 100%);
+      color: var(--ink);
+    }
+
+    header,
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-left: 22px;
+      padding-right: 22px;
+    }
+
+    header {
+      padding-top: 34px;
+      padding-bottom: 16px;
+    }
+
+    main {
+      padding-bottom: 40px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      color: var(--muted);
+      max-width: 980px;
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 8px 0 18px;
+    }
+
+    .tab-btn {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, 0.8);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
+    }
+
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(214, 220, 232, 0.95);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.25rem;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.45;
+      margin: 0 0 12px;
+    }
+
+    .svgbox {
+      width: 100%;
+      aspect-ratio: 1.12 / 1;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .wide {
+      aspect-ratio: 1.75 / 1;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      user-select: none;
+    }
+
+    .controls {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1.2fr auto auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .slider-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .slider-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: white;
+    }
+
+    .slider-card label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    label {
+      font-weight: 850;
+      font-size: 0.95rem;
+    }
+
+    .value {
+      color: var(--blue);
+      font-weight: 950;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      background: var(--ink);
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+    }
+
+    button.secondary {
+      background: #e8eefc;
+      color: #183b7a;
+      box-shadow: none;
+    }
+
+    .readout {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      padding: 12px;
+      min-height: 76px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .big {
+      font-size: 1.15rem;
+      font-weight: 950;
+      word-break: break-word;
+    }
+
+    .notes {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .q {
+      margin: 10px 0 0;
+      padding-left: 20px;
+      line-height: 1.6;
+      color: #273449;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      border: 1px solid #ccd6ea;
+      background: #f8fbff;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.88rem;
+      color: #2d3b55;
+      font-weight: 750;
+    }
+
+    .equation-panel {
+      border: 1px solid #c7d2fe;
+      background: linear-gradient(135deg, #eef2ff, white);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .equation-title {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 950;
+      margin-bottom: 6px;
+    }
+
+    .equation {
+      font-size: clamp(1.45rem, 3vw, 2.35rem);
+      font-weight: 950;
+      letter-spacing: -0.04em;
+    }
+
+    .blue {
+      color: var(--blue);
+    }
+
+    .red {
+      color: var(--red);
+    }
+
+    .green {
+      color: var(--green);
+    }
+
+    .purple {
+      color: var(--purple);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-size: 0.82rem;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-weight: 850;
+      color: #1e293b;
+    }
+
+    .axis-label,
+    .svg-label {
+      font-size: 13px;
+      fill: #334155;
+      font-weight: 850;
+    }
+
+    .tiny {
+      font-size: 11px;
+      fill: #64748b;
+      font-weight: 800;
+    }
+
+    .grid-line {
+      stroke: #e2e8f0;
+      stroke-width: 1;
+    }
+
+    .axis {
+      stroke: #64748b;
+      stroke-width: 1.5;
+    }
+
+    .circle {
+      stroke: #334155;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    .blue-line {
+      stroke: var(--blue);
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .red-line {
+      stroke: var(--red);
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .green-line {
+      stroke: var(--green);
+      stroke-width: 2.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .cos-line {
+      stroke: var(--purple);
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .dash {
+      stroke-dasharray: 6 5;
+    }
+
+    .asym {
+      stroke: var(--orange);
+      stroke-width: 2;
+      stroke-dasharray: 8 6;
+    }
+
+    .curve {
+      stroke: var(--red);
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .parent {
+      stroke: rgba(37, 99, 235, 0.35);
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .pt {
+      stroke: white;
+      stroke-width: 3;
+      fill: var(--blue);
+    }
+
+    .tanpt {
+      stroke: white;
+      stroke-width: 3;
+      fill: var(--red);
+    }
+
+    .centrept {
+      stroke: white;
+      stroke-width: 3;
+      fill: var(--green);
+    }
+
+    .principal {
+      stroke: var(--green);
+      stroke-width: 2.8;
+      stroke-dasharray: 10 6;
+    }
+
+    .warning {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      font-weight: 850;
+      display: none;
+    }
+
+    .warning.show {
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 850;
+      color: #334155;
+    }
+
+    .swatch {
+      width: 22px;
+      height: 4px;
+      border-radius: 999px;
+    }
+
+    .swatch.sin {
+      background: var(--green);
+    }
+
+    .swatch.cos {
+      background: var(--purple);
+    }
+
+    .swatch.tan {
+      background: var(--red);
+    }
+
+    .swatch.as {
+      background: var(--orange);
+    }
+
+    @media (max-width: 900px) {
+      .grid2,
+      .notes {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .readout,
+      .slider-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .wide {
+        aspect-ratio: 1.1 / 1;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .readout,
+      .slider-grid {
+        grid-template-columns: 1fr;
+      }
+
+      th,
+      td {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>The tan graph from the unit circle</h1>
+  <p class="subtitle">
+    Build <strong>y = tan(x)</strong> from the unit circle, transform it using
+    <strong>y = a tan(b(x − c)) + d</strong>, then compare how sine and cosine explain
+    the zeroes and asymptotes of tangent.
+  </p>
+</header>
+
+<main>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="unitTab">Unit circle → tan graph</button>
+    <button class="tab-btn" data-tab="transformTab">Transformations of tan</button>
+    <button class="tab-btn" data-tab="linkTab">sin, cos, and tan links</button>
+  </nav>
+
+  <!-- TAB 1 -->
+  <section id="unitTab" class="tab active">
+    <section class="grid2">
+      <div class="card">
+        <h2>1. Unit circle view</h2>
+        <p class="hint">
+          Extend the blue radius until it reaches the vertical tangent line x = 1.
+          The red vertical distance is tan(θ).
+        </p>
+
+        <div class="svgbox">
+          <svg viewBox="0 0 520 465">
+            <defs>
+              <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0 0 L10 5 L0 10z" fill="#2563eb"></path>
+              </marker>
+              <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0 0 L10 5 L0 10z" fill="#dc2626"></path>
+              </marker>
+            </defs>
+
+            <g id="circleGrid"></g>
+
+            <line class="axis" x1="40" y1="232.5" x2="480" y2="232.5"></line>
+            <line class="axis" x1="260" y1="25" x2="260" y2="440"></line>
+            <text class="axis-label" x="485" y="228">x</text>
+            <text class="axis-label" x="266" y="32">y</text>
+
+            <circle class="circle" cx="260" cy="232.5" r="120"></circle>
+            <line class="asym" x1="380" y1="32" x2="380" y2="433"></line>
+            <text class="svg-label" x="388" y="48">x = 1</text>
+
+            <path id="angleArc" class="blue-line" opacity="0.45"></path>
+            <text id="thetaLabel" class="svg-label">θ</text>
+
+            <line id="radiusLine" class="blue-line" x1="260" y1="232.5" marker-end="url(#arrowBlue)"></line>
+            <line id="rayLine" class="blue-line dash" opacity="0.45" x1="260" y1="232.5"></line>
+            <line id="tanSegment" class="red-line" marker-end="url(#arrowRed)"></line>
+            <line id="helpLine" class="red-line dash" opacity="0.35" x1="260" y1="232.5"></line>
+
+            <circle id="circlePoint" class="pt" r="8"></circle>
+            <circle id="tanPointOnLine" class="tanpt" r="8"></circle>
+
+            <text class="tiny" x="372" y="250">1</text>
+            <text class="tiny" x="243" y="108">1</text>
+            <text id="tanLineLabel" class="svg-label">tan(θ)</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Graph view</h2>
+        <p class="hint">
+          The angle θ becomes the horizontal coordinate. The tangent height becomes
+          the vertical coordinate y = tan(x).
+        </p>
+
+        <div class="svgbox">
+          <svg viewBox="0 0 560 465">
+            <g id="graphGrid"></g>
+            <g id="asymptotes"></g>
+            <g id="tanCurves"></g>
+
+            <line class="axis" x1="45" y1="232.5" x2="530" y2="232.5"></line>
+            <line class="axis" x1="280" y1="30" x2="280" y2="435"></line>
+            <text class="axis-label" x="533" y="228">x</text>
+            <text class="axis-label" x="286" y="36">y</text>
+
+            <line id="graphVertical" class="red-line dash" opacity="0.45"></line>
+            <line id="graphHorizontal" class="red-line dash" opacity="0.35"></line>
+            <circle id="graphPoint" class="tanpt" r="8"></circle>
+            <text id="graphPointLabel" class="svg-label">(θ, tan θ)</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
+      <div class="controls">
+        <div>
+          <label for="angleSlider">Angle θ</label>
+          <input id="angleSlider" type="range" min="-6283" max="6283" value="785" step="1">
+        </div>
+        <button id="playButton">▶ Animate</button>
+        <button id="resetButton" class="secondary">Reset</button>
+      </div>
+
+      <div class="readout">
+        <div class="box">
+          <div class="small">Radians</div>
+          <div id="radianReadout" class="big"></div>
+        </div>
+        <div class="box">
+          <div class="small">Degrees</div>
+          <div id="degreeReadout" class="big"></div>
+        </div>
+        <div class="box">
+          <div class="small">tan(θ)</div>
+          <div id="tanReadout" class="big"></div>
+        </div>
+        <div class="box">
+          <div class="small">Quadrant</div>
+          <div id="quadrantReadout" class="big"></div>
+        </div>
+      </div>
+
+      <div id="warning" class="warning">
+        tan(θ) is getting very large here. This is why the graph has a vertical asymptote.
+      </div>
+    </section>
+
+    <section class="notes">
+      <div class="card">
+        <h2>Student discovery questions</h2>
+        <ol class="q">
+          <li>When θ is close to 0, what happens to tan(θ)?</li>
+          <li>What happens as θ gets close to 90°?</li>
+          <li>Why does the red point jump from very high to very low near 90°?</li>
+          <li>Which quadrants give positive tan values?</li>
+          <li>Why does the graph repeat every 180°?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>Key idea</h2>
+        <p class="hint">
+          On the unit circle, tan(θ) is the height where the angle ray reaches x = 1.
+          On the graph, each angle θ is plotted against that height.
+        </p>
+        <div class="pills">
+          <span class="pill">angle θ → horizontal position</span>
+          <span class="pill">tan(θ) → vertical height</span>
+          <span class="pill">90° and 270° → asymptotes</span>
+          <span class="pill">period = π</span>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- TAB 2 -->
+  <section id="transformTab" class="tab">
+    <section class="card">
+      <div class="equation-panel">
+        <div class="equation-title">Transformation model</div>
+        <div id="transformEquation" class="equation"></div>
+      </div>
+
+      <h2>Transformation lab</h2>
+      <p class="hint">
+        Use the sliders to transform the parent graph. Blue shows y = tan(x).
+        Red shows the transformed graph.
+      </p>
+
+      <div class="svgbox wide">
+        <svg viewBox="0 0 900 510">
+          <g id="transformGrid"></g>
+          <g id="transformParent"></g>
+          <g id="transformAsymptotes"></g>
+          <line id="transformPrincipalLine" class="principal"></line>
+          <g id="transformCurve"></g>
+
+          <line class="axis" x1="60" y1="255" x2="850" y2="255"></line>
+          <line class="axis" x1="455" y1="40" x2="455" y2="465"></line>
+          <text class="axis-label" x="855" y="250">x</text>
+          <text class="axis-label" x="462" y="48">y</text>
+
+          <circle id="transformCentrePoint" class="centrept" r="8"></circle>
+          <text id="transformCentreLabel" class="svg-label">centre (c, d)</text>
+          <text id="principalLabel" class="svg-label">principal line</text>
+        </svg>
+      </div>
+
+      <div class="slider-grid">
+        <div class="slider-card">
+          <label for="aSlider">
+            <span>a: vertical stretch</span>
+            <span id="aValue" class="value"></span>
+          </label>
+          <input id="aSlider" type="range" min="-3" max="3" value="1" step="0.1">
+        </div>
+
+        <div class="slider-card">
+          <label for="bSlider">
+            <span>b: horizontal scale</span>
+            <span id="bValue" class="value"></span>
+          </label>
+          <input id="bSlider" type="range" min="0.2" max="3" value="1" step="0.1">
+        </div>
+
+        <div class="slider-card">
+          <label for="cSlider">
+            <span>c: horizontal shift</span>
+            <span id="cValue" class="value"></span>
+          </label>
+          <input id="cSlider" type="range" min="-3.14" max="3.14" value="0" step="0.01">
+        </div>
+
+        <div class="slider-card">
+          <label for="dSlider">
+            <span>d: vertical shift</span>
+            <span id="dValue" class="value"></span>
+          </label>
+          <input id="dSlider" type="range" min="-4" max="4" value="0" step="0.1">
+        </div>
+      </div>
+
+      <div class="controls" style="grid-template-columns:auto auto 1fr">
+        <button id="randomTransformButton">Random example</button>
+        <button id="resetTransformButton" class="secondary">Reset transformation</button>
+        <p class="hint" style="margin:0">
+          Try changing b. What happens to the distance between asymptotes?
+        </p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Current value</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Equation</td>
+            <td id="tableEquation"></td>
+            <td>The red graph is the transformed tan function.</td>
+          </tr>
+          <tr>
+            <td>Period</td>
+            <td id="tablePeriod"></td>
+            <td>The horizontal distance before the graph repeats.</td>
+          </tr>
+          <tr>
+            <td>Principal line</td>
+            <td id="tablePrincipal"></td>
+            <td>The centre line of the tan branches.</td>
+          </tr>
+          <tr>
+            <td>Centre point</td>
+            <td id="tableCentre"></td>
+            <td>The main point moved from the parent graph origin.</td>
+          </tr>
+          <tr>
+            <td>Vertical asymptotes</td>
+            <td id="tableAsymptotes"></td>
+            <td>Lines the graph approaches but does not touch.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="notes">
+      <div class="card">
+        <h2>Transformation questions</h2>
+        <ol class="q">
+          <li>Change only a. What changes? What stays the same?</li>
+          <li>Change only b. How does the period change?</li>
+          <li>Change only c. Which features move sideways?</li>
+          <li>Change only d. Which features move up or down?</li>
+          <li>Can you make a tan graph with period π/2 and principal line y = 3?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>Key formulas</h2>
+        <div class="pills">
+          <span class="pill">period = π / |b|</span>
+          <span class="pill">principal line: y = d</span>
+          <span class="pill">centre: (c, d)</span>
+          <span class="pill">asymptotes: x = c + (π/2 + kπ)/b</span>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- TAB 3 -->
+  <section id="linkTab" class="tab">
+    <section class="card">
+      <h2>How sin, cos, and tan are linked</h2>
+      <p class="hint">
+        Since <strong>tan(x) = sin(x) / cos(x)</strong>, the zeroes of sin become
+        zeroes of tan, and the zeroes of cos become vertical asymptotes of tan.
+      </p>
+
+      <div class="legend">
+        <span class="key"><span class="swatch sin"></span>sin(x)</span>
+        <span class="key"><span class="swatch cos"></span>cos(x)</span>
+        <span class="key"><span class="swatch tan"></span>tan(x)</span>
+        <span class="key"><span class="swatch as"></span>cos zero → tan asymptote</span>
+      </div>
+
+      <div class="svgbox wide">
+        <svg viewBox="0 0 920 560">
+          <g id="linkGrid"></g>
+          <g id="linkGuides"></g>
+          <g id="linkCurves"></g>
+
+          <line id="linkTracker" class="red-line dash" opacity="0.45"></line>
+          <circle id="sinDot" class="centrept" r="7"></circle>
+          <circle id="cosDot" class="pt" r="7" style="fill:var(--purple)"></circle>
+          <circle id="tanDot" class="tanpt" r="7"></circle>
+          <text id="linkLabel" class="svg-label"></text>
+        </svg>
+      </div>
+
+      <div class="controls">
+        <div>
+          <label for="linkSlider">Move x</label>
+          <input id="linkSlider" type="range" min="-6283" max="6283" value="0" step="1">
+        </div>
+        <button id="linkPlayButton">▶ Animate</button>
+        <button id="linkResetButton" class="secondary">Reset</button>
+      </div>
+
+      <div class="readout">
+        <div class="box">
+          <div class="small">x</div>
+          <div id="linkX" class="big"></div>
+        </div>
+        <div class="box">
+          <div class="small">sin(x)</div>
+          <div id="linkSin" class="big"></div>
+        </div>
+        <div class="box">
+          <div class="small">cos(x)</div>
+          <div id="linkCos" class="big"></div>
+        </div>
+        <div class="box">
+          <div class="small">tan(x)</div>
+          <div id="linkTan" class="big"></div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>When this happens...</th>
+            <th>Because...</th>
+            <th>Then on y = tan(x)...</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>sin(x) = 0</code></td>
+            <td><code>tan(x) = sin(x) / cos(x) = 0 / cos(x)</code></td>
+            <td>tan has a zero at x = kπ.</td>
+          </tr>
+          <tr>
+            <td><code>cos(x) = 0</code></td>
+            <td><code>tan(x) = sin(x) / cos(x)</code> has denominator 0.</td>
+            <td>tan has a vertical asymptote at x = π/2 + kπ.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="notes">
+      <div class="card">
+        <h2>Discovery questions</h2>
+        <ol class="q">
+          <li>Look at every place sin crosses the x-axis. What does tan do there?</li>
+          <li>Look at every place cos crosses the x-axis. What does tan do there?</li>
+          <li>Why does tan change from very large positive to very large negative near a cosine zero?</li>
+          <li>How does the identity tan(x) = sin(x)/cos(x) explain the shape of tan?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>Key connection</h2>
+        <p class="hint">
+          The tangent graph is not separate from sine and cosine. It is their ratio.
+          Zero numerator gives a zero. Zero denominator gives an asymptote.
+        </p>
+        <div class="pills">
+          <span class="pill">sin zero → tan zero</span>
+          <span class="pill">cos zero → tan asymptote</span>
+          <span class="pill">same x-scale</span>
+          <span class="pill">tan = sin ÷ cos</span>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function S(name, attrs = {}) {
+    const e = document.createElementNS("http://www.w3.org/2000/svg", name);
+    Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+    return e;
+  }
+
+  function fmt(x, d = 2) {
+    if (!isFinite(x)) return "undefined";
+    if (Math.abs(x) < 0.0001) return "0";
+    let s = Number(x).toFixed(d);
+    while (s.includes(".") && s.endsWith("0")) s = s.slice(0, -1);
+    if (s.endsWith(".")) s = s.slice(0, -1);
+    return s;
+  }
+
+  function piFmt(x) {
+    if (!isFinite(x)) return "undefined";
+    if (Math.abs(x) < 0.01) return "0";
+
+    const sign = x < 0 ? "−" : "";
+    const a = Math.abs(x);
+
+    const common = [
+      [Math.PI / 6, "π/6"],
+      [Math.PI / 4, "π/4"],
+      [Math.PI / 3, "π/3"],
+      [Math.PI / 2, "π/2"],
+      [2 * Math.PI / 3, "2π/3"],
+      [3 * Math.PI / 4, "3π/4"],
+      [5 * Math.PI / 6, "5π/6"],
+      [Math.PI, "π"],
+      [3 * Math.PI / 2, "3π/2"],
+      [2 * Math.PI, "2π"]
+    ];
+
+    const match = common.find(p => Math.abs(a - p[0]) < 0.015);
+    return sign + (match ? match[1] : fmt(x, 2));
+  }
+
+  function code(s) {
+    return "<code>" + s + "</code>";
+  }
+
+  document.querySelectorAll(".tab-btn").forEach(button => {
+    button.onclick = () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === button));
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.id === button.dataset.tab));
+    };
+  });
+
+  // ------------------------------
+  // Shared clipped tan drawing
+  // This is the important fix:
+  // It breaks the path when y is outside the visible range,
+  // so the graph approaches asymptotes instead of flattening horizontally.
+  // ------------------------------
+  function drawTan(group, f, box, className) {
+    group.innerHTML = "";
+
+    const asymptotes = [];
+    for (let k = -20; k <= 20; k++) {
+      const x = Math.PI / 2 + k * Math.PI;
+      if (x > box.x0 && x < box.x1) asymptotes.push(x);
+    }
+
+    const splitPoints = [box.x0, ...asymptotes, box.x1];
+
+    for (let j = 0; j < splitPoints.length - 1; j++) {
+      const left = splitPoints[j] + (j ? 0.035 : 0);
+      const right = splitPoints[j + 1] - (j < splitPoints.length - 2 ? 0.035 : 0);
+
+      let d = "";
+      let drawing = false;
+
+      for (let i = 0; i <= 300; i++) {
+        const x = left + (right - left) * i / 300;
+        const y = f(x);
+
+        if (!isFinite(y) || y < box.y0 || y > box.y1) {
+          drawing = false;
+          continue;
+        }
+
+        const px = box.l + (x - box.x0) / (box.x1 - box.x0) * (box.r - box.l);
+        const py = box.b - (y - box.y0) / (box.y1 - box.y0) * (box.b - box.t);
+
+        d += (drawing ? "L " : "M ") + px + " " + py + " ";
+        drawing = true;
+      }
+
+      if (d.trim().length > 0) {
+        group.append(S("path", { d, class: className }));
+      }
+    }
+  }
+
+  // ------------------------------
+  // Tab 1: Unit circle
+  // ------------------------------
+  const C = { x: 260, y: 232.5, r: 120 };
+
+  const G = {
+    l: 45,
+    r: 530,
+    t: 30,
+    b: 435,
+    mx: 280,
+    my: 232.5,
+    x0: -2 * Math.PI,
+    x1: 2 * Math.PI,
+    y0: -4,
+    y1: 4
+  };
+
+  const sx = x => G.l + (x - G.x0) / (G.x1 - G.x0) * (G.r - G.l);
+  const sy = y => G.b - (y - G.y0) / (G.y1 - G.y0) * (G.b - G.t);
+  const cx = x => C.x + x * C.r;
+  const cy = y => C.y - y * C.r;
+
+  function gridUnit() {
+    for (let i = -2; i <= 2; i++) {
+      const x = C.x + i * 60;
+      const y = C.y + i * 60;
+      $("circleGrid").append(S("line", { x1: x, y1: 25, x2: x, y2: 440, class: "grid-line" }));
+      $("circleGrid").append(S("line", { x1: 40, y1: y, x2: 480, y2: y, class: "grid-line" }));
+    }
+
+    for (let k = -4; k <= 4; k++) {
+      $("graphGrid").append(S("line", { x1: G.l, y1: sy(k), x2: G.r, y2: sy(k), class: "grid-line" }));
+      if (k !== 0) {
+        const t = S("text", { x: G.mx + 6, y: sy(k) - 4, class: "tiny" });
+        t.textContent = k;
+        $("graphGrid").append(t);
+      }
+    }
+
+    [
+      [-2 * Math.PI, "−2π"],
+      [-1.5 * Math.PI, "−3π/2"],
+      [-Math.PI, "−π"],
+      [-0.5 * Math.PI, "−π/2"],
+      [0, "0"],
+      [0.5 * Math.PI, "π/2"],
+      [Math.PI, "π"],
+      [1.5 * Math.PI, "3π/2"],
+      [2 * Math.PI, "2π"]
+    ].forEach(([x, label]) => {
+      const px = sx(x);
+      $("graphGrid").append(S("line", { x1: px, y1: G.t, x2: px, y2: G.b, class: "grid-line" }));
+      const t = S("text", { x: px - 13, y: G.my + 22, class: "tiny" });
+      t.textContent = label;
+      $("graphGrid").append(t);
+    });
+
+    for (let k = -3; k <= 3; k++) {
+      const x = Math.PI / 2 + k * Math.PI;
+      if (x > G.x0 && x < G.x1) {
+        $("asymptotes").append(S("line", { x1: sx(x), y1: G.t, x2: sx(x), y2: G.b, class: "asym" }));
+      }
+    }
+
+    drawTan($("tanCurves"), x => Math.tan(x), G, "curve");
+  }
+
+  function quadrant(theta) {
+    let t = theta % (2 * Math.PI);
+    if (t < 0) t += 2 * Math.PI;
+
+    const e = 0.02;
+
+    if (Math.abs(t) < e || Math.abs(t - Math.PI) < e || Math.abs(t - 2 * Math.PI) < e) {
+      return "on x-axis";
+    }
+
+    if (Math.abs(t - Math.PI / 2) < e || Math.abs(t - 3 * Math.PI / 2) < e) {
+      return "on y-axis";
+    }
+
+    if (t < Math.PI / 2) return "I";
+    if (t < Math.PI) return "II";
+    if (t < 1.5 * Math.PI) return "III";
+    return "IV";
+  }
+
+  function arc(theta) {
+    const r = 44;
+    const stx = C.x + r;
+    const sty = C.y;
+    const ex = C.x + r * Math.cos(theta);
+    const ey = C.y - r * Math.sin(theta);
+    const largeArc = Math.abs(theta) % (2 * Math.PI) > Math.PI ? 1 : 0;
+    const sweep = theta >= 0 ? 0 : 1;
+
+    return "M " + stx + " " + sty + " A " + r + " " + r + " 0 " + largeArc + " " + sweep + " " + ex + " " + ey;
+  }
+
+  function updateUnit() {
+    const theta = Number($("angleSlider").value) / 1000;
+    const cos = Math.cos(theta);
+    const sin = Math.sin(theta);
+    const tan = Math.tan(theta);
+
+    const nearAsymptote = Math.abs(cos) < 0.08;
+    const displayedTan = Math.max(-3.65, Math.min(3.65, tan));
+
+    const px = cx(cos);
+    const py = cy(sin);
+    const tx = cx(1);
+    const ty = cy(displayedTan);
+
+    $("radiusLine").setAttribute("x2", px);
+    $("radiusLine").setAttribute("y2", py);
+
+    $("rayLine").setAttribute("x2", tx);
+    $("rayLine").setAttribute("y2", ty);
+
+    $("helpLine").setAttribute("x2", tx);
+    $("helpLine").setAttribute("y2", ty);
+
+    $("tanSegment").setAttribute("x1", tx);
+    $("tanSegment").setAttribute("y1", C.y);
+    $("tanSegment").setAttribute("x2", tx);
+    $("tanSegment").setAttribute("y2", ty);
+
+    $("circlePoint").setAttribute("cx", px);
+    $("circlePoint").setAttribute("cy", py);
+
+    $("tanPointOnLine").setAttribute("cx", tx);
+    $("tanPointOnLine").setAttribute("cy", ty);
+
+    $("tanLineLabel").setAttribute("x", tx + 12);
+    $("tanLineLabel").setAttribute("y", ty + (tan >= 0 ? -10 : 22));
+    $("tanLineLabel").textContent = nearAsymptote ? "very large" : "tan(θ)";
+
+    $("angleArc").setAttribute("d", arc(theta % (2 * Math.PI)));
+    $("thetaLabel").setAttribute("x", C.x + 58 * Math.cos(theta / 2));
+    $("thetaLabel").setAttribute("y", C.y - 58 * Math.sin(theta / 2));
+
+    const gx = sx(theta);
+    const gy = sy(displayedTan);
+
+    $("graphPoint").setAttribute("cx", gx);
+    $("graphPoint").setAttribute("cy", gy);
+
+    $("graphVertical").setAttribute("x1", gx);
+    $("graphVertical").setAttribute("x2", gx);
+    $("graphVertical").setAttribute("y1", G.my);
+    $("graphVertical").setAttribute("y2", gy);
+
+    $("graphHorizontal").setAttribute("x1", G.mx);
+    $("graphHorizontal").setAttribute("x2", gx);
+    $("graphHorizontal").setAttribute("y1", gy);
+    $("graphHorizontal").setAttribute("y2", gy);
+
+    $("graphPointLabel").setAttribute("x", Math.min(gx + 10, G.r - 105));
+    $("graphPointLabel").setAttribute("y", gy - 12);
+    $("graphPointLabel").textContent = nearAsymptote ? "approaches asymptote" : "(θ, tan θ)";
+
+    $("radianReadout").textContent = piFmt(theta);
+    $("degreeReadout").textContent = fmt(theta * 180 / Math.PI, 1) + "°";
+    $("tanReadout").textContent = nearAsymptote ? "undefined / huge" : fmt(tan, 3);
+    $("quadrantReadout").textContent = quadrant(theta);
+
+    $("warning").classList.toggle("show", Math.abs(tan) > 3.5 || nearAsymptote);
+  }
+
+  let playing = false;
+  let af = null;
+
+  function anim() {
+    if (!playing) return;
+
+    let next = Number($("angleSlider").value) + 18;
+    if (next > Number($("angleSlider").max)) next = Number($("angleSlider").min);
+
+    $("angleSlider").value = next;
+    updateUnit();
+
+    af = requestAnimationFrame(anim);
+  }
+
+  $("playButton").onclick = () => {
+    playing = !playing;
+    $("playButton").textContent = playing ? "⏸ Pause" : "▶ Animate";
+    playing ? anim() : cancelAnimationFrame(af);
+  };
+
+  $("resetButton").onclick = () => {
+    playing = false;
+    cancelAnimationFrame(af);
+    $("playButton").textContent = "▶ Animate";
+    $("angleSlider").value = 785;
+    updateUnit();
+  };
+
+  $("angleSlider").oninput = updateUnit;
+
+  // ------------------------------
+  // Tab 2: Transformations
+  // ------------------------------
+  const T = {
+    l: 60,
+    r: 850,
+    t: 40,
+    b: 465,
+    mx: 455,
+    my: 255,
+    x0: -2 * Math.PI,
+    x1: 2 * Math.PI,
+    y0: -6,
+    y1: 6
+  };
+
+  const tx = x => T.l + (x - T.x0) / (T.x1 - T.x0) * (T.r - T.l);
+  const ty = y => T.b - (y - T.y0) / (T.y1 - T.y0) * (T.b - T.t);
+
+  function gridT() {
+    for (let y = -6; y <= 6; y++) {
+      $("transformGrid").append(S("line", { x1: T.l, y1: ty(y), x2: T.r, y2: ty(y), class: "grid-line" }));
+
+      if (y !== 0) {
+        const t = S("text", { x: T.mx + 6, y: ty(y) - 4, class: "tiny" });
+        t.textContent = y;
+        $("transformGrid").append(t);
+      }
+    }
+
+    for (let k = -2; k <= 2; k++) {
+      const x = k * Math.PI;
+      const p = tx(x);
+
+      $("transformGrid").append(S("line", { x1: p, y1: T.t, x2: p, y2: T.b, class: "grid-line" }));
+
+      const t = S("text", { x: p - 10, y: T.my + 22, class: "tiny" });
+      t.textContent = k === 0 ? "0" : k === 1 ? "π" : k === -1 ? "−π" : k + "π";
+      $("transformGrid").append(t);
+    }
+  }
+
+  function equationParts(a, b, c, d) {
+    const A = a === 1 ? "" : a === -1 ? "−" : fmt(a, 1);
+    const B = b === 1 ? "" : fmt(b, 1);
+    const Cpart = Math.abs(c) < 0.005 ? "x" : "(x " + (c < 0 ? "+" : "−") + " " + piFmt(Math.abs(c)) + ")";
+    const D = Math.abs(d) < 0.005 ? "" : (d > 0 ? " + " : " − ") + fmt(Math.abs(d), 1);
+
+    const html =
+      "y = <span class=\"blue\">" + A + "</span>tan(<span class=\"red\">" +
+      B + "</span>" + Cpart + ")<span class=\"green\">" + D + "</span>";
+
+    const plain = "y = " + A + "tan(" + B + Cpart + ")" + D;
+
+    return { html, plain };
+  }
+
+  function updateTransform() {
+    const a = Number($("aSlider").value);
+    const b = Number($("bSlider").value);
+    const c = Number($("cSlider").value);
+    const d = Number($("dSlider").value);
+
+    $("aValue").textContent = fmt(a, 1);
+    $("bValue").textContent = fmt(b, 1);
+    $("cValue").textContent = piFmt(c);
+    $("dValue").textContent = fmt(d, 1);
+
+    const eq = equationParts(a, b, c, d);
+
+    $("transformEquation").innerHTML = eq.html;
+    $("tableEquation").innerHTML = code(eq.plain);
+
+    const period = Math.PI / Math.abs(b);
+
+    $("tablePeriod").innerHTML = code(piFmt(period) + " ≈ " + fmt(period, 2));
+    $("tablePrincipal").innerHTML = code("y = " + fmt(d, 1));
+    $("tableCentre").innerHTML = code("(" + piFmt(c) + ", " + fmt(d, 1) + ")");
+    $("tableAsymptotes").innerHTML = code("x = c + (π/2 + kπ)/b");
+
+    drawTan($("transformParent"), x => Math.tan(x), T, "parent");
+
+    $("transformCurve").innerHTML = "";
+    $("transformAsymptotes").innerHTML = "";
+
+    const asymptotes = [];
+    for (let k = -20; k <= 20; k++) {
+      const x = c + (Math.PI / 2 + k * Math.PI) / b;
+      if (x > T.x0 && x < T.x1) asymptotes.push(x);
+    }
+
+    asymptotes.sort((x, y) => x - y);
+
+    asymptotes.forEach(x => {
+      $("transformAsymptotes").append(S("line", {
+        x1: tx(x),
+        y1: T.t,
+        x2: tx(x),
+        y2: T.b,
+        class: "asym"
+      }));
+    });
+
+    const splitPoints = [T.x0, ...asymptotes, T.x1];
+
+    for (let j = 0; j < splitPoints.length - 1; j++) {
+      const left = splitPoints[j] + (j ? 0.025 : 0);
+      const right = splitPoints[j + 1] - (j < splitPoints.length - 2 ? 0.025 : 0);
+
+      let path = "";
+      let drawing = false;
+
+      for (let i = 0; i <= 320; i++) {
+        const x = left + (right - left) * i / 320;
+        const y = a * Math.tan(b * (x - c)) + d;
+
+        if (!isFinite(y) || y < T.y0 || y > T.y1) {
+          drawing = false;
+          continue;
+        }
+
+        path += (drawing ? "L " : "M ") + tx(x) + " " + ty(y) + " ";
+        drawing = true;
+      }
+
+      if (path.trim().length > 0) {
+        $("transformCurve").append(S("path", { d: path, class: "curve" }));
+      }
+    }
+
+    const principalY = ty(d);
+
+    $("transformPrincipalLine").setAttribute("x1", T.l);
+    $("transformPrincipalLine").setAttribute("x2", T.r);
+    $("transformPrincipalLine").setAttribute("y1", principalY);
+    $("transformPrincipalLine").setAttribute("y2", principalY);
+
+    $("principalLabel").setAttribute("x", T.l + 8);
+    $("principalLabel").setAttribute("y", principalY - 8);
+
+    const centreX = tx(c);
+    const centreY = ty(d);
+
+    $("transformCentrePoint").setAttribute("cx", centreX);
+    $("transformCentrePoint").setAttribute("cy", centreY);
+
+    $("transformCentreLabel").setAttribute("x", Math.min(centreX + 12, T.r - 120));
+    $("transformCentreLabel").setAttribute("y", centreY - 12);
+  }
+
+  ["aSlider", "bSlider", "cSlider", "dSlider"].forEach(id => {
+    $(id).oninput = updateTransform;
+  });
+
+  $("resetTransformButton").onclick = () => {
+    $("aSlider").value = 1;
+    $("bSlider").value = 1;
+    $("cSlider").value = 0;
+    $("dSlider").value = 0;
+    updateTransform();
+  };
+
+  $("randomTransformButton").onclick = () => {
+    const aValues = [-2, -1.5, -1, 0.5, 1, 1.5, 2, 2.5];
+    const bValues = [0.5, 1, 1.5, 2, 2.5];
+    const cValues = [-Math.PI / 2, -Math.PI / 4, 0, Math.PI / 4, Math.PI / 2];
+    const dValues = [-3, -2, -1, 0, 1, 2, 3];
+
+    $("aSlider").value = aValues[Math.floor(Math.random() * aValues.length)];
+    $("bSlider").value = bValues[Math.floor(Math.random() * bValues.length)];
+    $("cSlider").value = cValues[Math.floor(Math.random() * cValues.length)];
+    $("dSlider").value = dValues[Math.floor(Math.random() * dValues.length)];
+
+    updateTransform();
+  };
+
+  // ------------------------------
+  // Tab 3: sin, cos, tan links
+  // ------------------------------
+  const L = {
+    l: 70,
+    r: 870,
+    x0: -2 * Math.PI,
+    x1: 2 * Math.PI
+  };
+
+  const rowH = 145;
+
+  const rows = {
+    sin: { mid: 110, scale: 55 },
+    cos: { mid: 265, scale: 55 },
+    tan: { mid: 420, scale: 40 }
+  };
+
+  const lx = x => L.l + (x - L.x0) / (L.x1 - L.x0) * (L.r - L.l);
+  const ly = (row, y) => rows[row].mid - y * rows[row].scale;
+
+  function drawFunction(group, row, fn, className, breakAtTanAsymptotes = false) {
+    let d = "";
+    let drawing = false;
+
+    for (let i = 0; i <= 1400; i++) {
+      const x = L.x0 + (L.x1 - L.x0) * i / 1400;
+      const y = fn(x);
+
+      if (breakAtTanAsymptotes && Math.abs(Math.cos(x)) < 0.035) {
+        drawing = false;
+        continue;
+      }
+
+      if (!isFinite(y) || y < -3 || y > 3) {
+        drawing = false;
+        continue;
+      }
+
+      d += (drawing ? "L " : "M ") + lx(x) + " " + ly(row, y) + " ";
+      drawing = true;
+    }
+
+    group.append(S("path", { d, class: className }));
+  }
+
+  function gridLink() {
+    ["sin", "cos", "tan"].forEach((row, idx) => {
+      const mid = rows[row].mid;
+
+      $("linkGrid").append(S("line", {
+        x1: L.l,
+        y1: mid,
+        x2: L.r,
+        y2: mid,
+        class: "axis"
+      }));
+
+      const title = S("text", { x: 18, y: mid + 5, class: "axis-label" });
+      title.textContent = idx === 0 ? "sin(x)" : idx === 1 ? "cos(x)" : "tan(x)";
+      $("linkGrid").append(title);
+
+      for (let k = -2; k <= 2; k++) {
+        const p = lx(k * Math.PI);
+
+        $("linkGrid").append(S("line", {
+          x1: p,
+          y1: mid - rowH / 2 + 15,
+          x2: p,
+          y2: mid + rowH / 2 - 15,
+          class: "grid-line"
+        }));
+
+        if (idx === 2) {
+          const t = S("text", { x: p - 10, y: mid + 70, class: "tiny" });
+          t.textContent = k === 0 ? "0" : k === 1 ? "π" : k === -1 ? "−π" : k + "π";
+          $("linkGrid").append(t);
+        }
+      }
+    });
+
+    for (let k = -4; k <= 4; k++) {
+      const x = k * Math.PI;
+      if (x >= L.x0 && x <= L.x1) {
+        const p = lx(x);
+        $("linkGuides").append(S("line", {
+          x1: p,
+          y1: 50,
+          x2: p,
+          y2: 465,
+          class: "green-line dash",
+          opacity: 0.35
+        }));
+
+        const t = S("text", { x: p + 4, y: 68, class: "tiny" });
+        t.textContent = "sin zero → tan zero";
+        $("linkGuides").append(t);
+      }
+    }
+
+    for (let k = -4; k <= 4; k++) {
+      const x = Math.PI / 2 + k * Math.PI;
+      if (x > L.x0 && x < L.x1) {
+        const p = lx(x);
+
+        $("linkGuides").append(S("line", {
+          x1: p,
+          y1: 50,
+          x2: p,
+          y2: 465,
+          class: "asym"
+        }));
+
+        const t = S("text", { x: p + 4, y: 223, class: "tiny" });
+        t.textContent = "cos zero → asymptote";
+        $("linkGuides").append(t);
+      }
+    }
+
+    drawFunction($("linkCurves"), "sin", Math.sin, "green-line");
+    drawFunction($("linkCurves"), "cos", Math.cos, "cos-line");
+    drawFunction($("linkCurves"), "tan", Math.tan, "curve", true);
+  }
+
+  function updateLink() {
+    const x = Number($("linkSlider").value) / 1000;
+    const s = Math.sin(x);
+    const c = Math.cos(x);
+    const t = Math.tan(x);
+
+    const nearAsymptote = Math.abs(c) < 0.04;
+    const clippedTan = Math.max(-3, Math.min(3, t));
+    const px = lx(x);
+
+    $("linkTracker").setAttribute("x1", px);
+    $("linkTracker").setAttribute("x2", px);
+    $("linkTracker").setAttribute("y1", 45);
+    $("linkTracker").setAttribute("y2", 495);
+
+    $("sinDot").setAttribute("cx", px);
+    $("sinDot").setAttribute("cy", ly("sin", s));
+
+    $("cosDot").setAttribute("cx", px);
+    $("cosDot").setAttribute("cy", ly("cos", c));
+
+    $("tanDot").setAttribute("cx", px);
+    $("tanDot").setAttribute("cy", ly("tan", nearAsymptote ? (t > 0 ? 3 : -3) : clippedTan));
+
+    $("linkLabel").setAttribute("x", Math.min(px + 12, L.r - 180));
+    $("linkLabel").setAttribute("y", 42);
+
+    $("linkLabel").textContent =
+      nearAsymptote
+        ? "cos(x) ≈ 0, so tan has an asymptote"
+        : Math.abs(s) < 0.04
+          ? "sin(x) ≈ 0, so tan(x) ≈ 0"
+          : "tan(x) = sin(x) / cos(x)";
+
+    $("linkX").textContent = piFmt(x);
+    $("linkSin").textContent = fmt(s, 3);
+    $("linkCos").textContent = fmt(c, 3);
+    $("linkTan").textContent = nearAsymptote ? "undefined / huge" : fmt(t, 3);
+  }
+
+  let linkPlaying = false;
+  let laf = null;
+
+  function linkAnim() {
+    if (!linkPlaying) return;
+
+    let next = Number($("linkSlider").value) + 16;
+    if (next > Number($("linkSlider").max)) next = Number($("linkSlider").min);
+
+    $("linkSlider").value = next;
+    updateLink();
+
+    laf = requestAnimationFrame(linkAnim);
+  }
+
+  $("linkPlayButton").onclick = () => {
+    linkPlaying = !linkPlaying;
+    $("linkPlayButton").textContent = linkPlaying ? "⏸ Pause" : "▶ Animate";
+    linkPlaying ? linkAnim() : cancelAnimationFrame(laf);
+  };
+
+  $("linkResetButton").onclick = () => {
+    linkPlaying = false;
+    cancelAnimationFrame(laf);
+    $("linkPlayButton").textContent = "▶ Animate";
+    $("linkSlider").value = 0;
+    updateLink();
+  };
+
+  $("linkSlider").oninput = updateLink;
+
+  // Start app
+  gridUnit();
+  gridT();
+  gridLink();
+  updateUnit();
+  updateTransform();
+  updateLink();
+</script>
+</body>
+</html>
