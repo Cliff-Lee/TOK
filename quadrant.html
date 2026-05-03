@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quadrant Quiz: Degrees and Radians</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --ink: #202233;
+      --muted: #64687a;
+      --line: #dfe3f0;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+      --good: #16803c;
+      --bad: #b42318;
+      --warn: #b76e00;
+      --shadow: 0 14px 35px rgba(20, 25, 45, 0.10);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e0e7ff 0, transparent 34%), var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    header {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #312e81, #4f46e5 55%, #7c3aed);
+      color: white;
+      padding: 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(255,255,255,0.88);
+      font-size: 1.05rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 750;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    select, button, input[type="checkbox"] {
+      font: inherit;
+    }
+
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      height: 45px;
+      margin-top: 22px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .question-box {
+      text-align: center;
+      padding: 26px 16px 20px;
+      background: var(--accent-soft);
+      border-radius: 20px;
+      border: 1px solid #d8dcff;
+    }
+
+    .prompt-small {
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .angle {
+      font-size: clamp(3rem, 8vw, 5.2rem);
+      font-weight: 850;
+      letter-spacing: -0.06em;
+      color: #27215f;
+      margin: 8px 0;
+    }
+
+    .format-tag {
+      display: inline-flex;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 0.88rem;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 12px;
+    }
+
+    .answer-btn, .main-btn, .ghost-btn {
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    .answer-btn {
+      background: #f8fafc;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      min-height: 62px;
+      font-size: 1.04rem;
+    }
+
+    .answer-btn:hover, .main-btn:hover, .ghost-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(20, 25, 45, 0.10);
+    }
+
+    .answer-btn.selected {
+      background: #e0e7ff;
+      border-color: var(--accent);
+      color: #312e81;
+    }
+
+    .answer-btn.correct {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: var(--good);
+    }
+
+    .answer-btn.incorrect {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: var(--bad);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .main-btn {
+      background: var(--accent);
+      color: white;
+    }
+
+    .ghost-btn {
+      background: white;
+      color: var(--accent);
+      border: 1px solid #c7d2fe;
+    }
+
+    .feedback {
+      min-height: 44px;
+      margin-top: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .feedback.good { color: var(--good); }
+    .feedback.bad { color: var(--bad); }
+    .feedback.warn { color: var(--warn); }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat .num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #312e81;
+      line-height: 1;
+    }
+
+    .stat .label {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    .reveal {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+    }
+
+    .reveal.show { display: block; }
+
+    .reveal h2, .guide h2 {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .steps {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(253, 230, 138, 0.9);
+      border-radius: 13px;
+      padding: 10px 12px;
+      line-height: 1.45;
+    }
+
+    .guide {
+      display: grid;
+      gap: 14px;
+    }
+
+    .unit-circle {
+      width: min(100%, 420px);
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rule-list li {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      padding: 11px 12px;
+      border-radius: 14px;
+      line-height: 1.4;
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      font-size: 0.94rem;
+    }
+
+    .mini-table th, .mini-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    .mini-table th {
+      background: #eef2ff;
+      color: #312e81;
+    }
+
+    .mini-table tr:last-child td { border-bottom: 0; }
+
+    .history {
+      margin-top: 16px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      font-size: 0.92rem;
+    }
+
+    .pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .pill.good { background: #dcfce7; color: var(--good); }
+    .pill.bad { background: #fee2e2; color: var(--bad); }
+    .pill.axis { background: #e0f2fe; color: #075985; }
+
+    @media (max-width: 850px) {
+      body { padding: 14px; }
+      .app { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .checkbox-row { margin-top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Quadrant Quiz</h1>
+      <p class="subtitle">Decide which quadrant an angle is in. Questions mix degrees and radians. Reveal the method to see the coterminal angle and the reason.</p>
+    </header>
+
+    <section class="card">
+      <div class="controls">
+        <div>
+          <label for="formatMode">Question type</label>
+          <select id="formatMode">
+            <option value="mixed">Mixed degrees and radians</option>
+            <option value="degrees">Degrees only</option>
+            <option value="radians">Radians only</option>
+          </select>
+        </div>
+        <div>
+          <label for="difficulty">Difficulty</label>
+          <select id="difficulty">
+            <option value="easy">Easy: 0° to 360°</option>
+            <option value="medium" selected>Medium: includes negatives</option>
+            <option value="hard">Hard: includes large turns</option>
+          </select>
+        </div>
+        <div class="checkbox-row">
+          <input id="includeAxes" type="checkbox" />
+          <span>Include axis angles</span>
+        </div>
+      </div>
+
+      <div class="question-box">
+        <div class="prompt-small">Which quadrant is this angle in?</div>
+        <div id="angleDisplay" class="angle">120°</div>
+        <div id="formatTag" class="format-tag">degrees</div>
+      </div>
+
+      <div class="answers" id="answers">
+        <button class="answer-btn" data-answer="QI">Quadrant I<br><small>0° to 90°</small></button>
+        <button class="answer-btn" data-answer="QII">Quadrant II<br><small>90° to 180°</small></button>
+        <button class="answer-btn" data-answer="QIII">Quadrant III<br><small>180° to 270°</small></button>
+        <button class="answer-btn" data-answer="QIV">Quadrant IV<br><small>270° to 360°</small></button>
+        <button class="answer-btn" data-answer="Axis" style="grid-column: 1 / -1; min-height: 50px;">Axis / no quadrant<br><small>0°, 90°, 180°, or 270°</small></button>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+
+      <div class="button-row">
+        <button id="checkBtn" class="main-btn">Check answer</button>
+        <button id="revealBtn" class="ghost-btn">Reveal method</button>
+        <button id="nextBtn" class="ghost-btn">Next question</button>
+        <button id="resetBtn" class="ghost-btn">Reset score</button>
+      </div>
+
+      <div id="reveal" class="reveal">
+        <h2>How to know</h2>
+        <ul id="revealSteps" class="steps"></ul>
+      </div>
+    </section>
+
+    <aside class="card guide">
+      <div class="score-grid">
+        <div class="stat">
+          <div id="correctScore" class="num">0</div>
+          <div class="label">correct</div>
+        </div>
+        <div class="stat">
+          <div id="totalScore" class="num">0</div>
+          <div class="label">attempts</div>
+        </div>
+        <div class="stat">
+          <div id="percentScore" class="num">0%</div>
+          <div class="label">score</div>
+        </div>
+      </div>
+
+      <svg class="unit-circle" viewBox="0 0 300 300" role="img" aria-label="quadrant diagram">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L6,3 z" fill="#202233" />
+          </marker>
+        </defs>
+        <circle cx="150" cy="150" r="105" fill="#fff" stroke="#c7d2fe" stroke-width="3" />
+        <line x1="30" y1="150" x2="270" y2="150" stroke="#202233" stroke-width="2" marker-end="url(#arrow)" />
+        <line x1="150" y1="270" x2="150" y2="30" stroke="#202233" stroke-width="2" marker-end="url(#arrow)" />
+        <path d="M150 150 L224 76 A105 105 0 0 1 255 150 Z" fill="#eef2ff" opacity="0.9" />
+        <path d="M150 150 L45 150 A105 105 0 0 1 76 76 Z" fill="#f8fafc" opacity="0.9" />
+        <path d="M150 150 L76 224 A105 105 0 0 1 45 150 Z" fill="#eef2ff" opacity="0.9" />
+        <path d="M150 150 L255 150 A105 105 0 0 1 224 224 Z" fill="#f8fafc" opacity="0.9" />
+        <text x="205" y="93" text-anchor="middle" font-size="22" font-weight="800" fill="#312e81">QI</text>
+        <text x="95" y="93" text-anchor="middle" font-size="22" font-weight="800" fill="#312e81">QII</text>
+        <text x="88" y="214" text-anchor="middle" font-size="22" font-weight="800" fill="#312e81">QIII</text>
+        <text x="212" y="214" text-anchor="middle" font-size="22" font-weight="800" fill="#312e81">QIV</text>
+        <text x="274" y="143" font-size="13" font-weight="800" fill="#64687a">0° / 2π</text>
+        <text x="158" y="36" font-size="13" font-weight="800" fill="#64687a">90° / π/2</text>
+        <text x="10" y="143" font-size="13" font-weight="800" fill="#64687a">180° / π</text>
+        <text x="158" y="282" font-size="13" font-weight="800" fill="#64687a">270° / 3π/2</text>
+      </svg>
+
+      <h2>Quick rules</h2>
+      <ul class="rule-list">
+        <li><strong>Step 1:</strong> Find a coterminal angle between 0° and 360°, or between 0 and 2π.</li>
+        <li><strong>Step 2:</strong> Compare it with the quadrant boundaries.</li>
+        <li><strong>Axis angles:</strong> 0°, 90°, 180°, and 270° are not in any quadrant.</li>
+      </ul>
+
+      <table class="mini-table">
+        <thead>
+          <tr><th>Quadrant</th><th>Degrees</th><th>Radians</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>QI</td><td>0° &lt; θ &lt; 90°</td><td>0 &lt; θ &lt; π/2</td></tr>
+          <tr><td>QII</td><td>90° &lt; θ &lt; 180°</td><td>π/2 &lt; θ &lt; π</td></tr>
+          <tr><td>QIII</td><td>180° &lt; θ &lt; 270°</td><td>π &lt; θ &lt; 3π/2</td></tr>
+          <tr><td>QIV</td><td>270° &lt; θ &lt; 360°</td><td>3π/2 &lt; θ &lt; 2π</td></tr>
+        </tbody>
+      </table>
+
+      <div>
+        <h2>Recent questions</h2>
+        <div id="history" class="history"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const degreeEasy = [30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330];
+    const degreeAxes = [0, 90, 180, 270, 360];
+    const degreeMediumExtra = [-30, -45, -60, -120, -210, 390, 405, 420, 510, 585, 690];
+    const degreeHardExtra = [-750, -570, -315, -225, -150, 765, 840, 930, 1125, 1290];
+
+    const radEasy = [
+      {n:1,d:6}, {n:1,d:4}, {n:1,d:3}, {n:2,d:3}, {n:3,d:4}, {n:5,d:6},
+      {n:7,d:6}, {n:5,d:4}, {n:4,d:3}, {n:5,d:3}, {n:7,d:4}, {n:11,d:6}
+    ];
+    const radAxes = [{n:0,d:1}, {n:1,d:2}, {n:1,d:1}, {n:3,d:2}, {n:2,d:1}];
+    const radMediumExtra = [
+      {n:-1,d:6}, {n:-1,d:4}, {n:-2,d:3}, {n:-7,d:6}, {n:13,d:6}, {n:9,d:4}, {n:8,d:3}, {n:17,d:6}
+    ];
+    const radHardExtra = [
+      {n:-17,d:6}, {n:-13,d:4}, {n:-10,d:3}, {n:19,d:6}, {n:17,d:4}, {n:14,d:3}, {n:25,d:6}, {n:31,d:4}
+    ];
+
+    let current = null;
+    let selected = null;
+    let checked = false;
+    let correct = 0;
+    let total = 0;
+    let history = [];
+
+    const angleDisplay = document.getElementById('angleDisplay');
+    const formatTag = document.getElementById('formatTag');
+    const answers = document.getElementById('answers');
+    const feedback = document.getElementById('feedback');
+    const reveal = document.getElementById('reveal');
+    const revealSteps = document.getElementById('revealSteps');
+    const correctScore = document.getElementById('correctScore');
+    const totalScore = document.getElementById('totalScore');
+    const percentScore = document.getElementById('percentScore');
+    const historyBox = document.getElementById('history');
+
+    function gcd(a, b) {
+      a = Math.abs(a); b = Math.abs(b);
+      while (b) [a, b] = [b, a % b];
+      return a || 1;
+    }
+
+    function simplifyFraction(n, d) {
+      const g = gcd(n, d);
+      n /= g; d /= g;
+      if (d < 0) { n *= -1; d *= -1; }
+      return { n, d };
+    }
+
+    function radToDegrees(n, d) {
+      return 180 * n / d;
+    }
+
+    function formatRadians(n, d) {
+      const f = simplifyFraction(n, d);
+      n = f.n; d = f.d;
+      if (n === 0) return '0';
+      const sign = n < 0 ? '-' : '';
+      const absN = Math.abs(n);
+      if (d === 1) {
+        if (absN === 1) return `${sign}π`;
+        return `${sign}${absN}π`;
+      }
+      if (absN === 1) return `${sign}π/${d}`;
+      return `${sign}${absN}π/${d}`;
+    }
+
+    function normalizeDegrees(deg) {
+      let x = deg % 360;
+      if (x < 0) x += 360;
+      if (Object.is(x, -0)) x = 0;
+      return x;
+    }
+
+    function answerFromNormalized(deg) {
+      const eps = 1e-9;
+      if (Math.abs(deg - 0) < eps || Math.abs(deg - 90) < eps || Math.abs(deg - 180) < eps || Math.abs(deg - 270) < eps || Math.abs(deg - 360) < eps) return 'Axis';
+      if (deg > 0 && deg < 90) return 'QI';
+      if (deg > 90 && deg < 180) return 'QII';
+      if (deg > 180 && deg < 270) return 'QIII';
+      return 'QIV';
+    }
+
+    function quadrantName(code) {
+      return {
+        QI: 'Quadrant I',
+        QII: 'Quadrant II',
+        QIII: 'Quadrant III',
+        QIV: 'Quadrant IV',
+        Axis: 'Axis / no quadrant'
+      }[code];
+    }
+
+    function intervalText(code) {
+      return {
+        QI: 'between 0° and 90°',
+        QII: 'between 90° and 180°',
+        QIII: 'between 180° and 270°',
+        QIV: 'between 270° and 360°',
+        Axis: 'exactly on 0°, 90°, 180°, or 270°'
+      }[code];
+    }
+
+    function choose(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function buildDegreePool() {
+      const diff = document.getElementById('difficulty').value;
+      const includeAxes = document.getElementById('includeAxes').checked;
+      let pool = [...degreeEasy];
+      if (diff === 'medium' || diff === 'hard') pool.push(...degreeMediumExtra);
+      if (diff === 'hard') pool.push(...degreeHardExtra);
+      if (includeAxes) pool.push(...degreeAxes, -90, 450, 540, -360);
+      return pool;
+    }
+
+    function buildRadPool() {
+      const diff = document.getElementById('difficulty').value;
+      const includeAxes = document.getElementById('includeAxes').checked;
+      let pool = [...radEasy];
+      if (diff === 'medium' || diff === 'hard') pool.push(...radMediumExtra);
+      if (diff === 'hard') pool.push(...radHardExtra);
+      if (includeAxes) pool.push(...radAxes, {n:-1,d:2}, {n:5,d:2}, {n:3,d:1});
+      return pool;
+    }
+
+    function newQuestion() {
+      const mode = document.getElementById('formatMode').value;
+      const type = mode === 'mixed' ? choose(['degrees', 'radians']) : mode;
+      selected = null;
+      checked = false;
+      feedback.textContent = '';
+      feedback.className = 'feedback';
+      reveal.classList.remove('show');
+      document.querySelectorAll('.answer-btn').forEach(btn => {
+        btn.classList.remove('selected', 'correct', 'incorrect');
+        btn.disabled = false;
+      });
+
+      if (type === 'degrees') {
+        const deg = choose(buildDegreePool());
+        const norm = normalizeDegrees(deg);
+        current = {
+          type,
+          display: `${deg}°`,
+          originalDegrees: deg,
+          normalizedDegrees: norm,
+          answer: answerFromNormalized(norm)
+        };
+      } else {
+        const r = choose(buildRadPool());
+        const deg = radToDegrees(r.n, r.d);
+        const norm = normalizeDegrees(deg);
+        current = {
+          type,
+          display: formatRadians(r.n, r.d),
+          radN: r.n,
+          radD: r.d,
+          originalDegrees: deg,
+          normalizedDegrees: norm,
+          answer: answerFromNormalized(norm)
+        };
+      }
+
+      angleDisplay.textContent = current.display;
+      formatTag.textContent = current.type === 'degrees' ? 'degree angle' : 'radian angle';
+      makeReveal();
+    }
+
+    function makeReveal() {
+      const norm = current.normalizedDegrees;
+      const ans = current.answer;
+      revealSteps.innerHTML = '';
+      const steps = [];
+      if (current.type === 'degrees') {
+        steps.push(`Start with <strong>${current.display}</strong>. Add or subtract <strong>360°</strong> until the angle is between <strong>0°</strong> and <strong>360°</strong>.`);
+      } else {
+        steps.push(`Start with <strong>${current.display}</strong>. One full turn is <strong>2π</strong>, which is the same as <strong>360°</strong>.`);
+        steps.push(`<strong>${current.display}</strong> is equivalent to <strong>${current.originalDegrees}°</strong>.`);
+      }
+      steps.push(`The coterminal angle is <strong>${niceDegree(norm)}°</strong>.`);
+      if (ans === 'Axis') {
+        steps.push(`<strong>${niceDegree(norm)}°</strong> is on an axis, so it is <strong>not inside a quadrant</strong>.`);
+      } else {
+        steps.push(`<strong>${niceDegree(norm)}°</strong> is ${intervalText(ans)}, so the answer is <strong>${quadrantName(ans)}</strong>.`);
+      }
+      steps.forEach(s => {
+        const li = document.createElement('li');
+        li.innerHTML = s;
+        revealSteps.appendChild(li);
+      });
+    }
+
+    function niceDegree(x) {
+      if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+      return x.toFixed(2).replace(/\.00$/, '');
+    }
+
+    function checkAnswer() {
+      if (!selected) {
+        feedback.textContent = 'Choose an answer first.';
+        feedback.className = 'feedback warn';
+        return;
+      }
+      if (checked) return;
+      checked = true;
+      total++;
+      const isCorrect = selected === current.answer;
+      if (isCorrect) correct++;
+
+      document.querySelectorAll('.answer-btn').forEach(btn => {
+        const val = btn.dataset.answer;
+        if (val === current.answer) btn.classList.add('correct');
+        if (val === selected && val !== current.answer) btn.classList.add('incorrect');
+      });
+
+      feedback.textContent = isCorrect
+        ? `Correct: ${current.display} is in ${quadrantName(current.answer)}.`
+        : `Not quite. ${current.display} is in ${quadrantName(current.answer)}.`;
+      feedback.className = isCorrect ? 'feedback good' : 'feedback bad';
+      reveal.classList.add('show');
+      updateScore();
+      addHistory(isCorrect);
+    }
+
+    function updateScore() {
+      correctScore.textContent = correct;
+      totalScore.textContent = total;
+      percentScore.textContent = total ? `${Math.round(correct / total * 100)}%` : '0%';
+    }
+
+    function addHistory(isCorrect) {
+      history.unshift({
+        display: current.display,
+        answer: current.answer,
+        selected,
+        isCorrect
+      });
+      history = history.slice(0, 6);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyBox.innerHTML = '';
+      if (!history.length) {
+        const empty = document.createElement('div');
+        empty.className = 'history-item';
+        empty.innerHTML = '<span>No attempts yet.</span><span class="pill axis">start</span>';
+        historyBox.appendChild(empty);
+        return;
+      }
+      history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const cls = item.isCorrect ? 'good' : 'bad';
+        div.innerHTML = `<span><strong>${item.display}</strong> → ${quadrantName(item.answer)}</span><span class="pill ${cls}">${item.isCorrect ? 'correct' : 'review'}</span>`;
+        historyBox.appendChild(div);
+      });
+    }
+
+    answers.addEventListener('click', (e) => {
+      const btn = e.target.closest('.answer-btn');
+      if (!btn || checked) return;
+      selected = btn.dataset.answer;
+      document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      feedback.textContent = '';
+      feedback.className = 'feedback';
+    });
+
+    document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+    document.getElementById('revealBtn').addEventListener('click', () => reveal.classList.toggle('show'));
+    document.getElementById('nextBtn').addEventListener('click', newQuestion);
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      correct = 0;
+      total = 0;
+      history = [];
+      updateScore();
+      renderHistory();
+      feedback.textContent = 'Score reset.';
+      feedback.className = 'feedback warn';
+    });
+    document.getElementById('formatMode').addEventListener('change', newQuestion);
+    document.getElementById('difficulty').addEventListener('change', newQuestion);
+    document.getElementById('includeAxes').addEventListener('change', newQuestion);
+
+    updateScore();
+    renderHistory();
+    newQuestion();
+  </script>
+</body>
+</html>
