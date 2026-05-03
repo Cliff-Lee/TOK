@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pick's Theorem Investigation</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --line: #d8dee9;
+      --grid: #dbe4f0;
+      --major-grid: #b6c6dc;
+      --blue: #2563eb;
+      --orange: #f97316;
+      --green: #059669;
+      --purple: #7c3aed;
+      --red: #dc2626;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #dbeafe 0, transparent 34%), var(--bg);
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 940px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .prompt-card {
+      margin-top: 18px;
+      background: #111827;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-card h2 {
+      margin: 0 0 6px;
+      color: #bfdbfe;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .prompt-card p {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 20px 38px;
+      display: grid;
+      grid-template-columns: minmax(420px, 1.15fr) minmax(330px, 0.85fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 940px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(216, 222, 233, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2 { margin: 0; font-size: 1.12rem; }
+
+    .card-body { padding: 18px; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 5px 14px rgba(37, 99, 235, 0.22);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #1e40af;
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: #f3f4f6;
+      color: #374151;
+      box-shadow: none;
+    }
+
+    button:hover { transform: translateY(-1px); filter: brightness(0.98); }
+
+    .svg-wrap {
+      width: 100%;
+      aspect-ratio: 1.08 / 1;
+      min-height: 520px;
+      border-radius: 16px;
+      border: 1px solid #bfdbfe;
+      background: linear-gradient(180deg, #eff6ff, #f8fafc);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      touch-action: none;
+    }
+
+    svg { width: 100%; height: 100%; display: block; user-select: none; }
+
+    .grid-line {
+      stroke: var(--grid);
+      stroke-width: 1;
+    }
+
+    .grid-line.major {
+      stroke: var(--major-grid);
+      stroke-width: 1.3;
+    }
+
+    .polygon {
+      fill: rgba(37, 99, 235, 0.18);
+      stroke: var(--blue);
+      stroke-width: 3.2;
+      stroke-linejoin: round;
+    }
+
+    .edge {
+      stroke: var(--blue);
+      stroke-width: 3.2;
+      stroke-linecap: round;
+    }
+
+    .boundary-point {
+      fill: var(--orange);
+      stroke: white;
+      stroke-width: 2.2;
+    }
+
+    .interior-point {
+      fill: var(--green);
+      stroke: white;
+      stroke-width: 2.2;
+    }
+
+    .outside-point {
+      fill: #cbd5e1;
+      opacity: 0.45;
+    }
+
+    .vertex {
+      fill: #111827;
+      stroke: white;
+      stroke-width: 4;
+      cursor: grab;
+    }
+
+    .vertex:active { cursor: grabbing; }
+
+    .vertex-label {
+      fill: #111827;
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .axis-label {
+      fill: #64748b;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.88rem;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px #d1d5db;
+    }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .measure-grid { grid-template-columns: 1fr; }
+    }
+
+    .measure {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .measure small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .measure strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.22rem;
+      letter-spacing: -0.03em;
+    }
+
+    .status-ok { color: var(--green); }
+    .status-warn { color: var(--red); }
+
+    .notice {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 12px 0 0;
+    }
+
+    .polya { display: grid; gap: 12px; }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+
+    details[open] {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    summary span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .step-body { padding: 0 14px 14px; }
+    .step-body ul { margin-top: 4px; padding-left: 20px; }
+    .step-body li { margin: 7px 0; }
+
+    textarea {
+      width: 100%;
+      min-height: 82px;
+      resize: vertical;
+      border: 1px solid #93c5fd;
+      border-radius: 12px;
+      padding: 10px;
+      font: inherit;
+      background: white;
+      margin-top: 8px;
+    }
+
+    .table-wrap {
+      max-height: 245px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 8px 6px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .challenge {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .challenge strong { color: #b45309; }
+
+    .hidden { filter: blur(5px); user-select: none; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pick's Theorem Investigation</h1>
+    <p class="subtitle">Move the vertices of a polygon on a square lattice. Count area, boundary lattice points, and interior lattice points. Use the data to search for a rule.</p>
+
+    <section class="prompt-card" aria-label="Prompting question">
+      <h2>Prompting Question</h2>
+      <p>Can the area of a lattice polygon be predicted just by counting points?</p>
+    </section>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <h2>Explore lattice polygons</h2>
+        <div class="controls">
+          <button id="randomBtn" type="button">Random polygon</button>
+          <button id="recordBtn" type="button" class="secondary">Record data</button>
+          <button id="toggleBtn" type="button" class="ghost">Hide measurements</button>
+          <button id="shapeBtn" type="button" class="ghost">Change shape type</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="svg-wrap">
+          <svg id="scene" viewBox="0 0 720 650" role="img" aria-label="Interactive Pick's theorem lattice polygon diagram">
+            <g id="grid"></g>
+            <g id="latticePoints"></g>
+            <polygon id="polygon" class="polygon"></polygon>
+            <g id="vertices"></g>
+            <g id="labels"></g>
+          </svg>
+        </div>
+
+        <div class="legend">
+          <span class="legend-item"><span class="swatch" style="background:#111827;"></span>Draggable vertex</span>
+          <span class="legend-item"><span class="swatch" style="background:#f97316;"></span>Boundary lattice point</span>
+          <span class="legend-item"><span class="swatch" style="background:#059669;"></span>Interior lattice point</span>
+          <span class="legend-item">Vertices snap to the grid.</span>
+        </div>
+
+        <div id="measurements" class="measure-grid">
+          <div class="measure"><small>Area</small><strong id="areaValue">--</strong></div>
+          <div class="measure"><small>Boundary lattice points</small><strong id="boundaryValue">--</strong></div>
+          <div class="measure"><small>Interior lattice points</small><strong id="interiorValue">--</strong></div>
+          <div class="measure"><small>Number of vertices</small><strong id="verticesValue">--</strong></div>
+          <div class="measure"><small>Shape type</small><strong id="shapeTypeValue">--</strong></div>
+          <div class="measure"><small>Polygon status</small><strong id="statusValue" class="status-ok">Valid</strong></div>
+        </div>
+
+        <p class="notice">Tip: Try rectangles, triangles, slanted shapes, and concave polygons. Keep the edges from crossing.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Use Polya's Method</h2>
+        <span class="badge">No solution shown</span>
+      </div>
+      <div class="card-body polya">
+        <details open>
+          <summary>1. Understand the problem <span>What is being counted?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>What makes a point a lattice point?</li>
+              <li>Which lattice points are on the boundary?</li>
+              <li>Which lattice points are inside the polygon?</li>
+              <li>How can you find the area of the polygon?</li>
+            </ul>
+            <textarea placeholder="Write the problem in your own words..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>2. Make a plan <span>How will you collect evidence?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Start with simple polygons, such as rectangles and right triangles.</li>
+              <li>Record the area, boundary points, and interior points.</li>
+              <li>Then test slanted and concave polygons.</li>
+              <li>Look for a relationship that works for all valid examples.</li>
+            </ul>
+            <textarea placeholder="Write your investigation plan before collecting data..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Carry out the plan <span>What do the data suggest?</span></summary>
+          <div class="step-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>Type</th>
+                    <th>Area</th>
+                    <th>Boundary</th>
+                    <th>Interior</th>
+                    <th>Vertices</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr><td colspan="6" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="controls" style="margin-top:10px;">
+              <button id="clearBtn" type="button" class="ghost">Clear table</button>
+            </div>
+            <textarea placeholder="Describe the pattern. Separate what you measured from what you think is always true..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Look back and justify <span>Why might it always work?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Can you break a polygon into rectangles and triangles?</li>
+              <li>What happens to the counts when two shapes are joined?</li>
+              <li>Which points are counted twice when shapes are combined?</li>
+              <li>How could you convince someone without only using more examples?</li>
+            </ul>
+            <textarea placeholder="Write your conjecture and your justification. Use diagrams, tables, or algebraic reasoning..."></textarea>
+          </div>
+        </details>
+
+        <div class="challenge">
+          <strong>Extension question:</strong> Does your conjecture still work for a polygon with a hole? Make a prediction before testing on paper.
+        </div>
+
+        <p class="footer-note">The applet gives the construction and measurements only. It does not explain the theorem.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const svg = document.getElementById('scene');
+    const gridGroup = document.getElementById('grid');
+    const latticeGroup = document.getElementById('latticePoints');
+    const polygonEl = document.getElementById('polygon');
+    const verticesGroup = document.getElementById('vertices');
+    const labelsGroup = document.getElementById('labels');
+
+    const areaValue = document.getElementById('areaValue');
+    const boundaryValue = document.getElementById('boundaryValue');
+    const interiorValue = document.getElementById('interiorValue');
+    const verticesValue = document.getElementById('verticesValue');
+    const shapeTypeValue = document.getElementById('shapeTypeValue');
+    const statusValue = document.getElementById('statusValue');
+    const dataBody = document.getElementById('dataBody');
+    const measurements = document.getElementById('measurements');
+
+    const origin = { x: 90, y: 570 };
+    const step = 40;
+    const maxX = 13;
+    const maxY = 12;
+
+    let points = [
+      { x: 2, y: 2 },
+      { x: 8, y: 2 },
+      { x: 10, y: 6 },
+      { x: 5, y: 9 },
+      { x: 2, y: 6 }
+    ];
+
+    let activeIndex = null;
+    let rows = [];
+    let showMeasurements = true;
+    let shapeMode = 0;
+    const shapeModes = ['Mixed', 'Rectangle', 'Triangle', 'Concave'];
+
+    function toSvg(p) {
+      return { x: origin.x + p.x * step, y: origin.y - p.y * step };
+    }
+
+    function fromSvg(p) {
+      return {
+        x: Math.round((p.x - origin.x) / step),
+        y: Math.round((origin.y - p.y) / step)
+      };
+    }
+
+    function clampGrid(p) {
+      return {
+        x: Math.max(0, Math.min(maxX, p.x)),
+        y: Math.max(0, Math.min(maxY, p.y))
+      };
+    }
+
+    function polygonPointsSvg(list) {
+      return list.map(p => {
+        const q = toSvg(p);
+        return `${q.x},${q.y}`;
+      }).join(' ');
+    }
+
+    function createSvgEl(name, attrs = {}) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+
+    function gcd(a, b) {
+      a = Math.abs(a);
+      b = Math.abs(b);
+      while (b) [a, b] = [b, a % b];
+      return a;
+    }
+
+    function shoelaceArea(list) {
+      let sum = 0;
+      for (let i = 0; i < list.length; i++) {
+        const p = list[i];
+        const q = list[(i + 1) % list.length];
+        sum += p.x * q.y - q.x * p.y;
+      }
+      return Math.abs(sum) / 2;
+    }
+
+    function pointOnSegment(pt, a, b) {
+      const cross = (pt.x - a.x) * (b.y - a.y) - (pt.y - a.y) * (b.x - a.x);
+      if (cross !== 0) return false;
+      return pt.x >= Math.min(a.x, b.x) && pt.x <= Math.max(a.x, b.x) &&
+             pt.y >= Math.min(a.y, b.y) && pt.y <= Math.max(a.y, b.y);
+    }
+
+    function pointOnBoundary(pt, list) {
+      for (let i = 0; i < list.length; i++) {
+        if (pointOnSegment(pt, list[i], list[(i + 1) % list.length])) return true;
+      }
+      return false;
+    }
+
+    function pointInsidePolygon(pt, list) {
+      let inside = false;
+      const x = pt.x;
+      const y = pt.y;
+      for (let i = 0, j = list.length - 1; i < list.length; j = i++) {
+        const xi = list[i].x, yi = list[i].y;
+        const xj = list[j].x, yj = list[j].y;
+        const intersect = ((yi > y) !== (yj > y)) &&
+          (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function orientation(a, b, c) {
+      const value = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+      if (value === 0) return 0;
+      return value > 0 ? 1 : -1;
+    }
+
+    function segmentsIntersect(a, b, c, d) {
+      if ((a.x === c.x && a.y === c.y) || (a.x === d.x && a.y === d.y) ||
+          (b.x === c.x && b.y === c.y) || (b.x === d.x && b.y === d.y)) return false;
+
+      const o1 = orientation(a, b, c);
+      const o2 = orientation(a, b, d);
+      const o3 = orientation(c, d, a);
+      const o4 = orientation(c, d, b);
+
+      if (o1 !== o2 && o3 !== o4) return true;
+      return false;
+    }
+
+    function isSimplePolygon(list) {
+      for (let i = 0; i < list.length; i++) {
+        const a = list[i];
+        const b = list[(i + 1) % list.length];
+        for (let j = i + 1; j < list.length; j++) {
+          if (Math.abs(i - j) <= 1) continue;
+          if (i === 0 && j === list.length - 1) continue;
+          const c = list[j];
+          const d = list[(j + 1) % list.length];
+          if (segmentsIntersect(a, b, c, d)) return false;
+        }
+      }
+      return true;
+    }
+
+    function hasDuplicateVertices(list) {
+      const seen = new Set();
+      for (const p of list) {
+        const k = `${p.x},${p.y}`;
+        if (seen.has(k)) return true;
+        seen.add(k);
+      }
+      return false;
+    }
+
+    function boundaryCount(list) {
+      let total = 0;
+      for (let i = 0; i < list.length; i++) {
+        const p = list[i];
+        const q = list[(i + 1) % list.length];
+        total += gcd(q.x - p.x, q.y - p.y);
+      }
+      return total;
+    }
+
+    function latticeCounts(list) {
+      let boundary = 0;
+      let interior = 0;
+      const boundarySet = new Set();
+      const interiorSet = new Set();
+
+      for (let x = 0; x <= maxX; x++) {
+        for (let y = 0; y <= maxY; y++) {
+          const p = { x, y };
+          const k = `${x},${y}`;
+          if (pointOnBoundary(p, list)) {
+            boundary++;
+            boundarySet.add(k);
+          } else if (pointInsidePolygon(p, list)) {
+            interior++;
+            interiorSet.add(k);
+          }
+        }
+      }
+      return { boundary, interior, boundarySet, interiorSet };
+    }
+
+    function classifyShape(list) {
+      if (list.length === 3) return 'Triangle';
+      if (list.length === 4) {
+        const xs = list.map(p => p.x);
+        const ys = list.map(p => p.y);
+        const uniqueX = new Set(xs).size;
+        const uniqueY = new Set(ys).size;
+        if (uniqueX === 2 && uniqueY === 2) return 'Rectangle';
+        return 'Quadrilateral';
+      }
+      let signs = [];
+      for (let i = 0; i < list.length; i++) {
+        const z = orientation(list[i], list[(i + 1) % list.length], list[(i + 2) % list.length]);
+        if (z !== 0) signs.push(z);
+      }
+      const concave = signs.some(s => s !== signs[0]);
+      return concave ? 'Concave' : 'Polygon';
+    }
+
+    function currentData() {
+      const simple = isSimplePolygon(points) && !hasDuplicateVertices(points) && shoelaceArea(points) > 0;
+      const area = shoelaceArea(points);
+      const counts = latticeCounts(points);
+      return {
+        simple,
+        area,
+        boundary: counts.boundary,
+        interior: counts.interior,
+        boundarySet: counts.boundarySet,
+        interiorSet: counts.interiorSet,
+        vertices: points.length,
+        type: classifyShape(points)
+      };
+    }
+
+    function drawGrid() {
+      gridGroup.innerHTML = '';
+      for (let x = 0; x <= maxX; x++) {
+        const p1 = toSvg({ x, y: 0 });
+        const p2 = toSvg({ x, y: maxY });
+        gridGroup.appendChild(createSvgEl('line', {
+          x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+          class: 'grid-line' + (x % 5 === 0 ? ' major' : '')
+        }));
+      }
+      for (let y = 0; y <= maxY; y++) {
+        const p1 = toSvg({ x: 0, y });
+        const p2 = toSvg({ x: maxX, y });
+        gridGroup.appendChild(createSvgEl('line', {
+          x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+          class: 'grid-line' + (y % 5 === 0 ? ' major' : '')
+        }));
+      }
+    }
+
+    function renderLattice(data) {
+      latticeGroup.innerHTML = '';
+      for (let x = 0; x <= maxX; x++) {
+        for (let y = 0; y <= maxY; y++) {
+          const k = `${x},${y}`;
+          const p = toSvg({ x, y });
+          let cls = 'outside-point';
+          let r = 3.2;
+          if (data.boundarySet.has(k)) {
+            cls = 'boundary-point';
+            r = 5.3;
+          } else if (data.interiorSet.has(k)) {
+            cls = 'interior-point';
+            r = 5.3;
+          }
+          latticeGroup.appendChild(createSvgEl('circle', {
+            cx: p.x, cy: p.y, r, class: cls
+          }));
+        }
+      }
+    }
+
+    function renderVertices() {
+      verticesGroup.innerHTML = '';
+      labelsGroup.innerHTML = '';
+      points.forEach((pt, i) => {
+        const p = toSvg(pt);
+        const circle = createSvgEl('circle', {
+          cx: p.x,
+          cy: p.y,
+          r: 11,
+          class: 'vertex',
+          'data-index': i
+        });
+        circle.addEventListener('pointerdown', evt => {
+          activeIndex = i;
+          circle.setPointerCapture(evt.pointerId);
+        });
+        verticesGroup.appendChild(circle);
+
+        const label = createSvgEl('text', {
+          x: p.x + 12,
+          y: p.y - 12,
+          class: 'vertex-label'
+        });
+        label.textContent = String.fromCharCode(65 + i);
+        labelsGroup.appendChild(label);
+      });
+    }
+
+    function render() {
+      const data = currentData();
+      polygonEl.setAttribute('points', polygonPointsSvg(points));
+      renderLattice(data);
+      renderVertices();
+
+      areaValue.textContent = data.area.toFixed(data.area % 1 === 0 ? 0 : 1);
+      boundaryValue.textContent = data.boundary;
+      interiorValue.textContent = data.interior;
+      verticesValue.textContent = data.vertices;
+      shapeTypeValue.textContent = data.type;
+      statusValue.textContent = data.simple ? 'Valid' : 'Fix crossing';
+      statusValue.className = data.simple ? 'status-ok' : 'status-warn';
+    }
+
+    function svgPointFromEvent(evt) {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    svg.addEventListener('pointermove', evt => {
+      if (activeIndex === null) return;
+      const gridPoint = clampGrid(fromSvg(svgPointFromEvent(evt)));
+      const old = { ...points[activeIndex] };
+      points[activeIndex] = gridPoint;
+      if (hasDuplicateVertices(points) || shoelaceArea(points) === 0) points[activeIndex] = old;
+      render();
+    });
+
+    svg.addEventListener('pointerup', () => { activeIndex = null; });
+    svg.addEventListener('pointercancel', () => { activeIndex = null; });
+
+    function setPreset(mode) {
+      if (mode === 'Rectangle') {
+        points = [
+          { x: 2, y: 2 },
+          { x: 9, y: 2 },
+          { x: 9, y: 7 },
+          { x: 2, y: 7 }
+        ];
+      } else if (mode === 'Triangle') {
+        points = [
+          { x: 2, y: 2 },
+          { x: 11, y: 3 },
+          { x: 5, y: 10 }
+        ];
+      } else if (mode === 'Concave') {
+        points = [
+          { x: 2, y: 2 },
+          { x: 10, y: 2 },
+          { x: 10, y: 8 },
+          { x: 6, y: 5 },
+          { x: 2, y: 9 }
+        ];
+      } else {
+        points = [
+          { x: 2, y: 2 },
+          { x: 8, y: 2 },
+          { x: 10, y: 6 },
+          { x: 5, y: 9 },
+          { x: 2, y: 6 }
+        ];
+      }
+      render();
+    }
+
+    function randomPolygon() {
+      const presets = [
+        [
+          { x: 1 + rand(2), y: 1 + rand(3) },
+          { x: 7 + rand(5), y: 1 + rand(3) },
+          { x: 9 + rand(3), y: 5 + rand(4) },
+          { x: 5 + rand(3), y: 8 + rand(3) },
+          { x: 1 + rand(3), y: 5 + rand(4) }
+        ],
+        [
+          { x: 2 + rand(2), y: 2 + rand(2) },
+          { x: 10 + rand(2), y: 2 + rand(2) },
+          { x: 4 + rand(4), y: 9 + rand(2) }
+        ],
+        [
+          { x: 2, y: 2 },
+          { x: 11, y: 2 + rand(2) },
+          { x: 10, y: 8 + rand(2) },
+          { x: 6, y: 5 },
+          { x: 2, y: 9 }
+        ],
+        [
+          { x: 2, y: 2 },
+          { x: 7 + rand(3), y: 2 },
+          { x: 11, y: 5 + rand(2) },
+          { x: 8, y: 9 },
+          { x: 4, y: 10 },
+          { x: 1, y: 6 }
+        ]
+      ];
+      points = presets[rand(presets.length)].map(p => ({ ...p }));
+      render();
+    }
+
+    function rand(n) {
+      return Math.floor(Math.random() * n);
+    }
+
+    function renderTable() {
+      if (rows.length === 0) {
+        dataBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>';
+        return;
+      }
+      dataBody.innerHTML = rows.map((r, i) => `
+        <tr>
+          <td>Trial ${i + 1}</td>
+          <td>${r.type}</td>
+          <td>${r.area}</td>
+          <td>${r.boundary}</td>
+          <td>${r.interior}</td>
+          <td>${r.vertices}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('randomBtn').addEventListener('click', randomPolygon);
+
+    document.getElementById('recordBtn').addEventListener('click', () => {
+      const data = currentData();
+      if (!data.simple) return;
+      rows.push({
+        type: data.type,
+        area: data.area.toFixed(data.area % 1 === 0 ? 0 : 1),
+        boundary: data.boundary,
+        interior: data.interior,
+        vertices: data.vertices
+      });
+      renderTable();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      rows = [];
+      renderTable();
+    });
+
+    document.getElementById('toggleBtn').addEventListener('click', evt => {
+      showMeasurements = !showMeasurements;
+      measurements.classList.toggle('hidden', !showMeasurements);
+      evt.target.textContent = showMeasurements ? 'Hide measurements' : 'Show measurements';
+    });
+
+    document.getElementById('shapeBtn').addEventListener('click', evt => {
+      shapeMode = (shapeMode + 1) % shapeModes.length;
+      const mode = shapeModes[shapeMode];
+      evt.target.textContent = `Shape: ${mode}`;
+      setPreset(mode);
+    });
+
+    drawGrid();
+    render();
+    renderTable();
+  </script>
+</body>
+</html>

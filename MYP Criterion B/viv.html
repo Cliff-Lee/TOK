@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viviani's Theorem Investigation</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --line: #d1d5db;
+      --good: #047857;
+      --warn: #b45309;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e0f2fe 0, transparent 32%), var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 28px 20px 14px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 850px;
+    }
+
+    .prompt-card {
+      margin-top: 18px;
+      background: #111827;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-card h2 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .prompt-card p {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.8rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 20px 36px;
+      display: grid;
+      grid-template-columns: minmax(360px, 1.1fr) minmax(320px, 0.9fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(209, 213, 219, 0.85);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2,
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .svg-wrap {
+      width: 100%;
+      aspect-ratio: 1.12 / 1;
+      min-height: 430px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #f8fafc, #eff6ff);
+      border: 1px solid #dbeafe;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      user-select: none;
+    }
+
+    .triangle {
+      fill: rgba(37, 99, 235, 0.08);
+      stroke: #1d4ed8;
+      stroke-width: 3;
+    }
+
+    .side-label {
+      font-weight: 700;
+      fill: #1e3a8a;
+      font-size: 15px;
+    }
+
+    .perp {
+      stroke: #ef4444;
+      stroke-width: 2.2;
+      stroke-dasharray: 7 6;
+    }
+
+    .foot {
+      fill: #ef4444;
+    }
+
+    .point {
+      fill: #111827;
+      stroke: white;
+      stroke-width: 4;
+      cursor: grab;
+    }
+
+    .point:active {
+      cursor: grabbing;
+    }
+
+    .point-label {
+      font-weight: 800;
+      fill: #111827;
+      font-size: 18px;
+    }
+
+    .height-line {
+      stroke: #059669;
+      stroke-width: 2;
+      stroke-dasharray: 4 5;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #1e40af;
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: #f3f4f6;
+      color: #374151;
+      box-shadow: none;
+    }
+
+    button:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .measure {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #f9fafb;
+    }
+
+    .measure small {
+      display: block;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.72rem;
+    }
+
+    .measure strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+    }
+
+    .notice {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .polya {
+      display: grid;
+      gap: 12px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    details[open] {
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    summary span {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .step-body {
+      padding: 0 14px 14px;
+    }
+
+    .step-body ul {
+      margin-top: 4px;
+      padding-left: 20px;
+    }
+
+    .step-body li {
+      margin: 7px 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 86px;
+      resize: vertical;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 10px;
+      font: inherit;
+      background: white;
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 6px;
+      text-align: right;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .table-wrap {
+      max-height: 240px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: #ecfdf5;
+      color: #065f46;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.84rem;
+    }
+
+    .challenge {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 14px;
+      border-radius: 14px;
+      margin-top: 12px;
+    }
+
+    .challenge strong {
+      color: var(--warn);
+    }
+
+    .hidden {
+      filter: blur(5px);
+      user-select: none;
+    }
+
+    .footer-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Viviani's Theorem Investigation</h1>
+    <p class="subtitle">Drag the point inside the equilateral triangle. Collect evidence, look for a pattern, and build a justification using Polya's problem-solving method.</p>
+
+    <section class="prompt-card" aria-label="Prompting question">
+      <h2>Prompting Question</h2>
+      <p>What, if anything, stays the same when the point moves inside the equilateral triangle?</p>
+    </section>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <h2>Explore the diagram</h2>
+        <div class="controls">
+          <button id="randomBtn" type="button">Random point</button>
+          <button id="recordBtn" type="button" class="secondary">Record data</button>
+          <button id="toggleBtn" type="button" class="ghost">Hide measurements</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="svg-wrap">
+          <svg id="scene" viewBox="0 0 640 560" role="img" aria-label="Interactive equilateral triangle with a draggable point">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"></path>
+              </marker>
+            </defs>
+
+            <polygon id="triangle" class="triangle"></polygon>
+            <line id="height" class="height-line"></line>
+            <text id="heightLabel" class="side-label">height</text>
+
+            <line id="d1" class="perp"></line>
+            <line id="d2" class="perp"></line>
+            <line id="d3" class="perp"></line>
+
+            <circle id="f1" class="foot" r="5"></circle>
+            <circle id="f2" class="foot" r="5"></circle>
+            <circle id="f3" class="foot" r="5"></circle>
+
+            <text id="l1" class="side-label">d₁</text>
+            <text id="l2" class="side-label">d₂</text>
+            <text id="l3" class="side-label">d₃</text>
+
+            <circle id="p" class="point" r="12"></circle>
+            <text id="pLabel" class="point-label">P</text>
+          </svg>
+        </div>
+
+        <div id="measurements" class="measure-grid">
+          <div class="measure"><small>Distance to side 1</small><strong id="m1">--</strong></div>
+          <div class="measure"><small>Distance to side 2</small><strong id="m2">--</strong></div>
+          <div class="measure"><small>Distance to side 3</small><strong id="m3">--</strong></div>
+          <div class="measure"><small>Total of the three distances</small><strong id="msum">--</strong></div>
+          <div class="measure"><small>Triangle height</small><strong id="mh">--</strong></div>
+          <div class="measure"><small>Question to consider</small><strong>Compare</strong></div>
+        </div>
+
+        <p class="notice">Tip: Record at least 6 different positions. Try points near the centre, near a side, and near a vertex.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Use Polya's Method</h2>
+        <span class="badge">No solution shown</span>
+      </div>
+      <div class="card-body polya">
+        <details open>
+          <summary>1. Understand the problem <span>What is being asked?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>What shape are you investigating?</li>
+              <li>What can move?</li>
+              <li>What quantities can you measure?</li>
+              <li>What does it mean for something to be constant?</li>
+            </ul>
+            <textarea placeholder="Write the problem in your own words..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>2. Make a plan <span>How will you collect evidence?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Choose several different positions for point P.</li>
+              <li>Record the three perpendicular distances each time.</li>
+              <li>Look for a relationship between the measurements.</li>
+              <li>Decide how many examples are enough to make a conjecture.</li>
+            </ul>
+            <textarea placeholder="Write your plan before pressing Record data..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Carry out the plan <span>What pattern do you see?</span></summary>
+          <div class="step-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>d₁</th>
+                    <th>d₂</th>
+                    <th>d₃</th>
+                    <th>Total</th>
+                    <th>Height</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr><td colspan="6" style="text-align:center;color:#6b7280;">No data recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="controls" style="margin-top:10px;">
+              <button id="clearBtn" type="button" class="ghost">Clear table</button>
+            </div>
+            <textarea placeholder="Describe the pattern you notice. Do not write a rule yet unless your data supports it..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Look back and justify <span>Why might it always work?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Can you connect the three measured distances to areas?</li>
+              <li>Can the large triangle be split into smaller triangles?</li>
+              <li>Which lengths stay the same when P moves?</li>
+              <li>How could you convince someone without using more measurements?</li>
+            </ul>
+            <textarea placeholder="Write your conjecture and your justification. Use diagrams, equations, or words..."></textarea>
+          </div>
+        </details>
+
+        <div class="challenge">
+          <strong>Extension question:</strong> Does your conjecture still work if the triangle is not equilateral? Test it, then explain what changes.
+        </div>
+
+        <p class="footer-note">This applet gives measurements and prompts only. Your job is to find and justify the result.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const svg = document.getElementById('scene');
+    const triangleEl = document.getElementById('triangle');
+    const pointEl = document.getElementById('p');
+    const pLabel = document.getElementById('pLabel');
+    const heightEl = document.getElementById('height');
+    const heightLabel = document.getElementById('heightLabel');
+
+    const dEls = [document.getElementById('d1'), document.getElementById('d2'), document.getElementById('d3')];
+    const fEls = [document.getElementById('f1'), document.getElementById('f2'), document.getElementById('f3')];
+    const lEls = [document.getElementById('l1'), document.getElementById('l2'), document.getElementById('l3')];
+    const mEls = [document.getElementById('m1'), document.getElementById('m2'), document.getElementById('m3')];
+    const msum = document.getElementById('msum');
+    const mh = document.getElementById('mh');
+    const dataBody = document.getElementById('dataBody');
+    const measurements = document.getElementById('measurements');
+
+    const A = { x: 110, y: 480 };
+    const B = { x: 530, y: 480 };
+    const side = B.x - A.x;
+    const h = side * Math.sqrt(3) / 2;
+    const C = { x: (A.x + B.x) / 2, y: A.y - h };
+    const vertices = [A, B, C];
+    let P = { x: 320, y: 330 };
+    let dragging = false;
+    let showMeasurements = true;
+    let rows = [];
+
+    triangleEl.setAttribute('points', `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`);
+    heightEl.setAttribute('x1', C.x);
+    heightEl.setAttribute('y1', C.y);
+    heightEl.setAttribute('x2', C.x);
+    heightEl.setAttribute('y2', A.y);
+    heightLabel.setAttribute('x', C.x + 12);
+    heightLabel.setAttribute('y', (C.y + A.y) / 2);
+
+    function dist(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function projectPointToLine(p, a, b) {
+      const abx = b.x - a.x;
+      const aby = b.y - a.y;
+      const apx = p.x - a.x;
+      const apy = p.y - a.y;
+      const t = (apx * abx + apy * aby) / (abx * abx + aby * aby);
+      return { x: a.x + t * abx, y: a.y + t * aby };
+    }
+
+    function signedArea(p1, p2, p3) {
+      return (p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2;
+    }
+
+    function insideTriangle(p) {
+      const area = Math.abs(signedArea(A, B, C));
+      const a1 = Math.abs(signedArea(p, B, C));
+      const a2 = Math.abs(signedArea(A, p, C));
+      const a3 = Math.abs(signedArea(A, B, p));
+      return Math.abs(area - (a1 + a2 + a3)) < 0.5;
+    }
+
+    function clampInside(p) {
+      if (insideTriangle(p)) return p;
+      const centroid = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+      let low = 0;
+      let high = 1;
+      let best = centroid;
+      for (let i = 0; i < 40; i++) {
+        const mid = (low + high) / 2;
+        const q = {
+          x: centroid.x + (p.x - centroid.x) * mid,
+          y: centroid.y + (p.y - centroid.y) * mid
+        };
+        if (insideTriangle(q)) {
+          best = q;
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+      return best;
+    }
+
+    function randomInside() {
+      let r1 = Math.random();
+      let r2 = Math.random();
+      if (r1 + r2 > 1) {
+        r1 = 1 - r1;
+        r2 = 1 - r2;
+      }
+      return {
+        x: A.x + r1 * (B.x - A.x) + r2 * (C.x - A.x),
+        y: A.y + r1 * (B.y - A.y) + r2 * (C.y - A.y)
+      };
+    }
+
+    function svgPointFromEvent(evt) {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function currentMeasurements() {
+      const sides = [
+        [A, B],
+        [B, C],
+        [C, A]
+      ];
+      const feet = sides.map(([u, v]) => projectPointToLine(P, u, v));
+      const distances = feet.map(f => dist(P, f));
+      return { feet, distances, total: distances.reduce((a, b) => a + b, 0), height: h };
+    }
+
+    function format(n) {
+      return (n / 10).toFixed(2);
+    }
+
+    function update() {
+      const { feet, distances, total, height } = currentMeasurements();
+
+      pointEl.setAttribute('cx', P.x);
+      pointEl.setAttribute('cy', P.y);
+      pLabel.setAttribute('x', P.x + 16);
+      pLabel.setAttribute('y', P.y - 14);
+
+      feet.forEach((f, i) => {
+        dEls[i].setAttribute('x1', P.x);
+        dEls[i].setAttribute('y1', P.y);
+        dEls[i].setAttribute('x2', f.x);
+        dEls[i].setAttribute('y2', f.y);
+        fEls[i].setAttribute('cx', f.x);
+        fEls[i].setAttribute('cy', f.y);
+        lEls[i].setAttribute('x', (P.x + f.x) / 2 + 8);
+        lEls[i].setAttribute('y', (P.y + f.y) / 2 - 8);
+        mEls[i].textContent = format(distances[i]);
+      });
+
+      msum.textContent = format(total);
+      mh.textContent = format(height);
+    }
+
+    function renderTable() {
+      if (rows.length === 0) {
+        dataBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#6b7280;">No data recorded yet.</td></tr>';
+        return;
+      }
+      dataBody.innerHTML = rows.map((r, i) => `
+        <tr>
+          <td>Trial ${i + 1}</td>
+          <td>${format(r.distances[0])}</td>
+          <td>${format(r.distances[1])}</td>
+          <td>${format(r.distances[2])}</td>
+          <td>${format(r.total)}</td>
+          <td>${format(r.height)}</td>
+        </tr>
+      `).join('');
+    }
+
+    pointEl.addEventListener('pointerdown', evt => {
+      dragging = true;
+      pointEl.setPointerCapture(evt.pointerId);
+    });
+
+    pointEl.addEventListener('pointermove', evt => {
+      if (!dragging) return;
+      const q = svgPointFromEvent(evt);
+      P = clampInside({ x: q.x, y: q.y });
+      update();
+    });
+
+    pointEl.addEventListener('pointerup', () => {
+      dragging = false;
+    });
+
+    svg.addEventListener('pointerdown', evt => {
+      if (evt.target === pointEl) return;
+      const q = svgPointFromEvent(evt);
+      P = clampInside({ x: q.x, y: q.y });
+      update();
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      P = randomInside();
+      update();
+    });
+
+    document.getElementById('recordBtn').addEventListener('click', () => {
+      rows.push(currentMeasurements());
+      renderTable();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      rows = [];
+      renderTable();
+    });
+
+    document.getElementById('toggleBtn').addEventListener('click', evt => {
+      showMeasurements = !showMeasurements;
+      measurements.classList.toggle('hidden', !showMeasurements);
+      evt.target.textContent = showMeasurements ? 'Hide measurements' : 'Show measurements';
+    });
+
+    update();
+    renderTable();
+  </script>
+</body>
+</html>

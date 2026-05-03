@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Van Aubel's Theorem Investigation</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --line: #d8dee9;
+      --orange: #f97316;
+      --purple: #7c3aed;
+      --blue: #2563eb;
+      --green: #059669;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #ccfbf1 0, transparent 34%), var(--bg);
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .prompt-card {
+      margin-top: 18px;
+      background: #111827;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-card h2 {
+      margin: 0 0 6px;
+      color: #99f6e4;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .prompt-card p {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 20px 38px;
+      display: grid;
+      grid-template-columns: minmax(400px, 1.15fr) minmax(330px, 0.85fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 930px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(216, 222, 233, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2 { margin: 0; font-size: 1.12rem; }
+
+    .card-body { padding: 18px; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 5px 14px rgba(15, 118, 110, 0.22);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #115e59;
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: #f3f4f6;
+      color: #374151;
+      box-shadow: none;
+    }
+
+    button:hover { transform: translateY(-1px); filter: brightness(0.98); }
+
+    .svg-wrap {
+      width: 100%;
+      aspect-ratio: 1.08 / 1;
+      min-height: 500px;
+      border-radius: 16px;
+      border: 1px solid #99f6e4;
+      background: linear-gradient(180deg, #f0fdfa, #f8fafc);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      touch-action: none;
+    }
+
+    svg { width: 100%; height: 100%; display: block; user-select: none; }
+
+    .base-quad {
+      fill: rgba(37, 99, 235, 0.08);
+      stroke: var(--blue);
+      stroke-width: 3;
+    }
+
+    .square {
+      fill: rgba(249, 115, 22, 0.12);
+      stroke: var(--orange);
+      stroke-width: 2.4;
+    }
+
+    .centre-segment-one {
+      stroke: var(--purple);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .centre-segment-two {
+      stroke: var(--green);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .construction-line {
+      stroke: #9ca3af;
+      stroke-width: 1.4;
+      stroke-dasharray: 5 5;
+    }
+
+    .vertex {
+      fill: #111827;
+      stroke: white;
+      stroke-width: 4;
+      cursor: grab;
+    }
+
+    .vertex:active { cursor: grabbing; }
+
+    .square-corner {
+      fill: #f97316;
+      stroke: white;
+      stroke-width: 3;
+    }
+
+    .centre {
+      fill: #0f766e;
+      stroke: white;
+      stroke-width: 3;
+    }
+
+    .label {
+      font-weight: 900;
+      fill: #111827;
+      font-size: 17px;
+    }
+
+    .small-label {
+      font-weight: 850;
+      fill: #115e59;
+      font-size: 14px;
+    }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 580px) {
+      .measure-grid { grid-template-columns: 1fr; }
+    }
+
+    .measure {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfffe;
+    }
+
+    .measure small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .measure strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.22rem;
+      letter-spacing: -0.03em;
+    }
+
+    .notice {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 12px 0 0;
+    }
+
+    .polya { display: grid; gap: 12px; }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+
+    details[open] {
+      background: #f0fdfa;
+      border-color: #5eead4;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    summary span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .step-body { padding: 0 14px 14px; }
+    .step-body ul { margin-top: 4px; padding-left: 20px; }
+    .step-body li { margin: 7px 0; }
+
+    textarea {
+      width: 100%;
+      min-height: 82px;
+      resize: vertical;
+      border: 1px solid #5eead4;
+      border-radius: 12px;
+      padding: 10px;
+      font: inherit;
+      background: white;
+      margin-top: 8px;
+    }
+
+    .table-wrap {
+      max-height: 245px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 8px 6px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .challenge {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .challenge strong { color: #c2410c; }
+
+    .hidden { filter: blur(5px); user-select: none; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Van Aubel's Theorem Investigation</h1>
+    <p class="subtitle">Move the vertices of the blue quadrilateral. The applet builds a square on each side, marks the square centres, and connects centres of opposite squares.</p>
+
+    <section class="prompt-card" aria-label="Prompting question">
+      <h2>Prompting Question</h2>
+      <p>When squares are built on the four sides of any quadrilateral, how are the two segments joining opposite square centres related?</p>
+    </section>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <h2>Explore the construction</h2>
+        <div class="controls">
+          <button id="randomBtn" type="button">Random quadrilateral</button>
+          <button id="recordBtn" type="button" class="secondary">Record data</button>
+          <button id="toggleBtn" type="button" class="ghost">Hide measurements</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="svg-wrap">
+          <svg id="scene" viewBox="0 0 720 650" role="img" aria-label="Interactive quadrilateral with squares constructed on each side">
+            <polygon id="sqAB" class="square"></polygon>
+            <polygon id="sqBC" class="square"></polygon>
+            <polygon id="sqCD" class="square"></polygon>
+            <polygon id="sqDA" class="square"></polygon>
+
+            <line id="guide1" class="construction-line"></line>
+            <line id="guide2" class="construction-line"></line>
+            <line id="guide3" class="construction-line"></line>
+            <line id="guide4" class="construction-line"></line>
+
+            <polygon id="baseQuad" class="base-quad"></polygon>
+
+            <line id="segOpp1" class="centre-segment-one"></line>
+            <line id="segOpp2" class="centre-segment-two"></line>
+
+            <circle id="corner1" class="square-corner" r="5.5"></circle>
+            <circle id="corner2" class="square-corner" r="5.5"></circle>
+            <circle id="corner3" class="square-corner" r="5.5"></circle>
+            <circle id="corner4" class="square-corner" r="5.5"></circle>
+            <circle id="corner5" class="square-corner" r="5.5"></circle>
+            <circle id="corner6" class="square-corner" r="5.5"></circle>
+            <circle id="corner7" class="square-corner" r="5.5"></circle>
+            <circle id="corner8" class="square-corner" r="5.5"></circle>
+
+            <circle id="oAB" class="centre" r="7"></circle>
+            <circle id="oBC" class="centre" r="7"></circle>
+            <circle id="oCD" class="centre" r="7"></circle>
+            <circle id="oDA" class="centre" r="7"></circle>
+
+            <circle id="A" class="vertex" r="12"></circle>
+            <circle id="B" class="vertex" r="12"></circle>
+            <circle id="C" class="vertex" r="12"></circle>
+            <circle id="D" class="vertex" r="12"></circle>
+
+            <text id="labelA" class="label">A</text>
+            <text id="labelB" class="label">B</text>
+            <text id="labelC" class="label">C</text>
+            <text id="labelD" class="label">D</text>
+            <text id="labelOAB" class="small-label">O₁</text>
+            <text id="labelOBC" class="small-label">O₂</text>
+            <text id="labelOCD" class="small-label">O₃</text>
+            <text id="labelODA" class="small-label">O₄</text>
+          </svg>
+        </div>
+
+        <div id="measurements" class="measure-grid">
+          <div class="measure"><small>Segment O₁O₃</small><strong id="len1">--</strong></div>
+          <div class="measure"><small>Segment O₂O₄</small><strong id="len2">--</strong></div>
+          <div class="measure"><small>Angle between segments</small><strong id="angle">--</strong></div>
+          <div class="measure"><small>Difference in lengths</small><strong id="diff">--</strong></div>
+          <div class="measure"><small>Question 1</small><strong>Equal?</strong></div>
+          <div class="measure"><small>Question 2</small><strong>Perpendicular?</strong></div>
+        </div>
+
+        <p class="notice">Tip: Try a rectangle, a kite-shaped quadrilateral, a very uneven quadrilateral, and a nearly flat quadrilateral. The applet keeps the quadrilateral convex so the outside squares are clear.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Use Polya's Method</h2>
+        <span class="badge">No solution shown</span>
+      </div>
+      <div class="card-body polya">
+        <details open>
+          <summary>1. Understand the problem <span>What is being constructed?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>What is the starting shape?</li>
+              <li>What is built on each side?</li>
+              <li>Which centres are connected?</li>
+              <li>What does it mean for two segments to be related?</li>
+            </ul>
+            <textarea placeholder="Write the construction in your own words..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>2. Make a plan <span>What evidence will you collect?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Move the four vertices to create different quadrilaterals.</li>
+              <li>Record the two segment lengths and the angle between them.</li>
+              <li>Look for measurements that stay the same or nearly the same.</li>
+              <li>Decide which examples would be most useful to test your conjecture.</li>
+            </ul>
+            <textarea placeholder="Write your investigation plan before collecting data..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Carry out the plan <span>What do the data suggest?</span></summary>
+          <div class="step-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>O₁O₃</th>
+                    <th>O₂O₄</th>
+                    <th>Angle</th>
+                    <th>Difference</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr><td colspan="5" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="controls" style="margin-top:10px;">
+              <button id="clearBtn" type="button" class="ghost">Clear table</button>
+            </div>
+            <textarea placeholder="Describe the pattern. Separate what you measured from what you think is always true..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Look back and justify <span>Why might it always work?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>What does constructing a square guarantee about lengths and angles?</li>
+              <li>Can you use a rotation of 90 degrees to compare parts of the diagram?</li>
+              <li>Can you draw extra lines between original vertices and square centres?</li>
+              <li>How could you convince someone without using more measurements?</li>
+            </ul>
+            <textarea placeholder="Write your conjecture and your justification. Use diagrams, transformations, vectors, or coordinate ideas..."></textarea>
+          </div>
+        </details>
+
+        <div class="challenge">
+          <strong>Extension question:</strong> What changes if the squares are built inward instead of outward? Test several cases before making a new conjecture.
+        </div>
+
+        <p class="footer-note">The applet gives the construction and measurements only. It does not explain the theorem.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const svg = document.getElementById('scene');
+
+    const els = {
+      baseQuad: document.getElementById('baseQuad'),
+      sqAB: document.getElementById('sqAB'),
+      sqBC: document.getElementById('sqBC'),
+      sqCD: document.getElementById('sqCD'),
+      sqDA: document.getElementById('sqDA'),
+      guide1: document.getElementById('guide1'),
+      guide2: document.getElementById('guide2'),
+      guide3: document.getElementById('guide3'),
+      guide4: document.getElementById('guide4'),
+      segOpp1: document.getElementById('segOpp1'),
+      segOpp2: document.getElementById('segOpp2'),
+      A: document.getElementById('A'),
+      B: document.getElementById('B'),
+      C: document.getElementById('C'),
+      D: document.getElementById('D'),
+      oAB: document.getElementById('oAB'),
+      oBC: document.getElementById('oBC'),
+      oCD: document.getElementById('oCD'),
+      oDA: document.getElementById('oDA'),
+      labelA: document.getElementById('labelA'),
+      labelB: document.getElementById('labelB'),
+      labelC: document.getElementById('labelC'),
+      labelD: document.getElementById('labelD'),
+      labelOAB: document.getElementById('labelOAB'),
+      labelOBC: document.getElementById('labelOBC'),
+      labelOCD: document.getElementById('labelOCD'),
+      labelODA: document.getElementById('labelODA')
+    };
+
+    const cornerEls = Array.from({ length: 8 }, (_, i) => document.getElementById(`corner${i + 1}`));
+    const len1El = document.getElementById('len1');
+    const len2El = document.getElementById('len2');
+    const angleEl = document.getElementById('angle');
+    const diffEl = document.getElementById('diff');
+    const dataBody = document.getElementById('dataBody');
+    const measurements = document.getElementById('measurements');
+
+    let points = {
+      A: { x: 170, y: 415 },
+      B: { x: 350, y: 250 },
+      C: { x: 545, y: 385 },
+      D: { x: 325, y: 520 }
+    };
+
+    let active = null;
+    let rows = [];
+    let showMeasurements = true;
+
+    function dist(p, q) {
+      return Math.hypot(p.x - q.x, p.y - q.y);
+    }
+
+    function polygonPoints(list) {
+      return list.map(p => `${p.x},${p.y}`).join(' ');
+    }
+
+    function cross(a, b, c) {
+      return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    }
+
+    function polygonSignedArea(list) {
+      let sum = 0;
+      for (let i = 0; i < list.length; i++) {
+        const p = list[i];
+        const q = list[(i + 1) % list.length];
+        sum += p.x * q.y - q.x * p.y;
+      }
+      return sum / 2;
+    }
+
+    function centroid(list) {
+      return {
+        x: list.reduce((s, p) => s + p.x, 0) / list.length,
+        y: list.reduce((s, p) => s + p.y, 0) / list.length
+      };
+    }
+
+    function segmentsIntersect(a, b, c, d) {
+      function orient(p, q, r) { return Math.sign(cross(p, q, r)); }
+      const o1 = orient(a, b, c);
+      const o2 = orient(a, b, d);
+      const o3 = orient(c, d, a);
+      const o4 = orient(c, d, b);
+      return o1 !== o2 && o3 !== o4;
+    }
+
+    function isConvexQuad(list) {
+      if (segmentsIntersect(list[0], list[1], list[2], list[3])) return false;
+      if (segmentsIntersect(list[1], list[2], list[3], list[0])) return false;
+      let sign = 0;
+      for (let i = 0; i < 4; i++) {
+        const z = cross(list[i], list[(i + 1) % 4], list[(i + 2) % 4]);
+        if (Math.abs(z) < 1500) return false;
+        if (sign === 0) sign = Math.sign(z);
+        if (Math.sign(z) !== sign) return false;
+      }
+      return Math.abs(polygonSignedArea(list)) > 10000;
+    }
+
+    function orderedPoints() {
+      return [points.A, points.B, points.C, points.D];
+    }
+
+    function clampPoint(p) {
+      return {
+        x: Math.max(90, Math.min(630, p.x)),
+        y: Math.max(90, Math.min(560, p.y))
+      };
+    }
+
+    function squareOnSide(p, q, polyCentroid) {
+      const dx = q.x - p.x;
+      const dy = q.y - p.y;
+
+      const perp1 = { x: -dy, y: dx };
+      const perp2 = { x: dy, y: -dx };
+
+      const centre1 = { x: (p.x + q.x + perp1.x) / 2, y: (p.y + q.y + perp1.y) / 2 };
+      const centre2 = { x: (p.x + q.x + perp2.x) / 2, y: (p.y + q.y + perp2.y) / 2 };
+
+      const chosen = dist(centre1, polyCentroid) > dist(centre2, polyCentroid) ? perp1 : perp2;
+      const r = { x: q.x + chosen.x, y: q.y + chosen.y };
+      const s = { x: p.x + chosen.x, y: p.y + chosen.y };
+      const centre = { x: (p.x + q.x + chosen.x) / 2, y: (p.y + q.y + chosen.y) / 2 };
+
+      return { vertices: [p, q, r, s], outerCorners: [r, s], centre };
+    }
+
+    function angleBetweenSegments(p1, p2, q1, q2) {
+      const ux = p2.x - p1.x;
+      const uy = p2.y - p1.y;
+      const vx = q2.x - q1.x;
+      const vy = q2.y - q1.y;
+      const dot = ux * vx + uy * vy;
+      const mag = Math.hypot(ux, uy) * Math.hypot(vx, vy);
+      let angle = Math.acos(Math.max(-1, Math.min(1, dot / mag))) * 180 / Math.PI;
+      if (angle > 90) angle = 180 - angle;
+      return angle;
+    }
+
+    function svgPointFromEvent(evt) {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function formatLength(n) {
+      return (n / 10).toFixed(2);
+    }
+
+    function formatAngle(n) {
+      return n.toFixed(1) + '°';
+    }
+
+    function setCircle(circle, p) {
+      circle.setAttribute('cx', p.x);
+      circle.setAttribute('cy', p.y);
+    }
+
+    function setLabel(label, p, dx, dy) {
+      label.setAttribute('x', p.x + dx);
+      label.setAttribute('y', p.y + dy);
+    }
+
+    function setLine(line, p, q) {
+      line.setAttribute('x1', p.x);
+      line.setAttribute('y1', p.y);
+      line.setAttribute('x2', q.x);
+      line.setAttribute('y2', q.y);
+    }
+
+    function currentConstruction() {
+      const list = orderedPoints();
+      const g = centroid(list);
+      const sqAB = squareOnSide(points.A, points.B, g);
+      const sqBC = squareOnSide(points.B, points.C, g);
+      const sqCD = squareOnSide(points.C, points.D, g);
+      const sqDA = squareOnSide(points.D, points.A, g);
+
+      const O1 = sqAB.centre;
+      const O2 = sqBC.centre;
+      const O3 = sqCD.centre;
+      const O4 = sqDA.centre;
+
+      const lenOne = dist(O1, O3);
+      const lenTwo = dist(O2, O4);
+      const angle = angleBetweenSegments(O1, O3, O2, O4);
+      const difference = Math.abs(lenOne - lenTwo);
+
+      return { sqAB, sqBC, sqCD, sqDA, O1, O2, O3, O4, lenOne, lenTwo, angle, difference };
+    }
+
+    function update() {
+      const c = currentConstruction();
+
+      els.baseQuad.setAttribute('points', polygonPoints(orderedPoints()));
+      els.sqAB.setAttribute('points', polygonPoints(c.sqAB.vertices));
+      els.sqBC.setAttribute('points', polygonPoints(c.sqBC.vertices));
+      els.sqCD.setAttribute('points', polygonPoints(c.sqCD.vertices));
+      els.sqDA.setAttribute('points', polygonPoints(c.sqDA.vertices));
+
+      setLine(els.segOpp1, c.O1, c.O3);
+      setLine(els.segOpp2, c.O2, c.O4);
+      setLine(els.guide1, c.sqAB.outerCorners[0], c.sqAB.outerCorners[1]);
+      setLine(els.guide2, c.sqBC.outerCorners[0], c.sqBC.outerCorners[1]);
+      setLine(els.guide3, c.sqCD.outerCorners[0], c.sqCD.outerCorners[1]);
+      setLine(els.guide4, c.sqDA.outerCorners[0], c.sqDA.outerCorners[1]);
+
+      const allCorners = [
+        ...c.sqAB.outerCorners,
+        ...c.sqBC.outerCorners,
+        ...c.sqCD.outerCorners,
+        ...c.sqDA.outerCorners
+      ];
+      allCorners.forEach((p, i) => setCircle(cornerEls[i], p));
+
+      setCircle(els.oAB, c.O1);
+      setCircle(els.oBC, c.O2);
+      setCircle(els.oCD, c.O3);
+      setCircle(els.oDA, c.O4);
+      setCircle(els.A, points.A);
+      setCircle(els.B, points.B);
+      setCircle(els.C, points.C);
+      setCircle(els.D, points.D);
+
+      setLabel(els.labelA, points.A, -28, -12);
+      setLabel(els.labelB, points.B, 12, -12);
+      setLabel(els.labelC, points.C, 12, -12);
+      setLabel(els.labelD, points.D, -28, 20);
+      setLabel(els.labelOAB, c.O1, 9, -9);
+      setLabel(els.labelOBC, c.O2, 9, -9);
+      setLabel(els.labelOCD, c.O3, 9, -9);
+      setLabel(els.labelODA, c.O4, 9, -9);
+
+      len1El.textContent = formatLength(c.lenOne);
+      len2El.textContent = formatLength(c.lenTwo);
+      angleEl.textContent = formatAngle(c.angle);
+      diffEl.textContent = formatLength(c.difference);
+    }
+
+    function randomQuadrilateral() {
+      let a, b, c, d, list;
+      do {
+        a = { x: 125 + Math.random() * 150, y: 340 + Math.random() * 160 };
+        b = { x: 270 + Math.random() * 170, y: 130 + Math.random() * 170 };
+        c = { x: 455 + Math.random() * 150, y: 290 + Math.random() * 170 };
+        d = { x: 240 + Math.random() * 210, y: 455 + Math.random() * 100 };
+        list = [a, b, c, d];
+      } while (!isConvexQuad(list));
+      points = { A: a, B: b, C: c, D: d };
+      update();
+    }
+
+    function renderTable() {
+      if (rows.length === 0) {
+        dataBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>';
+        return;
+      }
+      dataBody.innerHTML = rows.map((r, i) => `
+        <tr>
+          <td>Trial ${i + 1}</td>
+          <td>${formatLength(r.lenOne)}</td>
+          <td>${formatLength(r.lenTwo)}</td>
+          <td>${formatAngle(r.angle)}</td>
+          <td>${formatLength(r.difference)}</td>
+        </tr>
+      `).join('');
+    }
+
+    ['A', 'B', 'C', 'D'].forEach(name => {
+      els[name].addEventListener('pointerdown', evt => {
+        active = name;
+        els[name].setPointerCapture(evt.pointerId);
+      });
+    });
+
+    svg.addEventListener('pointermove', evt => {
+      if (!active) return;
+      const q = clampPoint(svgPointFromEvent(evt));
+      const old = { ...points[active] };
+      points[active] = q;
+      if (!isConvexQuad(orderedPoints())) points[active] = old;
+      update();
+    });
+
+    svg.addEventListener('pointerup', () => { active = null; });
+    svg.addEventListener('pointercancel', () => { active = null; });
+
+    document.getElementById('randomBtn').addEventListener('click', randomQuadrilateral);
+
+    document.getElementById('recordBtn').addEventListener('click', () => {
+      const c = currentConstruction();
+      rows.push({ lenOne: c.lenOne, lenTwo: c.lenTwo, angle: c.angle, difference: c.difference });
+      renderTable();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      rows = [];
+      renderTable();
+    });
+
+    document.getElementById('toggleBtn').addEventListener('click', evt => {
+      showMeasurements = !showMeasurements;
+      measurements.classList.toggle('hidden', !showMeasurements);
+      evt.target.textContent = showMeasurements ? 'Hide measurements' : 'Show measurements';
+    });
+
+    update();
+    renderTable();
+  </script>
+</body>
+</html>

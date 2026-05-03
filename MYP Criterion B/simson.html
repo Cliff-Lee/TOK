@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simson Line Theorem Investigation</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --accent: #4338ca;
+      --accent-soft: #e0e7ff;
+      --line: #d8dee9;
+      --blue: #2563eb;
+      --orange: #f97316;
+      --green: #059669;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #e0e7ff 0, transparent 34%), var(--bg);
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 940px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .prompt-card {
+      margin-top: 18px;
+      background: #111827;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-card h2 {
+      margin: 0 0 6px;
+      color: #c7d2fe;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .prompt-card p {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 20px 38px;
+      display: grid;
+      grid-template-columns: minmax(410px, 1.15fr) minmax(330px, 0.85fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 930px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(216, 222, 233, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2 { margin: 0; font-size: 1.12rem; }
+
+    .card-body { padding: 18px; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 5px 14px rgba(67, 56, 202, 0.22);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #3730a3;
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: #f3f4f6;
+      color: #374151;
+      box-shadow: none;
+    }
+
+    button:hover { transform: translateY(-1px); filter: brightness(0.98); }
+
+    .svg-wrap {
+      width: 100%;
+      aspect-ratio: 1.08 / 1;
+      min-height: 500px;
+      border-radius: 16px;
+      border: 1px solid #c7d2fe;
+      background: linear-gradient(180deg, #eef2ff, #f8fafc);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      touch-action: none;
+    }
+
+    svg { width: 100%; height: 100%; display: block; user-select: none; }
+
+    .circumcircle {
+      fill: rgba(67, 56, 202, 0.035);
+      stroke: var(--accent);
+      stroke-width: 2.6;
+    }
+
+    .side-extension {
+      stroke: #9ca3af;
+      stroke-width: 1.6;
+      stroke-dasharray: 7 6;
+    }
+
+    .triangle {
+      fill: rgba(37, 99, 235, 0.08);
+      stroke: var(--blue);
+      stroke-width: 3.4;
+    }
+
+    .perpendicular {
+      stroke: var(--red);
+      stroke-width: 2.3;
+      stroke-dasharray: 6 5;
+    }
+
+    .simson-line {
+      stroke: var(--green);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .vertex {
+      fill: #111827;
+      stroke: white;
+      stroke-width: 4;
+      cursor: grab;
+    }
+
+    .vertex:active { cursor: grabbing; }
+
+    .circle-point {
+      fill: var(--orange);
+      stroke: white;
+      stroke-width: 4;
+    }
+
+    .foot {
+      fill: var(--green);
+      stroke: white;
+      stroke-width: 3.2;
+    }
+
+    .label {
+      font-weight: 900;
+      fill: #111827;
+      font-size: 17px;
+    }
+
+    .small-label {
+      font-weight: 850;
+      fill: #065f46;
+      font-size: 14px;
+    }
+
+    .slider-row {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 170px 1fr 62px;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 0.92rem;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 580px) {
+      .measure-grid { grid-template-columns: 1fr; }
+      .slider-row { grid-template-columns: 1fr; }
+    }
+
+    .measure {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfbff;
+    }
+
+    .measure small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .measure strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.22rem;
+      letter-spacing: -0.03em;
+    }
+
+    .notice {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 12px 0 0;
+    }
+
+    .polya { display: grid; gap: 12px; }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+
+    details[open] {
+      background: #eef2ff;
+      border-color: #a5b4fc;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    summary span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .step-body { padding: 0 14px 14px; }
+    .step-body ul { margin-top: 4px; padding-left: 20px; }
+    .step-body li { margin: 7px 0; }
+
+    textarea {
+      width: 100%;
+      min-height: 82px;
+      resize: vertical;
+      border: 1px solid #a5b4fc;
+      border-radius: 12px;
+      padding: 10px;
+      font: inherit;
+      background: white;
+      margin-top: 8px;
+    }
+
+    .table-wrap {
+      max-height: 245px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 8px 6px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .challenge {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .challenge strong { color: #b45309; }
+
+    .hidden { filter: blur(5px); user-select: none; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Simson Line Theorem Investigation</h1>
+    <p class="subtitle">Move the triangle vertices or move point P around the circumcircle. The applet drops perpendiculars from P to the three side lines of the triangle.</p>
+
+    <section class="prompt-card" aria-label="Prompting question">
+      <h2>Prompting Question</h2>
+      <p>When a point on the circumcircle is projected onto the three sides of a triangle, what do the three feet of the perpendiculars seem to do?</p>
+    </section>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <h2>Explore the construction</h2>
+        <div class="controls">
+          <button id="randomBtn" type="button">Random triangle</button>
+          <button id="recordBtn" type="button" class="secondary">Record data</button>
+          <button id="toggleBtn" type="button" class="ghost">Hide measurements</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="svg-wrap">
+          <svg id="scene" viewBox="0 0 720 650" role="img" aria-label="Interactive Simson line theorem diagram">
+            <circle id="circumcircle" class="circumcircle"></circle>
+
+            <line id="extAB" class="side-extension"></line>
+            <line id="extBC" class="side-extension"></line>
+            <line id="extCA" class="side-extension"></line>
+
+            <line id="simsonLine" class="simson-line"></line>
+
+            <polygon id="triangle" class="triangle"></polygon>
+
+            <line id="perp1" class="perpendicular"></line>
+            <line id="perp2" class="perpendicular"></line>
+            <line id="perp3" class="perpendicular"></line>
+
+            <circle id="F1" class="foot" r="7"></circle>
+            <circle id="F2" class="foot" r="7"></circle>
+            <circle id="F3" class="foot" r="7"></circle>
+            <circle id="P" class="circle-point" r="11"></circle>
+
+            <circle id="A" class="vertex" r="12"></circle>
+            <circle id="B" class="vertex" r="12"></circle>
+            <circle id="C" class="vertex" r="12"></circle>
+
+            <text id="labelA" class="label">A</text>
+            <text id="labelB" class="label">B</text>
+            <text id="labelC" class="label">C</text>
+            <text id="labelP" class="label">P</text>
+            <text id="labelF1" class="small-label">F₁</text>
+            <text id="labelF2" class="small-label">F₂</text>
+            <text id="labelF3" class="small-label">F₃</text>
+          </svg>
+        </div>
+
+        <div class="slider-row">
+          <label for="pointAngle">Move point P on circle</label>
+          <input id="pointAngle" type="range" min="0" max="360" value="38">
+          <span id="angleValue">38°</span>
+        </div>
+
+        <div id="measurements" class="measure-grid">
+          <div class="measure"><small>Distance F₃ to line F₁F₂</small><strong id="offLine">--</strong></div>
+          <div class="measure"><small>Length F₁F₂</small><strong id="f12">--</strong></div>
+          <div class="measure"><small>Length F₂F₃</small><strong id="f23">--</strong></div>
+          <div class="measure"><small>Length F₁F₃</small><strong id="f13">--</strong></div>
+          <div class="measure"><small>P position</small><strong id="pAngleReadout">--</strong></div>
+          <div class="measure"><small>Question</small><strong>Collinear?</strong></div>
+        </div>
+
+        <p class="notice">Tip: The perpendicular feet may land on the extensions of the sides, not always on the side segments. This is still part of the investigation.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Use Polya's Method</h2>
+        <span class="badge">No solution shown</span>
+      </div>
+      <div class="card-body polya">
+        <details open>
+          <summary>1. Understand the problem <span>What is being measured?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>What is the starting triangle?</li>
+              <li>What is special about point P?</li>
+              <li>What does it mean to drop a perpendicular to a side?</li>
+              <li>What would show that three points are on one straight line?</li>
+            </ul>
+            <textarea placeholder="Write the construction in your own words..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>2. Make a plan <span>How will you test different cases?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Move P to different places on the circumcircle.</li>
+              <li>Try several different triangles.</li>
+              <li>Record a measurement that tests whether the three feet are collinear.</li>
+              <li>Choose examples that could break your conjecture if it is wrong.</li>
+            </ul>
+            <textarea placeholder="Write your investigation plan before collecting data..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Carry out the plan <span>What do the data suggest?</span></summary>
+          <div class="step-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>P angle</th>
+                    <th>F₃ to F₁F₂</th>
+                    <th>F₁F₂</th>
+                    <th>F₂F₃</th>
+                    <th>F₁F₃</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr><td colspan="6" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="controls" style="margin-top:10px;">
+              <button id="clearBtn" type="button" class="ghost">Clear table</button>
+            </div>
+            <textarea placeholder="Describe the pattern. Separate what you measured from what you think is always true..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Look back and justify <span>Why might it always work?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Can you find equal or supplementary angles on the circumcircle?</li>
+              <li>Can you find right angles made by the perpendiculars?</li>
+              <li>Can you use angle chasing to compare the directions of the small segments?</li>
+              <li>How could you convince someone without using more measurements?</li>
+            </ul>
+            <textarea placeholder="Write your conjecture and your justification. Use diagrams, angle facts, or special cases..."></textarea>
+          </div>
+        </details>
+
+        <div class="challenge">
+          <strong>Extension question:</strong> What happens if P is moved off the circumcircle? Make a prediction, then test it by sketching your own example.
+        </div>
+
+        <p class="footer-note">The applet gives the construction and measurements only. It does not explain the theorem.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const svg = document.getElementById('scene');
+
+    const els = {
+      circumcircle: document.getElementById('circumcircle'),
+      triangle: document.getElementById('triangle'),
+      extAB: document.getElementById('extAB'),
+      extBC: document.getElementById('extBC'),
+      extCA: document.getElementById('extCA'),
+      simsonLine: document.getElementById('simsonLine'),
+      perp1: document.getElementById('perp1'),
+      perp2: document.getElementById('perp2'),
+      perp3: document.getElementById('perp3'),
+      A: document.getElementById('A'),
+      B: document.getElementById('B'),
+      C: document.getElementById('C'),
+      P: document.getElementById('P'),
+      F1: document.getElementById('F1'),
+      F2: document.getElementById('F2'),
+      F3: document.getElementById('F3'),
+      labelA: document.getElementById('labelA'),
+      labelB: document.getElementById('labelB'),
+      labelC: document.getElementById('labelC'),
+      labelP: document.getElementById('labelP'),
+      labelF1: document.getElementById('labelF1'),
+      labelF2: document.getElementById('labelF2'),
+      labelF3: document.getElementById('labelF3')
+    };
+
+    const pointAngle = document.getElementById('pointAngle');
+    const angleValue = document.getElementById('angleValue');
+    const offLineEl = document.getElementById('offLine');
+    const f12El = document.getElementById('f12');
+    const f23El = document.getElementById('f23');
+    const f13El = document.getElementById('f13');
+    const pAngleReadout = document.getElementById('pAngleReadout');
+    const dataBody = document.getElementById('dataBody');
+    const measurements = document.getElementById('measurements');
+
+    let points = {
+      A: { x: 190, y: 420 },
+      B: { x: 520, y: 445 },
+      C: { x: 345, y: 165 }
+    };
+
+    let active = null;
+    let rows = [];
+    let showMeasurements = true;
+
+    function dist(p, q) {
+      return Math.hypot(p.x - q.x, p.y - q.y);
+    }
+
+    function cross(a, b, c) {
+      return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    }
+
+    function triangleArea2(a, b, c) {
+      return Math.abs(cross(a, b, c));
+    }
+
+    function circumcircle(a, b, c) {
+      const d = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
+      if (Math.abs(d) < 0.001) return null;
+      const ux = ((a.x * a.x + a.y * a.y) * (b.y - c.y) + (b.x * b.x + b.y * b.y) * (c.y - a.y) + (c.x * c.x + c.y * c.y) * (a.y - b.y)) / d;
+      const uy = ((a.x * a.x + a.y * a.y) * (c.x - b.x) + (b.x * b.x + b.y * b.y) * (a.x - c.x) + (c.x * c.x + c.y * c.y) * (b.x - a.x)) / d;
+      const centre = { x: ux, y: uy };
+      return { centre, radius: dist(centre, a) };
+    }
+
+    function projectPointToLine(p, a, b) {
+      const abx = b.x - a.x;
+      const aby = b.y - a.y;
+      const apx = p.x - a.x;
+      const apy = p.y - a.y;
+      const t = (apx * abx + apy * aby) / (abx * abx + aby * aby);
+      return { x: a.x + t * abx, y: a.y + t * aby };
+    }
+
+    function distancePointToLine(p, a, b) {
+      const numerator = Math.abs((b.y - a.y) * p.x - (b.x - a.x) * p.y + b.x * a.y - b.y * a.x);
+      const denominator = dist(a, b);
+      return numerator / denominator;
+    }
+
+    function longLineThrough(p, q, scale = 1400) {
+      const length = dist(p, q) || 1;
+      const ux = (q.x - p.x) / length;
+      const uy = (q.y - p.y) / length;
+      const mid = { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 };
+      return [
+        { x: mid.x - ux * scale, y: mid.y - uy * scale },
+        { x: mid.x + ux * scale, y: mid.y + uy * scale }
+      ];
+    }
+
+    function polygonPoints(list) {
+      return list.map(p => `${p.x},${p.y}`).join(' ');
+    }
+
+    function setLine(el, p, q) {
+      el.setAttribute('x1', p.x);
+      el.setAttribute('y1', p.y);
+      el.setAttribute('x2', q.x);
+      el.setAttribute('y2', q.y);
+    }
+
+    function setCircle(el, p) {
+      el.setAttribute('cx', p.x);
+      el.setAttribute('cy', p.y);
+    }
+
+    function setLabel(el, p, dx, dy) {
+      el.setAttribute('x', p.x + dx);
+      el.setAttribute('y', p.y + dy);
+    }
+
+    function svgPointFromEvent(evt) {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function clampPoint(p) {
+      return {
+        x: Math.max(90, Math.min(630, p.x)),
+        y: Math.max(95, Math.min(555, p.y))
+      };
+    }
+
+    function invalidTriangle(a, b, c) {
+      if (dist(a, b) < 100 || dist(b, c) < 100 || dist(c, a) < 100) return true;
+      if (triangleArea2(a, b, c) < 18000) return true;
+      const cc = circumcircle(a, b, c);
+      if (!cc || cc.radius > 470 || cc.radius < 90) return true;
+      return false;
+    }
+
+    function formatLength(n) {
+      return (n / 10).toFixed(2);
+    }
+
+    function currentConstruction() {
+      const A = points.A;
+      const B = points.B;
+      const C = points.C;
+      const cc = circumcircle(A, B, C);
+      const theta = Number(pointAngle.value) * Math.PI / 180;
+      const P = {
+        x: cc.centre.x + cc.radius * Math.cos(theta),
+        y: cc.centre.y + cc.radius * Math.sin(theta)
+      };
+
+      const F1 = projectPointToLine(P, A, B);
+      const F2 = projectPointToLine(P, B, C);
+      const F3 = projectPointToLine(P, C, A);
+
+      const offLine = distancePointToLine(F3, F1, F2);
+      const f12 = dist(F1, F2);
+      const f23 = dist(F2, F3);
+      const f13 = dist(F1, F3);
+
+      return { A, B, C, cc, P, F1, F2, F3, offLine, f12, f23, f13, angle: Number(pointAngle.value) };
+    }
+
+    function update() {
+      const c = currentConstruction();
+
+      els.circumcircle.setAttribute('cx', c.cc.centre.x);
+      els.circumcircle.setAttribute('cy', c.cc.centre.y);
+      els.circumcircle.setAttribute('r', c.cc.radius);
+
+      els.triangle.setAttribute('points', polygonPoints([c.A, c.B, c.C]));
+
+      setLine(els.extAB, ...longLineThrough(c.A, c.B));
+      setLine(els.extBC, ...longLineThrough(c.B, c.C));
+      setLine(els.extCA, ...longLineThrough(c.C, c.A));
+      setLine(els.simsonLine, ...longLineThrough(c.F1, c.F2));
+
+      setLine(els.perp1, c.P, c.F1);
+      setLine(els.perp2, c.P, c.F2);
+      setLine(els.perp3, c.P, c.F3);
+
+      setCircle(els.A, c.A);
+      setCircle(els.B, c.B);
+      setCircle(els.C, c.C);
+      setCircle(els.P, c.P);
+      setCircle(els.F1, c.F1);
+      setCircle(els.F2, c.F2);
+      setCircle(els.F3, c.F3);
+
+      setLabel(els.labelA, c.A, -28, -12);
+      setLabel(els.labelB, c.B, 12, -12);
+      setLabel(els.labelC, c.C, 12, -14);
+      setLabel(els.labelP, c.P, 12, -14);
+      setLabel(els.labelF1, c.F1, 10, -8);
+      setLabel(els.labelF2, c.F2, 10, -8);
+      setLabel(els.labelF3, c.F3, 10, -8);
+
+      offLineEl.textContent = formatLength(c.offLine);
+      f12El.textContent = formatLength(c.f12);
+      f23El.textContent = formatLength(c.f23);
+      f13El.textContent = formatLength(c.f13);
+      pAngleReadout.textContent = c.angle + '°';
+      angleValue.textContent = c.angle + '°';
+    }
+
+    function renderTable() {
+      if (rows.length === 0) {
+        dataBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>';
+        return;
+      }
+      dataBody.innerHTML = rows.map((r, i) => `
+        <tr>
+          <td>Trial ${i + 1}</td>
+          <td>${r.angle}°</td>
+          <td>${formatLength(r.offLine)}</td>
+          <td>${formatLength(r.f12)}</td>
+          <td>${formatLength(r.f23)}</td>
+          <td>${formatLength(r.f13)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function randomTriangle() {
+      let a, b, c;
+      do {
+        a = { x: 130 + Math.random() * 180, y: 350 + Math.random() * 150 };
+        b = { x: 420 + Math.random() * 170, y: 340 + Math.random() * 160 };
+        c = { x: 210 + Math.random() * 310, y: 120 + Math.random() * 170 };
+      } while (invalidTriangle(a, b, c));
+      points = { A: a, B: b, C: c };
+      pointAngle.value = Math.round(Math.random() * 360);
+      update();
+    }
+
+    ['A', 'B', 'C'].forEach(name => {
+      els[name].addEventListener('pointerdown', evt => {
+        active = name;
+        els[name].setPointerCapture(evt.pointerId);
+      });
+    });
+
+    svg.addEventListener('pointermove', evt => {
+      if (!active) return;
+      const q = clampPoint(svgPointFromEvent(evt));
+      const old = { ...points[active] };
+      points[active] = q;
+      if (invalidTriangle(points.A, points.B, points.C)) points[active] = old;
+      update();
+    });
+
+    svg.addEventListener('pointerup', () => { active = null; });
+    svg.addEventListener('pointercancel', () => { active = null; });
+
+    pointAngle.addEventListener('input', update);
+
+    document.getElementById('randomBtn').addEventListener('click', randomTriangle);
+
+    document.getElementById('recordBtn').addEventListener('click', () => {
+      const c = currentConstruction();
+      rows.push({ angle: c.angle, offLine: c.offLine, f12: c.f12, f23: c.f23, f13: c.f13 });
+      renderTable();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      rows = [];
+      renderTable();
+    });
+
+    document.getElementById('toggleBtn').addEventListener('click', evt => {
+      showMeasurements = !showMeasurements;
+      measurements.classList.toggle('hidden', !showMeasurements);
+      evt.target.textContent = showMeasurements ? 'Hide measurements' : 'Show measurements';
+    });
+
+    update();
+    renderTable();
+  </script>
+</body>
+</html>

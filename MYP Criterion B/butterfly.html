@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Butterfly Theorem Investigation</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --accent: #be123c;
+      --accent-soft: #ffe4e6;
+      --line: #d8dee9;
+      --blue: #2563eb;
+      --orange: #f97316;
+      --purple: #7c3aed;
+      --green: #059669;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #ffe4e6 0, transparent 34%), var(--bg);
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 920px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .prompt-card {
+      margin-top: 18px;
+      background: #111827;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-card h2 {
+      margin: 0 0 6px;
+      color: #fecdd3;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .prompt-card p {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 20px 38px;
+      display: grid;
+      grid-template-columns: minmax(410px, 1.15fr) minmax(330px, 0.85fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 930px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(216, 222, 233, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2 { margin: 0; font-size: 1.12rem; }
+
+    .card-body { padding: 18px; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 5px 14px rgba(190, 18, 60, 0.22);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #9f1239;
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: #f3f4f6;
+      color: #374151;
+      box-shadow: none;
+    }
+
+    button:hover { transform: translateY(-1px); filter: brightness(0.98); }
+
+    .svg-wrap {
+      width: 100%;
+      aspect-ratio: 1.08 / 1;
+      min-height: 500px;
+      border-radius: 16px;
+      border: 1px solid #fecdd3;
+      background: linear-gradient(180deg, #fff1f2, #f8fafc);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      touch-action: none;
+    }
+
+    svg { width: 100%; height: 100%; display: block; user-select: none; }
+
+    .circle {
+      fill: rgba(37, 99, 235, 0.04);
+      stroke: var(--blue);
+      stroke-width: 3;
+    }
+
+    .main-chord {
+      stroke: var(--blue);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .butterfly-chord-one {
+      stroke: var(--orange);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+
+    .butterfly-chord-two {
+      stroke: var(--purple);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+
+    .wing-line {
+      stroke: #6b7280;
+      stroke-width: 2.5;
+      stroke-dasharray: 6 5;
+      stroke-linecap: round;
+    }
+
+    .measure-seg-one {
+      stroke: var(--green);
+      stroke-width: 5;
+      stroke-linecap: round;
+    }
+
+    .measure-seg-two {
+      stroke: var(--green);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 2 8;
+    }
+
+    .point {
+      fill: #111827;
+      stroke: white;
+      stroke-width: 3.5;
+    }
+
+    .special-point {
+      fill: var(--green);
+      stroke: white;
+      stroke-width: 3.5;
+    }
+
+    .handle {
+      fill: var(--accent);
+      stroke: white;
+      stroke-width: 4;
+      cursor: grab;
+    }
+
+    .handle:active { cursor: grabbing; }
+
+    .label {
+      font-weight: 900;
+      fill: #111827;
+      font-size: 16px;
+    }
+
+    .small-label {
+      font-weight: 850;
+      fill: #065f46;
+      font-size: 14px;
+    }
+
+    .sliders {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 160px 1fr 58px;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 0.92rem;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 580px) {
+      .measure-grid { grid-template-columns: 1fr; }
+      .slider-row { grid-template-columns: 1fr; }
+    }
+
+    .measure {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fffafa;
+    }
+
+    .measure small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .measure strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.22rem;
+      letter-spacing: -0.03em;
+    }
+
+    .notice {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 12px 0 0;
+    }
+
+    .polya { display: grid; gap: 12px; }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+
+    details[open] {
+      background: #fff1f2;
+      border-color: #fda4af;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    summary span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .step-body { padding: 0 14px 14px; }
+    .step-body ul { margin-top: 4px; padding-left: 20px; }
+    .step-body li { margin: 7px 0; }
+
+    textarea {
+      width: 100%;
+      min-height: 82px;
+      resize: vertical;
+      border: 1px solid #fda4af;
+      border-radius: 12px;
+      padding: 10px;
+      font: inherit;
+      background: white;
+      margin-top: 8px;
+    }
+
+    .table-wrap {
+      max-height: 245px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 8px 6px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .challenge {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .challenge strong { color: #b45309; }
+
+    .hidden { filter: blur(5px); user-select: none; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Butterfly Theorem Investigation</h1>
+    <p class="subtitle">A chord is drawn in a circle and its midpoint is marked. Two more chords pass through that midpoint. The applet then draws the crossing lines that create a butterfly shape.</p>
+
+    <section class="prompt-card" aria-label="Prompting question">
+      <h2>Prompting Question</h2>
+      <p>When two chords pass through the midpoint of another chord, what relationship appears on the original chord?</p>
+    </section>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <h2>Explore the construction</h2>
+        <div class="controls">
+          <button id="randomBtn" type="button">Random setup</button>
+          <button id="recordBtn" type="button" class="secondary">Record data</button>
+          <button id="toggleBtn" type="button" class="ghost">Hide measurements</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="svg-wrap">
+          <svg id="scene" viewBox="0 0 720 650" role="img" aria-label="Interactive Butterfly theorem diagram">
+            <circle id="circle" class="circle"></circle>
+
+            <line id="mainChord" class="main-chord"></line>
+            <line id="measureLeft" class="measure-seg-one"></line>
+            <line id="measureRight" class="measure-seg-two"></line>
+
+            <line id="chordOne" class="butterfly-chord-one"></line>
+            <line id="chordTwo" class="butterfly-chord-two"></line>
+            <line id="wingOne" class="wing-line"></line>
+            <line id="wingTwo" class="wing-line"></line>
+
+            <circle id="P" class="point" r="6"></circle>
+            <circle id="Q" class="point" r="6"></circle>
+            <circle id="A" class="point" r="6"></circle>
+            <circle id="B" class="point" r="6"></circle>
+            <circle id="C" class="point" r="6"></circle>
+            <circle id="D" class="point" r="6"></circle>
+            <circle id="X" class="special-point" r="7"></circle>
+            <circle id="Y" class="special-point" r="7"></circle>
+            <circle id="M" class="handle" r="12"></circle>
+
+            <text id="labelP" class="label">P</text>
+            <text id="labelQ" class="label">Q</text>
+            <text id="labelA" class="label">A</text>
+            <text id="labelB" class="label">B</text>
+            <text id="labelC" class="label">C</text>
+            <text id="labelD" class="label">D</text>
+            <text id="labelX" class="small-label">X</text>
+            <text id="labelY" class="small-label">Y</text>
+            <text id="labelM" class="label">M</text>
+          </svg>
+        </div>
+
+        <div class="sliders">
+          <div class="slider-row">
+            <label for="chordHeight">Original chord position</label>
+            <input id="chordHeight" type="range" min="-130" max="130" value="60">
+            <span id="chordHeightValue">60</span>
+          </div>
+          <div class="slider-row">
+            <label for="angleOne">First crossing chord</label>
+            <input id="angleOne" type="range" min="18" max="162" value="42">
+            <span id="angleOneValue">42°</span>
+          </div>
+          <div class="slider-row">
+            <label for="angleTwo">Second crossing chord</label>
+            <input id="angleTwo" type="range" min="18" max="162" value="126">
+            <span id="angleTwoValue">126°</span>
+          </div>
+        </div>
+
+        <div id="measurements" class="measure-grid">
+          <div class="measure"><small>Segment MX</small><strong id="mxLen">--</strong></div>
+          <div class="measure"><small>Segment MY</small><strong id="myLen">--</strong></div>
+          <div class="measure"><small>Difference</small><strong id="diffLen">--</strong></div>
+          <div class="measure"><small>Original chord PM</small><strong id="pmLen">--</strong></div>
+          <div class="measure"><small>Original chord MQ</small><strong id="mqLen">--</strong></div>
+          <div class="measure"><small>Question</small><strong>Compare</strong></div>
+        </div>
+
+        <p class="notice">Tip: Move the chord position and change both crossing chords. Record examples where the butterfly looks balanced and examples where it looks uneven.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Use Polya's Method</h2>
+        <span class="badge">No solution shown</span>
+      </div>
+      <div class="card-body polya">
+        <details open>
+          <summary>1. Understand the problem <span>What is fixed? What changes?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>What is the original chord?</li>
+              <li>Which point is its midpoint?</li>
+              <li>Which two chords pass through the midpoint?</li>
+              <li>Which two new points are created on the original chord?</li>
+            </ul>
+            <textarea placeholder="Write the construction in your own words..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>2. Make a plan <span>What evidence will you collect?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Change the original chord position.</li>
+              <li>Change the two crossing chords.</li>
+              <li>Measure the two green segments on the original chord.</li>
+              <li>Look for a relationship that stays true in different diagrams.</li>
+            </ul>
+            <textarea placeholder="Write your plan before collecting data..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Carry out the plan <span>What do the measurements suggest?</span></summary>
+          <div class="step-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>MX</th>
+                    <th>MY</th>
+                    <th>Difference</th>
+                    <th>Chord position</th>
+                    <th>Angles</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr><td colspan="6" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="controls" style="margin-top:10px;">
+              <button id="clearBtn" type="button" class="ghost">Clear table</button>
+            </div>
+            <textarea placeholder="Describe the pattern. Separate what you measured from what you think is always true..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Look back and justify <span>Why might it always work?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Can you find triangles that share angles?</li>
+              <li>Can you use angles in the same segment?</li>
+              <li>Can you use the fact that M is the midpoint of the original chord?</li>
+              <li>How could you convince someone without using more measurements?</li>
+            </ul>
+            <textarea placeholder="Write your conjecture and your justification. Use diagrams, angle facts, similar triangles, or equations..."></textarea>
+          </div>
+        </details>
+
+        <div class="challenge">
+          <strong>Extension question:</strong> What happens if M is not the midpoint of the original chord? Test this by imagining the starting point is moved away from the middle.
+        </div>
+
+        <p class="footer-note">The applet gives the construction and measurements only. It does not explain the theorem.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const svg = document.getElementById('scene');
+
+    const cx = 360;
+    const cy = 315;
+    const r = 225;
+
+    const circle = document.getElementById('circle');
+    const mainChord = document.getElementById('mainChord');
+    const measureLeft = document.getElementById('measureLeft');
+    const measureRight = document.getElementById('measureRight');
+    const chordOne = document.getElementById('chordOne');
+    const chordTwo = document.getElementById('chordTwo');
+    const wingOne = document.getElementById('wingOne');
+    const wingTwo = document.getElementById('wingTwo');
+
+    const pointEls = ['P', 'Q', 'A', 'B', 'C', 'D', 'X', 'Y', 'M'].reduce((obj, id) => {
+      obj[id] = document.getElementById(id);
+      return obj;
+    }, {});
+
+    const labelEls = ['P', 'Q', 'A', 'B', 'C', 'D', 'X', 'Y', 'M'].reduce((obj, id) => {
+      obj[id] = document.getElementById('label' + id);
+      return obj;
+    }, {});
+
+    const chordHeight = document.getElementById('chordHeight');
+    const angleOne = document.getElementById('angleOne');
+    const angleTwo = document.getElementById('angleTwo');
+    const chordHeightValue = document.getElementById('chordHeightValue');
+    const angleOneValue = document.getElementById('angleOneValue');
+    const angleTwoValue = document.getElementById('angleTwoValue');
+
+    const mxLen = document.getElementById('mxLen');
+    const myLen = document.getElementById('myLen');
+    const diffLen = document.getElementById('diffLen');
+    const pmLen = document.getElementById('pmLen');
+    const mqLen = document.getElementById('mqLen');
+    const dataBody = document.getElementById('dataBody');
+    const measurements = document.getElementById('measurements');
+
+    let rows = [];
+    let showMeasurements = true;
+
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', r);
+
+    function dist(p, q) {
+      return Math.hypot(p.x - q.x, p.y - q.y);
+    }
+
+    function lineCircleEndpoints(point, angleDegrees) {
+      const theta = angleDegrees * Math.PI / 180;
+      const u = { x: Math.cos(theta), y: Math.sin(theta) };
+      const fx = point.x - cx;
+      const fy = point.y - cy;
+      const dot = fx * u.x + fy * u.y;
+      const c = fx * fx + fy * fy - r * r;
+      const discriminant = Math.max(0, dot * dot - c);
+      const t1 = -dot - Math.sqrt(discriminant);
+      const t2 = -dot + Math.sqrt(discriminant);
+      return [
+        { x: point.x + t1 * u.x, y: point.y + t1 * u.y },
+        { x: point.x + t2 * u.x, y: point.y + t2 * u.y }
+      ];
+    }
+
+    function lineIntersection(p1, p2, p3, p4) {
+      const x1 = p1.x, y1 = p1.y;
+      const x2 = p2.x, y2 = p2.y;
+      const x3 = p3.x, y3 = p3.y;
+      const x4 = p4.x, y4 = p4.y;
+      const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+      if (Math.abs(den) < 0.0001) return null;
+      const px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / den;
+      const py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / den;
+      return { x: px, y: py };
+    }
+
+    function setLine(el, p, q) {
+      el.setAttribute('x1', p.x);
+      el.setAttribute('y1', p.y);
+      el.setAttribute('x2', q.x);
+      el.setAttribute('y2', q.y);
+    }
+
+    function setCircle(el, p) {
+      el.setAttribute('cx', p.x);
+      el.setAttribute('cy', p.y);
+    }
+
+    function setLabel(el, p, dx, dy) {
+      el.setAttribute('x', p.x + dx);
+      el.setAttribute('y', p.y + dy);
+    }
+
+    function formatLength(n) {
+      return (n / 10).toFixed(2);
+    }
+
+    function currentConstruction() {
+      const y = cy + Number(chordHeight.value);
+      const half = Math.sqrt(Math.max(0, r * r - Math.pow(y - cy, 2)));
+      const P = { x: cx - half, y };
+      const Q = { x: cx + half, y };
+      const M = { x: cx, y };
+
+      let a1 = Number(angleOne.value);
+      let a2 = Number(angleTwo.value);
+      if (Math.abs(a1 - a2) < 18) a2 = a1 + 35;
+
+      const [A, B] = lineCircleEndpoints(M, a1);
+      const [C, D] = lineCircleEndpoints(M, a2);
+
+      let X = lineIntersection(A, D, P, Q);
+      let Y = lineIntersection(B, C, P, Q);
+
+      if (!X || !Y) {
+        X = M;
+        Y = M;
+      }
+
+      const mx = dist(M, X);
+      const my = dist(M, Y);
+      const diff = Math.abs(mx - my);
+      const pm = dist(P, M);
+      const mq = dist(M, Q);
+
+      return { P, Q, M, A, B, C, D, X, Y, mx, my, diff, pm, mq, a1, a2, chordPosition: Number(chordHeight.value) };
+    }
+
+    function update() {
+      const c = currentConstruction();
+
+      setLine(mainChord, c.P, c.Q);
+      setLine(chordOne, c.A, c.B);
+      setLine(chordTwo, c.C, c.D);
+      setLine(wingOne, c.A, c.D);
+      setLine(wingTwo, c.B, c.C);
+      setLine(measureLeft, c.M, c.X);
+      setLine(measureRight, c.M, c.Y);
+
+      ['P', 'Q', 'A', 'B', 'C', 'D', 'X', 'Y', 'M'].forEach(id => setCircle(pointEls[id], c[id]));
+
+      setLabel(labelEls.P, c.P, -26, -12);
+      setLabel(labelEls.Q, c.Q, 12, -12);
+      setLabel(labelEls.A, c.A, -22, -12);
+      setLabel(labelEls.B, c.B, 10, 20);
+      setLabel(labelEls.C, c.C, 10, -10);
+      setLabel(labelEls.D, c.D, -24, 20);
+      setLabel(labelEls.X, c.X, -22, -12);
+      setLabel(labelEls.Y, c.Y, 10, -12);
+      setLabel(labelEls.M, c.M, 12, 22);
+
+      mxLen.textContent = formatLength(c.mx);
+      myLen.textContent = formatLength(c.my);
+      diffLen.textContent = formatLength(c.diff);
+      pmLen.textContent = formatLength(c.pm);
+      mqLen.textContent = formatLength(c.mq);
+
+      chordHeightValue.textContent = chordHeight.value;
+      angleOneValue.textContent = angleOne.value + '°';
+      angleTwoValue.textContent = angleTwo.value + '°';
+    }
+
+    function renderTable() {
+      if (rows.length === 0) {
+        dataBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>';
+        return;
+      }
+      dataBody.innerHTML = rows.map((r, i) => `
+        <tr>
+          <td>Trial ${i + 1}</td>
+          <td>${formatLength(r.mx)}</td>
+          <td>${formatLength(r.my)}</td>
+          <td>${formatLength(r.diff)}</td>
+          <td>${r.chordPosition}</td>
+          <td>${r.a1}°, ${r.a2}°</td>
+        </tr>
+      `).join('');
+    }
+
+    function randomSetup() {
+      chordHeight.value = Math.round(-120 + Math.random() * 240);
+      let a = Math.round(22 + Math.random() * 136);
+      let b = Math.round(22 + Math.random() * 136);
+      while (Math.abs(a - b) < 28 || Math.abs(a - b) > 132) {
+        b = Math.round(22 + Math.random() * 136);
+      }
+      angleOne.value = a;
+      angleTwo.value = b;
+      update();
+    }
+
+    [chordHeight, angleOne, angleTwo].forEach(slider => slider.addEventListener('input', update));
+
+    document.getElementById('randomBtn').addEventListener('click', randomSetup);
+
+    document.getElementById('recordBtn').addEventListener('click', () => {
+      const c = currentConstruction();
+      rows.push({ mx: c.mx, my: c.my, diff: c.diff, chordPosition: c.chordPosition, a1: c.a1, a2: c.a2 });
+      renderTable();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      rows = [];
+      renderTable();
+    });
+
+    document.getElementById('toggleBtn').addEventListener('click', evt => {
+      showMeasurements = !showMeasurements;
+      measurements.classList.toggle('hidden', !showMeasurements);
+      evt.target.textContent = showMeasurements ? 'Hide measurements' : 'Show measurements';
+    });
+
+    update();
+    renderTable();
+  </script>
+</body>
+</html>

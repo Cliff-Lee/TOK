@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sperner's Lemma Investigation</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --accent: #0891b2;
+      --accent-soft: #cffafe;
+      --line: #d8dee9;
+      --red: #e11d48;
+      --blue: #2563eb;
+      --yellow: #f59e0b;
+      --green: #059669;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #cffafe 0, transparent 34%), var(--bg);
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 940px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .prompt-card {
+      margin-top: 18px;
+      background: #111827;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-card h2 {
+      margin: 0 0 6px;
+      color: #a5f3fc;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .prompt-card p {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 20px 38px;
+      display: grid;
+      grid-template-columns: minmax(420px, 1.15fr) minmax(330px, 0.85fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 940px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(216, 222, 233, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2 { margin: 0; font-size: 1.12rem; }
+
+    .card-body { padding: 18px; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 5px 14px rgba(8, 145, 178, 0.22);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #155e75;
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: #f3f4f6;
+      color: #374151;
+      box-shadow: none;
+    }
+
+    button:hover { transform: translateY(-1px); filter: brightness(0.98); }
+
+    .svg-wrap {
+      width: 100%;
+      aspect-ratio: 1.08 / 1;
+      min-height: 520px;
+      border-radius: 16px;
+      border: 1px solid #a5f3fc;
+      background: linear-gradient(180deg, #ecfeff, #f8fafc);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      touch-action: manipulation;
+    }
+
+    svg { width: 100%; height: 100%; display: block; user-select: none; }
+
+    .large-triangle {
+      fill: rgba(8, 145, 178, 0.04);
+      stroke: #0e7490;
+      stroke-width: 3.2;
+    }
+
+    .small-triangle {
+      fill: rgba(255,255,255,0.45);
+      stroke: #cbd5e1;
+      stroke-width: 1.2;
+      transition: fill 120ms ease, stroke 120ms ease, opacity 120ms ease;
+    }
+
+    .small-triangle.tri-colour {
+      fill: rgba(5, 150, 105, 0.18);
+      stroke: #059669;
+      stroke-width: 2.4;
+    }
+
+    .vertex-dot {
+      stroke: white;
+      stroke-width: 3.5;
+      cursor: pointer;
+      transition: transform 100ms ease;
+    }
+
+    .vertex-dot:hover { transform: scale(1.12); }
+
+    .fixed-dot {
+      stroke: #111827;
+      stroke-width: 2.5;
+    }
+
+    .edge-label {
+      fill: #334155;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .corner-label {
+      fill: #111827;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.88rem;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px #d1d5db;
+    }
+
+    .settings {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 160px 1fr 48px;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 0.92rem;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .measure-grid { grid-template-columns: 1fr; }
+      .settings { grid-template-columns: 1fr; }
+    }
+
+    .measure {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfeff;
+    }
+
+    .measure small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .measure strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.22rem;
+      letter-spacing: -0.03em;
+    }
+
+    .notice {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 12px 0 0;
+    }
+
+    .polya { display: grid; gap: 12px; }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+
+    details[open] {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    summary span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .step-body { padding: 0 14px 14px; }
+    .step-body ul { margin-top: 4px; padding-left: 20px; }
+    .step-body li { margin: 7px 0; }
+
+    textarea {
+      width: 100%;
+      min-height: 82px;
+      resize: vertical;
+      border: 1px solid #67e8f9;
+      border-radius: 12px;
+      padding: 10px;
+      font: inherit;
+      background: white;
+      margin-top: 8px;
+    }
+
+    .table-wrap {
+      max-height: 245px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 8px 6px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .challenge {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .challenge strong { color: #b45309; }
+
+    .hidden { filter: blur(5px); user-select: none; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sperner's Lemma Investigation</h1>
+    <p class="subtitle">A large triangle is subdivided into many small triangles. Vertices are coloured using three colours, but the boundary has special rules.</p>
+
+    <section class="prompt-card" aria-label="Prompting question">
+      <h2>Prompting Question</h2>
+      <p>When the boundary colouring rules are followed, is it possible to avoid every small triangle having all three colours?</p>
+    </section>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <h2>Explore the colouring</h2>
+        <div class="controls">
+          <button id="randomBtn" type="button">Random valid colouring</button>
+          <button id="recordBtn" type="button" class="secondary">Record data</button>
+          <button id="toggleBtn" type="button" class="ghost">Hide count</button>
+          <button id="highlightBtn" type="button" class="ghost">Highlight 3-colour triangles</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="svg-wrap">
+          <svg id="scene" viewBox="0 0 720 650" role="img" aria-label="Interactive Sperner lemma triangle colouring diagram">
+            <g id="triangles"></g>
+            <polygon id="outerTriangle" class="large-triangle"></polygon>
+            <g id="dots"></g>
+            <text id="labelA" class="corner-label">Red corner</text>
+            <text id="labelB" class="corner-label">Blue corner</text>
+            <text id="labelC" class="corner-label">Yellow corner</text>
+            <text id="edgeAB" class="edge-label">only red / blue allowed</text>
+            <text id="edgeBC" class="edge-label">only blue / yellow allowed</text>
+            <text id="edgeCA" class="edge-label">only yellow / red allowed</text>
+          </svg>
+        </div>
+
+        <div class="settings">
+          <label for="sizeSlider">Subdivision size</label>
+          <input id="sizeSlider" type="range" min="3" max="9" value="6">
+          <span id="sizeValue">6</span>
+        </div>
+
+        <div class="legend">
+          <span class="legend-item"><span class="swatch" style="background:#e11d48;"></span>Red</span>
+          <span class="legend-item"><span class="swatch" style="background:#2563eb;"></span>Blue</span>
+          <span class="legend-item"><span class="swatch" style="background:#f59e0b;"></span>Yellow</span>
+          <span class="legend-item">Click a dot to change its colour.</span>
+        </div>
+
+        <div id="measurements" class="measure-grid">
+          <div class="measure"><small>Small triangles</small><strong id="totalTriangles">--</strong></div>
+          <div class="measure"><small>3-colour triangles</small><strong id="triColourCount">--</strong></div>
+          <div class="measure"><small>Boundary rule</small><strong id="ruleStatus">Valid</strong></div>
+          <div class="measure"><small>Red vertices</small><strong id="redCount">--</strong></div>
+          <div class="measure"><small>Blue vertices</small><strong id="blueCount">--</strong></div>
+          <div class="measure"><small>Yellow vertices</small><strong id="yellowCount">--</strong></div>
+        </div>
+
+        <p class="notice">Tip: Try to make the number of 3-colour triangles equal to zero. The applet will still force the boundary rules.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Use Polya's Method</h2>
+        <span class="badge">No solution shown</span>
+      </div>
+      <div class="card-body polya">
+        <details open>
+          <summary>1. Understand the problem <span>What are the rules?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>What are the three corner colours?</li>
+              <li>What colours are allowed on each side of the large triangle?</li>
+              <li>What colours are allowed inside the triangle?</li>
+              <li>What would make a small triangle a three-colour triangle?</li>
+            </ul>
+            <textarea placeholder="Write the colouring rules in your own words..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>2. Make a plan <span>How will you test the pattern?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Start with a small subdivision size.</li>
+              <li>Try different valid colourings.</li>
+              <li>Record the number of three-colour triangles.</li>
+              <li>Look for something that seems impossible to avoid.</li>
+            </ul>
+            <textarea placeholder="Write your plan before collecting data..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Carry out the plan <span>What do the data suggest?</span></summary>
+          <div class="step-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>Size</th>
+                    <th>Small triangles</th>
+                    <th>3-colour triangles</th>
+                    <th>Red</th>
+                    <th>Blue</th>
+                    <th>Yellow</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr><td colspan="7" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="controls" style="margin-top:10px;">
+              <button id="clearBtn" type="button" class="ghost">Clear table</button>
+            </div>
+            <textarea placeholder="Describe the pattern. Separate what you tried from what you think is always true..."></textarea>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Look back and justify <span>Why might it always work?</span></summary>
+          <div class="step-body">
+            <ul>
+              <li>Can you follow a path through the small triangles using two of the colours?</li>
+              <li>Where can such a path enter the large triangle?</li>
+              <li>Where could the path stop?</li>
+              <li>How could you convince someone without checking every possible colouring?</li>
+            </ul>
+            <textarea placeholder="Write your conjecture and your justification. Use diagrams, paths, parity, or careful counting..."></textarea>
+          </div>
+        </details>
+
+        <div class="challenge">
+          <strong>Extension question:</strong> What happens if one boundary rule is broken? Change the colouring mentally or on paper and predict whether the pattern must still happen.
+        </div>
+
+        <p class="footer-note">The applet gives the colouring rules and measurements only. It does not explain the lemma.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const svg = document.getElementById('scene');
+    const trianglesGroup = document.getElementById('triangles');
+    const dotsGroup = document.getElementById('dots');
+    const outerTriangle = document.getElementById('outerTriangle');
+
+    const sizeSlider = document.getElementById('sizeSlider');
+    const sizeValue = document.getElementById('sizeValue');
+    const totalTrianglesEl = document.getElementById('totalTriangles');
+    const triColourCountEl = document.getElementById('triColourCount');
+    const ruleStatusEl = document.getElementById('ruleStatus');
+    const redCountEl = document.getElementById('redCount');
+    const blueCountEl = document.getElementById('blueCount');
+    const yellowCountEl = document.getElementById('yellowCount');
+    const dataBody = document.getElementById('dataBody');
+    const measurements = document.getElementById('measurements');
+
+    const labels = {
+      labelA: document.getElementById('labelA'),
+      labelB: document.getElementById('labelB'),
+      labelC: document.getElementById('labelC'),
+      edgeAB: document.getElementById('edgeAB'),
+      edgeBC: document.getElementById('edgeBC'),
+      edgeCA: document.getElementById('edgeCA')
+    };
+
+    const colours = [
+      { name: 'red', hex: '#e11d48' },
+      { name: 'blue', hex: '#2563eb' },
+      { name: 'yellow', hex: '#f59e0b' }
+    ];
+
+    const A = { x: 110, y: 545 };
+    const B = { x: 610, y: 545 };
+    const C = { x: 360, y: 105 };
+
+    let N = Number(sizeSlider.value);
+    let vertexColours = new Map();
+    let rows = [];
+    let showMeasurements = true;
+    let highlight = false;
+
+    function key(a, b, c) {
+      return `${a},${b},${c}`;
+    }
+
+    function fromKey(k) {
+      return k.split(',').map(Number);
+    }
+
+    function coord(a, b, c) {
+      return {
+        x: (a * A.x + b * B.x + c * C.x) / N,
+        y: (a * A.y + b * B.y + c * C.y) / N
+      };
+    }
+
+    function polygonPoints(list) {
+      return list.map(p => `${p.x},${p.y}`).join(' ');
+    }
+
+    function allowedColours(a, b, c) {
+      if (a === N && b === 0 && c === 0) return ['red'];
+      if (b === N && a === 0 && c === 0) return ['blue'];
+      if (c === N && a === 0 && b === 0) return ['yellow'];
+      if (c === 0) return ['red', 'blue'];
+      if (a === 0) return ['blue', 'yellow'];
+      if (b === 0) return ['yellow', 'red'];
+      return ['red', 'blue', 'yellow'];
+    }
+
+    function randomAllowedColour(a, b, c) {
+      const allowed = allowedColours(a, b, c);
+      return allowed[Math.floor(Math.random() * allowed.length)];
+    }
+
+    function colourHex(name) {
+      return colours.find(c => c.name === name).hex;
+    }
+
+    function generateVertices(randomise = true) {
+      vertexColours.clear();
+      for (let a = 0; a <= N; a++) {
+        for (let b = 0; b <= N - a; b++) {
+          const c = N - a - b;
+          const k = key(a, b, c);
+          vertexColours.set(k, randomise ? randomAllowedColour(a, b, c) : allowedColours(a, b, c)[0]);
+        }
+      }
+    }
+
+    function smallTriangles() {
+      const tris = [];
+      for (let a = 0; a <= N - 1; a++) {
+        for (let b = 0; b <= N - 1 - a; b++) {
+          const c = N - a - b;
+          tris.push([
+            key(a, b, c),
+            key(a + 1, b, c - 1),
+            key(a, b + 1, c - 1)
+          ]);
+          if (c >= 2) {
+            tris.push([
+              key(a + 1, b, c - 1),
+              key(a + 1, b + 1, c - 2),
+              key(a, b + 1, c - 1)
+            ]);
+          }
+        }
+      }
+      return tris;
+    }
+
+    function isTriColour(tri) {
+      return new Set(tri.map(k => vertexColours.get(k))).size === 3;
+    }
+
+    function counts() {
+      const tris = smallTriangles();
+      const triColour = tris.filter(isTriColour).length;
+      const colourCounts = { red: 0, blue: 0, yellow: 0 };
+      for (const value of vertexColours.values()) colourCounts[value]++;
+      return {
+        total: tris.length,
+        triColour,
+        red: colourCounts.red,
+        blue: colourCounts.blue,
+        yellow: colourCounts.yellow
+      };
+    }
+
+    function createSvgEl(name, attrs = {}) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+
+    function updateLabels() {
+      labels.labelA.setAttribute('x', A.x - 86);
+      labels.labelA.setAttribute('y', A.y + 34);
+      labels.labelB.setAttribute('x', B.x - 35);
+      labels.labelB.setAttribute('y', B.y + 34);
+      labels.labelC.setAttribute('x', C.x - 58);
+      labels.labelC.setAttribute('y', C.y - 20);
+
+      labels.edgeAB.setAttribute('x', 275);
+      labels.edgeAB.setAttribute('y', 585);
+      labels.edgeBC.setAttribute('x', 505);
+      labels.edgeBC.setAttribute('y', 320);
+      labels.edgeBC.setAttribute('transform', 'rotate(-60 505 320)');
+      labels.edgeCA.setAttribute('x', 85);
+      labels.edgeCA.setAttribute('y', 320);
+      labels.edgeCA.setAttribute('transform', 'rotate(60 85 320)');
+    }
+
+    function render() {
+      trianglesGroup.innerHTML = '';
+      dotsGroup.innerHTML = '';
+      outerTriangle.setAttribute('points', polygonPoints([A, B, C]));
+      updateLabels();
+
+      smallTriangles().forEach((tri, i) => {
+        const pts = tri.map(k => coord(...fromKey(k)));
+        const poly = createSvgEl('polygon', {
+          points: polygonPoints(pts),
+          class: 'small-triangle' + (highlight && isTriColour(tri) ? ' tri-colour' : ''),
+          'data-index': i
+        });
+        trianglesGroup.appendChild(poly);
+      });
+
+      for (const [k, colour] of vertexColours.entries()) {
+        const [a, b, c] = fromKey(k);
+        const p = coord(a, b, c);
+        const allowed = allowedColours(a, b, c);
+        const dot = createSvgEl('circle', {
+          cx: p.x,
+          cy: p.y,
+          r: allowed.length === 1 ? 9 : 7,
+          fill: colourHex(colour),
+          class: 'vertex-dot' + (allowed.length === 1 ? ' fixed-dot' : ''),
+          'data-key': k
+        });
+        dot.addEventListener('click', () => cycleColour(k));
+        dotsGroup.appendChild(dot);
+      }
+
+      updateMeasurements();
+    }
+
+    function cycleColour(k) {
+      const [a, b, c] = fromKey(k);
+      const allowed = allowedColours(a, b, c);
+      if (allowed.length === 1) return;
+      const current = vertexColours.get(k);
+      const index = allowed.indexOf(current);
+      vertexColours.set(k, allowed[(index + 1) % allowed.length]);
+      render();
+    }
+
+    function updateMeasurements() {
+      const c = counts();
+      totalTrianglesEl.textContent = c.total;
+      triColourCountEl.textContent = c.triColour;
+      redCountEl.textContent = c.red;
+      blueCountEl.textContent = c.blue;
+      yellowCountEl.textContent = c.yellow;
+      ruleStatusEl.textContent = 'Valid';
+      sizeValue.textContent = N;
+    }
+
+    function renderTable() {
+      if (rows.length === 0) {
+        dataBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#667085;">No data recorded yet.</td></tr>';
+        return;
+      }
+      dataBody.innerHTML = rows.map((r, i) => `
+        <tr>
+          <td>Trial ${i + 1}</td>
+          <td>${r.N}</td>
+          <td>${r.total}</td>
+          <td>${r.triColour}</td>
+          <td>${r.red}</td>
+          <td>${r.blue}</td>
+          <td>${r.yellow}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      generateVertices(true);
+      render();
+    });
+
+    document.getElementById('recordBtn').addEventListener('click', () => {
+      rows.push({ N, ...counts() });
+      renderTable();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      rows = [];
+      renderTable();
+    });
+
+    document.getElementById('toggleBtn').addEventListener('click', evt => {
+      showMeasurements = !showMeasurements;
+      measurements.classList.toggle('hidden', !showMeasurements);
+      evt.target.textContent = showMeasurements ? 'Hide count' : 'Show count';
+    });
+
+    document.getElementById('highlightBtn').addEventListener('click', evt => {
+      highlight = !highlight;
+      evt.target.textContent = highlight ? 'Hide highlights' : 'Highlight 3-colour triangles';
+      render();
+    });
+
+    sizeSlider.addEventListener('input', () => {
+      N = Number(sizeSlider.value);
+      generateVertices(true);
+      render();
+    });
+
+    generateVertices(true);
+    render();
+    renderTable();
+  </script>
+</body>
+</html>
