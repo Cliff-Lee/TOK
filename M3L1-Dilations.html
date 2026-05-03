@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dilations Explorer</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --ink: #182230;
+      --muted: #64748b;
+      --grid: #e2e8f0;
+      --axis: #94a3b8;
+      --original: #2563eb;
+      --image: #dc2626;
+      --center: #111827;
+      --ray: #8b5cf6;
+      --good: #15803d;
+      --warn: #b45309;
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #eef2ff, var(--bg) 45%);
+      color: var(--ink);
+    }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.45;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel, .canvas-card, .info-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: 18px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .control-group {
+      padding: 14px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .control-group:first-child { padding-top: 0; }
+    .control-group:last-child { border-bottom: 0; padding-bottom: 0; }
+
+    label, .label {
+      display: block;
+      font-weight: 800;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font: inherit;
+      background: white;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--original);
+    }
+
+    .scale-row {
+      display: grid;
+      grid-template-columns: 1fr 86px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .line-controls {
+      display: none;
+    }
+
+    .line-controls.active {
+      display: block;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-weight: 900;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .pill.reduction { background: #ecfdf5; color: var(--good); }
+    .pill.enlargement { background: #fff7ed; color: var(--warn); }
+    .pill.negative { background: #fef2f2; color: #b91c1c; }
+    .pill.zero { background: #f1f5f9; color: #475569; }
+
+    .checkbox-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      background: #111827;
+      color: white;
+      padding: 11px 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.secondary { background: #e2e8f0; color: #0f172a; }
+
+    .canvas-card { overflow: hidden; }
+
+    .canvas-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .dot.original { background: var(--original); }
+    .dot.image { background: var(--image); }
+    .dot.center { background: var(--center); }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: white;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .grid-line { stroke: var(--grid); stroke-width: 1; }
+    .axis-line { stroke: var(--axis); stroke-width: 2; }
+    .ray-line { stroke: var(--ray); stroke-width: 1.35; stroke-dasharray: 6 6; opacity: 0.8; }
+    .original-poly { fill: rgba(37, 99, 235, 0.15); stroke: var(--original); stroke-width: 3; }
+    .image-poly { fill: rgba(220, 38, 38, 0.13); stroke: var(--image); stroke-width: 3; }
+    .original-line { fill: none; stroke: var(--original); stroke-width: 4; stroke-linecap: round; }
+    .image-line { fill: none; stroke: var(--image); stroke-width: 4; stroke-linecap: round; }
+    .line-glow { stroke: rgba(15, 23, 42, 0.08); stroke-width: 11; stroke-linecap: round; }
+    .point { cursor: grab; stroke: white; stroke-width: 2.5; }
+    .point:active { cursor: grabbing; }
+    .label-text { font-size: 14px; font-weight: 900; paint-order: stroke; stroke: white; stroke-width: 4; stroke-linejoin: round; }
+    .coord-text { font-size: 12px; fill: var(--muted); paint-order: stroke; stroke: white; stroke-width: 4; }
+    .tick-text { font-size: 11px; fill: #94a3b8; }
+
+    .below {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .info-card { padding: 18px; }
+
+    .info-card h2 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+
+    .formula {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.55;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .question-list {
+      margin: 0;
+      padding-left: 20px;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .feedback {
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 8px 0 0;
+      font-size: 0.93rem;
+    }
+
+    @media (max-width: 900px) {
+      .layout, .below { grid-template-columns: 1fr; }
+      .panel { position: static; }
+      header { display: block; }
+      .canvas-top { display: block; }
+      .legend { margin-top: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Dilations Explorer 🌶️</h1>
+        <p class="subtitle">Drag the blue shape or the black centre point. Change the scale factor to explore reductions, enlargements, and negative dilations. Use the line mode to investigate how <strong>y = mx + c</strong> changes.</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel" aria-label="Controls">
+        <div class="control-group">
+          <label for="shapeSelect">Original object</label>
+          <select id="shapeSelect">
+            <option value="triangle">Triangle</option>
+            <option value="quadrilateral">Quadrilateral</option>
+            <option value="pentagon">Pentagon</option>
+            <option value="arrow">Arrow</option>
+            <option value="segment">Line segment</option>
+            <option value="equationLine">Line: y = mx + c</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="scaleRange">Scale factor, k</label>
+          <div class="scale-row">
+            <input id="scaleRange" type="range" min="-3" max="3" value="1.5" step="0.1" />
+            <input id="scaleNumber" type="number" min="-3" max="3" value="1.5" step="0.1" />
+          </div>
+          <div id="scalePill" class="pill enlargement">🌶️🌶️ Enlargement: |k| &gt; 1</div>
+          <p id="scaleMeaning" class="feedback"></p>
+        </div>
+
+        <div class="control-group line-controls" id="lineControls">
+          <div class="label">Line equation</div>
+          <label for="mRange">Gradient, m = <span id="mValue">1</span></label>
+          <input id="mRange" type="range" min="-3" max="3" value="1" step="0.1" />
+          <label for="cRange" style="margin-top: 12px;">Intercept, c = <span id="cValue">1</span></label>
+          <input id="cRange" type="range" min="-8" max="8" value="1" step="0.5" />
+          <p class="feedback">The blue line is the original line. The red line is the dilated image.</p>
+        </div>
+
+        <div class="control-group">
+          <div class="label">Centre of dilation</div>
+          <div class="mini-grid">
+            <label>
+              x-coordinate
+              <input id="centerX" type="number" value="0" step="0.5" min="-10" max="10" />
+            </label>
+            <label>
+              y-coordinate
+              <input id="centerY" type="number" value="0" step="0.5" min="-10" max="10" />
+            </label>
+          </div>
+          <p class="feedback">The black point is the centre. Drag it to move the dilation centre.</p>
+        </div>
+
+        <div class="control-group">
+          <div class="label">Show/hide</div>
+          <div class="checkbox-grid">
+            <label class="check"><input id="showRays" type="checkbox" checked /> Rays from centre</label>
+            <label class="check"><input id="showLabels" type="checkbox" checked /> Point labels</label>
+            <label class="check"><input id="showCoords" type="checkbox" checked /> Coordinates</label>
+            <label class="check"><input id="showGrid" type="checkbox" checked /> Grid</label>
+          </div>
+        </div>
+
+        <div class="control-group mini-grid">
+          <button id="resetShape">Reset object</button>
+          <button id="randomShape" class="secondary">Random shape</button>
+        </div>
+      </aside>
+
+      <section class="canvas-card">
+        <div class="canvas-top">
+          <strong>Coordinate Plane</strong>
+          <div class="legend">
+            <span><i class="dot original"></i> original</span>
+            <span><i class="dot image"></i> image</span>
+            <span><i class="dot center"></i> centre</span>
+          </div>
+        </div>
+        <svg id="svg" viewBox="0 0 720 720" role="img" aria-label="Interactive coordinate plane showing an object and its dilation image"></svg>
+      </section>
+    </main>
+
+    <section class="below">
+      <div class="info-card">
+        <h2>Rule</h2>
+        <div class="formula" id="formulaBox"></div>
+        <p class="feedback">For centre (0, 0), this becomes x′ = kx and y′ = ky.</p>
+      </div>
+
+      <div class="info-card">
+        <h2>Inquiry questions</h2>
+        <ol class="question-list">
+          <li>How can you tell if the image is a reduction or enlargement?</li>
+          <li>What is different when k is negative?</li>
+          <li>For y = mx + c, what stays the same after dilation?</li>
+          <li>When does a line stay exactly on top of itself?</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const svg = document.getElementById('svg');
+    const shapeSelect = document.getElementById('shapeSelect');
+    const scaleRange = document.getElementById('scaleRange');
+    const scaleNumber = document.getElementById('scaleNumber');
+    const scalePill = document.getElementById('scalePill');
+    const scaleMeaning = document.getElementById('scaleMeaning');
+    const centerXInput = document.getElementById('centerX');
+    const centerYInput = document.getElementById('centerY');
+    const showRaysInput = document.getElementById('showRays');
+    const showLabelsInput = document.getElementById('showLabels');
+    const showCoordsInput = document.getElementById('showCoords');
+    const showGridInput = document.getElementById('showGrid');
+    const resetShapeButton = document.getElementById('resetShape');
+    const randomShapeButton = document.getElementById('randomShape');
+    const formulaBox = document.getElementById('formulaBox');
+    const lineControls = document.getElementById('lineControls');
+    const mRange = document.getElementById('mRange');
+    const cRange = document.getElementById('cRange');
+    const mValue = document.getElementById('mValue');
+    const cValue = document.getElementById('cValue');
+
+    const SIZE = 720;
+    const MIN = -10;
+    const MAX = 10;
+    const UNIT = SIZE / (MAX - MIN);
+
+    const presets = {
+      triangle: [
+        { x: -4, y: -2 },
+        { x: -1, y: 3 },
+        { x: 2, y: -1 }
+      ],
+      quadrilateral: [
+        { x: -5, y: -3 },
+        { x: -2, y: 2 },
+        { x: 2, y: 2 },
+        { x: 4, y: -2 }
+      ],
+      pentagon: [
+        { x: -3, y: -2 },
+        { x: -4, y: 1 },
+        { x: -1, y: 4 },
+        { x: 3, y: 2 },
+        { x: 2, y: -2 }
+      ],
+      arrow: [
+        { x: -5, y: -1 },
+        { x: 0, y: -1 },
+        { x: 0, y: -3 },
+        { x: 4, y: 0 },
+        { x: 0, y: 3 },
+        { x: 0, y: 1 },
+        { x: -5, y: 1 }
+      ],
+      segment: [
+        { x: -5, y: -3 },
+        { x: 3, y: 2 }
+      ]
+    };
+
+    let state = {
+      shape: 'triangle',
+      k: 1.5,
+      center: { x: 0, y: 0 },
+      points: clonePoints(presets.triangle),
+      m: 1,
+      c: 1,
+      drag: null
+    };
+
+    function clonePoints(points) {
+      return points.map(p => ({ x: p.x, y: p.y }));
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function round(value, places = 2) {
+      return Number.parseFloat(value).toFixed(places).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
+    }
+
+    function screenX(x) { return (x - MIN) * UNIT; }
+    function screenY(y) { return SIZE - (y - MIN) * UNIT; }
+    function worldX(px) { return px / UNIT + MIN; }
+    function worldY(py) { return MAX - py / UNIT; }
+
+    function ptToScreen(p) {
+      return { x: screenX(p.x), y: screenY(p.y) };
+    }
+
+    function dilatePoint(p) {
+      const k = state.k;
+      const cx = state.center.x;
+      const cy = state.center.y;
+      return {
+        x: cx + k * (p.x - cx),
+        y: cy + k * (p.y - cy)
+      };
+    }
+
+    function svgEl(name, attrs = {}) {
+      const element = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [key, value] of Object.entries(attrs)) {
+        element.setAttribute(key, value);
+      }
+      return element;
+    }
+
+    function addText(text, x, y, className, anchor = 'middle') {
+      const t = svgEl('text', { x, y, class: className, 'text-anchor': anchor });
+      t.textContent = text;
+      svg.appendChild(t);
+      return t;
+    }
+
+    function pointsToString(points) {
+      return points.map(p => `${screenX(p.x)},${screenY(p.y)}`).join(' ');
+    }
+
+    function drawGrid() {
+      if (!showGridInput.checked) return;
+
+      for (let i = MIN; i <= MAX; i++) {
+        const x = screenX(i);
+        const y = screenY(i);
+        svg.appendChild(svgEl('line', { x1: x, y1: 0, x2: x, y2: SIZE, class: i === 0 ? 'axis-line' : 'grid-line' }));
+        svg.appendChild(svgEl('line', { x1: 0, y1: y, x2: SIZE, y2: y, class: i === 0 ? 'axis-line' : 'grid-line' }));
+
+        if (i !== 0 && i % 2 === 0) {
+          addText(i, x, screenY(0) + 16, 'tick-text');
+          addText(i, screenX(0) - 16, y + 4, 'tick-text', 'end');
+        }
+      }
+    }
+
+    function drawRays(originalPoints, imagePoints) {
+      if (!showRaysInput.checked) return;
+      const c = state.center;
+      for (let i = 0; i < originalPoints.length; i++) {
+        const a = ptToScreen(c);
+        const b = ptToScreen(originalPoints[i]);
+        const d = ptToScreen(imagePoints[i]);
+        svg.appendChild(svgEl('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: 'ray-line' }));
+        svg.appendChild(svgEl('line', { x1: a.x, y1: a.y, x2: d.x, y2: d.y, class: 'ray-line' }));
+      }
+    }
+
+    function drawObject() {
+      if (state.shape === 'equationLine') {
+        drawEquationLine();
+        return;
+      }
+
+      const original = state.points;
+      const image = original.map(dilatePoint);
+      drawRays(original, image);
+
+      if (state.shape === 'segment') {
+        const o1 = ptToScreen(original[0]);
+        const o2 = ptToScreen(original[1]);
+        const i1 = ptToScreen(image[0]);
+        const i2 = ptToScreen(image[1]);
+        svg.appendChild(svgEl('line', { x1: i1.x, y1: i1.y, x2: i2.x, y2: i2.y, class: 'image-line' }));
+        svg.appendChild(svgEl('line', { x1: o1.x, y1: o1.y, x2: o2.x, y2: o2.y, class: 'original-line' }));
+      } else {
+        svg.appendChild(svgEl('polygon', { points: pointsToString(image), class: 'image-poly' }));
+        svg.appendChild(svgEl('polygon', { points: pointsToString(original), class: 'original-poly' }));
+      }
+
+      image.forEach((p, i) => drawPoint(p, 'image', `${String.fromCharCode(65 + i)}′`, false, i));
+      original.forEach((p, i) => drawPoint(p, 'original', String.fromCharCode(65 + i), true, i));
+    }
+
+    function lineSegmentForEquation(m, c) {
+      const candidates = [];
+      function addPoint(x, y) {
+        if (x >= MIN - 0.001 && x <= MAX + 0.001 && y >= MIN - 0.001 && y <= MAX + 0.001) {
+          if (!candidates.some(p => Math.abs(p.x - x) < 0.001 && Math.abs(p.y - y) < 0.001)) {
+            candidates.push({ x, y });
+          }
+        }
+      }
+
+      addPoint(MIN, m * MIN + c);
+      addPoint(MAX, m * MAX + c);
+
+      if (Math.abs(m) > 0.0001) {
+        addPoint((MIN - c) / m, MIN);
+        addPoint((MAX - c) / m, MAX);
+      }
+
+      if (candidates.length < 2) return null;
+      return [candidates[0], candidates[1]];
+    }
+
+    function equationAfterDilation(m, c, k, cx, cy) {
+      if (Math.abs(k) < 0.0001) return null;
+      const newC = k * c + (1 - k) * (cy - m * cx);
+      return { m, c: newC };
+    }
+
+    function drawClippedLine(m, c, className) {
+      const segment = lineSegmentForEquation(m, c);
+      if (!segment) return;
+      const a = ptToScreen(segment[0]);
+      const b = ptToScreen(segment[1]);
+      svg.appendChild(svgEl('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: 'line-glow' }));
+      svg.appendChild(svgEl('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: className }));
+    }
+
+    function drawEquationLine() {
+      const m = state.m;
+      const c = state.c;
+      const k = state.k;
+      const cx = state.center.x;
+      const cy = state.center.y;
+
+      const originalSegment = lineSegmentForEquation(m, c);
+      if (originalSegment && showRaysInput.checked) {
+        const imageSegment = originalSegment.map(dilatePoint);
+        drawRays(originalSegment, imageSegment);
+      }
+
+      if (Math.abs(k) < 0.0001) {
+        drawClippedLine(m, c, 'original-line');
+        drawPoint(state.center, 'image', 'image collapses here', false, -1);
+        return;
+      }
+
+      const imageEquation = equationAfterDilation(m, c, k, cx, cy);
+      drawClippedLine(imageEquation.m, imageEquation.c, 'image-line');
+      drawClippedLine(m, c, 'original-line');
+
+      const p1 = { x: -3, y: m * -3 + c };
+      const p2 = { x: 3, y: m * 3 + c };
+      if (p1.y >= MIN && p1.y <= MAX) drawPoint(p1, 'original', 'P', false, -1);
+      if (p2.y >= MIN && p2.y <= MAX) drawPoint(p2, 'original', 'Q', false, -1);
+      const q1 = dilatePoint(p1);
+      const q2 = dilatePoint(p2);
+      if (q1.y >= MIN && q1.y <= MAX && q1.x >= MIN && q1.x <= MAX) drawPoint(q1, 'image', 'P′', false, -1);
+      if (q2.y >= MIN && q2.y <= MAX && q2.x >= MIN && q2.x <= MAX) drawPoint(q2, 'image', 'Q′', false, -1);
+    }
+
+    function drawPoint(p, kind, label, draggable, index) {
+      const s = ptToScreen(p);
+      const color = kind === 'original' ? 'var(--original)' : kind === 'center' ? 'var(--center)' : 'var(--image)';
+      const circle = svgEl('circle', {
+        cx: s.x,
+        cy: s.y,
+        r: kind === 'center' ? 8 : 7,
+        fill: color,
+        class: 'point'
+      });
+
+      if (draggable) {
+        circle.dataset.type = 'point';
+        circle.dataset.index = index;
+      } else if (kind === 'center') {
+        circle.dataset.type = 'center';
+      }
+
+      svg.appendChild(circle);
+
+      if (showLabelsInput.checked && label) {
+        addText(label, s.x + 14, s.y - 10, 'label-text', 'start');
+      }
+
+      if (showCoordsInput.checked && kind !== 'center' && label && !label.includes('collapses')) {
+        addText(`(${round(p.x, 1)}, ${round(p.y, 1)})`, s.x + 14, s.y + 13, 'coord-text', 'start');
+      }
+    }
+
+    function drawCenter() {
+      drawPoint(state.center, 'center', 'Centre', false, -1);
+      if (showCoordsInput.checked) {
+        const s = ptToScreen(state.center);
+        addText(`(${round(state.center.x, 1)}, ${round(state.center.y, 1)})`, s.x + 14, s.y + 18, 'coord-text', 'start');
+      }
+    }
+
+    function updateText() {
+      const k = state.k;
+      const absK = Math.abs(k);
+      scalePill.className = 'pill';
+
+      if (Math.abs(k) < 0.0001) {
+        scalePill.classList.add('zero');
+        scalePill.textContent = '0 chillies: k = 0 collapse';
+        scaleMeaning.textContent = 'Every point lands on the centre of dilation.';
+      } else if (k < 0) {
+        scalePill.classList.add('negative');
+        scalePill.textContent = absK > 1 ? '🌶️🌶️🌶️ Negative enlargement' : '🌶️ Negative reduction';
+        scaleMeaning.textContent = 'Negative k sends points through the centre to the opposite side.';
+      } else if (absK < 1) {
+        scalePill.classList.add('reduction');
+        scalePill.textContent = '🌶️ Mild reduction: 0 < k < 1';
+        scaleMeaning.textContent = 'The image is closer to the centre than the original.';
+      } else if (absK === 1) {
+        scalePill.textContent = k === 1 ? 'No change: k = 1' : 'Half-turn size match: k = -1';
+        scaleMeaning.textContent = k === 1 ? 'The image is the same size and position.' : 'The image is the same size, but on the opposite side of the centre.';
+      } else {
+        scalePill.classList.add('enlargement');
+        scalePill.textContent = '🌶️🌶️ Enlargement: |k| > 1';
+        scaleMeaning.textContent = 'The image is farther from the centre than the original.';
+      }
+
+      const cx = state.center.x;
+      const cy = state.center.y;
+      const baseRule = `Centre: (${round(cx, 2)}, ${round(cy, 2)})\nPoint rule:\nx′ = ${round(cx, 2)} + k(x − ${round(cx, 2)})\ny′ = ${round(cy, 2)} + k(y − ${round(cy, 2)})\nCurrent k = ${round(k, 2)}`;
+
+      if (state.shape === 'equationLine') {
+        const imageEquation = equationAfterDilation(state.m, state.c, k, cx, cy);
+        const original = `Original line: y = ${round(state.m, 2)}x ${state.c < 0 ? '−' : '+'} ${round(Math.abs(state.c), 2)}`;
+        let image = 'Image line: all points collapse to the centre because k = 0';
+        if (imageEquation) {
+          image = `Image line: y = ${round(imageEquation.m, 2)}x ${imageEquation.c < 0 ? '−' : '+'} ${round(Math.abs(imageEquation.c), 2)}`;
+        }
+        formulaBox.textContent = `${baseRule}\n\n${original}\n${image}\n\nKey idea: the gradient m stays the same. The intercept changes unless the centre lies on the line or k = 1.`;
+      } else {
+        formulaBox.textContent = `${baseRule}\n\nLengths multiply by |k|.\nAreas multiply by k².\nAngles, parallel lines, collinearity, and slope are preserved.`;
+      }
+
+      lineControls.classList.toggle('active', state.shape === 'equationLine');
+      mValue.textContent = round(state.m, 1);
+      cValue.textContent = round(state.c, 1);
+    }
+
+    function draw() {
+      svg.innerHTML = '';
+      drawGrid();
+      drawObject();
+      drawCenter();
+      updateText();
+    }
+
+    function setScale(value) {
+      const v = clamp(Number(value), -3, 3);
+      state.k = Math.abs(v) < 0.0001 ? 0 : v;
+      scaleRange.value = state.k;
+      scaleNumber.value = state.k;
+      draw();
+    }
+
+    function setCenterFromInputs() {
+      state.center.x = clamp(Number(centerXInput.value), MIN, MAX);
+      state.center.y = clamp(Number(centerYInput.value), MIN, MAX);
+      centerXInput.value = state.center.x;
+      centerYInput.value = state.center.y;
+      draw();
+    }
+
+    function resetCurrentShape() {
+      if (state.shape !== 'equationLine') {
+        state.points = clonePoints(presets[state.shape]);
+      }
+      draw();
+    }
+
+    function randomiseShape() {
+      if (state.shape === 'equationLine') {
+        state.m = Number((Math.random() * 5 - 2.5).toFixed(1));
+        state.c = Number((Math.random() * 10 - 5).toFixed(1));
+        mRange.value = state.m;
+        cRange.value = state.c;
+      } else {
+        state.points = state.points.map(() => ({
+          x: Number((Math.random() * 10 - 5).toFixed(1)),
+          y: Number((Math.random() * 8 - 4).toFixed(1))
+        }));
+      }
+      draw();
+    }
+
+    function svgPointFromEvent(event) {
+      const rect = svg.getBoundingClientRect();
+      const px = (event.clientX - rect.left) * (SIZE / rect.width);
+      const py = (event.clientY - rect.top) * (SIZE / rect.height);
+      return {
+        x: clamp(worldX(px), MIN, MAX),
+        y: clamp(worldY(py), MIN, MAX)
+      };
+    }
+
+    svg.addEventListener('pointerdown', event => {
+      const target = event.target;
+      if (target.dataset.type === 'point') {
+        state.drag = { type: 'point', index: Number(target.dataset.index) };
+        target.setPointerCapture(event.pointerId);
+      } else if (target.dataset.type === 'center') {
+        state.drag = { type: 'center' };
+        target.setPointerCapture(event.pointerId);
+      }
+    });
+
+    svg.addEventListener('pointermove', event => {
+      if (!state.drag) return;
+      const p = svgPointFromEvent(event);
+
+      if (state.drag.type === 'point' && state.shape !== 'equationLine') {
+        state.points[state.drag.index] = p;
+      }
+
+      if (state.drag.type === 'center') {
+        state.center = p;
+        centerXInput.value = round(p.x, 1);
+        centerYInput.value = round(p.y, 1);
+      }
+
+      draw();
+    });
+
+    svg.addEventListener('pointerup', () => { state.drag = null; });
+    svg.addEventListener('pointercancel', () => { state.drag = null; });
+
+    shapeSelect.addEventListener('change', () => {
+      state.shape = shapeSelect.value;
+      if (state.shape !== 'equationLine') {
+        state.points = clonePoints(presets[state.shape]);
+      }
+      draw();
+    });
+
+    scaleRange.addEventListener('input', event => setScale(event.target.value));
+    scaleNumber.addEventListener('input', event => setScale(event.target.value));
+    centerXInput.addEventListener('input', setCenterFromInputs);
+    centerYInput.addEventListener('input', setCenterFromInputs);
+    showRaysInput.addEventListener('change', draw);
+    showLabelsInput.addEventListener('change', draw);
+    showCoordsInput.addEventListener('change', draw);
+    showGridInput.addEventListener('change', draw);
+    resetShapeButton.addEventListener('click', resetCurrentShape);
+    randomShapeButton.addEventListener('click', randomiseShape);
+    mRange.addEventListener('input', event => {
+      state.m = Number(event.target.value);
+      draw();
+    });
+    cRange.addEventListener('input', event => {
+      state.c = Number(event.target.value);
+      draw();
+    });
+
+    draw();
+  </script>
+</body>
+</html>
