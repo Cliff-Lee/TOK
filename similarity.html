@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Triangle Similarity Explorer: SSS, SAS, AAS</title>
+<style>
+  :root{
+    --bg:#f7f8fb;
+    --card:#ffffff;
+    --ink:#1f2937;
+    --muted:#6b7280;
+    --line:#d1d5db;
+    --accent:#2563eb;
+    --accent2:#dc2626;
+    --good:#047857;
+    --warn:#b45309;
+    --soft:#eff6ff;
+    --soft-red:#fef2f2;
+    --soft-green:#ecfdf5;
+    --shadow:0 8px 26px rgba(15,23,42,.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:linear-gradient(180deg,#f8fafc,#eef2ff);
+    color:var(--ink);
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:24px;}
+  header{
+    background:var(--card);
+    border:1px solid rgba(209,213,219,.75);
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  h1{margin:0 0 8px;font-size:clamp(1.6rem,3vw,2.45rem);letter-spacing:-.02em;}
+  .lead{margin:0;color:var(--muted);font-size:1rem;line-height:1.55;max-width:960px;}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start;}
+  @media(max-width:950px){.grid{grid-template-columns:1fr}.wrap{padding:14px}}
+  .panel,.stage,.notes{
+    background:var(--card);
+    border:1px solid rgba(209,213,219,.75);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .panel{padding:16px;position:sticky;top:12px;}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  button.tab{
+    border:1px solid var(--line);
+    background:#fff;
+    padding:10px 8px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    color:#374151;
+  }
+  button.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .subcase{margin:4px 0 14px;}
+  select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px;
+    background:#fff;
+    color:var(--ink);
+    font-weight:650;
+  }
+  .control{
+    padding:11px 0;
+    border-top:1px solid #eef2f7;
+  }
+  .control:first-child{border-top:0;}
+  .control label{display:flex;justify-content:space-between;gap:12px;font-size:.93rem;font-weight:700;margin-bottom:6px;}
+  .control span{color:var(--accent);font-variant-numeric:tabular-nums;}
+  input[type="range"]{width:100%;accent-color:var(--accent);}
+  .small{font-size:.86rem;color:var(--muted);line-height:1.42;margin-top:4px;}
+  .stage{padding:14px;overflow:hidden;}
+  svg{width:100%;height:auto;display:block;background:#fbfdff;border-radius:16px;border:1px solid #e5e7eb;}
+  .notes{padding:16px;margin-top:18px;}
+  .verdict{
+    display:flex;align-items:flex-start;gap:10px;
+    border-radius:16px;padding:14px;margin-bottom:14px;border:1px solid;
+  }
+  .verdict.good{background:var(--soft-green);border-color:#a7f3d0;}
+  .verdict.bad{background:var(--soft-red);border-color:#fecaca;}
+  .verdict.warn{background:#fffbeb;border-color:#fde68a;}
+  .badge{
+    min-width:30px;height:30px;border-radius:999px;display:grid;place-items:center;
+    font-weight:900;color:white;background:var(--good);font-size:.9rem;
+  }
+  .bad .badge{background:var(--accent2)}
+  .warn .badge{background:var(--warn)}
+  .verdict h2{font-size:1.05rem;margin:0 0 4px;}
+  .verdict p{margin:0;color:#374151;line-height:1.45;}
+  .mathcards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+  @media(max-width:700px){.mathcards{grid-template-columns:1fr}}
+  .mathcard{background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:12px;}
+  .mathcard strong{display:block;margin-bottom:5px;}
+  .prompt{background:var(--soft);border:1px solid #bfdbfe;border-radius:16px;padding:14px;line-height:1.5;margin-top:12px;}
+  .prompt strong{color:#1d4ed8;}
+  .key{display:flex;gap:12px;flex-wrap:wrap;margin:9px 0 0;color:var(--muted);font-size:.88rem;}
+  .key span{display:flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:14px;border-radius:4px;display:inline-block;}
+  .blue{background:rgba(37,99,235,.3);border:2px solid #2563eb}.red{background:rgba(220,38,38,.23);border:2px solid #dc2626}.green{background:rgba(4,120,87,.22);border:2px solid #047857}
+  .mini{font-size:.82rem;color:#6b7280;margin-top:10px;line-height:1.45;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Triangle Similarity Explorer</h1>
+    <p class="lead">Explore why <strong>SSS</strong>, <strong>SAS</strong>, and <strong>AAS / AA</strong> are enough to prove triangles are similar. Then test cases where the information is <strong>not enough</strong>. The aim is to see what is fixed, and what can still change.</p>
+  </header>
+
+  <div class="grid">
+    <aside class="panel">
+      <div class="tabs">
+        <button class="tab active" data-mode="sss">SSS</button>
+        <button class="tab" data-mode="sas">SAS</button>
+        <button class="tab" data-mode="aas">AAS / AA</button>
+        <button class="tab" data-mode="fail">Not enough</button>
+      </div>
+      <div id="subcaseBox" class="subcase" style="display:none">
+        <select id="subcase">
+          <option value="twosides">Two proportional sides only</option>
+          <option value="ssa">SSA: two sides + non-included angle</option>
+          <option value="oneangle">One equal angle only</option>
+        </select>
+      </div>
+      <div id="controls"></div>
+      <div class="mini">Tip: In the “Not enough” tab, try to keep the given information the same while changing the shape. That creates a counterexample.</div>
+    </aside>
+
+    <main>
+      <section class="stage">
+        <svg id="svg" viewBox="0 0 900 500" role="img" aria-label="Interactive triangle similarity diagram"></svg>
+        <div class="key">
+          <span><i class="swatch blue"></i> Triangle 1</span>
+          <span><i class="swatch red"></i> Triangle 2</span>
+          <span><i class="swatch green"></i> resized / overlaid check</span>
+        </div>
+      </section>
+      <section class="notes" id="notes"></section>
+    </main>
+  </div>
+</div>
+
+<script>
+const state = {
+  mode:'sss',
+  subcase:'twosides',
+  sss:{a:5,b:6,c:7,k:1.45},
+  sas:{s1:5,s2:7,ang:58,k:1.55},
+  aas:{A:52,B:68,size1:5,size2:8.2},
+  fail:{
+    twosides:{s1:5,s2:7,ang1:42,ang2:84,k:1.55},
+    ssa:{base:7,opp:5,ang:38},
+    oneangle:{ang:56,s1:5,s2:8,s3:7}
+  }
+};
+
+const svg = document.getElementById('svg');
+const controls = document.getElementById('controls');
+const notes = document.getElementById('notes');
+const subcaseBox = document.getElementById('subcaseBox');
+const subcaseSelect = document.getElementById('subcase');
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.mode = btn.dataset.mode;
+    render();
+  });
+});
+subcaseSelect.addEventListener('change',()=>{state.subcase=subcaseSelect.value;render();});
+
+function rad(d){return d*Math.PI/180;}
+function deg(r){return r*180/Math.PI;}
+function dist(P,Q){return Math.hypot(P.x-Q.x,P.y-Q.y);}
+function fmt(n){return Number(n).toFixed(Math.abs(n)<10?2:1).replace(/\.00$/,'');}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+
+function triangleFromSides(a,b,c){
+  // side a = BC, b = CA, c = AB
+  const x = (b*b + c*c - a*a)/(2*c);
+  const y2 = b*b - x*x;
+  if(y2<=0) return null;
+  return [{x:0,y:0,label:'A'}, {x:c,y:0,label:'B'}, {x:x,y:Math.sqrt(y2),label:'C'}];
+}
+function triangleFromSAS(s1,s2,angleDeg){
+  const t = rad(angleDeg);
+  return [{x:0,y:0,label:'A'}, {x:s1,y:0,label:'B'}, {x:s2*Math.cos(t),y:s2*Math.sin(t),label:'C'}];
+}
+function triangleFromAngles(Adeg,Bdeg,size){
+  const Cdeg = 180-Adeg-Bdeg;
+  const c = size; // AB
+  const b = c*Math.sin(rad(Bdeg))/Math.sin(rad(Cdeg));
+  const x = b*Math.cos(rad(Adeg));
+  const y = b*Math.sin(rad(Adeg));
+  return [{x:0,y:0,label:'A'}, {x:c,y:0,label:'B'}, {x,y,label:'C'}];
+}
+function anglesOf(pts){
+  const [A,B,C]=pts;
+  const a=dist(B,C), b=dist(C,A), c=dist(A,B);
+  const angleA = deg(Math.acos(clamp((b*b+c*c-a*a)/(2*b*c),-1,1)));
+  const angleB = deg(Math.acos(clamp((a*a+c*c-b*b)/(2*a*c),-1,1)));
+  const angleC = 180-angleA-angleB;
+  return [angleA,angleB,angleC];
+}
+function sideLengths(pts){
+  const [A,B,C]=pts;
+  return [dist(B,C),dist(C,A),dist(A,B)];
+}
+function normalize(pts,cx,cy,w,h){
+  const minX=Math.min(...pts.map(p=>p.x)), maxX=Math.max(...pts.map(p=>p.x));
+  const minY=Math.min(...pts.map(p=>p.y)), maxY=Math.max(...pts.map(p=>p.y));
+  const bw=maxX-minX || 1, bh=maxY-minY || 1;
+  const s = Math.min(w/bw,h/bh);
+  const midX=(minX+maxX)/2, midY=(minY+maxY)/2;
+  return pts.map(p=>({x:cx+(p.x-midX)*s, y:cy-(p.y-midY)*s, label:p.label}));
+}
+function alignToFirst(pts, basePts, cx, cy, w, h){
+  // Normalize a triangle then place it in the same pane. Used for overlay checks.
+  const n1 = normalize(basePts,cx,cy,w,h);
+  const sides1 = sideLengths(basePts), sides2=sideLengths(pts);
+  const scale = sides1[2]/sides2[2]; // match AB
+  const A2=pts[0], B2=pts[1];
+  const angle2=Math.atan2(B2.y-A2.y,B2.x-A2.x);
+  const A1=basePts[0], B1=basePts[1];
+  const angle1=Math.atan2(B1.y-A1.y,B1.x-A1.x);
+  const rot=angle1-angle2;
+  const transformed = pts.map(p=>{
+    const x=(p.x-A2.x)*scale, y=(p.y-A2.y)*scale;
+    return {x:x*Math.cos(rot)-y*Math.sin(rot)+A1.x, y:x*Math.sin(rot)+y*Math.cos(rot)+A1.y, label:p.label};
+  });
+  const all = basePts.concat(transformed);
+  const minX=Math.min(...all.map(p=>p.x)), maxX=Math.max(...all.map(p=>p.x));
+  const minY=Math.min(...all.map(p=>p.y)), maxY=Math.max(...all.map(p=>p.y));
+  const s = Math.min(w/(maxX-minX||1),h/(maxY-minY||1));
+  const midX=(minX+maxX)/2, midY=(minY+maxY)/2;
+  const map=p=>({x:cx+(p.x-midX)*s, y:cy-(p.y-midY)*s, label:p.label});
+  return {base:basePts.map(map), other:transformed.map(map)};
+}
+function polygonPoints(pts){return pts.map(p=>`${p.x},${p.y}`).join(' ');}
+function labelText(pts, color){
+  return pts.map(p=>`<text x="${p.x+7}" y="${p.y-7}" font-size="15" font-weight="800" fill="${color}">${p.label}</text>`).join('');
+}
+function drawTriangle(pts,color,fill,id,extra=''){
+  return `<polygon id="${id}" points="${polygonPoints(pts)}" fill="${fill}" stroke="${color}" stroke-width="3" stroke-linejoin="round" />`+
+  pts.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${color}" />`).join('')+
+  labelText(pts,color)+extra;
+}
+function sideLabels(pts, labels, color){
+  const pairs=[[1,2],[2,0],[0,1]];
+  return pairs.map((pair,i)=>{
+    const P=pts[pair[0]], Q=pts[pair[1]];
+    return `<text x="${(P.x+Q.x)/2}" y="${(P.y+Q.y)/2-6}" text-anchor="middle" font-size="13" font-weight="750" fill="${color}">${labels[i]}</text>`;
+  }).join('');
+}
+function paneTitle(x,text){return `<text x="${x}" y="36" text-anchor="middle" font-size="18" font-weight="900" fill="#111827">${text}</text>`;}
+function paneSubtitle(x,text,y=58){return `<text x="${x}" y="${y}" text-anchor="middle" font-size="13" fill="#6b7280">${text}</text>`;}
+function drawAngleArc(pts,vertexIndex,label,color){
+  const V=pts[vertexIndex];
+  const i1=(vertexIndex+1)%3, i2=(vertexIndex+2)%3;
+  const P=pts[i1], Q=pts[i2];
+  const a1=Math.atan2(P.y-V.y,P.x-V.x), a2=Math.atan2(Q.y-V.y,Q.x-V.x);
+  const r=30;
+  let start=a1, end=a2;
+  let diff=end-start;
+  while(diff<0) diff+=Math.PI*2;
+  if(diff>Math.PI){ const tmp=start; start=end; end=tmp; diff=Math.PI*2-diff; }
+  const S={x:V.x+r*Math.cos(start), y:V.y+r*Math.sin(start)};
+  const E={x:V.x+r*Math.cos(end), y:V.y+r*Math.sin(end)};
+  const large=diff>Math.PI?1:0;
+  const mid=(start+diff/2);
+  return `<path d="M ${S.x} ${S.y} A ${r} ${r} 0 ${large} 1 ${E.x} ${E.y}" fill="none" stroke="${color}" stroke-width="3" />
+          <text x="${V.x+(r+18)*Math.cos(mid)}" y="${V.y+(r+18)*Math.sin(mid)}" text-anchor="middle" font-size="13" font-weight="800" fill="${color}">${label}</text>`;
+}
+function setupControls(list){
+  controls.innerHTML = list.map(item=>{
+    return `<div class="control">
+      <label for="${item.id}"><span style="color:#111827">${item.label}</span><span id="${item.id}Val"></span></label>
+      <input id="${item.id}" type="range" min="${item.min}" max="${item.max}" step="${item.step||1}" value="${item.value}">
+      ${item.help?`<div class="small">${item.help}</div>`:''}
+    </div>`;
+  }).join('');
+  list.forEach(item=>{
+    const input=document.getElementById(item.id);
+    const val=document.getElementById(item.id+'Val');
+    const updateLabel=()=>{val.textContent = (item.suffix? input.value+item.suffix : input.value);};
+    updateLabel();
+    input.addEventListener('input',()=>{
+      item.on(Number(input.value));
+      updateLabel();
+      drawOnly();
+    });
+  });
+}
+function setSVG(content){
+  svg.innerHTML = `<rect x="0" y="0" width="900" height="500" fill="#fbfdff"/>
+  <line x1="300" y1="70" x2="300" y2="465" stroke="#e5e7eb" stroke-dasharray="6 6"/>
+  <line x1="600" y1="70" x2="600" y2="465" stroke="#e5e7eb" stroke-dasharray="6 6"/>` + content;
+}
+function ratioCards(pts1,pts2){
+  const s1=sideLengths(pts1), s2=sideLengths(pts2);
+  const r=s2.map((x,i)=>x/s1[i]);
+  const a1=anglesOf(pts1), a2=anglesOf(pts2);
+  return {s1,s2,r,a1,a2};
+}
+function makeCards(html){return `<div class="mathcards">${html}</div>`;}
+function setNotes(type,title,body,cards,prompt){
+  notes.innerHTML = `<div class="verdict ${type}"><div class="badge">${type==='good'?'✓':type==='bad'?'✕':'?'}</div><div><h2>${title}</h2><p>${body}</p></div></div>${cards||''}<div class="prompt"><strong>Student prompt:</strong> ${prompt}</div>`;
+}
+
+function drawSSS(){
+  const v=state.sss;
+  const valid = v.a+v.b>v.c && v.a+v.c>v.b && v.b+v.c>v.a;
+  if(!valid){
+    setSVG(`<text x="450" y="250" text-anchor="middle" font-size="24" font-weight="900" fill="#b45309">These side lengths do not make a triangle.</text>`);
+    setNotes('warn','Triangle inequality problem','For three sides to make a triangle, the two shorter sides must add to more than the longest side.','','Adjust the side sliders until a real triangle appears.');
+    return;
+  }
+  const T1=triangleFromSides(v.a,v.b,v.c);
+  const T2=triangleFromSides(v.a*v.k,v.b*v.k,v.c*v.k);
+  const n1=normalize(T1,150,265,210,250), n2=normalize(T2,450,265,210,250);
+  const overlay=alignToFirst(T2,T1,750,265,220,250);
+  const data=ratioCards(T1,T2);
+  setSVG(
+    paneTitle(150,'Triangle 1')+paneSubtitle(150,'sides a, b, c')+
+    paneTitle(450,'Triangle 2')+paneSubtitle(450,'all sides scaled by k')+
+    paneTitle(750,'Resize and overlay')+paneSubtitle(750,'Do the shapes match?')+
+    drawTriangle(n1,'#2563eb','rgba(37,99,235,.18)','t1',sideLabels(n1,[`a=${fmt(v.a)}`,`b=${fmt(v.b)}`,`c=${fmt(v.c)}`],'#1d4ed8'))+
+    drawTriangle(n2,'#dc2626','rgba(220,38,38,.13)','t2',sideLabels(n2,[`ka=${fmt(v.a*v.k)}`,`kb=${fmt(v.b*v.k)}`,`kc=${fmt(v.c*v.k)}`],'#b91c1c'))+
+    drawTriangle(overlay.base,'#2563eb','rgba(37,99,235,.14)','o1')+
+    drawTriangle(overlay.other,'#047857','rgba(4,120,87,.14)','o2')+
+    `<text x="750" y="455" text-anchor="middle" font-size="15" font-weight="800" fill="#047857">The resized copy lands on top.</text>`
+  );
+  setNotes('good','SSS proves similarity',
+    'If all three corresponding side ratios are equal, the triangle is forced to have the same shape. It can only be a resized copy.',
+    makeCards(`
+      <div class="mathcard"><strong>Side ratios</strong>a₂/a₁ = ${fmt(data.r[0])}<br>b₂/b₁ = ${fmt(data.r[1])}<br>c₂/c₁ = ${fmt(data.r[2])}</div>
+      <div class="mathcard"><strong>Angle check</strong>A ≈ ${fmt(data.a1[0])}° and ${fmt(data.a2[0])}°<br>B ≈ ${fmt(data.a1[1])}° and ${fmt(data.a2[1])}°<br>C ≈ ${fmt(data.a1[2])}° and ${fmt(data.a2[2])}°</div>
+      <div class="mathcard"><strong>Conclusion</strong>All side ratios match, so the triangles are similar.</div>`),
+    'Move the scale factor. Which measurements change? Which measurements stay the same?'
+  );
+}
+function drawSAS(){
+  const v=state.sas;
+  const T1=triangleFromSAS(v.s1,v.s2,v.ang);
+  const T2=triangleFromSAS(v.s1*v.k,v.s2*v.k,v.ang);
+  const n1=normalize(T1,150,265,210,250), n2=normalize(T2,450,265,210,250);
+  const overlay=alignToFirst(T2,T1,750,265,220,250);
+  const data=ratioCards(T1,T2);
+  setSVG(
+    paneTitle(150,'Triangle 1')+paneSubtitle(150,'two sides and included angle')+
+    paneTitle(450,'Triangle 2')+paneSubtitle(450,'same included angle, scaled sides')+
+    paneTitle(750,'Resize and overlay')+paneSubtitle(750,'Do the shapes match?')+
+    drawTriangle(n1,'#2563eb','rgba(37,99,235,.18)','t1',sideLabels(n1,[fmt(data.s1[0]),fmt(data.s1[1]),fmt(data.s1[2])],'#1d4ed8')+drawAngleArc(n1,0,`${v.ang}°`,'#2563eb'))+
+    drawTriangle(n2,'#dc2626','rgba(220,38,38,.13)','t2',sideLabels(n2,[fmt(data.s2[0]),fmt(data.s2[1]),fmt(data.s2[2])],'#b91c1c')+drawAngleArc(n2,0,`${v.ang}°`,'#dc2626'))+
+    drawTriangle(overlay.base,'#2563eb','rgba(37,99,235,.14)','o1')+
+    drawTriangle(overlay.other,'#047857','rgba(4,120,87,.14)','o2')+
+    `<text x="750" y="455" text-anchor="middle" font-size="15" font-weight="800" fill="#047857">The included angle locks the shape.</text>`
+  );
+  setNotes('good','SAS proves similarity',
+    'Two pairs of corresponding sides are proportional, and the included angle is equal. The included angle stops the triangle from opening wider or closing narrower.',
+    makeCards(`
+      <div class="mathcard"><strong>Side ratios</strong>s₂/s₁ = ${fmt(v.k)}<br>t₂/t₁ = ${fmt(v.k)}</div>
+      <div class="mathcard"><strong>Included angle</strong>${v.ang}° = ${v.ang}°</div>
+      <div class="mathcard"><strong>Conclusion</strong>Two proportional sides + equal included angle → similar.</div>`),
+    'Change the included angle. Why does this change the whole triangle even when the two side lengths are fixed?'
+  );
+}
+function drawAAS(){
+  const v=state.aas;
+  const maxB=175-v.A;
+  if(v.B>=maxB){v.B=maxB-1;}
+  const T1=triangleFromAngles(v.A,v.B,v.size1);
+  const T2=triangleFromAngles(v.A,v.B,v.size2);
+  const n1=normalize(T1,150,265,210,250), n2=normalize(T2,450,265,210,250);
+  const overlay=alignToFirst(T2,T1,750,265,220,250);
+  const C=180-v.A-v.B;
+  setSVG(
+    paneTitle(150,'Triangle 1')+paneSubtitle(150,'two angles known')+
+    paneTitle(450,'Triangle 2')+paneSubtitle(450,'same two angles, different size')+
+    paneTitle(750,'Resize and overlay')+paneSubtitle(750,'Do the shapes match?')+
+    drawTriangle(n1,'#2563eb','rgba(37,99,235,.18)','t1',drawAngleArc(n1,0,`${v.A}°`,'#2563eb')+drawAngleArc(n1,1,`${v.B}°`,'#2563eb'))+
+    drawTriangle(n2,'#dc2626','rgba(220,38,38,.13)','t2',drawAngleArc(n2,0,`${v.A}°`,'#dc2626')+drawAngleArc(n2,1,`${v.B}°`,'#dc2626'))+
+    drawTriangle(overlay.base,'#2563eb','rgba(37,99,235,.14)','o1')+
+    drawTriangle(overlay.other,'#047857','rgba(4,120,87,.14)','o2')+
+    `<text x="750" y="455" text-anchor="middle" font-size="15" font-weight="800" fill="#047857">Two angles force the third angle.</text>`
+  );
+  setNotes('good','AAS / AA proves similarity',
+    'For similarity, two equal angles are enough. The third angle must also match because the angles in a triangle add to 180°. The side in AAS only decides the size.',
+    makeCards(`
+      <div class="mathcard"><strong>Known angles</strong>A = ${v.A}°<br>B = ${v.B}°</div>
+      <div class="mathcard"><strong>Forced angle</strong>C = 180° − ${v.A}° − ${v.B}° = ${fmt(C)}°</div>
+      <div class="mathcard"><strong>Conclusion</strong>Same angles → same shape → similar.</div>`),
+    'Change the size slider. Why does the triangle grow or shrink but keep the same shape?'
+  );
+}
+function drawFailTwoSides(){
+  const v=state.fail.twosides;
+  const T1=triangleFromSAS(v.s1,v.s2,v.ang1);
+  const T2=triangleFromSAS(v.s1*v.k,v.s2*v.k,v.ang2);
+  const n1=normalize(T1,150,265,210,250), n2=normalize(T2,450,265,210,250);
+  const overlay=alignToFirst(T2,T1,750,265,220,250);
+  setSVG(
+    paneTitle(150,'Triangle 1')+paneSubtitle(150,'two sides: 5 and 7')+
+    paneTitle(450,'Triangle 2')+paneSubtitle(450,'two sides in same ratio')+
+    paneTitle(750,'Resize and overlay')+paneSubtitle(750,'The shapes do not have to match')+
+    drawTriangle(n1,'#2563eb','rgba(37,99,235,.18)','t1',drawAngleArc(n1,0,`${v.ang1}°`,'#2563eb')+sideLabels(n1,['','7','5'],'#1d4ed8'))+
+    drawTriangle(n2,'#dc2626','rgba(220,38,38,.13)','t2',drawAngleArc(n2,0,`${v.ang2}°`,'#dc2626')+sideLabels(n2,['',`${fmt(7*v.k)}`,`${fmt(5*v.k)}`],'#b91c1c'))+
+    drawTriangle(overlay.base,'#2563eb','rgba(37,99,235,.10)','o1')+
+    drawTriangle(overlay.other,'#dc2626','rgba(220,38,38,.10)','o2')+
+    `<text x="750" y="455" text-anchor="middle" font-size="15" font-weight="800" fill="#dc2626">Same two side ratios, different included angle.</text>`
+  );
+  setNotes('bad','Two proportional sides are not enough',
+    'The missing angle can change. So many different triangle shapes can share two proportional sides.',
+    makeCards(`
+      <div class="mathcard"><strong>Given information</strong>Two sides are in the same ratio.</div>
+      <div class="mathcard"><strong>What can still change?</strong>The included angle can open or close.</div>
+      <div class="mathcard"><strong>Conclusion</strong>Not enough to prove similarity.</div>`),
+    'Move Triangle 2’s angle. Can you make a clear counterexample where the two side ratios match but the triangles are not the same shape?'
+  );
+}
+function drawFailSSA(){
+  const v=state.fail.ssa;
+  const A={x:0,y:0,label:'A'}, B={x:v.base,y:0,label:'B'};
+  const theta=rad(v.ang), a=v.opp, c=v.base;
+  const D = a*a - c*c*Math.sin(theta)*Math.sin(theta);
+  if(D<=0){
+    setSVG(`<text x="450" y="250" text-anchor="middle" font-size="22" font-weight="900" fill="#b45309">No second triangle for these SSA values.</text>`);
+    setNotes('warn','SSA can be messy','Depending on the lengths and angle, SSA can create zero, one, or two triangles. That is exactly why it is not a clean similarity test.','','Adjust the side or angle until two possible triangles appear.');
+    return;
+  }
+  const t1 = c*Math.cos(theta) - Math.sqrt(D);
+  const t2 = c*Math.cos(theta) + Math.sqrt(D);
+  const C1={x:t1*Math.cos(theta),y:t1*Math.sin(theta),label:'C'};
+  const C2={x:t2*Math.cos(theta),y:t2*Math.sin(theta),label:'C'};
+  const T1=[A,B,C1], T2=[A,B,C2];
+  const n1=normalize(T1,150,265,210,250), n2=normalize(T2,450,265,210,250);
+  const overlay=alignToFirst(T2,T1,750,265,220,250);
+  setSVG(
+    paneTitle(150,'Possible triangle 1')+paneSubtitle(150,'same SSA information')+
+    paneTitle(450,'Possible triangle 2')+paneSubtitle(450,'same SSA information')+
+    paneTitle(750,'Resize and overlay')+paneSubtitle(750,'Two different shapes can fit')+
+    drawTriangle(n1,'#2563eb','rgba(37,99,235,.18)','t1',drawAngleArc(n1,0,`${v.ang}°`,'#2563eb')+sideLabels(n1,[`BC=${fmt(v.opp)}`,'',`AB=${fmt(v.base)}`],'#1d4ed8'))+
+    drawTriangle(n2,'#dc2626','rgba(220,38,38,.13)','t2',drawAngleArc(n2,0,`${v.ang}°`,'#dc2626')+sideLabels(n2,[`BC=${fmt(v.opp)}`,'',`AB=${fmt(v.base)}`],'#b91c1c'))+
+    drawTriangle(overlay.base,'#2563eb','rgba(37,99,235,.10)','o1')+
+    drawTriangle(overlay.other,'#dc2626','rgba(220,38,38,.10)','o2')+
+    `<text x="750" y="455" text-anchor="middle" font-size="15" font-weight="800" fill="#dc2626">Same SSA data, two possible shapes.</text>`
+  );
+  setNotes('bad','SSA is not enough',
+    'SSA means two sides and a non-included angle. Sometimes the same information can make two different triangles. So it does not force one shape.',
+    makeCards(`
+      <div class="mathcard"><strong>Given information</strong>AB = ${fmt(v.base)}, BC = ${fmt(v.opp)}, angle A = ${v.ang}°</div>
+      <div class="mathcard"><strong>What changes?</strong>The length AC changes, so the shape changes.</div>
+      <div class="mathcard"><strong>Conclusion</strong>Not enough to prove similarity.</div>`),
+    'The angle and two sides are the same in both diagrams. What is different? Why does that break a similarity proof?'
+  );
+}
+function drawFailOneAngle(){
+  const v=state.fail.oneangle;
+  const T1=triangleFromSAS(v.s1,6,v.ang);
+  const T2=triangleFromSAS(v.s2,v.s3,v.ang);
+  const n1=normalize(T1,150,265,210,250), n2=normalize(T2,450,265,210,250);
+  const overlay=alignToFirst(T2,T1,750,265,220,250);
+  setSVG(
+    paneTitle(150,'Triangle 1')+paneSubtitle(150,'one angle known')+
+    paneTitle(450,'Triangle 2')+paneSubtitle(450,'same one angle')+
+    paneTitle(750,'Resize and overlay')+paneSubtitle(750,'One angle does not lock the shape')+
+    drawTriangle(n1,'#2563eb','rgba(37,99,235,.18)','t1',drawAngleArc(n1,0,`${v.ang}°`,'#2563eb'))+
+    drawTriangle(n2,'#dc2626','rgba(220,38,38,.13)','t2',drawAngleArc(n2,0,`${v.ang}°`,'#dc2626'))+
+    drawTriangle(overlay.base,'#2563eb','rgba(37,99,235,.10)','o1')+
+    drawTriangle(overlay.other,'#dc2626','rgba(220,38,38,.10)','o2')+
+    `<text x="750" y="455" text-anchor="middle" font-size="15" font-weight="800" fill="#dc2626">Many shapes can share one angle.</text>`
+  );
+  setNotes('bad','One equal angle is not enough',
+    'A single angle fixes only one corner. The other two angles can change, so the triangle shape can change.',
+    makeCards(`
+      <div class="mathcard"><strong>Given information</strong>One equal angle.</div>
+      <div class="mathcard"><strong>What can still change?</strong>The other angles and side ratios.</div>
+      <div class="mathcard"><strong>Conclusion</strong>Not enough to prove similarity.</div>`),
+    'Keep the angle the same. Move the side sliders. How many different-looking triangles can you make?'
+  );
+}
+function drawFail(){
+  if(state.subcase==='twosides') drawFailTwoSides();
+  if(state.subcase==='ssa') drawFailSSA();
+  if(state.subcase==='oneangle') drawFailOneAngle();
+}
+
+function drawOnly(){
+  if(state.mode==='sss') drawSSS();
+  if(state.mode==='sas') drawSAS();
+  if(state.mode==='aas') drawAAS();
+  if(state.mode==='fail') drawFail();
+}
+function render(){
+  subcaseBox.style.display = state.mode==='fail' ? 'block' : 'none';
+  if(state.mode==='sss'){
+    const v=state.sss;
+    setupControls([
+      {id:'a',label:'Side a',min:3,max:10,step:.5,value:v.a,on:x=>v.a=x},
+      {id:'b',label:'Side b',min:3,max:10,step:.5,value:v.b,on:x=>v.b=x},
+      {id:'c',label:'Side c',min:3,max:10,step:.5,value:v.c,on:x=>v.c=x},
+      {id:'k',label:'Scale factor k',min:.5,max:2.5,step:.05,value:v.k,on:x=>v.k=x,help:'Triangle 2 uses ka, kb, kc.'}
+    ]);
+  }
+  if(state.mode==='sas'){
+    const v=state.sas;
+    setupControls([
+      {id:'s1',label:'Side 1',min:3,max:10,step:.5,value:v.s1,on:x=>v.s1=x},
+      {id:'s2',label:'Side 2',min:3,max:10,step:.5,value:v.s2,on:x=>v.s2=x},
+      {id:'ang',label:'Included angle',min:25,max:135,step:1,value:v.ang,suffix:'°',on:x=>v.ang=x},
+      {id:'k',label:'Scale factor k',min:.5,max:2.5,step:.05,value:v.k,on:x=>v.k=x,help:'Both selected sides are multiplied by k.'}
+    ]);
+  }
+  if(state.mode==='aas'){
+    const v=state.aas;
+    setupControls([
+      {id:'A',label:'Angle A',min:25,max:100,step:1,value:v.A,suffix:'°',on:x=>{v.A=x;if(v.A+v.B>170)v.B=170-v.A;}},
+      {id:'B',label:'Angle B',min:25,max:100,step:1,value:v.B,suffix:'°',on:x=>{v.B=x;if(v.A+v.B>170)v.B=170-v.A;}},
+      {id:'size1',label:'Triangle 1 size',min:3,max:8,step:.2,value:v.size1,on:x=>v.size1=x},
+      {id:'size2',label:'Triangle 2 size',min:3,max:11,step:.2,value:v.size2,on:x=>v.size2=x,help:'Different sizes, but the same two angles.'}
+    ]);
+  }
+  if(state.mode==='fail'){
+    if(state.subcase==='twosides'){
+      const v=state.fail.twosides;
+      setupControls([
+        {id:'ang1',label:'Triangle 1 included angle',min:25,max:130,step:1,value:v.ang1,suffix:'°',on:x=>v.ang1=x},
+        {id:'ang2',label:'Triangle 2 included angle',min:25,max:130,step:1,value:v.ang2,suffix:'°',on:x=>v.ang2=x},
+        {id:'k',label:'Side scale factor',min:.7,max:2.4,step:.05,value:v.k,on:x=>v.k=x,help:'The two chosen side lengths stay proportional.'}
+      ]);
+    }
+    if(state.subcase==='ssa'){
+      const v=state.fail.ssa;
+      setupControls([
+        {id:'base',label:'Given side AB',min:5,max:10,step:.2,value:v.base,on:x=>v.base=x},
+        {id:'opp',label:'Given side BC',min:3,max:8,step:.2,value:v.opp,on:x=>v.opp=x},
+        {id:'ang',label:'Given angle A',min:20,max:60,step:1,value:v.ang,suffix:'°',on:x=>v.ang=x,help:'This is a non-included angle.'}
+      ]);
+    }
+    if(state.subcase==='oneangle'){
+      const v=state.fail.oneangle;
+      setupControls([
+        {id:'ang',label:'Equal angle',min:25,max:120,step:1,value:v.ang,suffix:'°',on:x=>v.ang=x},
+        {id:'s1',label:'Triangle 1 side',min:3,max:9,step:.2,value:v.s1,on:x=>v.s1=x},
+        {id:'s2',label:'Triangle 2 side 1',min:3,max:10,step:.2,value:v.s2,on:x=>v.s2=x},
+        {id:'s3',label:'Triangle 2 side 2',min:3,max:10,step:.2,value:v.s3,on:x=>v.s3=x}
+      ]);
+    }
+  }
+  drawOnly();
+}
+render();
+</script>
+</body>
+</html>
