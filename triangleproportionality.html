@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triangle Proportionality Discovery Applet</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #2563eb;
+      --accent2: #dc2626;
+      --good: #15803d;
+      --warn: #b45309;
+      --soft: #eff6ff;
+      --soft2: #fff7ed;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e0f2fe, transparent 28%), var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.8rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      max-width: 820px;
+      color: var(--muted);
+      margin: 8px 0 0;
+      font-size: 1.05rem;
+    }
+
+    .layout {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 18px 40px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(209, 213, 219, 0.75);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 18px 20px 10px;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .card-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .card-body { padding: 18px 20px 20px; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0 0;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border 0.15s ease;
+    }
+
+    .tab:hover { transform: translateY(-1px); }
+
+    .tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .applet-area {
+      padding: 16px;
+    }
+
+    .svg-wrap {
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 10px;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .point {
+      cursor: grab;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
+    }
+
+    .point:active { cursor: grabbing; }
+
+    .label {
+      font-weight: 800;
+      font-size: 17px;
+      fill: #111827;
+      paint-order: stroke;
+      stroke: white;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .small-label {
+      font-weight: 700;
+      font-size: 13px;
+      fill: #374151;
+      paint-order: stroke;
+      stroke: white;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .control-row {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+
+    .control-row label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .value-pill {
+      white-space: nowrap;
+      color: var(--accent);
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 1px 9px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--ink);
+      color: white;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.secondary { background: #e5e7eb; color: #111827; }
+    button.blue { background: var(--accent); }
+    button.orange { background: var(--warn); }
+    button.green { background: var(--good); }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 520px) {
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+
+    .metric {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 15px;
+      padding: 11px 12px;
+    }
+
+    .metric .name {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .metric .num {
+      display: block;
+      margin-top: 3px;
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .notice {
+      margin-top: 14px;
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: var(--soft);
+      border: 1px solid #bfdbfe;
+      font-weight: 700;
+    }
+
+    .notice.warning {
+      background: var(--soft2);
+      border-color: #fed7aa;
+    }
+
+    .question-box {
+      margin-bottom: 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .question-box h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .question-box ol {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .question-box li { margin: 7px 0; }
+
+    .student-note {
+      width: 100%;
+      min-height: 86px;
+      resize: vertical;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 12px;
+      font: inherit;
+      background: white;
+    }
+
+    .reveal {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      border-radius: 16px;
+    }
+
+    .reveal.show { display: block; }
+
+    .formula {
+      font-family: "Cambria Math", Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 5px;
+      vertical-align: -1px;
+      background: var(--accent);
+    }
+
+    .legend .red::before { background: var(--accent2); }
+    .legend .green::before { background: var(--good); }
+
+    .tiny { font-size: 0.82rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Triangle Proportionality Discovery</h1>
+    <p class="subtitle">Move points, change ratios, and look for patterns before learning the formal theorems. Your goal is to notice what stays the same.</p>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <div class="card-header">
+        <h2>Interactive diagram</h2>
+        <p id="modeDescription">Explore what happens when a line cuts two sides of a triangle.</p>
+        <div class="tabs" role="tablist" aria-label="Applet modes">
+          <button class="tab active" data-mode="proportional">1. Parallel line inside triangle</button>
+          <button class="tab" data-mode="converse">2. Is it parallel?</button>
+          <button class="tab" data-mode="midsegment">3. Midsegment</button>
+          <button class="tab" data-mode="transversals">4. Three parallel lines</button>
+        </div>
+      </div>
+
+      <div class="applet-area">
+        <div class="svg-wrap">
+          <svg id="canvas" viewBox="0 0 700 500" aria-label="Interactive triangle proportionality diagram">
+            <defs>
+              <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"></path>
+              </marker>
+              <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 Z" fill="#dc2626"></path>
+              </marker>
+            </defs>
+            <g id="svgLayer"></g>
+          </svg>
+        </div>
+        <div class="legend" id="legend"></div>
+
+        <div class="controls" id="controls"></div>
+        <div class="metric-grid" id="metrics"></div>
+        <div class="notice" id="bigIdea"></div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <div class="card-header">
+        <h2>Inquiry questions</h2>
+        <p>Use these before the teacher gives the theorem names.</p>
+      </div>
+      <div class="card-body">
+        <div class="question-box">
+          <h3 id="questionTitle">Notice and wonder</h3>
+          <ol id="questions"></ol>
+        </div>
+
+        <label for="notes"><strong>Student conjecture</strong></label>
+        <p class="tiny">Write a rule using your own words. Try to include the words parallel, ratio, or half.</p>
+        <textarea id="notes" class="student-note" placeholder="I think that when..."></textarea>
+
+        <div class="button-row">
+          <button class="blue" id="copyNotes">Copy my conjecture</button>
+          <button class="secondary" id="clearNotes">Clear</button>
+          <button class="green" id="revealRule">Reveal formal idea</button>
+        </div>
+
+        <div class="reveal" id="formalRule"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const svg = document.getElementById('canvas');
+    const layer = document.getElementById('svgLayer');
+    const controls = document.getElementById('controls');
+    const metrics = document.getElementById('metrics');
+    const bigIdea = document.getElementById('bigIdea');
+    const questions = document.getElementById('questions');
+    const questionTitle = document.getElementById('questionTitle');
+    const formalRule = document.getElementById('formalRule');
+    const modeDescription = document.getElementById('modeDescription');
+    const legend = document.getElementById('legend');
+
+    const state = {
+      mode: 'proportional',
+      t: 0.46,
+      leftT: 0.5,
+      rightT: 0.5,
+      freeE: 0.5,
+      freeD: 0.5,
+      drag: null,
+      tri: {
+        A: { x: 340, y: 65 },
+        B: { x: 115, y: 410 },
+        C: { x: 610, y: 410 }
+      },
+      trans: {
+        a: 0.25,
+        b: 0.55,
+        c: 0.80
+      }
+    };
+
+    const content = {
+      proportional: {
+        desc: 'Move the slider. The inner line stays parallel to the base. Watch the side lengths and ratios.',
+        title: 'Explore: a parallel line cuts two sides',
+        questions: [
+          'When the inner line moves, do AD and DB change by the same fraction as AE and EC?',
+          'Which ratios appear equal? Try AD/DB and AE/EC. Try AB/AD and AC/AE.',
+          'What do you think must be true if a line is parallel to one side of a triangle?'
+        ],
+        rule: '<strong>Triangle Proportionality Theorem:</strong> If a line is parallel to one side of a triangle and intersects the other two sides, then it divides those two sides proportionally. <div class="formula">AD/DB = AE/EC</div>'
+      },
+      converse: {
+        desc: 'Change where the segment meets the two sides. When do the two ratios match? What happens to the segment?',
+        title: 'Explore: can ratios prove parallel lines?',
+        questions: [
+          'Move D and E separately. When are AD/DB and AE/EC equal?',
+          'When the ratios are equal, what do you notice about DE and BC?',
+          'Can equal ratios be used as evidence that two lines are parallel? Explain.'
+        ],
+        rule: '<strong>Converse of Triangle Proportionality:</strong> If a line cuts two sides of a triangle in proportional corresponding segments, then the line is parallel to the third side. <div class="formula">AD/DB = AE/EC ⇒ DE ∥ BC</div>'
+      },
+      midsegment: {
+        desc: 'The segment joins the midpoints of two sides. Compare its length with the third side.',
+        title: 'Explore: midsegments',
+        questions: [
+          'What is special about D and E when both sliders are exactly 0.50?',
+          'Compare DE with BC. What fraction of BC is DE?',
+          'A triangle has three midsegments. What do you predict is true for all three?'
+        ],
+        rule: '<strong>Triangle Midsegment Theorem:</strong> A segment that joins the midpoints of two sides of a triangle is parallel to the third side, and its length is half the length of the third side. <div class="formula">DE ∥ BC and DE = ½BC</div>'
+      },
+      transversals: {
+        desc: 'Three parallel lines are cut by two slanted transversals. Compare the pieces on each transversal.',
+        title: 'Explore: parallel lines and transversals',
+        questions: [
+          'Move the three parallel lines. Compare the top gap and bottom gap on the left transversal.',
+          'Now compare the top gap and bottom gap on the right transversal. Are the ratios the same?',
+          'If the pieces on one transversal are equal, what happens to the pieces on the other transversal?'
+        ],
+        rule: '<strong>Proportional Parts of Parallel Lines:</strong> If three or more parallel lines intersect two transversals, then the parallel lines cut the transversals proportionally. If one transversal is cut into equal parts, the other one is also cut into equal parts.'
+      }
+    };
+
+    function pt(x, y) { return { x, y }; }
+    function mix(P, Q, t) { return pt(P.x + (Q.x - P.x) * t, P.y + (Q.y - P.y) * t); }
+    function dist(P, Q) { return Math.hypot(P.x - Q.x, P.y - Q.y); }
+    function fmt(n) { return Number.isFinite(n) ? n.toFixed(2) : '—'; }
+    function ratio(a, b) { return b === 0 ? NaN : a / b; }
+
+    function clear() {
+      layer.innerHTML = '';
+      controls.innerHTML = '';
+      metrics.innerHTML = '';
+      formalRule.classList.remove('show');
+      formalRule.innerHTML = '';
+    }
+
+    function el(name, attrs = {}, parent = layer) {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
+      parent.appendChild(node);
+      return node;
+    }
+
+    function line(P, Q, attrs = {}) {
+      return el('line', { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, ...attrs });
+    }
+
+    function poly(points, attrs = {}) {
+      return el('polygon', { points: points.map(p => `${p.x},${p.y}`).join(' '), ...attrs });
+    }
+
+    function text(label, P, cls = 'label', dx = 0, dy = 0) {
+      const t = el('text', { x: P.x + dx, y: P.y + dy, class: cls });
+      t.textContent = label;
+      return t;
+    }
+
+    function circle(label, P, key, color = '#2563eb') {
+      const g = el('g', { class: 'point', 'data-key': key });
+      el('circle', { cx: P.x, cy: P.y, r: 9, fill: color, stroke: 'white', 'stroke-width': 3 }, g);
+      text(label, P, 'label', 12, -10);
+      return g;
+    }
+
+    function segmentLabel(name, value) {
+      const div = document.createElement('div');
+      div.className = 'metric';
+      div.innerHTML = `<span class="name">${name}</span><span class="num">${value}</span>`;
+      metrics.appendChild(div);
+    }
+
+    function addSlider(id, label, min, max, step, value, onInput) {
+      const row = document.createElement('div');
+      row.className = 'control-row';
+      row.innerHTML = `
+        <label for="${id}"><span>${label}</span><span class="value-pill" id="${id}Value">${value}</span></label>
+        <input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}">
+      `;
+      controls.appendChild(row);
+      const slider = row.querySelector('input');
+      const pill = row.querySelector(`#${id}Value`);
+      slider.addEventListener('input', () => {
+        pill.textContent = slider.value;
+        onInput(parseFloat(slider.value));
+        render();
+      });
+    }
+
+    function addQuickButtons(items) {
+      const row = document.createElement('div');
+      row.className = 'button-row';
+      items.forEach(item => {
+        const b = document.createElement('button');
+        b.className = item.className || 'secondary';
+        b.textContent = item.text;
+        b.addEventListener('click', () => {
+          item.action();
+          render();
+        });
+        row.appendChild(b);
+      });
+      controls.appendChild(row);
+    }
+
+    function baseTriangle() {
+      const { A, B, C } = state.tri;
+      poly([A, B, C], { fill: '#f8fafc', stroke: '#0f172a', 'stroke-width': 3 });
+      line(B, C, { stroke: '#0f172a', 'stroke-width': 4 });
+      circle('A', A, 'A', '#111827');
+      circle('B', B, 'B', '#111827');
+      circle('C', C, 'C', '#111827');
+      return { A, B, C };
+    }
+
+    function drawParallelMarks(P, Q, color = '#dc2626') {
+      const mid = mix(P, Q, 0.5);
+      const dx = Q.x - P.x;
+      const dy = Q.y - P.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len;
+      const uy = dy / len;
+      const size = 20;
+      line(pt(mid.x - ux * size, mid.y - uy * size), pt(mid.x + ux * size, mid.y + uy * size), {
+        stroke: color,
+        'stroke-width': 4,
+        'marker-start': 'url(#arrowRed)',
+        'marker-end': 'url(#arrowRed)'
+      });
+    }
+
+    function renderProportional() {
+      const { A, B, C } = baseTriangle();
+      const D = mix(A, B, state.t);
+      const E = mix(A, C, state.t);
+      line(D, E, { stroke: '#2563eb', 'stroke-width': 5 });
+      drawParallelMarks(D, E);
+      drawParallelMarks(B, C);
+      circle('D', D, 'D', '#2563eb');
+      circle('E', E, 'E', '#2563eb');
+
+      const AD = dist(A, D), DB = dist(D, B), AE = dist(A, E), EC = dist(E, C);
+      const AB = dist(A, B), AC = dist(A, C), DE = dist(D, E), BC = dist(B, C);
+
+      segmentLabel('AD / DB', `${fmt(AD)} / ${fmt(DB)} = ${fmt(ratio(AD, DB))}`);
+      segmentLabel('AE / EC', `${fmt(AE)} / ${fmt(EC)} = ${fmt(ratio(AE, EC))}`);
+      segmentLabel('AB / AD', `${fmt(AB)} / ${fmt(AD)} = ${fmt(ratio(AB, AD))}`);
+      segmentLabel('AC / AE', `${fmt(AC)} / ${fmt(AE)} = ${fmt(ratio(AC, AE))}`);
+      bigIdea.className = 'notice';
+      bigIdea.innerHTML = `Because <span class="formula">DE ∥ BC</span>, the two sides are split in the same ratio.`;
+      legend.innerHTML = '<span>Inner segment DE</span><span class="red">Parallel marks</span>';
+
+      addSlider('tSlider', 'Position of parallel line', 0.12, 0.88, 0.01, state.t.toFixed(2), v => state.t = v);
+      addQuickButtons([
+        { text: 'Near the top', action: () => state.t = 0.25, className: 'secondary' },
+        { text: 'Middle', action: () => state.t = 0.5, className: 'secondary' },
+        { text: 'Near the base', action: () => state.t = 0.75, className: 'secondary' }
+      ]);
+    }
+
+    function renderConverse() {
+      const { A, B, C } = baseTriangle();
+      const D = mix(A, B, state.leftT);
+      const E = mix(A, C, state.rightT);
+      line(D, E, { stroke: '#2563eb', 'stroke-width': 5 });
+      line(B, C, { stroke: '#dc2626', 'stroke-width': 5, opacity: 0.32 });
+      circle('D', D, 'D', '#2563eb');
+      circle('E', E, 'E', '#2563eb');
+
+      const AD = dist(A, D), DB = dist(D, B), AE = dist(A, E), EC = dist(E, C);
+      const r1 = ratio(AD, DB), r2 = ratio(AE, EC);
+      const close = Math.abs(r1 - r2) < 0.03;
+      const sameT = Math.abs(state.leftT - state.rightT) < 0.015;
+
+      segmentLabel('AD / DB', `${fmt(AD)} / ${fmt(DB)} = ${fmt(r1)}`);
+      segmentLabel('AE / EC', `${fmt(AE)} / ${fmt(EC)} = ${fmt(r2)}`);
+      segmentLabel('Difference between ratios', fmt(Math.abs(r1 - r2)));
+      segmentLabel('Parallel?', close && sameT ? 'Very likely: ratios match' : 'Not yet: ratios do not match');
+
+      bigIdea.className = close && sameT ? 'notice' : 'notice warning';
+      bigIdea.innerHTML = close && sameT
+        ? `The ratios match, so the segment looks parallel to the base. This suggests the converse theorem.`
+        : `Move D and E until <span class="formula">AD/DB = AE/EC</span>. What happens to the angle of DE?`;
+      legend.innerHTML = '<span>Test segment DE</span><span class="red">Base BC</span>';
+
+      addSlider('leftSlider', 'Point D on side AB', 0.12, 0.88, 0.01, state.leftT.toFixed(2), v => state.leftT = v);
+      addSlider('rightSlider', 'Point E on side AC', 0.12, 0.88, 0.01, state.rightT.toFixed(2), v => state.rightT = v);
+      addQuickButtons([
+        { text: 'Make ratios match', action: () => state.rightT = state.leftT, className: 'green' },
+        { text: 'Make a counterexample', action: () => { state.leftT = 0.28; state.rightT = 0.67; }, className: 'orange' }
+      ]);
+    }
+
+    function renderMidsegment() {
+      const { A, B, C } = baseTriangle();
+      const D = mix(A, B, 0.5);
+      const E = mix(A, C, 0.5);
+      const F = mix(B, C, 0.5);
+
+      line(D, E, { stroke: '#2563eb', 'stroke-width': 5 });
+      line(D, F, { stroke: '#15803d', 'stroke-width': 4, opacity: 0.82 });
+      line(E, F, { stroke: '#15803d', 'stroke-width': 4, opacity: 0.82 });
+      drawParallelMarks(D, E);
+      drawParallelMarks(B, C);
+
+      circle('D', D, 'D', '#2563eb');
+      circle('E', E, 'E', '#2563eb');
+      circle('F', F, 'F', '#15803d');
+      text('midpoint', mix(A, D, 0.56), 'small-label', -70, 0);
+      text('midpoint', mix(A, E, 0.56), 'small-label', 18, 0);
+
+      const DE = dist(D, E), BC = dist(B, C), DF = dist(D, F), AC = dist(A, C), EF = dist(E, F), AB = dist(A, B);
+      segmentLabel('DE', fmt(DE));
+      segmentLabel('BC', fmt(BC));
+      segmentLabel('DE / BC', fmt(ratio(DE, BC)));
+      segmentLabel('All three midsegments', `DF/AC = ${fmt(ratio(DF, AC))}, EF/AB = ${fmt(ratio(EF, AB))}`);
+
+      bigIdea.className = 'notice';
+      bigIdea.innerHTML = `A midsegment is parallel to the third side and has half its length: <span class="formula">DE = ½BC</span>.`;
+      legend.innerHTML = '<span>Midsegment DE</span><span class="green">Other midsegments</span><span class="red">Parallel marks</span>';
+
+      const note = document.createElement('div');
+      note.className = 'notice warning';
+      note.innerHTML = 'Challenge: If BC = 24 cm in a problem, how long is DE? If DE = 10 cm, how long is BC?';
+      controls.appendChild(note);
+    }
+
+    function lineIntersectionWithHorizontal(P, Q, y) {
+      const t = (y - P.y) / (Q.y - P.y);
+      return mix(P, Q, t);
+    }
+
+    function renderTransversals() {
+      const leftTop = pt(160, 60), leftBot = pt(245, 430);
+      const rightTop = pt(520, 55), rightBot = pt(455, 430);
+      line(leftTop, leftBot, { stroke: '#0f172a', 'stroke-width': 4 });
+      line(rightTop, rightBot, { stroke: '#0f172a', 'stroke-width': 4 });
+
+      const ys = [state.trans.a, state.trans.b, state.trans.c].map(t => 70 + t * 340).sort((a, b) => a - b);
+      const [y1, y2, y3] = ys;
+
+      const L1 = lineIntersectionWithHorizontal(leftTop, leftBot, y1);
+      const L2 = lineIntersectionWithHorizontal(leftTop, leftBot, y2);
+      const L3 = lineIntersectionWithHorizontal(leftTop, leftBot, y3);
+      const R1 = lineIntersectionWithHorizontal(rightTop, rightBot, y1);
+      const R2 = lineIntersectionWithHorizontal(rightTop, rightBot, y2);
+      const R3 = lineIntersectionWithHorizontal(rightTop, rightBot, y3);
+
+      [y1, y2, y3].forEach((y, i) => {
+        line(pt(70, y), pt(630, y), { stroke: '#2563eb', 'stroke-width': 4 });
+        text(`parallel ${i + 1}`, pt(82, y), 'small-label', 0, -8);
+      });
+
+      [L1, L2, L3, R1, R2, R3].forEach((P, i) => circle('', P, `p${i}`, i < 3 ? '#dc2626' : '#15803d'));
+      text('A', L1, 'label', -28, 4); text('B', L2, 'label', -28, 4); text('C', L3, 'label', -28, 4);
+      text('E', R1, 'label', 18, 4); text('F', R2, 'label', 18, 4); text('G', R3, 'label', 18, 4);
+
+      const AB = dist(L1, L2), BC = dist(L2, L3), EF = dist(R1, R2), FG = dist(R2, R3);
+      const r1 = ratio(AB, BC), r2 = ratio(EF, FG);
+      const equalGaps = Math.abs(r1 - 1) < 0.03 && Math.abs(r2 - 1) < 0.03;
+
+      segmentLabel('AB / BC', `${fmt(AB)} / ${fmt(BC)} = ${fmt(r1)}`);
+      segmentLabel('EF / FG', `${fmt(EF)} / ${fmt(FG)} = ${fmt(r2)}`);
+      segmentLabel('Difference between ratios', fmt(Math.abs(r1 - r2)));
+      segmentLabel('Equal gaps?', equalGaps ? 'Yes, on both transversals' : 'Not equal, but proportional');
+
+      bigIdea.className = 'notice';
+      bigIdea.innerHTML = `Three parallel lines cut two transversals proportionally: <span class="formula">AB/BC = EF/FG</span>.`;
+      legend.innerHTML = '<span>Parallel lines</span><span class="red">Left transversal pieces</span><span class="green">Right transversal pieces</span>';
+
+      addSlider('parallelA', 'Top parallel line', 0.05, 0.55, 0.01, state.trans.a.toFixed(2), v => state.trans.a = v);
+      addSlider('parallelB', 'Middle parallel line', 0.20, 0.78, 0.01, state.trans.b.toFixed(2), v => state.trans.b = v);
+      addSlider('parallelC', 'Bottom parallel line', 0.45, 0.95, 0.01, state.trans.c.toFixed(2), v => state.trans.c = v);
+      addQuickButtons([
+        { text: 'Make equal gaps', action: () => state.trans = { a: 0.20, b: 0.50, c: 0.80 }, className: 'green' },
+        { text: 'Unequal gaps', action: () => state.trans = { a: 0.15, b: 0.40, c: 0.88 }, className: 'secondary' }
+      ]);
+    }
+
+    function updateQuestions() {
+      const c = content[state.mode];
+      modeDescription.textContent = c.desc;
+      questionTitle.textContent = c.title;
+      questions.innerHTML = c.questions.map(q => `<li>${q}</li>`).join('');
+    }
+
+    function render() {
+      clear();
+      updateQuestions();
+      document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === state.mode);
+      });
+      if (state.mode === 'proportional') renderProportional();
+      if (state.mode === 'converse') renderConverse();
+      if (state.mode === 'midsegment') renderMidsegment();
+      if (state.mode === 'transversals') renderTransversals();
+    }
+
+    function svgPoint(evt) {
+      const rect = svg.getBoundingClientRect();
+      const x = (evt.clientX - rect.left) * 700 / rect.width;
+      const y = (evt.clientY - rect.top) * 500 / rect.height;
+      return { x, y };
+    }
+
+    function nearestTOnSegment(P, A, B) {
+      const vx = B.x - A.x, vy = B.y - A.y;
+      const wx = P.x - A.x, wy = P.y - A.y;
+      const denom = vx * vx + vy * vy;
+      const t = denom === 0 ? 0 : (wx * vx + wy * vy) / denom;
+      return Math.max(0.12, Math.min(0.88, t));
+    }
+
+    svg.addEventListener('pointerdown', (evt) => {
+      const target = evt.target.closest('.point');
+      if (!target) return;
+      const key = target.getAttribute('data-key');
+      if (['A', 'B', 'C'].includes(key)) {
+        state.drag = { type: 'vertex', key };
+      } else if (state.mode === 'converse' && key === 'D') {
+        state.drag = { type: 'sidePoint', side: 'left' };
+      } else if (state.mode === 'converse' && key === 'E') {
+        state.drag = { type: 'sidePoint', side: 'right' };
+      } else if (state.mode === 'proportional' && (key === 'D' || key === 'E')) {
+        state.drag = { type: 'parallelPoint' };
+      }
+      svg.setPointerCapture(evt.pointerId);
+    });
+
+    svg.addEventListener('pointermove', (evt) => {
+      if (!state.drag) return;
+      const P = svgPoint(evt);
+      const { A, B, C } = state.tri;
+
+      if (state.drag.type === 'vertex') {
+        const k = state.drag.key;
+        state.tri[k].x = Math.max(45, Math.min(655, P.x));
+        state.tri[k].y = Math.max(45, Math.min(455, P.y));
+      }
+
+      if (state.drag.type === 'sidePoint') {
+        if (state.drag.side === 'left') state.leftT = nearestTOnSegment(P, A, B);
+        if (state.drag.side === 'right') state.rightT = nearestTOnSegment(P, A, C);
+      }
+
+      if (state.drag.type === 'parallelPoint') {
+        const leftT = nearestTOnSegment(P, A, B);
+        const rightT = nearestTOnSegment(P, A, C);
+        state.t = Math.abs(P.x - mix(A, B, leftT).x) < Math.abs(P.x - mix(A, C, rightT).x) ? leftT : rightT;
+      }
+
+      render();
+    });
+
+    svg.addEventListener('pointerup', () => state.drag = null);
+    svg.addEventListener('pointercancel', () => state.drag = null);
+
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.mode = btn.dataset.mode;
+        render();
+      });
+    });
+
+    document.getElementById('revealRule').addEventListener('click', () => {
+      formalRule.innerHTML = content[state.mode].rule;
+      formalRule.classList.toggle('show');
+    });
+
+    document.getElementById('clearNotes').addEventListener('click', () => {
+      document.getElementById('notes').value = '';
+    });
+
+    document.getElementById('copyNotes').addEventListener('click', async () => {
+      const text = document.getElementById('notes').value.trim();
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        const btn = document.getElementById('copyNotes');
+        const old = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = old, 900);
+      } catch (e) {
+        alert('Copy failed. Select the text and copy it manually.');
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
