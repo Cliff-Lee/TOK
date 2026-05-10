@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Japanese Theorem Explorer</title>
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --card: #fffaf0;
+      --ink: #222;
+      --muted: #6b6258;
+      --accent: #315f72;
+      --accent2: #b46b3c;
+      --line: #d9cdbb;
+      --good: #2c7a4b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #fffdf6 0, var(--bg) 55%, #eee4d4 100%);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 26px 28px 10px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      max-width: 940px;
+      line-height: 1.45;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 28px 34px;
+      display: grid;
+      grid-template-columns: minmax(520px, 1.35fr) minmax(320px, 0.75fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: rgba(255, 250, 240, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 16px 42px rgba(79, 62, 38, 0.13);
+    }
+
+    .stage {
+      padding: 18px;
+      min-height: 620px;
+    }
+
+    svg {
+      width: 100%;
+      height: 600px;
+      display: block;
+      border-radius: 16px;
+      background: #fffdf7;
+      border: 1px solid #eadfcd;
+      touch-action: none;
+    }
+
+    .side {
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.35rem;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    input[type="range"] { width: 100%; }
+
+    select, button {
+      font: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      background: #fffdf8;
+      color: var(--ink);
+    }
+
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      border: none;
+      transition: transform 0.08s ease, filter 0.12s ease;
+    }
+
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: translateY(1px); }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .readout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      padding: 12px;
+      border-radius: 16px;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+    }
+
+    .metric .small {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric .big {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.95rem;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      background: #f7eddd;
+    }
+
+    .question-list {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.45;
+    }
+
+    .question-list li { margin: 8px 0; }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.45;
+      margin: 8px 0 0;
+    }
+
+    .status {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #edf7ef;
+      border: 1px solid #c8e4ce;
+      color: var(--good);
+      line-height: 1.35;
+      font-size: 0.96rem;
+    }
+
+    .svg-label {
+      font-family: Georgia, "Times New Roman", serif;
+      fill: var(--ink);
+      font-size: 18px;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .drag-note {
+      font-size: 14px;
+      fill: var(--muted);
+      pointer-events: none;
+    }
+
+    @media (max-width: 950px) {
+      main { grid-template-columns: 1fr; }
+      .stage { min-height: auto; }
+      svg { height: 520px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Japanese Theorem Explorer</h1>
+    <div class="subtitle">
+      Draw a convex polygon inside one circle. Split it into triangles. Put an incircle inside each triangle.
+      Explore whether the <strong>sum of the small circle radii</strong> changes when the triangulation changes.
+    </div>
+  </header>
+
+  <main>
+    <section class="card stage">
+      <svg id="svg" viewBox="0 0 760 600" aria-label="Interactive cyclic polygon diagram"></svg>
+    </section>
+
+    <aside class="side">
+      <section class="card panel">
+        <h2>Controls</h2>
+        <div class="controls">
+          <label>
+            Number of polygon vertices: <strong><span id="nValue">6</span></strong>
+            <input id="nSlider" type="range" min="4" max="9" value="6" step="1" />
+          </label>
+
+          <label>
+            Triangulation type
+            <select id="modeSelect">
+              <option value="fan">Fan from one vertex</option>
+              <option value="zigzag">Zig-zag triangulation</option>
+              <option value="random">Random triangulation</option>
+            </select>
+          </label>
+
+          <label id="fanControl">
+            Fan starts from vertex: <strong><span id="rootValue">A</span></strong>
+            <input id="rootSlider" type="range" min="0" max="5" value="0" step="1" />
+          </label>
+
+          <div class="button-row">
+            <button id="randomTriBtn">New triangulation</button>
+            <button id="randomPolyBtn">New polygon</button>
+          </div>
+        </div>
+
+        <div class="readout">
+          <div class="metric">
+            <div class="small">Triangles</div>
+            <div class="big" id="triCount">4</div>
+          </div>
+          <div class="metric">
+            <div class="small">Sum of radii</div>
+            <div class="big" id="sumValue">0.000</div>
+          </div>
+        </div>
+        <div id="status" class="status"></div>
+      </section>
+
+      <section class="card panel">
+        <h2>Record the radii</h2>
+        <table>
+          <thead>
+            <tr><th>Triangle</th><th>Radius</th></tr>
+          </thead>
+          <tbody id="radiusTable"></tbody>
+        </table>
+        <p class="hint">Drag a vertex around the big circle. The polygon stays cyclic, so all vertices remain on the same circle.</p>
+      </section>
+
+      <section class="card panel">
+        <h2>Inquiry questions</h2>
+        <ol class="question-list">
+          <li>Change the starting vertex. What stays the same?</li>
+          <li>Try a random triangulation. Is the total different?</li>
+          <li>Move one vertex. What changes? What does not change?</li>
+          <li>Can you explain why each diagonal is counted fairly?</li>
+        </ol>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const svg = document.getElementById('svg');
+    const nSlider = document.getElementById('nSlider');
+    const nValue = document.getElementById('nValue');
+    const rootSlider = document.getElementById('rootSlider');
+    const rootValue = document.getElementById('rootValue');
+    const modeSelect = document.getElementById('modeSelect');
+    const fanControl = document.getElementById('fanControl');
+    const randomTriBtn = document.getElementById('randomTriBtn');
+    const randomPolyBtn = document.getElementById('randomPolyBtn');
+    const triCount = document.getElementById('triCount');
+    const sumValue = document.getElementById('sumValue');
+    const statusBox = document.getElementById('status');
+    const radiusTable = document.getElementById('radiusTable');
+
+    const W = 760;
+    const H = 600;
+    const C = { x: 360, y: 300 };
+    const R = 230;
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+    let n = Number(nSlider.value);
+    let angles = [];
+    let randomTriangulation = null;
+    let draggedIndex = null;
+
+    function rand(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function normaliseAngle(a) {
+      while (a < 0) a += Math.PI * 2;
+      while (a >= Math.PI * 2) a -= Math.PI * 2;
+      return a;
+    }
+
+    function makePolygon(count) {
+      const start = -Math.PI / 2 + rand(-0.18, 0.18);
+      const baseStep = (Math.PI * 2) / count;
+      angles = [];
+      for (let i = 0; i < count; i++) {
+        angles.push(normaliseAngle(start + i * baseStep + rand(-0.18, 0.18)));
+      }
+      angles.sort((a, b) => a - b);
+      randomTriangulation = null;
+    }
+
+    function pointsFromAngles() {
+      return angles.map((a, i) => ({
+        x: C.x + R * Math.cos(a),
+        y: C.y + R * Math.sin(a),
+        angle: a,
+        index: i
+      }));
+    }
+
+    function dist(p, q) {
+      return Math.hypot(p.x - q.x, p.y - q.y);
+    }
+
+    function triangleArea(A, B, Cc) {
+      return Math.abs((A.x * (B.y - Cc.y) + B.x * (Cc.y - A.y) + Cc.x * (A.y - B.y)) / 2);
+    }
+
+    function incircle(A, B, Cc) {
+      const a = dist(B, Cc);
+      const b = dist(Cc, A);
+      const c = dist(A, B);
+      const perimeter = a + b + c;
+      const area = triangleArea(A, B, Cc);
+      const s = perimeter / 2;
+      return {
+        x: (a * A.x + b * B.x + c * Cc.x) / perimeter,
+        y: (a * A.y + b * B.y + c * Cc.y) / perimeter,
+        r: area / s
+      };
+    }
+
+    function triangleName(t) {
+      return t.map(i => letters[i]).join('');
+    }
+
+    function fanTriangulation(count, root) {
+      const tris = [];
+      for (let k = 1; k < count - 1; k++) {
+        tris.push([root, (root + k) % count, (root + k + 1) % count]);
+      }
+      return tris;
+    }
+
+    function zigzagTriangulation(count) {
+      // Ear clipping that alternates from the left and right ends.
+      let verts = Array.from({ length: count }, (_, i) => i);
+      const tris = [];
+      let left = true;
+      while (verts.length > 3) {
+        if (left) {
+          tris.push([verts[0], verts[1], verts[2]]);
+          verts.splice(1, 1);
+        } else {
+          const m = verts.length;
+          tris.push([verts[m - 3], verts[m - 2], verts[m - 1]]);
+          verts.splice(m - 2, 1);
+        }
+        left = !left;
+      }
+      tris.push([verts[0], verts[1], verts[2]]);
+      return tris;
+    }
+
+    function randomEarTriangulation(count) {
+      let verts = Array.from({ length: count }, (_, i) => i);
+      const tris = [];
+      while (verts.length > 3) {
+        const earPosition = Math.floor(Math.random() * verts.length);
+        const prev = verts[(earPosition - 1 + verts.length) % verts.length];
+        const curr = verts[earPosition];
+        const next = verts[(earPosition + 1) % verts.length];
+        tris.push([prev, curr, next]);
+        verts.splice(earPosition, 1);
+      }
+      tris.push([verts[0], verts[1], verts[2]]);
+      return tris;
+    }
+
+    function currentTriangulation() {
+      const mode = modeSelect.value;
+      if (mode === 'fan') return fanTriangulation(n, Number(rootSlider.value));
+      if (mode === 'zigzag') return zigzagTriangulation(n);
+      if (!randomTriangulation) randomTriangulation = randomEarTriangulation(n);
+      return randomTriangulation;
+    }
+
+    function svgEl(name, attrs = {}) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [key, value] of Object.entries(attrs)) {
+        el.setAttribute(key, value);
+      }
+      return el;
+    }
+
+    function polygonPath(points) {
+      return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
+    }
+
+    function draw() {
+      n = Number(nSlider.value);
+      nValue.textContent = n;
+      rootSlider.max = n - 1;
+      if (Number(rootSlider.value) > n - 1) rootSlider.value = 0;
+      rootValue.textContent = letters[Number(rootSlider.value)];
+      fanControl.style.display = modeSelect.value === 'fan' ? 'grid' : 'none';
+
+      const points = pointsFromAngles();
+      const tris = currentTriangulation();
+      const incircles = tris.map(t => incircle(points[t[0]], points[t[1]], points[t[2]]));
+      const total = incircles.reduce((acc, c) => acc + c.r, 0);
+
+      svg.innerHTML = '';
+
+      svg.appendChild(svgEl('text', {
+        x: 24, y: 36, class: 'drag-note'
+      })).textContent = 'Drag the labelled points. Choose different triangulations and compare the total.';
+
+      svg.appendChild(svgEl('circle', {
+        cx: C.x, cy: C.y, r: R,
+        fill: 'none', stroke: '#111', 'stroke-width': 3
+      }));
+
+      const poly = svgEl('path', {
+        d: polygonPath(points),
+        fill: 'rgba(180, 107, 60, 0.05)',
+        stroke: '#111',
+        'stroke-width': 3,
+        'stroke-linejoin': 'round'
+      });
+      svg.appendChild(poly);
+
+      // Draw triangulation diagonals.
+      const edgeSet = new Set();
+      for (let i = 0; i < n; i++) {
+        const a = i;
+        const b = (i + 1) % n;
+        edgeSet.add([Math.min(a, b), Math.max(a, b)].join('-'));
+      }
+      for (const t of tris) {
+        for (let j = 0; j < 3; j++) {
+          const a = t[j];
+          const b = t[(j + 1) % 3];
+          const key = [Math.min(a, b), Math.max(a, b)].join('-');
+          if (!edgeSet.has(key)) {
+            edgeSet.add(key);
+            svg.appendChild(svgEl('line', {
+              x1: points[a].x, y1: points[a].y,
+              x2: points[b].x, y2: points[b].y,
+              stroke: '#111',
+              'stroke-width': 2.5
+            }));
+          }
+        }
+      }
+
+      // Draw incircles.
+      incircles.forEach((circle, i) => {
+        svg.appendChild(svgEl('circle', {
+          cx: circle.x, cy: circle.y, r: circle.r,
+          fill: 'rgba(49, 95, 114, 0.08)',
+          stroke: '#315f72',
+          'stroke-width': 3
+        }));
+
+        svg.appendChild(svgEl('text', {
+          x: circle.x, y: circle.y + 5,
+          'text-anchor': 'middle',
+          class: 'drag-note'
+        })).textContent = `r=${circle.r.toFixed(1)}`;
+      });
+
+      // Draw vertices last.
+      points.forEach((p, i) => {
+        const handle = svgEl('circle', {
+          cx: p.x, cy: p.y, r: 10,
+          fill: '#fffdf8',
+          stroke: '#b46b3c',
+          'stroke-width': 4,
+          'data-index': i,
+          style: 'cursor: grab;'
+        });
+        svg.appendChild(handle);
+
+        const labelAngle = p.angle;
+        const label = svgEl('text', {
+          x: C.x + (R + 28) * Math.cos(labelAngle),
+          y: C.y + (R + 28) * Math.sin(labelAngle) + 6,
+          'text-anchor': 'middle',
+          class: 'svg-label'
+        });
+        label.textContent = letters[i];
+        svg.appendChild(label);
+      });
+
+      triCount.textContent = tris.length;
+      sumValue.textContent = total.toFixed(3);
+
+      radiusTable.innerHTML = '';
+      tris.forEach((t, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${triangleName(t)}</td><td>${incircles[i].r.toFixed(3)}</td>`;
+        radiusTable.appendChild(row);
+      });
+
+      const fanTotals = Array.from({ length: n }, (_, root) => {
+        const fanTris = fanTriangulation(n, root);
+        return fanTris.reduce((acc, t) => acc + incircle(points[t[0]], points[t[1]], points[t[2]]).r, 0);
+      });
+      const maxDiff = Math.max(...fanTotals) - Math.min(...fanTotals);
+      statusBox.innerHTML = `Fan totals from all starting vertices differ by only <strong>${maxDiff.toFixed(6)}</strong>.<br>The tiny difference is just computer rounding.`;
+    }
+
+    function pointFromEvent(evt) {
+      const rect = svg.getBoundingClientRect();
+      return {
+        x: (evt.clientX - rect.left) * W / rect.width,
+        y: (evt.clientY - rect.top) * H / rect.height
+      };
+    }
+
+    function updateDraggedAngle(evt) {
+      if (draggedIndex === null) return;
+      const p = pointFromEvent(evt);
+      let a = Math.atan2(p.y - C.y, p.x - C.x);
+      a = normaliseAngle(a);
+
+      // Keep the vertex between its neighbours, so the polygon stays convex and ordered.
+      const eps = 0.06;
+      const prev = angles[(draggedIndex - 1 + n) % n];
+      const next = angles[(draggedIndex + 1) % n];
+      const current = angles[draggedIndex];
+
+      function unwrapNear(value, reference) {
+        while (value - reference > Math.PI) value -= Math.PI * 2;
+        while (value - reference < -Math.PI) value += Math.PI * 2;
+        return value;
+      }
+
+      let aa = unwrapNear(a, current);
+      let pp = unwrapNear(prev, current);
+      let nn = unwrapNear(next, current);
+      if (draggedIndex === 0 && pp > nn) pp -= Math.PI * 2;
+      if (draggedIndex === n - 1 && nn < pp) nn += Math.PI * 2;
+      if (pp > nn) [pp, nn] = [nn, pp];
+      aa = Math.max(pp + eps, Math.min(nn - eps, aa));
+      angles[draggedIndex] = normaliseAngle(aa);
+      randomTriangulation = null;
+      draw();
+    }
+
+    svg.addEventListener('pointerdown', evt => {
+      const target = evt.target;
+      if (target && target.hasAttribute('data-index')) {
+        draggedIndex = Number(target.getAttribute('data-index'));
+        svg.setPointerCapture(evt.pointerId);
+      }
+    });
+
+    svg.addEventListener('pointermove', evt => updateDraggedAngle(evt));
+
+    svg.addEventListener('pointerup', evt => {
+      draggedIndex = null;
+      try { svg.releasePointerCapture(evt.pointerId); } catch (_) {}
+    });
+
+    svg.addEventListener('pointerleave', () => { draggedIndex = null; });
+
+    nSlider.addEventListener('input', () => {
+      makePolygon(Number(nSlider.value));
+      draw();
+    });
+
+    rootSlider.addEventListener('input', () => draw());
+
+    modeSelect.addEventListener('change', () => {
+      randomTriangulation = null;
+      draw();
+    });
+
+    randomTriBtn.addEventListener('click', () => {
+      randomTriangulation = randomEarTriangulation(n);
+      modeSelect.value = 'random';
+      draw();
+    });
+
+    randomPolyBtn.addEventListener('click', () => {
+      makePolygon(n);
+      draw();
+    });
+
+    makePolygon(n);
+    draw();
+  </script>
+</body>
+</html>
