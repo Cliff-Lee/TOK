@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discovering Trigonometry Through Similar Triangles</title>
+  <style>
+    :root {
+      --bg: #f7f5ef;
+      --card: #ffffff;
+      --ink: #263238;
+      --muted: #63717a;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --grid: #d8d2c3;
+      --soft-blue: #dbeafe;
+      --soft-green: #dcfce7;
+      --soft-orange: #ffedd5;
+      --soft-purple: #ede9fe;
+      --shadow: 0 14px 35px rgba(40, 40, 40, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #fff7ed 0, var(--bg) 34%, #eef2ff 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 22px;
+    }
+
+    .app {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    header {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.85);
+      border-radius: 24px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      letter-spacing: -0.03em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      max-width: 850px;
+      font-size: 1.03rem;
+      line-height: 1.5;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .stage-card { padding: 16px; }
+
+    .stage-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 4px 8px 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .badge {
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .badge.blue { background: var(--soft-blue); color: var(--blue); }
+    .badge.green { background: var(--soft-green); color: var(--green); }
+    .badge.orange { background: var(--soft-orange); color: var(--orange); }
+    .badge.purple { background: var(--soft-purple); color: var(--purple); }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 20px;
+      background:
+        linear-gradient(90deg, rgba(216,210,195,0.45) 1px, transparent 1px),
+        linear-gradient(rgba(216,210,195,0.45) 1px, transparent 1px),
+        #fffaf0;
+      background-size: 30px 30px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .triangle-unit { fill: rgba(37, 99, 235, 0.12); stroke: var(--blue); stroke-width: 3; }
+    .triangle-scaled { fill: rgba(22, 163, 74, 0.12); stroke: var(--green); stroke-width: 4; }
+    .hyp { stroke: var(--purple); stroke-width: 5; }
+    .opp { stroke: var(--orange); stroke-width: 5; }
+    .adj { stroke: var(--blue); stroke-width: 5; }
+    .thin { stroke-width: 2.4; fill: none; }
+    .dash { stroke-dasharray: 8 7; }
+    .label {
+      font-size: 17px;
+      font-weight: 750;
+      fill: var(--ink);
+      paint-order: stroke;
+      stroke: white;
+      stroke-width: 5px;
+      stroke-linejoin: round;
+    }
+    .small-label { font-size: 14px; font-weight: 700; fill: var(--muted); }
+    .handle { cursor: grab; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2)); }
+    .handle:active { cursor: grabbing; }
+
+    .controls {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .control-group {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 9px;
+      font-weight: 800;
+    }
+
+    .control-value {
+      font-variant-numeric: tabular-nums;
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+    }
+
+    .mini-note {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .table-card { padding: 18px; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .ratio-table {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ratio-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+    }
+
+    .ratio-row strong { display: block; font-size: 1rem; }
+    .ratio-row span { display: block; color: var(--muted); font-size: 0.86rem; margin-top: 2px; }
+    .ratio-value {
+      font-size: 1.28rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      min-width: 86px;
+      text-align: right;
+    }
+    .ratio-row.sin { border-left: 7px solid var(--orange); }
+    .ratio-row.cos { border-left: 7px solid var(--blue); }
+    .ratio-row.tan { border-left: 7px solid var(--green); }
+
+    .formula-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: #0f172a;
+      color: white;
+      font-size: 0.96rem;
+      line-height: 1.55;
+    }
+
+    .formula-box code {
+      color: #bfdbfe;
+      font-weight: 800;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .questions {
+      padding: 20px 22px;
+    }
+
+    .questions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .q {
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 14px;
+      min-height: 112px;
+      line-height: 1.42;
+    }
+
+    .q .num {
+      display: inline-flex;
+      width: 28px;
+      height: 28px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      background: var(--soft-blue);
+      color: var(--blue);
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-weight: 850;
+      background: #0f172a;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 7px 18px rgba(15,23,42,0.18);
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .ghost {
+      background: #e2e8f0;
+      color: #0f172a;
+      box-shadow: none;
+    }
+
+    @media (max-width: 920px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .questions-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 12px; }
+      header, .card { border-radius: 18px; }
+      .questions-grid { grid-template-columns: 1fr; }
+      .stage-top { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Discovering Trigonometry Through Similar Triangles</h1>
+      <p class="lead">
+        Keep the angle the same. Resize the right triangle. Watch the side lengths change, but the ratios stay the same.
+        Those constant ratios are called <strong>sin</strong>, <strong>cos</strong>, and <strong>tan</strong>.
+      </p>
+    </header>
+
+    <section class="main-grid">
+      <div class="card stage-card">
+        <div class="stage-top">
+          <div class="badge-row">
+            <span class="badge blue">Blue: unit triangle, hypotenuse = 1</span>
+            <span class="badge green">Green: resized similar triangle</span>
+            <span class="badge purple">Purple: hypotenuse</span>
+          </div>
+          <div class="hint">Drag the green handle, or use the sliders.</div>
+        </div>
+
+        <svg id="svg" viewBox="0 0 920 560" role="img" aria-label="Interactive similar right triangles">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"></path>
+            </marker>
+          </defs>
+
+          <text x="52" y="45" class="label">Original triangle</text>
+          <text x="52" y="70" class="small-label">hypotenuse = 1</text>
+
+          <text x="405" y="45" class="label">Rescaled triangle</text>
+          <text x="405" y="70" class="small-label">same angle, bigger or smaller</text>
+
+          <!-- Unit triangle -->
+          <polygon id="unitTri" class="triangle-unit"></polygon>
+          <line id="unitAdj" class="adj thin"></line>
+          <line id="unitOpp" class="opp thin"></line>
+          <line id="unitHyp" class="hyp thin"></line>
+          <path id="unitAngleArc" fill="none" stroke="#263238" stroke-width="3"></path>
+          <text id="unitTheta" class="label">θ</text>
+          <text id="unitHypLabel" class="label"></text>
+          <text id="unitAdjLabel" class="label"></text>
+          <text id="unitOppLabel" class="label"></text>
+          <path id="unitRightAngle" fill="none" stroke="#263238" stroke-width="3"></path>
+
+          <!-- Scaled triangle -->
+          <polygon id="scaledTri" class="triangle-scaled"></polygon>
+          <line id="scaledAdj" class="adj"></line>
+          <line id="scaledOpp" class="opp"></line>
+          <line id="scaledHyp" class="hyp"></line>
+          <path id="scaledAngleArc" fill="none" stroke="#263238" stroke-width="3"></path>
+          <text id="scaledTheta" class="label">θ</text>
+          <text id="scaledHypLabel" class="label"></text>
+          <text id="scaledAdjLabel" class="label"></text>
+          <text id="scaledOppLabel" class="label"></text>
+          <path id="scaledRightAngle" fill="none" stroke="#263238" stroke-width="3"></path>
+          <circle id="scaleHandle" class="handle" r="13" fill="#16a34a" stroke="white" stroke-width="4"></circle>
+          <text id="dragText" class="small-label">drag</text>
+
+          <!-- Similarity rays -->
+          <line id="rayBase" stroke="#64748b" stroke-width="2" stroke-dasharray="8 8"></line>
+          <line id="rayHyp" stroke="#64748b" stroke-width="2" stroke-dasharray="8 8"></line>
+
+          <!-- Ratio comparison arrows -->
+          <line x1="315" y1="255" x2="380" y2="255" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"></line>
+          <text x="318" y="237" class="small-label">same angle</text>
+          <text x="302" y="280" class="small-label">same ratios</text>
+        </svg>
+      </div>
+
+      <aside class="card">
+        <div class="controls">
+          <div class="control-group">
+            <div class="control-header">
+              <label for="angleSlider">Angle θ</label>
+              <span id="angleValue" class="control-value">35°</span>
+            </div>
+            <input id="angleSlider" type="range" min="15" max="75" value="35" step="1" />
+            <div class="mini-note">Change the angle. The ratios change because the triangle shape changes.</div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-header">
+              <label for="scaleSlider">Resize factor</label>
+              <span id="scaleValue" class="control-value">3.0×</span>
+            </div>
+            <input id="scaleSlider" type="range" min="1.2" max="4.4" value="3" step="0.1" />
+            <div class="mini-note">Resize the triangle. The side lengths change, but the ratios stay constant.</div>
+          </div>
+
+          <div class="button-row">
+            <button id="randomBtn">Try a new triangle</button>
+            <button id="resetBtn" class="ghost">Reset</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <h2>Live ratio check</h2>
+          <div class="ratio-table">
+            <div class="ratio-row sin">
+              <div>
+                <strong>opposite ÷ hypotenuse</strong>
+                <span id="sinWork">—</span>
+              </div>
+              <div id="sinValue" class="ratio-value">—</div>
+            </div>
+            <div class="ratio-row cos">
+              <div>
+                <strong>adjacent ÷ hypotenuse</strong>
+                <span id="cosWork">—</span>
+              </div>
+              <div id="cosValue" class="ratio-value">—</div>
+            </div>
+            <div class="ratio-row tan">
+              <div>
+                <strong>opposite ÷ adjacent</strong>
+                <span id="tanWork">—</span>
+              </div>
+              <div id="tanValue" class="ratio-value">—</div>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            For this angle:<br>
+            <code>sin(θ) = opposite / hypotenuse</code><br>
+            <code>cos(θ) = adjacent / hypotenuse</code><br>
+            <code>tan(θ) = opposite / adjacent</code>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card questions">
+      <h2>Student discovery questions</h2>
+      <div class="questions-grid">
+        <div class="q"><span class="num">1</span><br>Keep θ fixed. Resize the green triangle. Which numbers change?</div>
+        <div class="q"><span class="num">2</span><br>Keep θ fixed. Which ratio values stay the same?</div>
+        <div class="q"><span class="num">3</span><br>Why does the blue triangle with hypotenuse 1 make sine and cosine easier to see?</div>
+        <div class="q"><span class="num">4</span><br>Change θ. What happens to sin, cos, and tan?</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const svg = document.getElementById('svg');
+    const angleSlider = document.getElementById('angleSlider');
+    const scaleSlider = document.getElementById('scaleSlider');
+    const angleValue = document.getElementById('angleValue');
+    const scaleValue = document.getElementById('scaleValue');
+
+    const ids = [
+      'unitTri', 'unitAdj', 'unitOpp', 'unitHyp', 'unitAngleArc', 'unitTheta', 'unitHypLabel', 'unitAdjLabel', 'unitOppLabel', 'unitRightAngle',
+      'scaledTri', 'scaledAdj', 'scaledOpp', 'scaledHyp', 'scaledAngleArc', 'scaledTheta', 'scaledHypLabel', 'scaledAdjLabel', 'scaledOppLabel', 'scaledRightAngle',
+      'scaleHandle', 'dragText', 'rayBase', 'rayHyp', 'sinValue', 'cosValue', 'tanValue', 'sinWork', 'cosWork', 'tanWork'
+    ];
+    const el = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
+
+    const unitOrigin = { x: 80, y: 430 };
+    const scaledOrigin = { x: 410, y: 430 };
+    const unitHypPx = 170;
+    const scaledUnitPx = 80;
+
+    let dragging = false;
+
+    function round3(n) {
+      return Number(n).toFixed(3);
+    }
+
+    function round2(n) {
+      return Number(n).toFixed(2);
+    }
+
+    function line(lineEl, a, b) {
+      lineEl.setAttribute('x1', a.x);
+      lineEl.setAttribute('y1', a.y);
+      lineEl.setAttribute('x2', b.x);
+      lineEl.setAttribute('y2', b.y);
+    }
+
+    function polygon(polyEl, points) {
+      polyEl.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
+    }
+
+    function text(textEl, x, y, value) {
+      textEl.setAttribute('x', x);
+      textEl.setAttribute('y', y);
+      textEl.textContent = value;
+    }
+
+    function midpoint(a, b, dx = 0, dy = 0) {
+      return { x: (a.x + b.x) / 2 + dx, y: (a.y + b.y) / 2 + dy };
+    }
+
+    function angleArc(origin, radius, thetaDeg) {
+      const theta = thetaDeg * Math.PI / 180;
+      const start = { x: origin.x + radius, y: origin.y };
+      const end = { x: origin.x + radius * Math.cos(theta), y: origin.y - radius * Math.sin(theta) };
+      return `M ${start.x} ${start.y} A ${radius} ${radius} 0 0 0 ${end.x} ${end.y}`;
+    }
+
+    function rightAnglePath(rightCorner, size = 24) {
+      return `M ${rightCorner.x - size} ${rightCorner.y} L ${rightCorner.x - size} ${rightCorner.y - size} L ${rightCorner.x} ${rightCorner.y - size}`;
+    }
+
+    function triangleFrom(origin, hypPx, thetaDeg) {
+      const theta = thetaDeg * Math.PI / 180;
+      const adjPx = hypPx * Math.cos(theta);
+      const oppPx = hypPx * Math.sin(theta);
+      const A = origin;
+      const B = { x: origin.x + adjPx, y: origin.y };
+      const C = { x: origin.x + adjPx, y: origin.y - oppPx };
+      return { A, B, C, adjPx, oppPx, hypPx };
+    }
+
+    function drawTriangle(prefix, tri, thetaDeg, labelScale) {
+      polygon(el[`${prefix}Tri`], [tri.A, tri.B, tri.C]);
+      line(el[`${prefix}Adj`], tri.A, tri.B);
+      line(el[`${prefix}Opp`], tri.B, tri.C);
+      line(el[`${prefix}Hyp`], tri.A, tri.C);
+      el[`${prefix}AngleArc`].setAttribute('d', angleArc(tri.A, prefix === 'unit' ? 38 : 48, thetaDeg));
+      el[`${prefix}RightAngle`].setAttribute('d', rightAnglePath(tri.B, prefix === 'unit' ? 18 : 25));
+
+      const thetaPos = {
+        x: tri.A.x + (prefix === 'unit' ? 47 : 60),
+        y: tri.A.y - (prefix === 'unit' ? 12 : 16)
+      };
+      text(el[`${prefix}Theta`], thetaPos.x, thetaPos.y, 'θ');
+
+      const adjLen = labelScale * Math.cos(thetaDeg * Math.PI / 180);
+      const oppLen = labelScale * Math.sin(thetaDeg * Math.PI / 180);
+      const hypLen = labelScale;
+
+      const adjMid = midpoint(tri.A, tri.B, 0, 28);
+      const oppMid = midpoint(tri.B, tri.C, 12, 0);
+      const hypMid = midpoint(tri.A, tri.C, -6, -14);
+
+      text(el[`${prefix}AdjLabel`], adjMid.x - 42, adjMid.y, `adj = ${round2(adjLen)}`);
+      text(el[`${prefix}OppLabel`], oppMid.x, oppMid.y, `opp = ${round2(oppLen)}`);
+      text(el[`${prefix}HypLabel`], hypMid.x - 42, hypMid.y, `hyp = ${round2(hypLen)}`);
+    }
+
+    function update() {
+      const thetaDeg = Number(angleSlider.value);
+      const scale = Number(scaleSlider.value);
+      const theta = thetaDeg * Math.PI / 180;
+
+      const unitTri = triangleFrom(unitOrigin, unitHypPx, thetaDeg);
+      const scaledTri = triangleFrom(scaledOrigin, scaledUnitPx * scale, thetaDeg);
+
+      drawTriangle('unit', unitTri, thetaDeg, 1);
+      drawTriangle('scaled', scaledTri, thetaDeg, scale);
+
+      el.scaleHandle.setAttribute('cx', scaledTri.C.x);
+      el.scaleHandle.setAttribute('cy', scaledTri.C.y);
+      text(el.dragText, scaledTri.C.x + 15, scaledTri.C.y - 15, 'drag to resize');
+
+      line(el.rayBase, scaledOrigin, { x: scaledOrigin.x + scaledUnitPx * 4.7, y: scaledOrigin.y });
+      line(el.rayHyp, scaledOrigin, {
+        x: scaledOrigin.x + scaledUnitPx * 4.7 * Math.cos(theta),
+        y: scaledOrigin.y - scaledUnitPx * 4.7 * Math.sin(theta)
+      });
+
+      const opp = scale * Math.sin(theta);
+      const adj = scale * Math.cos(theta);
+      const hyp = scale;
+      const sin = opp / hyp;
+      const cos = adj / hyp;
+      const tan = opp / adj;
+
+      angleValue.textContent = `${thetaDeg}°`;
+      scaleValue.textContent = `${scale.toFixed(1)}×`;
+
+      el.sinValue.textContent = round3(sin);
+      el.cosValue.textContent = round3(cos);
+      el.tanValue.textContent = round3(tan);
+
+      el.sinWork.textContent = `${round2(opp)} ÷ ${round2(hyp)} = sin(${thetaDeg}°)`;
+      el.cosWork.textContent = `${round2(adj)} ÷ ${round2(hyp)} = cos(${thetaDeg}°)`;
+      el.tanWork.textContent = `${round2(opp)} ÷ ${round2(adj)} = tan(${thetaDeg}°)`;
+    }
+
+    function svgPoint(evt) {
+      const pt = svg.createSVGPoint();
+      const e = evt.touches ? evt.touches[0] : evt;
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function setScaleFromPointer(evt) {
+      const p = svgPoint(evt);
+      const theta = Number(angleSlider.value) * Math.PI / 180;
+      const dx = p.x - scaledOrigin.x;
+      const dy = scaledOrigin.y - p.y;
+      const projection = dx * Math.cos(theta) + dy * Math.sin(theta);
+      const nextScale = Math.max(1.2, Math.min(4.4, projection / scaledUnitPx));
+      scaleSlider.value = nextScale.toFixed(1);
+      update();
+    }
+
+    el.scaleHandle.addEventListener('pointerdown', (evt) => {
+      dragging = true;
+      el.scaleHandle.setPointerCapture(evt.pointerId);
+      setScaleFromPointer(evt);
+    });
+
+    el.scaleHandle.addEventListener('pointermove', (evt) => {
+      if (!dragging) return;
+      setScaleFromPointer(evt);
+    });
+
+    window.addEventListener('pointerup', () => { dragging = false; });
+
+    angleSlider.addEventListener('input', update);
+    scaleSlider.addEventListener('input', update);
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      angleSlider.value = Math.floor(18 + Math.random() * 54);
+      scaleSlider.value = (1.4 + Math.random() * 2.8).toFixed(1);
+      update();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      angleSlider.value = 35;
+      scaleSlider.value = 3;
+      update();
+    });
+
+    update();
+  </script>
+</body>
+</html>
