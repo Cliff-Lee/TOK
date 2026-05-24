@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vector Treasure Hunt 3D</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <script type="module" src="./src/main.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="scene-wrap" aria-label="3D vector treasure hunt">
+        <div id="scene" class="scene"></div>
+        <div class="scene-hud">
+          <div>
+            <p class="eyebrow">Vector Treasure Hunt</p>
+            <h1>Can two movement buttons reach the treasure?</h1>
+          </div>
+          <div class="status-pill" id="status-pill">Checking route...</div>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="Applet controls">
+        <section class="panel-section target-strip">
+          <div>
+            <p class="label">Target T</p>
+            <strong id="target-readout">(18, 16, 10)</strong>
+          </div>
+          <button class="icon-button" id="reset-camera" aria-label="Reset camera" title="Reset camera">⟲</button>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>Mission Mode</h2>
+          </div>
+          <div class="segmented" role="group" aria-label="Mission mode">
+            <button class="segment active" data-mode="3d">3D challenge</button>
+            <button class="segment" data-mode="worksheet">2D worksheet</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>Vector Sets</h2>
+            <button class="text-button" id="randomize">Shuffle</button>
+          </div>
+          <div class="preset-grid" id="preset-grid"></div>
+        </section>
+
+        <section class="panel-section vector-editor">
+          <div class="section-head">
+            <h2>Movement Buttons</h2>
+            <button class="text-button" id="swap">Swap</button>
+          </div>
+          <div class="vector-cards">
+            <div class="vector-card u-card">
+              <span class="vector-name">u</span>
+              <div class="component-row"><label for="ux">x</label><input id="ux" type="number" min="-8" max="8" step="1"></div>
+              <div class="component-row"><label for="uy">y</label><input id="uy" type="number" min="-8" max="8" step="1"></div>
+              <div class="component-row"><label for="uz">z</label><input id="uz" type="number" min="-8" max="8" step="1"></div>
+            </div>
+            <div class="vector-card v-card">
+              <span class="vector-name">v</span>
+              <div class="component-row"><label for="vx">x</label><input id="vx" type="number" min="-8" max="8" step="1"></div>
+              <div class="component-row"><label for="vy">y</label><input id="vy" type="number" min="-8" max="8" step="1"></div>
+              <div class="component-row"><label for="vz">z</label><input id="vz" type="number" min="-8" max="8" step="1"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>Button Presses</h2>
+            <label class="toggle"><input id="allow-negative" type="checkbox"> Backwards boosters</label>
+          </div>
+          <div class="press-control">
+            <label for="m-slider">m presses of u <strong id="m-readout">4</strong></label>
+            <input id="m-slider" type="range" min="0" max="20" value="4">
+          </div>
+          <div class="press-control">
+            <label for="n-slider">n presses of v <strong id="n-readout">6</strong></label>
+            <input id="n-slider" type="range" min="0" max="20" value="6">
+          </div>
+          <div class="action-row">
+            <button class="primary-button" id="animate-route">Launch route</button>
+            <button class="secondary-button" id="auto-solve">Try whole numbers</button>
+          </div>
+        </section>
+
+        <section class="panel-section result-card">
+          <h2>What did the robot discover?</h2>
+          <div class="equation" id="equation"></div>
+          <div class="answer" id="answer"></div>
+        </section>
+
+        <section class="panel-section discovery">
+          <details open>
+            <summary>Hint 1: Coordinates must match</summary>
+            <p>Each button changes x, y, and z at the same time. To land on the treasure, all three coordinates must match the target together.</p>
+          </details>
+          <details>
+            <summary>Hint 2: Two vectors in 3D make a plane</summary>
+            <p>If u and v are not parallel, their combinations make a flat sheet through base camp. A target outside that sheet cannot be reached, even with decimal button presses.</p>
+          </details>
+          <details>
+            <summary>Hint 3: Whole numbers are stricter</summary>
+            <p>A decimal solution means the arrows point to the right place, but the robot still fails the mission if it needs half a button press.</p>
+          </details>
+        </section>
+      </aside>
+    </main>
+  </body>
+</html>

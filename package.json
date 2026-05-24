@@ -1,0 +1,11 @@
+{
+  "name": "vector-treasure-hunt-3d",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
