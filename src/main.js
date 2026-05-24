@@ -87,10 +87,10 @@ sceneEl.append(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101820);
-scene.fog = new THREE.Fog(0x101820, 260, 720);
+scene.fog = new THREE.Fog(0x101820, 720, 1600);
 
-const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 200);
-camera.position.set(36, 32, 42);
+const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 2000);
+camera.position.set(28, 22, 58);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(8, 6, 3);
@@ -129,12 +129,11 @@ const axes = makeAxes();
 root.add(axes);
 
 function vec(arr) {
-  const displayY = state.mode === "worksheet" ? -arr[1] : arr[1];
-  return new THREE.Vector3(arr[0], arr[2], displayY);
+  return new THREE.Vector3(arr[0], arr[1], arr[2]);
 }
 
 function fromSceneVec(v) {
-  return [v.x, v.z, v.y];
+  return [v.x, v.y, v.z];
 }
 
 function add(a, b) {
@@ -217,25 +216,74 @@ function makeTextSprite(text, color = "#ffffff") {
   context.strokeText(text, 192, 64);
   context.fillText(text, 192, 64);
   const texture = new THREE.CanvasTexture(canvas);
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
   const sprite = new THREE.Sprite(material);
   sprite.scale.set(5.6, 1.85, 1);
   return sprite;
 }
 
+function makeTargetSprite() {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = 256;
+  canvas.height = 256;
+  const gradient = context.createRadialGradient(128, 128, 12, 128, 128, 112);
+  gradient.addColorStop(0, "#fff6b8");
+  gradient.addColorStop(0.36, "#f5b83f");
+  gradient.addColorStop(0.38, "#e33f3f");
+  gradient.addColorStop(0.7, "#e33f3f");
+  gradient.addColorStop(0.72, "rgba(227,63,63,0.18)");
+  gradient.addColorStop(1, "rgba(227,63,63,0)");
+  context.fillStyle = gradient;
+  context.beginPath();
+  context.arc(128, 128, 118, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = "#172126";
+  context.font = "900 86px Inter, Arial, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText("T", 128, 132);
+  const texture = new THREE.CanvasTexture(canvas);
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(4.4, 4.4, 1);
+  return sprite;
+}
+
+function makeGrid(size = 120, step = 2) {
+  const group = new THREE.Group();
+  const minor = new THREE.LineBasicMaterial({ color: 0x213942, transparent: true, opacity: 0.72 });
+  const major = new THREE.LineBasicMaterial({ color: 0x335a63, transparent: true, opacity: 0.92 });
+  for (let value = -size; value <= size; value += step) {
+    const material = value % 10 === 0 ? major : minor;
+    const xLine = new THREE.BufferGeometry().setFromPoints([
+      vec([value, -size, -0.04]),
+      vec([value, size, -0.04])
+    ]);
+    const yLine = new THREE.BufferGeometry().setFromPoints([
+      vec([-size, value, -0.04]),
+      vec([size, value, -0.04])
+    ]);
+    group.add(new THREE.Line(xLine, material));
+    group.add(new THREE.Line(yLine, material));
+  }
+  return group;
+}
+
 function makeAxes() {
   const group = new THREE.Group();
-  group.add(makeCylinderBetween([-36, 0, 0], [0, 0, 0], 0x9fd6ff, 0.026));
-  group.add(makeCylinderBetween([0, -36, 0], [0, 0, 0], 0xa7f0b9, 0.026));
-  group.add(makeArrow([0, 0, 0], [56, 0, 0], 0x9fd6ff, 0.042));
-  group.add(makeArrow([0, 0, 0], [0, 56, 0], 0xa7f0b9, 0.042));
+  group.add(makeGrid());
+  group.add(makeCylinderBetween([-24, 0, 0], [0, 0, 0], 0x9fd6ff, 0.026));
+  group.add(makeCylinderBetween([0, -24, 0], [0, 0, 0], 0xa7f0b9, 0.026));
+  group.add(makeArrow([0, 0, 0], [124, 0, 0], 0x9fd6ff, 0.042));
+  group.add(makeArrow([0, 0, 0], [0, 124, 0], 0xa7f0b9, 0.042));
 
   const zAxis = new THREE.Group();
-  zAxis.add(makeArrow([0, 0, 0], [0, 0, 18], 0xffd180, 0.035));
+  zAxis.add(makeArrow([0, 0, 0], [0, 0, 44], 0xffd180, 0.035));
   const labels = [
-    ["x", [58, 0, 0], "#bce7ff"],
-    ["y", [0, 58, 0], "#c5f7cf"],
-    ["O", [-1.1, -1.1, 0], "#ffffff"]
+    ["x", [126, 0, 0], "#bce7ff"],
+    ["y", [0, 126, 0], "#c5f7cf"],
+    ["O", [-1.4, -1.4, 0], "#ffffff"]
   ];
   labels.forEach(([text, position, color]) => {
     const sprite = makeTextSprite(text, color);
@@ -243,14 +291,10 @@ function makeAxes() {
     group.add(sprite);
   });
   const zLabel = makeTextSprite("z", "#ffe0a8");
-  zLabel.position.copy(vec([0, 0, 19.4]));
+  zLabel.position.copy(vec([0, 0, 46]));
   zAxis.add(zLabel);
   group.add(zAxis);
   group.userData.zAxis = zAxis;
-
-  const grid = new THREE.GridHelper(180, 180, 0x557078, 0x263b42);
-  grid.position.set(18, -0.02, state.mode === "worksheet" ? -18 : 18);
-  group.add(grid);
   return group;
 }
 
@@ -268,16 +312,17 @@ function makeRobot() {
     new THREE.BoxGeometry(0.9, 0.9, 0.9),
     new THREE.MeshStandardMaterial({ color: 0x65d0ee, roughness: 0.35, metalness: 0.15 })
   );
-  body.position.y = 0.72;
+  body.position.z = 0.62;
   const head = new THREE.Mesh(
     new THREE.BoxGeometry(0.68, 0.5, 0.58),
     new THREE.MeshStandardMaterial({ color: 0xf6fbff, roughness: 0.38 })
   );
-  head.position.y = 1.45;
+  head.position.y = 0.18;
+  head.position.z = 1.35;
   const eyeMat = new THREE.MeshStandardMaterial({ color: 0x13242a, emissive: 0x1bbde0, emissiveIntensity: 0.35 });
   [-0.17, 0.17].forEach((x) => {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 8), eyeMat);
-    eye.position.set(x, 1.5, 0.31);
+    eye.position.set(x, 0.23, 1.68);
     group.add(eye);
   });
   group.add(body, head);
@@ -290,14 +335,14 @@ function makeTreasure() {
     new THREE.BoxGeometry(1.3, 0.72, 1),
     new THREE.MeshStandardMaterial({ color: 0xd99a00, roughness: 0.32, metalness: 0.28 })
   );
-  base.position.y = 0.4;
+  base.position.z = 0.5;
   const lid = new THREE.Mesh(
     new THREE.BoxGeometry(1.42, 0.24, 1.06),
     new THREE.MeshStandardMaterial({ color: 0xffc245, roughness: 0.24, metalness: 0.35 })
   );
-  lid.position.y = 0.85;
+  lid.position.z = 1.08;
   const glow = new THREE.PointLight(0xffc33a, 3.5, 10);
-  glow.position.y = 1.4;
+  glow.position.z = 1.5;
   group.add(base, lid, glow);
   return group;
 }
@@ -308,14 +353,13 @@ function makeTargetBeacon() {
     new THREE.TorusGeometry(0.95, 0.065, 12, 40),
     new THREE.MeshStandardMaterial({ color: 0xff5252, emissive: 0x641515, emissiveIntensity: 0.28, roughness: 0.28 })
   );
-  ring.rotation.x = Math.PI / 2;
-  ring.position.y = 0.08;
+  ring.position.z = 0.08;
 
   const pin = new THREE.Mesh(
     new THREE.SphereGeometry(0.24, 18, 12),
     new THREE.MeshStandardMaterial({ color: 0xfff1a8, emissive: 0xe9a922, emissiveIntensity: 0.32, roughness: 0.38 })
   );
-  pin.position.y = 0.18;
+  pin.position.z = 0.18;
 
   group.add(ring, pin);
   return group;
@@ -324,14 +368,17 @@ function makeTargetBeacon() {
 function updateTargetMarker() {
   clearGroup(targetMarker);
   const beacon = makeTargetBeacon();
+  const badge = makeTargetSprite();
+  badge.position.copy(vec([0, 0, state.mode === "worksheet" ? 0.65 : 1]));
   const labelText = state.mode === "worksheet"
     ? `T (${state.target[0]}, ${state.target[1]})`
     : `T (${state.target.join(", ")})`;
   const label = makeTextSprite(labelText, "#ffe8a3");
-  label.position.copy(vec(state.mode === "worksheet" ? [0, 1.8, 0] : [0, 1.8, 1.6]));
-  label.scale.set(state.mode === "worksheet" ? 7.8 : 8.8, 2.1, 1);
+  label.position.copy(vec(state.mode === "worksheet" ? [-5.2, 2.6, 0.9] : [-5.6, 2.8, 2.2]));
+  label.scale.set(state.mode === "worksheet" ? 8.4 : 9.2, 2.2, 1);
   targetMarker.position.copy(vec(state.target));
-  targetMarker.add(beacon, label);
+  targetMarker.add(beacon, badge, label);
+  targetMarker.userData.beacon = beacon;
 }
 
 function clearGroup(group) {
@@ -409,8 +456,8 @@ function getWorldPoints() {
   return [
     [0, 0, 0],
     state.target,
-    add(state.target, [3, 3, 3]),
-    sub(state.target, [3, 3, 3]),
+    add(state.target, [12, 7, 5]),
+    sub(state.target, [6, 6, 3]),
     currentPoint(),
     add(currentPoint(), [2, 2, 2]),
     sub(currentPoint(), [2, 2, 2]),
@@ -427,35 +474,46 @@ function frameScene() {
 
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
+  const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   if (state.mode === "worksheet") {
-    const span = Math.max(size.x, size.z, 36);
-    camera.up.set(0, 0, -1);
-    controls.target.set(center.x, 0, center.z);
-    camera.position.set(center.x, span * 2.55, center.z + 0.01);
+    const width = Math.max(size.x + 24, 42);
+    const height = Math.max(size.y + 20, 36);
+    const distance = Math.max(
+      width / (2 * Math.tan(horizontalFov / 2)),
+      height / (2 * Math.tan(verticalFov / 2))
+    ) * 1.45;
+    camera.up.set(0, 1, 0);
+    controls.target.set(center.x, center.y, 0);
+    camera.position.set(center.x, center.y, distance);
     camera.near = 0.1;
-    camera.far = Math.max(420, span * 12);
+    camera.far = 2000;
     camera.updateProjectionMatrix();
     controls.enableRotate = false;
-    controls.enablePan = true;
+    controls.enablePan = false;
+    controls.enableZoom = true;
+    controls.minDistance = Math.max(10, distance * 0.98);
+    controls.maxDistance = Math.max(260, distance * 5);
     controls.update();
     return;
   }
 
   camera.up.set(0, 1, 0);
-  const radius = Math.max(size.length() * 0.58, 10);
-  const verticalFov = THREE.MathUtils.degToRad(camera.fov);
-  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   const fitFov = Math.min(verticalFov, horizontalFov);
-  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.32, 42), 140);
-  const direction = new THREE.Vector3(1.15, 1.65, 1.25).normalize();
+  const radius = Math.max(size.length() * 0.56, 18);
+  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.75, 58), 300);
+  const direction = new THREE.Vector3(0.46, 0.28, 1.18).normalize();
 
   controls.target.copy(center);
   camera.position.copy(center).add(direction.multiplyScalar(distance));
   camera.near = Math.max(0.1, distance / 180);
-  camera.far = distance * 5;
+  camera.far = 2000;
   camera.updateProjectionMatrix();
   controls.enableRotate = true;
-  controls.enablePan = true;
+  controls.enablePan = false;
+  controls.enableZoom = true;
+  controls.minDistance = Math.max(16, distance * 0.9);
+  controls.maxDistance = Math.max(320, distance * 5);
   controls.update();
 }
 
@@ -783,6 +841,7 @@ function animate(now) {
   controls.update();
   treasure.rotation.y += 0.012;
   robot.rotation.y = Math.sin(now * 0.002) * 0.2;
+  if (targetMarker.userData.beacon) targetMarker.userData.beacon.lookAt(camera.position);
   if (state.animating) {
     const progress = Math.min((now - state.animationStart) / 2200, 1);
     drawRoute(ease(progress));

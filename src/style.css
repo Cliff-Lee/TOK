@@ -33,7 +33,7 @@ input {
 
 .app-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 450px);
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -114,21 +114,51 @@ h1 {
 .control-panel {
   height: 100vh;
   height: 100dvh;
-  overflow: auto;
-  padding: 18px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  overflow: hidden;
+  padding: 14px;
   background:
     linear-gradient(180deg, rgba(255, 248, 224, 0.76), rgba(255, 255, 255, 0) 260px),
     var(--panel);
   border-left: 1px solid var(--line);
 }
 
+.game-console,
+.mission-drawer {
+  min-width: 0;
+}
+
+.game-console {
+  display: grid;
+  gap: 8px;
+}
+
+.mission-drawer {
+  min-height: 0;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid rgba(23, 33, 38, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
 .panel-section {
-  padding: 16px 0;
+  padding: 0;
   border-bottom: 1px solid var(--line);
 }
 
 .panel-section:first-child {
   padding-top: 0;
+}
+
+.game-console > .panel-section {
+  border-bottom: 0;
+}
+
+.mission-drawer .panel-section + .panel-section {
+  margin-top: 10px;
 }
 
 .target-strip,
@@ -141,10 +171,14 @@ h1 {
   gap: 12px;
 }
 
+.target-strip {
+  padding-bottom: 2px;
+}
+
 .score-board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  padding: 12px;
+  padding: 8px 10px;
   border: 1px solid #18383d;
   border-radius: 8px;
   color: white;
@@ -154,7 +188,7 @@ h1 {
 
 .score-board strong {
   display: block;
-  font-size: 1.35rem;
+  font-size: 1.18rem;
   color: #fff4c7;
 }
 
@@ -163,7 +197,7 @@ h1 {
 }
 
 .mission-card {
-  padding: 14px;
+  padding: 9px 11px;
   border: 1px solid rgba(36, 115, 124, 0.24);
   border-radius: 8px;
   background: #eaf7f2;
@@ -171,9 +205,27 @@ h1 {
 }
 
 .mission-card p:last-child {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   color: var(--muted);
   line-height: 1.45;
+}
+
+.vector-editor,
+.play-section {
+  padding: 10px;
+  border: 1px solid rgba(36, 115, 124, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.play-section {
+  background:
+    radial-gradient(circle at 95% 12%, rgba(245, 184, 63, 0.22), rgba(255, 255, 255, 0) 34%),
+    #f5fbf7;
+}
+
+.challenge-section {
+  margin-top: 0;
 }
 
 h2 {
@@ -224,7 +276,7 @@ h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-  margin-top: 12px;
+  margin-top: 6px;
   padding: 4px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -232,7 +284,7 @@ h2 {
 }
 
 .segment {
-  min-height: 38px;
+  min-height: 35px;
   border-color: transparent;
   background: transparent;
   font-weight: 800;
@@ -249,12 +301,12 @@ h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 9px;
 }
 
 .preset {
-  min-height: 54px;
-  padding: 9px;
+  min-height: 48px;
+  padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -286,13 +338,13 @@ h2 {
 .vector-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .vector-card {
   position: relative;
-  padding: 14px;
+  padding: 9px;
   border: 1px solid rgba(23, 33, 38, 0.12);
   border-radius: 8px;
   background:
@@ -314,24 +366,24 @@ h2 {
 
 .vector-name {
   display: inline-grid;
-  width: 42px;
-  height: 42px;
+  width: 30px;
+  height: 30px;
   place-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   border-radius: 50%;
   color: white;
   background: var(--ink);
   font-weight: 900;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   box-shadow: inset 0 -4px 0 rgba(255, 255, 255, 0.12), 0 4px 10px rgba(23, 33, 38, 0.18);
 }
 
 .component-row {
   display: grid;
-  grid-template-columns: 30px 1fr;
+  grid-template-columns: 22px 1fr;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 5px;
 }
 
 .component-label {
@@ -342,11 +394,11 @@ h2 {
 
 .component-value {
   display: grid;
-  min-height: 42px;
+  min-height: 28px;
   place-items: center;
   width: 100%;
   min-width: 0;
-  padding: 9px 10px;
+  padding: 5px 8px;
   border: 0;
   border-radius: 8px;
   background: #edf5f1;
@@ -369,33 +421,57 @@ body.is-2d .z-row {
 }
 
 .press-control {
-  margin-top: 16px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 8px;
 }
 
-.press-control label {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 7px;
-  color: var(--muted);
-  font-weight: 800;
+.code-token {
+  display: grid;
+  place-items: center;
+  min-height: 74px;
+  border-radius: 8px;
+  color: #fffdf2;
+  background: #15262d;
+  box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.24), 0 8px 18px rgba(23, 33, 38, 0.14);
 }
 
-.press-control input {
-  width: 100%;
-  accent-color: #296a74;
+.code-token span {
+  color: #d9ebe3;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.code-token strong {
+  color: #fff4c7;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.press-control input[type="range"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .stepper {
   display: grid;
-  grid-template-columns: 48px 1fr;
-  gap: 10px;
-  margin: 8px 0 9px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
 }
 
 .step-button,
 .press-button {
-  min-height: 46px;
+  min-height: 74px;
   border: 0;
   border-radius: 8px;
   cursor: pointer;
@@ -411,6 +487,7 @@ body.is-2d .z-row {
 }
 
 .press-button {
+  padding: 8px;
   color: #fffdf2;
   box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.18), 0 7px 14px rgba(23, 33, 38, 0.16);
 }
@@ -431,9 +508,9 @@ body.is-2d .z-row {
 
 .primary-button,
 .secondary-button {
-  min-height: 42px;
-  padding: 10px 12px;
-  margin-top: 15px;
+  min-height: 38px;
+  padding: 8px 10px;
+  margin-top: 8px;
   font-weight: 850;
 }
 
@@ -453,8 +530,8 @@ body.is-2d .z-row {
 }
 
 .result-card {
-  padding: 16px;
-  margin-top: 16px;
+  padding: 10px;
+  margin-top: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -462,8 +539,8 @@ body.is-2d .z-row {
 }
 
 .equation {
-  margin-top: 11px;
-  padding: 10px;
+  margin-top: 8px;
+  padding: 8px;
   border-radius: 8px;
   background: #eef8f4;
   color: #28343a;
@@ -472,9 +549,10 @@ body.is-2d .z-row {
 }
 
 .answer {
-  margin-top: 10px;
+  margin-top: 8px;
   color: var(--muted);
   line-height: 1.45;
+  font-size: 0.92rem;
 }
 
 .answer strong.ok {
@@ -524,8 +602,14 @@ details p {
 
   .control-panel {
     height: auto;
+    display: block;
     overflow: visible;
     border-left: 0;
+  }
+
+  .mission-drawer {
+    margin-top: 12px;
+    overflow: visible;
   }
 
   .scene-hud {
