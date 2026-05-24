@@ -321,6 +321,10 @@ h2 {
   cursor: default;
 }
 
+body.is-2d .z-row {
+  display: none;
+}
+
 .toggle {
   display: inline-flex;
   align-items: center;

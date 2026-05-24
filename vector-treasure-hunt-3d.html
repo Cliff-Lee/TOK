@@ -24,7 +24,7 @@
         <section class="panel-section target-strip">
           <div>
             <p class="label">Target T</p>
-            <strong id="target-readout">(18, 16, 10)</strong>
+            <strong id="target-readout">(18, 16)</strong>
           </div>
           <button class="icon-button" id="reset-camera" aria-label="Reset camera" title="Reset camera">⟲</button>
         </section>
@@ -49,8 +49,8 @@
             <h2>Mission Mode</h2>
           </div>
           <div class="segmented" role="group" aria-label="Mission mode">
-            <button class="segment active" data-mode="3d">3D challenge</button>
-            <button class="segment" data-mode="worksheet">2D worksheet</button>
+            <button class="segment active" data-mode="worksheet">2D worksheet</button>
+            <button class="segment" data-mode="3d">3D extension</button>
           </div>
         </section>
 
@@ -78,13 +78,13 @@
               <span class="vector-name">u</span>
               <div class="component-row"><label for="ux">x</label><input id="ux" type="number" min="-8" max="8" step="1"></div>
               <div class="component-row"><label for="uy">y</label><input id="uy" type="number" min="-8" max="8" step="1"></div>
-              <div class="component-row"><label for="uz">z</label><input id="uz" type="number" min="-8" max="8" step="1"></div>
+              <div class="component-row z-row"><label for="uz">z</label><input id="uz" type="number" min="-8" max="8" step="1"></div>
             </div>
             <div class="vector-card v-card">
               <span class="vector-name">v</span>
               <div class="component-row"><label for="vx">x</label><input id="vx" type="number" min="-8" max="8" step="1"></div>
               <div class="component-row"><label for="vy">y</label><input id="vy" type="number" min="-8" max="8" step="1"></div>
-              <div class="component-row"><label for="vz">z</label><input id="vz" type="number" min="-8" max="8" step="1"></div>
+              <div class="component-row z-row"><label for="vz">z</label><input id="vz" type="number" min="-8" max="8" step="1"></div>
             </div>
           </div>
         </section>
@@ -118,11 +118,11 @@
         <section class="panel-section discovery">
           <details open>
             <summary>Hint 1: Coordinates must match</summary>
-            <p>Each button changes x, y, and z at the same time. To land on the treasure, all three coordinates must match the target together.</p>
+            <p>In 2D, x and y must both match the target. In the 3D extension, z must match too.</p>
           </details>
           <details>
             <summary>Hint 2: Two vectors in 3D make a plane</summary>
-            <p>If u and v are not parallel, their combinations make a flat sheet through base camp. A target outside that sheet cannot be reached, even with decimal button presses.</p>
+            <p>In 2D, non-parallel vectors can aim across the whole plane. In 3D, two non-parallel vectors make a flat sheet through base camp.</p>
           </details>
           <details>
             <summary>Hint 3: Whole numbers are stricter</summary>

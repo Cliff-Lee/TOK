@@ -67,10 +67,10 @@ const modes = {
 };
 
 let state = {
-  mode: "3d",
-  target: [...modes["3d"].target],
-  u: [3, 1, 1],
-  v: [1, 2, 1],
+  mode: "worksheet",
+  target: [...modes.worksheet.target],
+  u: [3, 1, 0],
+  v: [1, 2, 0],
   activeIndex: 0,
   m: START_M,
   n: START_N,
@@ -376,6 +376,19 @@ function frameScene() {
 
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
+  if (state.mode === "worksheet") {
+    const span = Math.max(size.x, size.z, 20);
+    controls.target.set(center.x, 0, center.z);
+    camera.position.set(center.x, span * 1.85, center.z + 0.02);
+    camera.near = 0.1;
+    camera.far = Math.max(120, span * 5);
+    camera.updateProjectionMatrix();
+    controls.enableRotate = false;
+    controls.enablePan = true;
+    controls.update();
+    return;
+  }
+
   const radius = Math.max(size.length() * 0.5, 8);
   const verticalFov = THREE.MathUtils.degToRad(camera.fov);
   const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
@@ -388,6 +401,8 @@ function frameScene() {
   camera.near = Math.max(0.1, distance / 180);
   camera.far = distance * 5;
   camera.updateProjectionMatrix();
+  controls.enableRotate = true;
+  controls.enablePan = true;
   controls.update();
 }
 
@@ -424,7 +439,7 @@ function drawReachableWorld() {
     const mat = new THREE.MeshStandardMaterial({
       color: 0x2b6f75,
       transparent: true,
-      opacity: 0.16,
+      opacity: state.mode === "worksheet" ? 0.08 : 0.16,
       side: THREE.DoubleSide,
       roughness: 0.7
     });
@@ -464,7 +479,7 @@ function updateUi() {
   nSlider.value = state.n;
   mReadout.textContent = state.m;
   nReadout.textContent = state.n;
-  targetReadout.textContent = `(${state.target.join(", ")})`;
+  targetReadout.textContent = state.mode === "worksheet" ? `(${state.target[0]}, ${state.target[1]})` : `(${state.target.join(", ")})`;
   missionTitle.textContent = activeChallenge().name;
   missionBrief.textContent = activeChallenge().brief;
   scoreReadout.textContent = state.score;
@@ -473,7 +488,10 @@ function updateUi() {
   const p = currentPoint();
   const distance = norm(sub(p, state.target));
   const exactCurrent = distance < 1e-8;
-  equationEl.textContent = `${state.m}u + ${state.n}v = (${p.map((x) => round(x)).join(", ")})`;
+  equationEl.textContent = state.mode === "worksheet"
+    ? `${state.m}u + ${state.n}v = (${round(p[0])}, ${round(p[1])})`
+    : `${state.m}u + ${state.n}v = (${p.map((x) => round(x)).join(", ")})`;
+  document.body.classList.toggle("is-2d", state.mode === "worksheet");
 
   if (isSolved()) {
     statusPill.textContent = "Challenge solved";
@@ -497,11 +515,15 @@ function updateUi() {
   } else if (state.clueLevel === 0) {
     message = `<strong class="warn">Not yet.</strong> Your current landing point is ${round(distance)} units from the treasure. Use the landing point to decide which coordinate needs to change.`;
   } else if (state.clueLevel === 1) {
-    message = `<strong class="warn">Clue 1.</strong> Compare your landing point with T coordinate by coordinate. Which of x, y, and z is too small or too large?`;
+    message = state.mode === "worksheet"
+      ? `<strong class="warn">Clue 1.</strong> Compare your landing point with T coordinate by coordinate. Is x or y too small or too large?`
+      : `<strong class="warn">Clue 1.</strong> Compare your landing point with T coordinate by coordinate. Which of x, y, and z is too small or too large?`;
   } else if (state.clueLevel === 2) {
     message = `<strong class="warn">Clue 2.</strong> Try making a small table of attempts. If every whole-number route misses in a pattern, the best move may be to claim impossible.`;
   } else {
-    message = `<strong class="warn">Clue 3.</strong> Use the coordinate equations. A legal code must make x, y, and z match T at the same time, using whole numbers only.`;
+    message = state.mode === "worksheet"
+      ? `<strong class="warn">Clue 3.</strong> Use the x and y equations. A legal code must make both coordinates match T at the same time, using whole numbers only.`
+      : `<strong class="warn">Clue 3.</strong> Use the coordinate equations. A legal code must make x, y, and z match T at the same time, using whole numbers only.`;
   }
   answerEl.innerHTML = message;
 }
