@@ -334,13 +334,16 @@ h2 {
   margin-top: 8px;
 }
 
-.component-row label {
+.component-label {
   color: var(--muted);
   font-weight: 900;
   text-transform: uppercase;
 }
 
-.component-row input {
+.component-value {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
   width: 100%;
   min-width: 0;
   padding: 9px 10px;
@@ -350,12 +353,6 @@ h2 {
   font-weight: 800;
   text-align: center;
   box-shadow: inset 0 -3px 0 rgba(23, 33, 38, 0.08);
-}
-
-.component-row input[readonly] {
-  color: #2a373d;
-  background: #edf5f1;
-  cursor: default;
 }
 
 body.is-2d .z-row {

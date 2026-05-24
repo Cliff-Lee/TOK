@@ -26,10 +26,6 @@ const inputs = {
   vz: document.querySelector("#vz")
 };
 
-Object.values(inputs).forEach((input) => {
-  input.readOnly = true;
-});
-
 const colors = {
   u: 0x7a5ad7,
   v: 0xe1a025,
@@ -91,7 +87,7 @@ sceneEl.append(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101820);
-scene.fog = new THREE.Fog(0x101820, 120, 280);
+scene.fog = new THREE.Fog(0x101820, 260, 720);
 
 const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 200);
 camera.position.set(36, 32, 42);
@@ -101,7 +97,7 @@ controls.target.set(8, 6, 3);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.minDistance = 10;
-controls.maxDistance = 180;
+controls.maxDistance = 520;
 
 scene.add(new THREE.HemisphereLight(0xf4fff8, 0x22333a, 2.2));
 const sun = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -133,7 +129,8 @@ const axes = makeAxes();
 root.add(axes);
 
 function vec(arr) {
-  return new THREE.Vector3(arr[0], arr[2], arr[1]);
+  const displayY = state.mode === "worksheet" ? -arr[1] : arr[1];
+  return new THREE.Vector3(arr[0], arr[2], displayY);
 }
 
 function fromSceneVec(v) {
@@ -251,13 +248,17 @@ function makeAxes() {
   group.add(zAxis);
   group.userData.zAxis = zAxis;
 
-  const grid = new THREE.GridHelper(110, 110, 0x557078, 0x263b42);
-  grid.position.set(15, -0.02, 15);
+  const grid = new THREE.GridHelper(180, 180, 0x557078, 0x263b42);
+  grid.position.set(18, -0.02, state.mode === "worksheet" ? -18 : 18);
   group.add(grid);
   return group;
 }
 
 function updateAxes() {
+  clearGroup(axes);
+  const freshAxes = makeAxes();
+  axes.userData.zAxis = freshAxes.userData.zAxis;
+  while (freshAxes.children.length) axes.add(freshAxes.children.shift());
   if (axes.userData.zAxis) axes.userData.zAxis.visible = state.mode === "3d";
 }
 
@@ -427,12 +428,12 @@ function frameScene() {
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   if (state.mode === "worksheet") {
-    const span = Math.max(size.x, size.z, 30);
-    camera.up.set(0, 0, 1);
+    const span = Math.max(size.x, size.z, 36);
+    camera.up.set(0, 0, -1);
     controls.target.set(center.x, 0, center.z);
-    camera.position.set(center.x, span * 2.35, center.z + 0.01);
+    camera.position.set(center.x, span * 2.55, center.z + 0.01);
     camera.near = 0.1;
-    camera.far = Math.max(220, span * 8);
+    camera.far = Math.max(420, span * 12);
     camera.updateProjectionMatrix();
     controls.enableRotate = false;
     controls.enablePan = true;
@@ -522,12 +523,12 @@ function drawRoute(progress = 1) {
 }
 
 function updateUi() {
-  inputs.ux.value = state.u[0];
-  inputs.uy.value = state.u[1];
-  inputs.uz.value = state.u[2];
-  inputs.vx.value = state.v[0];
-  inputs.vy.value = state.v[1];
-  inputs.vz.value = state.v[2];
+  inputs.ux.textContent = state.u[0];
+  inputs.uy.textContent = state.u[1];
+  inputs.uz.textContent = state.u[2];
+  inputs.vx.textContent = state.v[0];
+  inputs.vy.textContent = state.v[1];
+  inputs.vz.textContent = state.v[2];
   mSlider.value = state.m;
   nSlider.value = state.n;
   mReadout.textContent = state.m;
@@ -644,8 +645,6 @@ function claimImpossible() {
 }
 
 function syncStateFromInputs() {
-  state.u = [inputs.ux.valueAsNumber, inputs.uy.valueAsNumber, inputs.uz.valueAsNumber];
-  state.v = [inputs.vx.valueAsNumber, inputs.vy.valueAsNumber, inputs.vz.valueAsNumber];
   state.m = Number(mSlider.value);
   state.n = Number(nSlider.value);
   state.checked = false;
@@ -684,7 +683,6 @@ function renderPresets() {
   });
 }
 
-Object.values(inputs).forEach((input) => input.addEventListener("input", syncStateFromInputs));
 mSlider.addEventListener("input", syncStateFromInputs);
 nSlider.addEventListener("input", syncStateFromInputs);
 document.querySelector("#m-minus").addEventListener("click", () => adjustPress("m", -1));
