@@ -29,27 +29,30 @@ const colors = {
   grid: 0x7c908d
 };
 
+const START_M = 0;
+const START_N = 0;
+
 const modes = {
   "3d": {
     target: [18, 16, 10],
     presets: [
-      { name: "Warm-up lift", u: [3, 1, 1], v: [1, 2, 1], m: 4, n: 6 },
-      { name: "Decimal trap", u: [5, 1, 1], v: [2, 3, 2], m: 2, n: 5 },
-      { name: "Plane miss", u: [2, 4, 1], v: [1, 2, 3], m: 3, n: 3 },
-      { name: "Backwards win", u: [2, 1, 1], v: [-1, 3, 0], m: 10, n: 2 },
-      { name: "Parallel path", u: [2, 4, 2], v: [1, 2, 1], m: 5, n: 8 },
-      { name: "Clean reach", u: [4, 0, 2], v: [1, 4, 1], m: 3, n: 6 }
+      { name: "Mission A", u: [3, 1, 1], v: [1, 2, 1] },
+      { name: "Mission B", u: [5, 1, 1], v: [2, 3, 2] },
+      { name: "Mission C", u: [2, 4, 1], v: [1, 2, 3] },
+      { name: "Mission D", u: [2, 1, 1], v: [-1, 3, 0] },
+      { name: "Mission E", u: [2, 4, 2], v: [1, 2, 1] },
+      { name: "Mission F", u: [4, 0, 2], v: [1, 4, 1] }
     ]
   },
   worksheet: {
     target: [18, 16, 0],
     presets: [
-      { name: "Set 1", u: [3, 1, 0], v: [1, 2, 0], m: 4, n: 6 },
-      { name: "Set 2", u: [4, 2, 0], v: [1, 1, 0], m: 1, n: 14 },
-      { name: "Set 3", u: [5, 1, 0], v: [2, 3, 0], m: 2, n: 5 },
-      { name: "Set 4", u: [2, 4, 0], v: [1, 2, 0], m: 5, n: 6 },
-      { name: "Set 5", u: [4, 0, 0], v: [1, 4, 0], m: 4, n: 4 },
-      { name: "Set 6", u: [2, 1, 0], v: [-1, 3, 0], m: 10, n: 2 }
+      { name: "Set 1", u: [3, 1, 0], v: [1, 2, 0] },
+      { name: "Set 2", u: [4, 2, 0], v: [1, 1, 0] },
+      { name: "Set 3", u: [5, 1, 0], v: [2, 3, 0] },
+      { name: "Set 4", u: [2, 4, 0], v: [1, 2, 0] },
+      { name: "Set 5", u: [4, 0, 0], v: [1, 4, 0] },
+      { name: "Set 6", u: [2, 1, 0], v: [-1, 3, 0] }
     ]
   }
 };
@@ -59,8 +62,10 @@ let state = {
   target: [...modes["3d"].target],
   u: [3, 1, 1],
   v: [1, 2, 1],
-  m: 4,
-  n: 6,
+  m: START_M,
+  n: START_N,
+  clueLevel: 0,
+  checked: false,
   animating: false,
   animationStart: 0
 };
@@ -314,6 +319,49 @@ function currentPoint() {
   return add(scale(state.u, state.m), scale(state.v, state.n));
 }
 
+function resetPuzzleProgress() {
+  state.clueLevel = 0;
+  state.checked = false;
+}
+
+function getWorldPoints() {
+  const uEnd = scale(state.u, state.m);
+  return [
+    [0, 0, 0],
+    state.target,
+    add(state.target, [3, 3, 3]),
+    sub(state.target, [3, 3, 3]),
+    currentPoint(),
+    add(currentPoint(), [2, 2, 2]),
+    sub(currentPoint(), [2, 2, 2]),
+    state.u,
+    state.v,
+    uEnd
+  ];
+}
+
+function frameScene() {
+  const box = new THREE.Box3();
+  getWorldPoints().forEach((point) => box.expandByPoint(vec(point)));
+  if (box.isEmpty()) return;
+
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const radius = Math.max(size.length() * 0.5, 8);
+  const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
+  const fitFov = Math.min(verticalFov, horizontalFov);
+  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 0.95, 22), 90);
+  const direction = new THREE.Vector3(1.05, 0.85, 1.25).normalize();
+
+  controls.target.copy(center);
+  camera.position.copy(center).add(direction.multiplyScalar(distance));
+  camera.near = Math.max(0.1, distance / 180);
+  camera.far = distance * 5;
+  camera.updateProjectionMatrix();
+  controls.update();
+}
+
 function drawReachableWorld() {
   clearGroup(latticeGroup);
   clearGroup(planeGroup);
@@ -391,25 +439,55 @@ function updateUi() {
   const p = currentPoint();
   const real = solveReal(state.u, state.v, state.target);
   const whole = findWholeSolution(state.u, state.v, state.target, allowNegativeEl.checked);
+  const distance = norm(sub(p, state.target));
+  const exactCurrent = distance < 1e-8;
   equationEl.textContent = `${state.m}u + ${state.n}v = (${p.map((x) => round(x)).join(", ")})`;
 
-  if (norm(sub(p, state.target)) < 1e-8) {
-    statusPill.textContent = "Treasure reached";
-  } else if (whole.exact) {
-    statusPill.textContent = `Try m=${whole.m}, n=${whole.n}`;
+  if (exactCurrent) {
+    statusPill.textContent = "Treasure unlocked";
+  } else if (state.checked) {
+    statusPill.textContent = `${round(distance)} units away`;
   } else {
-    statusPill.textContent = "Keep investigating";
+    statusPill.textContent = "Puzzle locked";
   }
 
   let message = "";
-  if (whole.exact) {
-    message = `<strong class="ok">Whole-number route found.</strong> Press u ${whole.m} time${whole.m === 1 ? "" : "s"} and v ${whole.n} time${whole.n === 1 ? "" : "s"}.`;
-  } else if (real.exists) {
-    message = `<strong class="warn">Decimal route only.</strong> The real solution is m=${round(real.m)}, n=${round(real.n)}, so the arrows aim correctly but the robot cannot use whole-button presses. Closest whole route is (${whole.point.map((x) => round(x)).join(", ")}).`;
-  } else if (real.parallel) {
-    message = `<strong class="bad">Parallel path problem.</strong> The two buttons move along one direction, and the treasure is not on that line.`;
+  if (exactCurrent) {
+    message = `<strong class="ok">Unlocked.</strong> This button code lands exactly on T. Now explain why both coordinates and height match at the same time.`;
+  } else if (!state.checked && state.clueLevel === 0) {
+    message = `Choose values for m and n, launch the route, then check the distance. The treasure opens only when the robot lands exactly on T.`;
+  } else if (state.clueLevel === 0) {
+    message = `<strong class="warn">Not yet.</strong> Your current landing point is ${round(distance)} units from the treasure. Try changing one slider and watch whether the robot gets closer.`;
+  } else if (state.clueLevel === 1) {
+    message = whole.exact
+      ? `<strong class="ok">Clue 1.</strong> There is a whole-number code somewhere on the lattice. Look for the bright route endpoint to sit exactly on the red target line.`
+      : `<strong class="warn">Clue 1.</strong> No whole-number code appears in the current search range. The reason may be fractions, a missing plane, or parallel movement.`;
+  } else if (state.clueLevel === 2) {
+    if (real.exists && whole.exact) {
+      const currentMGap = Math.abs(whole.m - state.m);
+      const currentNGap = Math.abs(whole.n - state.n);
+      message = currentMGap > currentNGap
+        ? `<strong class="ok">Clue 2.</strong> Your m slider needs the bigger adjustment.`
+        : `<strong class="ok">Clue 2.</strong> Your n slider needs the bigger adjustment.`;
+    } else if (real.exists) {
+      message = `<strong class="warn">Clue 2.</strong> Decimal button presses would hit the target, but the robot only accepts whole numbers.`;
+    } else if (real.parallel) {
+      message = `<strong class="bad">Clue 2.</strong> The two movement buttons are parallel, so the robot is trapped on one line.`;
+    } else {
+      message = `<strong class="bad">Clue 2.</strong> The two buttons make a flat sheet in 3D, and T is not on that sheet.`;
+    }
   } else {
-    message = `<strong class="bad">Plane miss.</strong> These two 3D buttons make a flat sheet, but the treasure is ${round(real.residual)} units away from that sheet.`;
+    if (whole.exact) {
+      const mDirection = whole.m > state.m ? "increase m" : whole.m < state.m ? "decrease m" : "keep m";
+      const nDirection = whole.n > state.n ? "increase n" : whole.n < state.n ? "decrease n" : "keep n";
+      message = `<strong class="ok">Clue 3.</strong> To move closer, ${mDirection} and ${nDirection}.`;
+    } else if (real.exists) {
+      message = `<strong class="warn">Clue 3.</strong> The real-number route lands at m=${round(real.m)}, n=${round(real.n)}. Decide why that is not a legal whole-button code.`;
+    } else if (real.parallel) {
+      message = `<strong class="bad">Clue 3.</strong> Parallel vectors cannot sweep out an area or plane, so most targets are unreachable.`;
+    } else {
+      message = `<strong class="bad">Clue 3.</strong> Even decimal presses miss by ${round(real.residual)} units because T is outside the movement plane.`;
+    }
   }
   answerEl.innerHTML = message;
 }
@@ -423,6 +501,7 @@ function syncStateFromInputs() {
   state.v = [inputs.vx.valueAsNumber, inputs.vy.valueAsNumber, inputs.vz.valueAsNumber];
   state.m = Number(mSlider.value);
   state.n = Number(nSlider.value);
+  state.checked = false;
   refresh();
 }
 
@@ -430,13 +509,15 @@ function refresh() {
   updateUi();
   drawReachableWorld();
   drawRoute(1);
+  frameScene();
 }
 
 function setPreset(preset) {
   state.u = [...preset.u];
   state.v = [...preset.v];
-  state.m = preset.m;
-  state.n = preset.n;
+  state.m = START_M;
+  state.n = START_N;
+  resetPuzzleProgress();
   refresh();
 }
 
@@ -446,7 +527,7 @@ function renderPresets() {
     const button = document.createElement("button");
     button.className = "preset";
     button.type = "button";
-    button.innerHTML = `<strong>${preset.name}</strong><span>u=(${preset.u.join(", ")}), v=(${preset.v.join(", ")})</span>`;
+    button.innerHTML = `<strong>${preset.name}</strong><span>Find the hidden m,n code</span>`;
     button.addEventListener("click", () => setPreset(preset));
     presetGrid.append(button);
   });
@@ -462,24 +543,27 @@ allowNegativeEl.addEventListener("change", () => {
     state.m = Math.max(0, state.m);
     state.n = Math.max(0, state.n);
   }
+  resetPuzzleProgress();
   refresh();
 });
 
 document.querySelector("#animate-route").addEventListener("click", () => {
+  state.checked = true;
   state.animating = true;
   state.animationStart = performance.now();
+  updateUi();
 });
 
-document.querySelector("#auto-solve").addEventListener("click", () => {
-  const solution = findWholeSolution(state.u, state.v, state.target, allowNegativeEl.checked);
-  state.m = solution.m;
-  state.n = solution.n;
+document.querySelector("#clue-button").addEventListener("click", () => {
+  state.checked = true;
+  state.clueLevel = Math.min(state.clueLevel + 1, 3);
   refresh();
 });
 
 document.querySelector("#swap").addEventListener("click", () => {
   [state.u, state.v] = [state.v, state.u];
   [state.m, state.n] = [state.n, state.m];
+  resetPuzzleProgress();
   refresh();
 });
 
@@ -487,15 +571,14 @@ document.querySelector("#randomize").addEventListener("click", () => {
   const rand = () => Math.floor(Math.random() * 9) - 3;
   state.u = [rand() + 2, rand() + 2, state.mode === "worksheet" ? 0 : rand() + 1];
   state.v = [rand() + 1, rand() + 2, state.mode === "worksheet" ? 0 : rand() + 1];
-  state.m = Math.max(Number(mSlider.min), Math.min(20, Math.floor(Math.random() * 9)));
-  state.n = Math.max(Number(nSlider.min), Math.min(20, Math.floor(Math.random() * 9)));
+  state.m = START_M;
+  state.n = START_N;
+  resetPuzzleProgress();
   refresh();
 });
 
 document.querySelector("#reset-camera").addEventListener("click", () => {
-  camera.position.set(36, 32, 42);
-  controls.target.set(8, 6, 3);
-  controls.update();
+  frameScene();
 });
 
 document.querySelectorAll(".segment").forEach((button) => {
@@ -507,8 +590,9 @@ document.querySelectorAll(".segment").forEach((button) => {
     const first = modes[state.mode].presets[0];
     state.u = [...first.u];
     state.v = [...first.v];
-    state.m = first.m;
-    state.n = first.n;
+    state.m = START_M;
+    state.n = START_N;
+    resetPuzzleProgress();
     renderPresets();
     refresh();
   });
@@ -519,6 +603,7 @@ function resize() {
   renderer.setSize(rect.width, rect.height, false);
   camera.aspect = rect.width / Math.max(rect.height, 1);
   camera.updateProjectionMatrix();
+  frameScene();
 }
 
 window.addEventListener("resize", resize);
