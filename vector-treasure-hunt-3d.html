@@ -4,22 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vector Treasure Hunt 3D</title>
-    <link rel="stylesheet" href="./src/style.css?v=10" />
-    <script type="module" src="./src/main.js?v=10"></script>
+    <link rel="stylesheet" href="./src/style.css?v=11" />
+    <script type="module" src="./src/main.js?v=11"></script>
   </head>
   <body>
     <main class="app-shell">
-      <section class="scene-wrap" aria-label="3D vector treasure hunt">
-        <div id="scene" class="scene"></div>
-        <div class="scene-hud">
-          <div>
-            <p class="eyebrow">Vector Treasure Hunt</p>
-            <h1>Find the hidden button code</h1>
-          </div>
-          <div class="status-pill" id="status-pill">Checking route...</div>
-        </div>
-      </section>
-
       <aside class="control-panel" aria-label="Applet controls">
         <div class="game-console">
           <section class="panel-section target-strip">
@@ -43,22 +32,6 @@
               <p class="label">Streak</p>
               <strong id="streak-readout">0</strong>
             </div>
-          </section>
-
-          <section class="panel-section">
-            <div class="section-head">
-              <h2>Mission Mode</h2>
-            </div>
-            <div class="segmented" role="group" aria-label="Mission mode">
-              <button class="segment active" data-mode="worksheet">2D worksheet</button>
-              <button class="segment" data-mode="3d">3D extension</button>
-            </div>
-          </section>
-
-          <section class="panel-section mission-card">
-            <p class="label">Current Challenge</p>
-            <h2 id="mission-title">Mission A</h2>
-            <p id="mission-brief">Find a whole-number route to the treasure.</p>
           </section>
 
           <section class="panel-section vector-editor">
@@ -87,33 +60,35 @@
               <h2>Button Code</h2>
               <label class="toggle"><input id="allow-negative" type="checkbox"> Backwards boosters</label>
             </div>
-            <div class="press-control u-control">
-              <div class="code-token">
-                <span>m</span>
-                <strong id="m-readout">0</strong>
+            <div class="booster-grid">
+              <div class="press-control u-control">
+                <div class="code-token">
+                  <span>m</span>
+                  <strong id="m-readout">0</strong>
+                </div>
+                <div class="stepper">
+                  <button class="step-button" id="m-minus" type="button" aria-label="Decrease m">−</button>
+                  <button class="press-button u-press" id="m-plus" type="button">Fire u booster</button>
+                </div>
+                <input id="m-slider" type="range" min="0" max="20" value="0" aria-label="m presses of u">
               </div>
-              <div class="stepper">
-                <button class="step-button" id="m-minus" type="button" aria-label="Decrease m">−</button>
-                <button class="press-button u-press" id="m-plus" type="button">Fire u booster</button>
+              <div class="press-control v-control">
+                <div class="code-token">
+                  <span>n</span>
+                  <strong id="n-readout">0</strong>
+                </div>
+                <div class="stepper">
+                  <button class="step-button" id="n-minus" type="button" aria-label="Decrease n">−</button>
+                  <button class="press-button v-press" id="n-plus" type="button">Fire v booster</button>
+                </div>
+                <input id="n-slider" type="range" min="0" max="20" value="0" aria-label="n presses of v">
               </div>
-              <input id="m-slider" type="range" min="0" max="20" value="0" aria-label="m presses of u">
-            </div>
-            <div class="press-control v-control">
-              <div class="code-token">
-                <span>n</span>
-                <strong id="n-readout">0</strong>
-              </div>
-              <div class="stepper">
-                <button class="step-button" id="n-minus" type="button" aria-label="Decrease n">−</button>
-                <button class="press-button v-press" id="n-plus" type="button">Fire v booster</button>
-              </div>
-              <input id="n-slider" type="range" min="0" max="20" value="0" aria-label="n presses of v">
             </div>
             <div class="action-row">
               <button class="primary-button" id="animate-route">Submit route</button>
               <button class="secondary-button" id="clue-button">Get clue</button>
+              <button class="secondary-button" id="impossible-button">Claim impossible</button>
             </div>
-            <button class="secondary-button wide-button" id="impossible-button">Claim impossible</button>
           </section>
 
           <section class="panel-section result-card">
@@ -122,8 +97,36 @@
             <div class="answer" id="answer"></div>
           </section>
         </div>
+      </aside>
 
-        <div class="mission-drawer">
+      <section class="scene-wrap" aria-label="3D vector treasure hunt">
+        <div id="scene" class="scene"></div>
+        <div class="scene-hud">
+          <div>
+            <p class="eyebrow">Vector Treasure Hunt</p>
+            <h1>Find the hidden button code</h1>
+          </div>
+          <div class="status-pill" id="status-pill">Checking route...</div>
+        </div>
+      </section>
+
+      <aside class="mission-drawer" aria-label="Mission controls">
+          <section class="panel-section mode-section">
+            <div class="section-head">
+              <h2>Mission Mode</h2>
+            </div>
+            <div class="segmented" role="group" aria-label="Mission mode">
+              <button class="segment active" data-mode="worksheet">2D worksheet</button>
+              <button class="segment" data-mode="3d">3D extension</button>
+            </div>
+          </section>
+
+          <section class="panel-section mission-card">
+            <p class="label">Current Challenge</p>
+            <h2 id="mission-title">Mission A</h2>
+            <p id="mission-brief">Find a whole-number route to the treasure.</p>
+          </section>
+
           <section class="panel-section challenge-section">
             <div class="section-head">
               <h2>Challenge Board</h2>
@@ -146,7 +149,6 @@
               <p>A decimal solution means the arrows point to the right place, but the robot still fails the mission if it needs half a button press.</p>
             </details>
           </section>
-        </div>
       </aside>
     </main>
   </body>

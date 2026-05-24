@@ -33,15 +33,14 @@ input {
 
 .app-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(380px, 450px);
+  grid-template-rows: auto minmax(520px, 1fr) auto;
   min-height: 100vh;
   min-height: 100dvh;
 }
 
 .scene-wrap {
   position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: clamp(520px, 58dvh, 760px);
   overflow: hidden;
   background: #0f1a20;
 }
@@ -57,13 +56,13 @@ input {
 
 .scene-hud {
   position: absolute;
-  top: 18px;
-  left: 18px;
-  right: 18px;
+  top: 14px;
+  left: 16px;
+  right: 16px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 18px;
+  gap: 14px;
   pointer-events: none;
 }
 
@@ -82,11 +81,11 @@ input {
 }
 
 h1 {
-  max-width: 440px;
+  max-width: 310px;
   margin: 0;
   color: #f8fff7;
-  font-size: clamp(1.75rem, 2.8vw, 3.25rem);
-  line-height: 1;
+  font-size: clamp(1.2rem, 1.9vw, 2rem);
+  line-height: 1.04;
   letter-spacing: 0;
   text-wrap: balance;
   text-shadow: 0 3px 18px rgba(0, 0, 0, 0.38);
@@ -94,7 +93,7 @@ h1 {
 
 .status-pill {
   max-width: 260px;
-  padding: 11px 14px;
+  padding: 9px 12px;
   border: 1px solid rgba(245, 184, 63, 0.58);
   border-radius: 8px;
   color: #fff8db;
@@ -105,24 +104,19 @@ h1 {
 }
 
 .scene-hud > div:first-child {
-  padding: 11px 13px;
+  padding: 9px 11px;
   border-radius: 8px;
   background: rgba(16, 24, 32, 0.46);
   backdrop-filter: blur(8px);
 }
 
 .control-panel {
-  height: 100vh;
-  height: 100dvh;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 10px;
-  overflow: hidden;
-  padding: 14px;
+  overflow: visible;
+  padding: 12px 18px;
   background:
     linear-gradient(180deg, rgba(255, 248, 224, 0.76), rgba(255, 255, 255, 0) 260px),
     var(--panel);
-  border-left: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .game-console,
@@ -132,33 +126,32 @@ h1 {
 
 .game-console {
   display: grid;
-  gap: 8px;
+  grid-template-columns: minmax(120px, 0.55fr) minmax(190px, 0.75fr) minmax(250px, 1fr) minmax(370px, 1.35fr) minmax(230px, 0.9fr);
+  align-items: stretch;
+  gap: 12px;
+  max-width: 1840px;
+  margin: 0 auto;
 }
 
 .mission-drawer {
-  min-height: 0;
-  overflow: auto;
-  padding: 10px;
-  border: 1px solid rgba(23, 33, 38, 0.12);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.46);
+  display: grid;
+  grid-template-columns: minmax(190px, 0.72fr) minmax(240px, 0.9fr) minmax(480px, 1.65fr) minmax(280px, 1fr);
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(239, 247, 241, 0.92)),
+    #eef5ef;
+  border-top: 1px solid var(--line);
 }
 
 .panel-section {
   padding: 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0;
 }
 
 .panel-section:first-child {
   padding-top: 0;
-}
-
-.game-console > .panel-section {
-  border-bottom: 0;
-}
-
-.mission-drawer .panel-section + .panel-section {
-  margin-top: 10px;
 }
 
 .target-strip,
@@ -172,7 +165,13 @@ h1 {
 }
 
 .target-strip {
-  padding-bottom: 2px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-content: center;
+  padding: 10px;
+  border: 1px solid rgba(23, 33, 38, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
 }
 
 .score-board {
@@ -197,6 +196,7 @@ h1 {
 }
 
 .mission-card {
+  min-height: 100%;
   padding: 9px 11px;
   border: 1px solid rgba(36, 115, 124, 0.24);
   border-radius: 8px;
@@ -226,6 +226,17 @@ h1 {
 
 .challenge-section {
   margin-top: 0;
+  padding: 10px;
+  border: 1px solid rgba(23, 33, 38, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.mode-section {
+  padding: 10px;
+  border: 1px solid rgba(23, 33, 38, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 h2 {
@@ -299,7 +310,7 @@ h2 {
 
 .preset-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(130px, 1fr));
   gap: 8px;
   margin-top: 9px;
 }
@@ -338,13 +349,13 @@ h2 {
 .vector-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
   margin-top: 8px;
 }
 
 .vector-card {
   position: relative;
-  padding: 9px;
+  padding: 8px;
   border: 1px solid rgba(23, 33, 38, 0.12);
   border-radius: 8px;
   background:
@@ -380,7 +391,7 @@ h2 {
 
 .component-row {
   display: grid;
-  grid-template-columns: 22px 1fr;
+  grid-template-columns: 18px 1fr;
   align-items: center;
   gap: 6px;
   margin-top: 5px;
@@ -394,7 +405,7 @@ h2 {
 
 .component-value {
   display: grid;
-  min-height: 28px;
+  min-height: 26px;
   place-items: center;
   width: 100%;
   min-width: 0;
@@ -429,10 +440,16 @@ body.is-2d .z-row {
   margin-top: 8px;
 }
 
+.booster-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .code-token {
   display: grid;
   place-items: center;
-  min-height: 74px;
+  min-height: 58px;
   border-radius: 8px;
   color: #fffdf2;
   background: #15262d;
@@ -464,14 +481,14 @@ body.is-2d .z-row {
 
 .stepper {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
+  grid-template-columns: 36px minmax(0, 1fr);
   gap: 8px;
   margin: 0;
 }
 
 .step-button,
 .press-button {
-  min-height: 74px;
+  min-height: 58px;
   border: 0;
   border-radius: 8px;
   cursor: pointer;
@@ -506,9 +523,15 @@ body.is-2d .z-row {
   box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.2), 0 9px 18px rgba(23, 33, 38, 0.18);
 }
 
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 0.82fr 1fr;
+  gap: 8px;
+}
+
 .primary-button,
 .secondary-button {
-  min-height: 38px;
+  min-height: 36px;
   padding: 8px 10px;
   margin-top: 8px;
   font-weight: 850;
@@ -525,11 +548,19 @@ body.is-2d .z-row {
   background: #fff9e9;
 }
 
-.wide-button {
+.action-row .primary-button,
+.action-row .secondary-button {
   width: 100%;
 }
 
+.wide-button {
+  width: auto;
+}
+
 .result-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   padding: 10px;
   margin-top: 0;
   border: 1px solid var(--line);
@@ -553,6 +584,11 @@ body.is-2d .z-row {
   color: var(--muted);
   line-height: 1.45;
   font-size: 0.92rem;
+}
+
+.result-card .answer {
+  max-height: 4.4em;
+  overflow: auto;
 }
 
 .answer strong.ok {
@@ -591,58 +627,78 @@ details p {
   line-height: 1.45;
 }
 
-@media (max-width: 980px) {
-  .app-shell {
-    grid-template-columns: 1fr;
+@media (max-width: 1180px) {
+  .game-console {
+    grid-template-columns: minmax(135px, 0.7fr) minmax(220px, 0.9fr) minmax(320px, 1.25fr);
   }
 
-  .scene-wrap {
-    min-height: 62vh;
-  }
-
-  .control-panel {
-    height: auto;
-    display: block;
-    overflow: visible;
-    border-left: 0;
+  .play-section,
+  .result-card {
+    grid-column: span 2;
   }
 
   .mission-drawer {
-    margin-top: 12px;
-    overflow: visible;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(260px, 1fr) minmax(500px, 1.5fr);
+  }
+
+  .discovery {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    grid-template-rows: auto minmax(430px, 58vh) auto;
+  }
+
+  .control-panel,
+  .mission-drawer {
+    padding: 12px;
+  }
+
+  .game-console,
+  .mission-drawer {
+    grid-template-columns: 1fr;
+  }
+
+  .play-section,
+  .result-card,
+  .discovery {
+    grid-column: auto;
+  }
+
+  .scene-wrap {
+    min-height: 430px;
   }
 
   .scene-hud {
-    flex-direction: column;
-    top: 16px;
-    left: 16px;
-    right: 16px;
+    top: 12px;
+    left: 12px;
+    right: 12px;
   }
 
-  .status-pill {
-    text-align: left;
+  h1 {
+    font-size: 1.2rem;
   }
 }
 
 @media (max-width: 520px) {
-  .control-panel {
-    padding: 14px;
-  }
-
   .vector-cards,
-  .preset-grid {
+  .booster-grid,
+  .preset-grid,
+  .action-row {
     grid-template-columns: 1fr;
   }
 
   .target-strip,
-  .section-head,
-  .action-row {
+  .section-head {
     align-items: stretch;
     flex-direction: column;
   }
 
   .score-board {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .primary-button,

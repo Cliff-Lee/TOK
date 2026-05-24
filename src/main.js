@@ -453,17 +453,21 @@ function resetPuzzleProgress() {
 
 function getWorldPoints() {
   const uEnd = scale(state.u, state.m);
+  const targetPad = state.mode === "worksheet" ? [5, 5, 1] : [7, 7, 6];
+  const originPad = state.mode === "worksheet" ? [-5, -5, -1] : [-7, -7, -4];
+  const zGuide = state.mode === "worksheet" ? [0, 0, 0] : [0, 0, 24];
   return [
     [0, 0, 0],
+    originPad,
     state.target,
-    add(state.target, [12, 7, 5]),
-    sub(state.target, [6, 6, 3]),
+    add(state.target, targetPad),
     currentPoint(),
-    add(currentPoint(), [2, 2, 2]),
-    sub(currentPoint(), [2, 2, 2]),
+    add(currentPoint(), [3, 3, 3]),
+    sub(currentPoint(), [3, 3, 3]),
     state.u,
     state.v,
-    uEnd
+    uEnd,
+    zGuide
   ];
 }
 
@@ -477,12 +481,12 @@ function frameScene() {
   const verticalFov = THREE.MathUtils.degToRad(camera.fov);
   const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   if (state.mode === "worksheet") {
-    const width = Math.max(size.x + 24, 42);
-    const height = Math.max(size.y + 20, 36);
+    const width = Math.max(size.x + 8, 34);
+    const height = Math.max(size.y + 8, 30);
     const distance = Math.max(
       width / (2 * Math.tan(horizontalFov / 2)),
       height / (2 * Math.tan(verticalFov / 2))
-    ) * 1.45;
+    ) * 1.12;
     camera.up.set(0, 1, 0);
     controls.target.set(center.x, center.y, 0);
     camera.position.set(center.x, center.y, distance);
@@ -492,17 +496,17 @@ function frameScene() {
     controls.enableRotate = false;
     controls.enablePan = false;
     controls.enableZoom = true;
-    controls.minDistance = Math.max(10, distance * 0.98);
-    controls.maxDistance = Math.max(260, distance * 5);
+    controls.minDistance = Math.max(10, distance * 0.48);
+    controls.maxDistance = Math.max(260, distance * 5.5);
     controls.update();
     return;
   }
 
   camera.up.set(0, 1, 0);
   const fitFov = Math.min(verticalFov, horizontalFov);
-  const radius = Math.max(size.length() * 0.56, 18);
-  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.75, 58), 300);
-  const direction = new THREE.Vector3(0.46, 0.28, 1.18).normalize();
+  const radius = Math.max(size.length() * 0.5, 18);
+  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.25, 46), 220);
+  const direction = new THREE.Vector3(0.72, 0.54, 1.16).normalize();
 
   controls.target.copy(center);
   camera.position.copy(center).add(direction.multiplyScalar(distance));
@@ -512,8 +516,8 @@ function frameScene() {
   controls.enableRotate = true;
   controls.enablePan = false;
   controls.enableZoom = true;
-  controls.minDistance = Math.max(16, distance * 0.9);
-  controls.maxDistance = Math.max(320, distance * 5);
+  controls.minDistance = Math.max(16, distance * 0.55);
+  controls.maxDistance = Math.max(320, distance * 5.5);
   controls.update();
 }
 
