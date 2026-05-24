@@ -91,7 +91,7 @@ sceneEl.append(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101820);
-scene.fog = new THREE.Fog(0x101820, 40, 110);
+scene.fog = new THREE.Fog(0x101820, 120, 280);
 
 const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 200);
 camera.position.set(36, 32, 42);
@@ -100,6 +100,8 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(8, 6, 3);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
+controls.minDistance = 10;
+controls.maxDistance = 180;
 
 scene.add(new THREE.HemisphereLight(0xf4fff8, 0x22333a, 2.2));
 const sun = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -121,7 +123,11 @@ const treasure = makeTreasure();
 root.add(treasure);
 
 const targetLine = makeLine([0, 0, 0], state.target, colors.target, 0.045);
+targetLine.visible = false;
 root.add(targetLine);
+
+const targetMarker = new THREE.Group();
+root.add(targetMarker);
 
 const axes = makeAxes();
 root.add(axes);
@@ -222,13 +228,16 @@ function makeTextSprite(text, color = "#ffffff") {
 
 function makeAxes() {
   const group = new THREE.Group();
-  group.add(makeArrow([0, 0, 0], [26, 0, 0], 0x9fd6ff, 0.035));
-  group.add(makeArrow([0, 0, 0], [0, 24, 0], 0xa7f0b9, 0.035));
-  group.add(makeArrow([0, 0, 0], [0, 0, 18], 0xffd180, 0.035));
+  group.add(makeCylinderBetween([-36, 0, 0], [0, 0, 0], 0x9fd6ff, 0.026));
+  group.add(makeCylinderBetween([0, -36, 0], [0, 0, 0], 0xa7f0b9, 0.026));
+  group.add(makeArrow([0, 0, 0], [56, 0, 0], 0x9fd6ff, 0.042));
+  group.add(makeArrow([0, 0, 0], [0, 56, 0], 0xa7f0b9, 0.042));
+
+  const zAxis = new THREE.Group();
+  zAxis.add(makeArrow([0, 0, 0], [0, 0, 18], 0xffd180, 0.035));
   const labels = [
-    ["x", [27.2, 0, 0], "#bce7ff"],
-    ["y", [0, 25.2, 0], "#c5f7cf"],
-    ["z", [0, 0, 19.2], "#ffe0a8"],
+    ["x", [58, 0, 0], "#bce7ff"],
+    ["y", [0, 58, 0], "#c5f7cf"],
     ["O", [-1.1, -1.1, 0], "#ffffff"]
   ];
   labels.forEach(([text, position, color]) => {
@@ -236,11 +245,20 @@ function makeAxes() {
     sprite.position.copy(vec(position));
     group.add(sprite);
   });
+  const zLabel = makeTextSprite("z", "#ffe0a8");
+  zLabel.position.copy(vec([0, 0, 19.4]));
+  zAxis.add(zLabel);
+  group.add(zAxis);
+  group.userData.zAxis = zAxis;
 
-  const grid = new THREE.GridHelper(44, 44, 0x476166, 0x25363c);
-  grid.position.set(9, -0.02, 8);
+  const grid = new THREE.GridHelper(110, 110, 0x557078, 0x263b42);
+  grid.position.set(15, -0.02, 15);
   group.add(grid);
   return group;
+}
+
+function updateAxes() {
+  if (axes.userData.zAxis) axes.userData.zAxis.visible = state.mode === "3d";
 }
 
 function makeRobot() {
@@ -281,6 +299,38 @@ function makeTreasure() {
   glow.position.y = 1.4;
   group.add(base, lid, glow);
   return group;
+}
+
+function makeTargetBeacon() {
+  const group = new THREE.Group();
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.95, 0.065, 12, 40),
+    new THREE.MeshStandardMaterial({ color: 0xff5252, emissive: 0x641515, emissiveIntensity: 0.28, roughness: 0.28 })
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.08;
+
+  const pin = new THREE.Mesh(
+    new THREE.SphereGeometry(0.24, 18, 12),
+    new THREE.MeshStandardMaterial({ color: 0xfff1a8, emissive: 0xe9a922, emissiveIntensity: 0.32, roughness: 0.38 })
+  );
+  pin.position.y = 0.18;
+
+  group.add(ring, pin);
+  return group;
+}
+
+function updateTargetMarker() {
+  clearGroup(targetMarker);
+  const beacon = makeTargetBeacon();
+  const labelText = state.mode === "worksheet"
+    ? `T (${state.target[0]}, ${state.target[1]})`
+    : `T (${state.target.join(", ")})`;
+  const label = makeTextSprite(labelText, "#ffe8a3");
+  label.position.copy(vec(state.mode === "worksheet" ? [0, 1.8, 0] : [0, 1.8, 1.6]));
+  label.scale.set(state.mode === "worksheet" ? 7.8 : 8.8, 2.1, 1);
+  targetMarker.position.copy(vec(state.target));
+  targetMarker.add(beacon, label);
 }
 
 function clearGroup(group) {
@@ -377,12 +427,12 @@ function frameScene() {
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   if (state.mode === "worksheet") {
-    const span = Math.max(size.x, size.z, 20);
-    camera.up.set(0, 0, -1);
+    const span = Math.max(size.x, size.z, 30);
+    camera.up.set(0, 0, 1);
     controls.target.set(center.x, 0, center.z);
-    camera.position.set(center.x, span * 1.95, center.z + 0.01);
+    camera.position.set(center.x, span * 2.35, center.z + 0.01);
     camera.near = 0.1;
-    camera.far = Math.max(120, span * 5);
+    camera.far = Math.max(220, span * 8);
     camera.updateProjectionMatrix();
     controls.enableRotate = false;
     controls.enablePan = true;
@@ -395,7 +445,7 @@ function frameScene() {
   const verticalFov = THREE.MathUtils.degToRad(camera.fov);
   const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   const fitFov = Math.min(verticalFov, horizontalFov);
-  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.08, 34), 110);
+  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.32, 42), 140);
   const direction = new THREE.Vector3(1.15, 1.65, 1.25).normalize();
 
   controls.target.copy(center);
@@ -464,11 +514,11 @@ function drawRoute(progress = 1) {
   routeGroup.add(makeArrow([0, 0, 0], state.v, colors.v, 0.035));
   robot.position.copy(vec(routeProgress < 0.5 ? scale(uEnd, uProgress) : add(uEnd, scale(scale(state.v, state.n), vProgress))));
   treasure.position.copy(vec(state.target));
-  targetLine.visible = state.mode === "3d" && state.checked;
   targetLine.geometry?.dispose();
   const newLine = makeLine([0, 0, 0], state.target, colors.target, 0.032);
   targetLine.geometry = newLine.geometry;
   targetLine.material = newLine.material;
+  targetLine.visible = false;
 }
 
 function updateUi() {
@@ -605,6 +655,8 @@ function syncStateFromInputs() {
 
 function refresh() {
   updateUi();
+  updateAxes();
+  updateTargetMarker();
   drawReachableWorld();
   drawRoute(1);
   frameScene();
@@ -635,6 +687,10 @@ function renderPresets() {
 Object.values(inputs).forEach((input) => input.addEventListener("input", syncStateFromInputs));
 mSlider.addEventListener("input", syncStateFromInputs);
 nSlider.addEventListener("input", syncStateFromInputs);
+document.querySelector("#m-minus").addEventListener("click", () => adjustPress("m", -1));
+document.querySelector("#m-plus").addEventListener("click", () => adjustPress("m", 1));
+document.querySelector("#n-minus").addEventListener("click", () => adjustPress("n", -1));
+document.querySelector("#n-plus").addEventListener("click", () => adjustPress("n", 1));
 allowNegativeEl.addEventListener("change", () => {
   mSlider.min = allowNegativeEl.checked ? -20 : 0;
   nSlider.min = allowNegativeEl.checked ? -20 : 0;
@@ -645,6 +701,16 @@ allowNegativeEl.addEventListener("change", () => {
   resetPuzzleProgress();
   refresh();
 });
+
+function adjustPress(which, change) {
+  const slider = which === "m" ? mSlider : nSlider;
+  const min = Number(slider.min);
+  const max = Number(slider.max);
+  state[which] = Math.max(min, Math.min(max, state[which] + change));
+  state.checked = false;
+  state.message = "";
+  refresh();
+}
 
 document.querySelector("#animate-route").addEventListener("click", submitRoute);
 
