@@ -1,14 +1,16 @@
 :root {
   --ink: #172126;
   --muted: #60717b;
-  --panel: #fbfcf8;
-  --line: #d8e0dc;
+  --panel: #fffdf7;
+  --line: #d9e2dc;
   --u: #6b4bc1;
   --v: #d69316;
   --target: #e33f3f;
   --ok: #167a55;
   --warn: #aa6a00;
   --bad: #b23737;
+  --teal: #24737c;
+  --gold: #f5b83f;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -21,7 +23,7 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   color: var(--ink);
-  background: #e7ece8;
+  background: #eef5ef;
 }
 
 button,
@@ -41,7 +43,7 @@ input {
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
-  background: #101820;
+  background: #0f1a20;
 }
 
 .scene {
@@ -55,9 +57,9 @@ input {
 
 .scene-hud {
   position: absolute;
-  top: 22px;
-  left: 24px;
-  right: 24px;
+  top: 18px;
+  left: 18px;
+  right: 18px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -80,10 +82,10 @@ input {
 }
 
 h1 {
-  max-width: 520px;
+  max-width: 440px;
   margin: 0;
   color: #f8fff7;
-  font-size: clamp(2rem, 3.2vw, 3.9rem);
+  font-size: clamp(1.75rem, 2.8vw, 3.25rem);
   line-height: 1;
   letter-spacing: 0;
   text-wrap: balance;
@@ -92,20 +94,20 @@ h1 {
 
 .status-pill {
   max-width: 260px;
-  padding: 10px 13px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
+  padding: 11px 14px;
+  border: 1px solid rgba(245, 184, 63, 0.58);
   border-radius: 8px;
-  color: white;
-  background: rgba(16, 24, 32, 0.62);
+  color: #fff8db;
+  background: rgba(24, 35, 40, 0.72);
   font-weight: 800;
   text-align: right;
   backdrop-filter: blur(12px);
 }
 
 .scene-hud > div:first-child {
-  padding: 12px 14px;
+  padding: 11px 13px;
   border-radius: 8px;
-  background: rgba(16, 24, 32, 0.36);
+  background: rgba(16, 24, 32, 0.46);
   backdrop-filter: blur(8px);
 }
 
@@ -114,7 +116,9 @@ h1 {
   height: 100dvh;
   overflow: auto;
   padding: 18px;
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 224, 0.76), rgba(255, 255, 255, 0) 260px),
+    var(--panel);
   border-left: 1px solid var(--line);
 }
 
@@ -141,21 +145,29 @@ h1 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   padding: 12px;
-  border: 1px solid var(--line);
+  border: 1px solid #18383d;
   border-radius: 8px;
-  background: white;
+  color: white;
+  background: #163a40;
+  box-shadow: inset 0 -4px 0 rgba(245, 184, 63, 0.22);
 }
 
 .score-board strong {
   display: block;
   font-size: 1.35rem;
+  color: #fff4c7;
+}
+
+.score-board .label {
+  color: #bed8d4;
 }
 
 .mission-card {
   padding: 14px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(36, 115, 124, 0.24);
   border-radius: 8px;
-  background: #eef4f1;
+  background: #eaf7f2;
+  box-shadow: inset 5px 0 0 var(--gold);
 }
 
 .mission-card p:last-child {
@@ -178,6 +190,17 @@ h2 {
   border: 1px solid var(--line);
   border-radius: 8px;
   cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.icon-button:hover,
+.text-button:hover,
+.primary-button:hover,
+.secondary-button:hover,
+.segment:hover,
+.preset:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(23, 33, 38, 0.12);
 }
 
 .icon-button {
@@ -192,7 +215,7 @@ h2 {
 
 .text-button {
   padding: 8px 10px;
-  background: white;
+  background: #fff9e9;
   color: var(--ink);
   font-weight: 750;
 }
@@ -205,7 +228,7 @@ h2 {
   padding: 4px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #edf2ef;
+  background: #e7f0ec;
 }
 
 .segment {
@@ -217,9 +240,9 @@ h2 {
 }
 
 .segment.active {
-  background: white;
+  background: #ffffff;
   color: var(--ink);
-  box-shadow: 0 1px 4px rgba(26, 36, 42, 0.12);
+  box-shadow: 0 2px 8px rgba(26, 36, 42, 0.14);
 }
 
 .preset-grid {
@@ -234,14 +257,15 @@ h2 {
   padding: 9px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: white;
+  background: #ffffff;
   cursor: pointer;
   text-align: left;
 }
 
 .preset.active {
-  border-color: #296a74;
-  box-shadow: 0 0 0 2px rgba(41, 106, 116, 0.16);
+  border-color: var(--teal);
+  background: #eefaf7;
+  box-shadow: 0 0 0 2px rgba(36, 115, 124, 0.16);
 }
 
 .preset.solved {
@@ -270,7 +294,8 @@ h2 {
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: white;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(23, 33, 38, 0.06);
 }
 
 .u-card {
@@ -313,6 +338,7 @@ h2 {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #f8faf7;
+  font-weight: 800;
 }
 
 .component-row input[readonly] {
@@ -363,12 +389,12 @@ body.is-2d .z-row {
 .primary-button {
   border-color: #224f58;
   color: white;
-  background: #296a74;
+  background: linear-gradient(180deg, #2f8791, #246c75);
 }
 
 .secondary-button {
   color: var(--ink);
-  background: white;
+  background: #fff9e9;
 }
 
 .wide-button {
@@ -380,14 +406,15 @@ body.is-2d .z-row {
   margin-top: 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: white;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(23, 33, 38, 0.08);
 }
 
 .equation {
   margin-top: 11px;
   padding: 10px;
   border-radius: 8px;
-  background: #eef4f1;
+  background: #eef8f4;
   color: #28343a;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.92rem;
@@ -421,7 +448,7 @@ details {
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: white;
+  background: #ffffff;
 }
 
 summary {

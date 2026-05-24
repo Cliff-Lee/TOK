@@ -378,8 +378,9 @@ function frameScene() {
   const size = box.getSize(new THREE.Vector3());
   if (state.mode === "worksheet") {
     const span = Math.max(size.x, size.z, 20);
+    camera.up.set(0, 0, -1);
     controls.target.set(center.x, 0, center.z);
-    camera.position.set(center.x, span * 1.85, center.z + 0.02);
+    camera.position.set(center.x, span * 1.95, center.z + 0.01);
     camera.near = 0.1;
     camera.far = Math.max(120, span * 5);
     camera.updateProjectionMatrix();
@@ -389,12 +390,13 @@ function frameScene() {
     return;
   }
 
-  const radius = Math.max(size.length() * 0.5, 8);
+  camera.up.set(0, 1, 0);
+  const radius = Math.max(size.length() * 0.58, 10);
   const verticalFov = THREE.MathUtils.degToRad(camera.fov);
   const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   const fitFov = Math.min(verticalFov, horizontalFov);
-  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 0.95, 22), 90);
-  const direction = new THREE.Vector3(1.05, 0.85, 1.25).normalize();
+  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.08, 34), 110);
+  const direction = new THREE.Vector3(1.15, 1.65, 1.25).normalize();
 
   controls.target.copy(center);
   camera.position.copy(center).add(direction.multiplyScalar(distance));
@@ -462,6 +464,7 @@ function drawRoute(progress = 1) {
   routeGroup.add(makeArrow([0, 0, 0], state.v, colors.v, 0.035));
   robot.position.copy(vec(routeProgress < 0.5 ? scale(uEnd, uProgress) : add(uEnd, scale(scale(state.v, state.n), vProgress))));
   treasure.position.copy(vec(state.target));
+  targetLine.visible = state.mode === "3d" && state.checked;
   targetLine.geometry?.dispose();
   const newLine = makeLine([0, 0, 0], state.target, colors.target, 0.032);
   targetLine.geometry = newLine.geometry;
