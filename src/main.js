@@ -7,6 +7,11 @@ const equationEl = document.querySelector("#equation");
 const answerEl = document.querySelector("#answer");
 const statusPill = document.querySelector("#status-pill");
 const presetGrid = document.querySelector("#preset-grid");
+const scoreReadout = document.querySelector("#score-readout");
+const solvedReadout = document.querySelector("#solved-readout");
+const streakReadout = document.querySelector("#streak-readout");
+const missionTitle = document.querySelector("#mission-title");
+const missionBrief = document.querySelector("#mission-brief");
 const allowNegativeEl = document.querySelector("#allow-negative");
 const mSlider = document.querySelector("#m-slider");
 const nSlider = document.querySelector("#n-slider");
@@ -20,6 +25,10 @@ const inputs = {
   vy: document.querySelector("#vy"),
   vz: document.querySelector("#vz")
 };
+
+Object.values(inputs).forEach((input) => {
+  input.readOnly = true;
+});
 
 const colors = {
   u: 0x7a5ad7,
@@ -36,23 +45,23 @@ const modes = {
   "3d": {
     target: [18, 16, 10],
     presets: [
-      { name: "Mission A", u: [3, 1, 1], v: [1, 2, 1] },
-      { name: "Mission B", u: [5, 1, 1], v: [2, 3, 2] },
-      { name: "Mission C", u: [2, 4, 1], v: [1, 2, 3] },
-      { name: "Mission D", u: [2, 1, 1], v: [-1, 3, 0] },
-      { name: "Mission E", u: [2, 4, 2], v: [1, 2, 1] },
-      { name: "Mission F", u: [4, 0, 2], v: [1, 4, 1] }
+      { name: "Mission A", u: [3, 1, 1], v: [1, 2, 1], brief: "Find a whole-number route to open the treasure." },
+      { name: "Mission B", u: [5, 1, 1], v: [2, 3, 2], brief: "Decide whether this route can be solved with whole button presses." },
+      { name: "Mission C", u: [2, 4, 1], v: [1, 2, 3], brief: "Investigate the movement sheet before you submit." },
+      { name: "Mission D", u: [2, 1, 1], v: [-1, 3, 0], brief: "This one may need brave thinking about direction." },
+      { name: "Mission E", u: [2, 4, 2], v: [1, 2, 1], brief: "Look carefully at whether the two buttons really give two directions." },
+      { name: "Mission F", u: [4, 0, 2], v: [1, 4, 1], brief: "Hunt for a route, or prove the code cannot be whole." }
     ]
   },
   worksheet: {
     target: [18, 16, 0],
     presets: [
-      { name: "Set 1", u: [3, 1, 0], v: [1, 2, 0] },
-      { name: "Set 2", u: [4, 2, 0], v: [1, 1, 0] },
-      { name: "Set 3", u: [5, 1, 0], v: [2, 3, 0] },
-      { name: "Set 4", u: [2, 4, 0], v: [1, 2, 0] },
-      { name: "Set 5", u: [4, 0, 0], v: [1, 4, 0] },
-      { name: "Set 6", u: [2, 1, 0], v: [-1, 3, 0] }
+      { name: "Set 1", u: [3, 1, 0], v: [1, 2, 0], brief: "Match the original worksheet target with whole button presses." },
+      { name: "Set 2", u: [4, 2, 0], v: [1, 1, 0], brief: "Use the grid to search for a whole-number code." },
+      { name: "Set 3", u: [5, 1, 0], v: [2, 3, 0], brief: "A route may look possible before whole numbers are checked." },
+      { name: "Set 4", u: [2, 4, 0], v: [1, 2, 0], brief: "Watch for parallel buttons." },
+      { name: "Set 5", u: [4, 0, 0], v: [1, 4, 0], brief: "Check whether both coordinates can be matched exactly." },
+      { name: "Set 6", u: [2, 1, 0], v: [-1, 3, 0], brief: "Negative x movement can still help." }
     ]
   }
 };
@@ -62,10 +71,16 @@ let state = {
   target: [...modes["3d"].target],
   u: [3, 1, 1],
   v: [1, 2, 1],
+  activeIndex: 0,
   m: START_M,
   n: START_N,
   clueLevel: 0,
   checked: false,
+  score: 0,
+  streak: 0,
+  attempts: 0,
+  message: "",
+  solved: new Set(),
   animating: false,
   animationStart: 0
 };
@@ -319,9 +334,23 @@ function currentPoint() {
   return add(scale(state.u, state.m), scale(state.v, state.n));
 }
 
+function activeChallenge() {
+  return modes[state.mode].presets[state.activeIndex];
+}
+
+function challengeKey(index = state.activeIndex) {
+  return `${state.mode}:${modes[state.mode].presets[index].name}`;
+}
+
+function isSolved(index = state.activeIndex) {
+  return state.solved.has(challengeKey(index));
+}
+
 function resetPuzzleProgress() {
   state.clueLevel = 0;
   state.checked = false;
+  state.attempts = 0;
+  state.message = "";
 }
 
 function getWorldPoints() {
@@ -436,14 +465,19 @@ function updateUi() {
   mReadout.textContent = state.m;
   nReadout.textContent = state.n;
   targetReadout.textContent = `(${state.target.join(", ")})`;
+  missionTitle.textContent = activeChallenge().name;
+  missionBrief.textContent = activeChallenge().brief;
+  scoreReadout.textContent = state.score;
+  streakReadout.textContent = state.streak;
+  solvedReadout.textContent = `${modes[state.mode].presets.filter((_, index) => isSolved(index)).length} / ${modes[state.mode].presets.length}`;
   const p = currentPoint();
-  const real = solveReal(state.u, state.v, state.target);
-  const whole = findWholeSolution(state.u, state.v, state.target, allowNegativeEl.checked);
   const distance = norm(sub(p, state.target));
   const exactCurrent = distance < 1e-8;
   equationEl.textContent = `${state.m}u + ${state.n}v = (${p.map((x) => round(x)).join(", ")})`;
 
-  if (exactCurrent) {
+  if (isSolved()) {
+    statusPill.textContent = "Challenge solved";
+  } else if (exactCurrent) {
     statusPill.textContent = "Treasure unlocked";
   } else if (state.checked) {
     statusPill.textContent = `${round(distance)} units away`;
@@ -452,42 +486,22 @@ function updateUi() {
   }
 
   let message = "";
-  if (exactCurrent) {
-    message = `<strong class="ok">Unlocked.</strong> This button code lands exactly on T. Now explain why both coordinates and height match at the same time.`;
+  if (state.message) {
+    message = state.message;
+  } else if (isSolved()) {
+    message = `<strong class="ok">Solved.</strong> Choose another challenge from the board, or switch mode for a new set.`;
+  } else if (exactCurrent) {
+    message = `<strong class="ok">Unlocked.</strong> Submit this route to score the challenge.`;
   } else if (!state.checked && state.clueLevel === 0) {
-    message = `Choose values for m and n, launch the route, then check the distance. The treasure opens only when the robot lands exactly on T.`;
+    message = `Choose whole-number values for m and n. Submit a route if it reaches T, or claim impossible if you can justify that no whole-number code works.`;
   } else if (state.clueLevel === 0) {
-    message = `<strong class="warn">Not yet.</strong> Your current landing point is ${round(distance)} units from the treasure. Try changing one slider and watch whether the robot gets closer.`;
+    message = `<strong class="warn">Not yet.</strong> Your current landing point is ${round(distance)} units from the treasure. Use the landing point to decide which coordinate needs to change.`;
   } else if (state.clueLevel === 1) {
-    message = whole.exact
-      ? `<strong class="ok">Clue 1.</strong> There is a whole-number code somewhere on the lattice. Look for the bright route endpoint to sit exactly on the red target line.`
-      : `<strong class="warn">Clue 1.</strong> No whole-number code appears in the current search range. The reason may be fractions, a missing plane, or parallel movement.`;
+    message = `<strong class="warn">Clue 1.</strong> Compare your landing point with T coordinate by coordinate. Which of x, y, and z is too small or too large?`;
   } else if (state.clueLevel === 2) {
-    if (real.exists && whole.exact) {
-      const currentMGap = Math.abs(whole.m - state.m);
-      const currentNGap = Math.abs(whole.n - state.n);
-      message = currentMGap > currentNGap
-        ? `<strong class="ok">Clue 2.</strong> Your m slider needs the bigger adjustment.`
-        : `<strong class="ok">Clue 2.</strong> Your n slider needs the bigger adjustment.`;
-    } else if (real.exists) {
-      message = `<strong class="warn">Clue 2.</strong> Decimal button presses would hit the target, but the robot only accepts whole numbers.`;
-    } else if (real.parallel) {
-      message = `<strong class="bad">Clue 2.</strong> The two movement buttons are parallel, so the robot is trapped on one line.`;
-    } else {
-      message = `<strong class="bad">Clue 2.</strong> The two buttons make a flat sheet in 3D, and T is not on that sheet.`;
-    }
+    message = `<strong class="warn">Clue 2.</strong> Try making a small table of attempts. If every whole-number route misses in a pattern, the best move may be to claim impossible.`;
   } else {
-    if (whole.exact) {
-      const mDirection = whole.m > state.m ? "increase m" : whole.m < state.m ? "decrease m" : "keep m";
-      const nDirection = whole.n > state.n ? "increase n" : whole.n < state.n ? "decrease n" : "keep n";
-      message = `<strong class="ok">Clue 3.</strong> To move closer, ${mDirection} and ${nDirection}.`;
-    } else if (real.exists) {
-      message = `<strong class="warn">Clue 3.</strong> The real-number route lands at m=${round(real.m)}, n=${round(real.n)}. Decide why that is not a legal whole-button code.`;
-    } else if (real.parallel) {
-      message = `<strong class="bad">Clue 3.</strong> Parallel vectors cannot sweep out an area or plane, so most targets are unreachable.`;
-    } else {
-      message = `<strong class="bad">Clue 3.</strong> Even decimal presses miss by ${round(real.residual)} units because T is outside the movement plane.`;
-    }
+    message = `<strong class="warn">Clue 3.</strong> Use the coordinate equations. A legal code must make x, y, and z match T at the same time, using whole numbers only.`;
   }
   answerEl.innerHTML = message;
 }
@@ -496,12 +510,71 @@ function round(value) {
   return Number.isInteger(value) ? value : Number(value.toFixed(2));
 }
 
+function awardChallenge(kind) {
+  if (isSolved()) {
+    state.message = `<strong class="ok">Already solved.</strong> Pick a new challenge to keep scoring.`;
+    return 0;
+  }
+
+  const cluePenalty = state.clueLevel * 10;
+  const attemptPenalty = Math.max(0, state.attempts - 1) * 5;
+  const streakBonus = Math.min(state.streak * 5, 20);
+  const base = kind === "route" ? 100 : 80;
+  const points = Math.max(25, base - cluePenalty - attemptPenalty + streakBonus);
+  state.score += points;
+  state.streak += 1;
+  state.solved.add(challengeKey());
+  state.message = `<strong class="ok">+${points} points.</strong> Challenge solved. Streak bonus is now active for the next mission.`;
+  renderPresets();
+  return points;
+}
+
+function submitRoute() {
+  state.checked = true;
+  state.attempts += 1;
+  state.animating = true;
+  state.animationStart = performance.now();
+
+  const distance = norm(sub(currentPoint(), state.target));
+  if (distance < 1e-8) {
+    awardChallenge("route");
+  } else {
+    state.streak = 0;
+    state.message = `<strong class="warn">Route rejected.</strong> You landed ${round(distance)} units away from T. Adjust m and n, then submit again.`;
+  }
+
+  updateUi();
+}
+
+function claimImpossible() {
+  state.checked = true;
+  state.attempts += 1;
+  const whole = findWholeSolution(state.u, state.v, state.target, allowNegativeEl.checked);
+
+  if (!whole.exact) {
+    const points = awardChallenge("impossible");
+    const real = solveReal(state.u, state.v, state.target);
+    const reason = real.exists
+      ? "Decimal presses can reach T, but the button code is not made of whole numbers."
+      : real.parallel
+        ? "The two buttons are parallel, so the robot is trapped on one line."
+        : "The target is outside the movement plane made by the two buttons.";
+    state.message = `<strong class="ok">+${points} points.</strong> Correct impossible claim. ${reason}`;
+  } else {
+    state.streak = 0;
+    state.message = `<strong class="bad">Claim rejected.</strong> A whole-number route exists in the game range. Keep searching before you spend another attempt.`;
+  }
+
+  refresh();
+}
+
 function syncStateFromInputs() {
   state.u = [inputs.ux.valueAsNumber, inputs.uy.valueAsNumber, inputs.uz.valueAsNumber];
   state.v = [inputs.vx.valueAsNumber, inputs.vy.valueAsNumber, inputs.vz.valueAsNumber];
   state.m = Number(mSlider.value);
   state.n = Number(nSlider.value);
   state.checked = false;
+  state.message = "";
   refresh();
 }
 
@@ -512,7 +585,8 @@ function refresh() {
   frameScene();
 }
 
-function setPreset(preset) {
+function setPreset(preset, index) {
+  state.activeIndex = index;
   state.u = [...preset.u];
   state.v = [...preset.v];
   state.m = START_M;
@@ -525,10 +599,10 @@ function renderPresets() {
   presetGrid.innerHTML = "";
   modes[state.mode].presets.forEach((preset) => {
     const button = document.createElement("button");
-    button.className = "preset";
+    button.className = ["preset", preset === activeChallenge() ? "active" : "", isSolved(modes[state.mode].presets.indexOf(preset)) ? "solved" : ""].filter(Boolean).join(" ");
     button.type = "button";
-    button.innerHTML = `<strong>${preset.name}</strong><span>Find the hidden m,n code</span>`;
-    button.addEventListener("click", () => setPreset(preset));
+    button.innerHTML = `<strong>${preset.name}</strong><span>${isSolved(modes[state.mode].presets.indexOf(preset)) ? "Solved" : "Unsolved challenge"}</span>`;
+    button.addEventListener("click", () => setPreset(preset, modes[state.mode].presets.indexOf(preset)));
     presetGrid.append(button);
   });
 }
@@ -547,16 +621,14 @@ allowNegativeEl.addEventListener("change", () => {
   refresh();
 });
 
-document.querySelector("#animate-route").addEventListener("click", () => {
-  state.checked = true;
-  state.animating = true;
-  state.animationStart = performance.now();
-  updateUi();
-});
+document.querySelector("#animate-route").addEventListener("click", submitRoute);
+
+document.querySelector("#impossible-button").addEventListener("click", claimImpossible);
 
 document.querySelector("#clue-button").addEventListener("click", () => {
   state.checked = true;
   state.clueLevel = Math.min(state.clueLevel + 1, 3);
+  state.message = "";
   refresh();
 });
 
@@ -568,12 +640,17 @@ document.querySelector("#swap").addEventListener("click", () => {
 });
 
 document.querySelector("#randomize").addEventListener("click", () => {
-  const rand = () => Math.floor(Math.random() * 9) - 3;
-  state.u = [rand() + 2, rand() + 2, state.mode === "worksheet" ? 0 : rand() + 1];
-  state.v = [rand() + 1, rand() + 2, state.mode === "worksheet" ? 0 : rand() + 1];
+  state.activeIndex = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.solved = new Set();
+  const first = modes[state.mode].presets[0];
+  state.u = [...first.u];
+  state.v = [...first.v];
   state.m = START_M;
   state.n = START_N;
   resetPuzzleProgress();
+  renderPresets();
   refresh();
 });
 
@@ -588,6 +665,7 @@ document.querySelectorAll(".segment").forEach((button) => {
     state.mode = button.dataset.mode;
     state.target = [...modes[state.mode].target];
     const first = modes[state.mode].presets[0];
+    state.activeIndex = 0;
     state.u = [...first.u];
     state.v = [...first.v];
     state.m = START_M;

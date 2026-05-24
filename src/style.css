@@ -129,11 +129,39 @@ h1 {
 
 .target-strip,
 .section-head,
-.action-row {
+.action-row,
+.score-board {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.score-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.score-board strong {
+  display: block;
+  font-size: 1.35rem;
+}
+
+.mission-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #eef4f1;
+}
+
+.mission-card p:last-child {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 h2 {
@@ -211,6 +239,16 @@ h2 {
   text-align: left;
 }
 
+.preset.active {
+  border-color: #296a74;
+  box-shadow: 0 0 0 2px rgba(41, 106, 116, 0.16);
+}
+
+.preset.solved {
+  border-color: rgba(22, 122, 85, 0.36);
+  background: #eff8f3;
+}
+
 .preset strong {
   display: block;
   font-size: 0.9rem;
@@ -277,6 +315,12 @@ h2 {
   background: #f8faf7;
 }
 
+.component-row input[readonly] {
+  color: #2a373d;
+  background: #f2f5f1;
+  cursor: default;
+}
+
 .toggle {
   display: inline-flex;
   align-items: center;
@@ -321,6 +365,10 @@ h2 {
 .secondary-button {
   color: var(--ink);
   background: white;
+}
+
+.wide-button {
+  width: 100%;
 }
 
 .result-card {
@@ -425,6 +473,10 @@ details p {
   .action-row {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .score-board {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   .primary-button,

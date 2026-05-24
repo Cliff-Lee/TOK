@@ -29,6 +29,21 @@
           <button class="icon-button" id="reset-camera" aria-label="Reset camera" title="Reset camera">⟲</button>
         </section>
 
+        <section class="panel-section score-board" aria-label="Game score">
+          <div>
+            <p class="label">Score</p>
+            <strong id="score-readout">0</strong>
+          </div>
+          <div>
+            <p class="label">Solved</p>
+            <strong id="solved-readout">0 / 6</strong>
+          </div>
+          <div>
+            <p class="label">Streak</p>
+            <strong id="streak-readout">0</strong>
+          </div>
+        </section>
+
         <section class="panel-section">
           <div class="section-head">
             <h2>Mission Mode</h2>
@@ -41,10 +56,16 @@
 
         <section class="panel-section">
           <div class="section-head">
-            <h2>Vector Sets</h2>
-            <button class="text-button" id="randomize">Shuffle</button>
+            <h2>Challenge Board</h2>
+            <button class="text-button" id="randomize">Reset game</button>
           </div>
           <div class="preset-grid" id="preset-grid"></div>
+        </section>
+
+        <section class="panel-section mission-card">
+          <p class="label">Current Challenge</p>
+          <h2 id="mission-title">Mission A</h2>
+          <p id="mission-brief">Find a whole-number route to the treasure.</p>
         </section>
 
         <section class="panel-section vector-editor">
@@ -82,9 +103,10 @@
             <input id="n-slider" type="range" min="0" max="20" value="0">
           </div>
           <div class="action-row">
-            <button class="primary-button" id="animate-route">Launch route</button>
+            <button class="primary-button" id="animate-route">Submit route</button>
             <button class="secondary-button" id="clue-button">Get clue</button>
           </div>
+          <button class="secondary-button wide-button" id="impossible-button">Claim impossible</button>
         </section>
 
         <section class="panel-section result-card">
