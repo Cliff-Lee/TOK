@@ -532,7 +532,8 @@ function setActiveCameraForMode() {
 function frameScene() {
   setActiveCameraForMode();
   const box = new THREE.Box3();
-  getWorldPoints().forEach((point) => box.expandByPoint(vec(point)));
+  const worldPoints = getWorldPoints();
+  worldPoints.forEach((point) => box.expandByPoint(vec(point)));
   if (box.isEmpty()) return;
 
   const center = box.getCenter(new THREE.Vector3());
@@ -540,8 +541,14 @@ function frameScene() {
   if (state.mode === "worksheet") {
     const rect = sceneEl.getBoundingClientRect();
     const aspect = Math.max(rect.width, 1) / Math.max(rect.height, 1);
-    const halfWidth = Math.max(size.x * 0.5 + 6, 18);
-    const halfHeight = Math.max(size.y * 0.5 + 5, 16);
+    const focus = new THREE.Vector3(state.target[0] / 2, state.target[1] / 2, 0);
+    const requiredHalf = worldPoints.reduce((bounds, point) => {
+      bounds.x = Math.max(bounds.x, Math.abs(point[0] - focus.x));
+      bounds.y = Math.max(bounds.y, Math.abs(point[1] - focus.y));
+      return bounds;
+    }, { x: 0, y: 0 });
+    const halfWidth = Math.max(requiredHalf.x + 5, 18);
+    const halfHeight = Math.max(requiredHalf.y + 5, 15);
     const frustumHalfWidth = Math.max(halfWidth, halfHeight * aspect);
     const frustumHalfHeight = frustumHalfWidth / aspect;
     const distance = Math.max(size.z + 40, 60);
@@ -551,18 +558,29 @@ function frameScene() {
     orthographicCamera.top = frustumHalfHeight;
     orthographicCamera.bottom = -frustumHalfHeight;
     orthographicCamera.up.set(0, 1, 0);
-    orthographicCamera.position.set(center.x, center.y, distance);
+    orthographicCamera.position.set(focus.x, focus.y, distance);
     orthographicCamera.near = 0.1;
     orthographicCamera.far = 2000;
     orthographicCamera.zoom = 1;
+    orthographicCamera.lookAt(focus.x, focus.y, 0);
     orthographicCamera.updateProjectionMatrix();
 
-    controls.target.set(center.x, center.y, 0);
+    controls.target.set(focus.x, focus.y, 0);
     controls.enableRotate = false;
-    controls.enablePan = false;
+    controls.enablePan = true;
     controls.enableZoom = true;
+    controls.screenSpacePanning = true;
+    controls.mouseButtons = {
+      LEFT: THREE.MOUSE.PAN,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.PAN
+    };
+    controls.touches = {
+      ONE: THREE.TOUCH.PAN,
+      TWO: THREE.TOUCH.DOLLY_PAN
+    };
     controls.minZoom = 0.55;
-    controls.maxZoom = 3.2;
+    controls.maxZoom = 4.4;
     controls.update();
     return;
   }
@@ -599,8 +617,18 @@ function frameScene() {
   perspectiveCamera.far = 2000;
   perspectiveCamera.updateProjectionMatrix();
   controls.enableRotate = true;
-  controls.enablePan = false;
+  controls.enablePan = true;
   controls.enableZoom = true;
+  controls.screenSpacePanning = true;
+  controls.mouseButtons = {
+    LEFT: THREE.MOUSE.ROTATE,
+    MIDDLE: THREE.MOUSE.DOLLY,
+    RIGHT: THREE.MOUSE.PAN
+  };
+  controls.touches = {
+    ONE: THREE.TOUCH.ROTATE,
+    TWO: THREE.TOUCH.DOLLY_PAN
+  };
   controls.minDistance = Math.max(14, distance * 0.52);
   controls.maxDistance = Math.max(260, distance * 5.8);
   controls.update();
