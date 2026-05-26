@@ -286,8 +286,8 @@ function makeOriginSprite() {
 
 function makeGrid(size = 120, step = 2) {
   const group = new THREE.Group();
-  const minor = new THREE.LineBasicMaterial({ color: 0x213942, transparent: true, opacity: 0.72 });
-  const major = new THREE.LineBasicMaterial({ color: 0x335a63, transparent: true, opacity: 0.92 });
+  const minor = new THREE.LineBasicMaterial({ color: 0x2f4f58, transparent: true, opacity: 0.76 });
+  const major = new THREE.LineBasicMaterial({ color: 0x5b8990, transparent: true, opacity: 0.98 });
   for (let value = -size; value <= size; value += step) {
     const material = value % 10 === 0 ? major : minor;
     const xLine = new THREE.BufferGeometry().setFromPoints([
@@ -307,13 +307,13 @@ function makeGrid(size = 120, step = 2) {
 function makeAxes() {
   const group = new THREE.Group();
   group.add(makeGrid());
-  group.add(makeCylinderBetween([-24, 0, 0], [0, 0, 0], 0x9fd6ff, 0.026));
-  group.add(makeCylinderBetween([0, -24, 0], [0, 0, 0], 0xa7f0b9, 0.026));
-  group.add(makeArrow([0, 0, 0], [124, 0, 0], 0x9fd6ff, 0.042));
-  group.add(makeArrow([0, 0, 0], [0, 124, 0], 0xa7f0b9, 0.042));
+  group.add(makeCylinderBetween([-24, 0, 0], [0, 0, 0], 0xc5ecff, 0.032));
+  group.add(makeCylinderBetween([0, -24, 0], [0, 0, 0], 0xb9fac5, 0.032));
+  group.add(makeArrow([0, 0, 0], [124, 0, 0], 0xc5ecff, 0.052));
+  group.add(makeArrow([0, 0, 0], [0, 124, 0], 0xb9fac5, 0.052));
 
   const zAxis = new THREE.Group();
-  zAxis.add(makeArrow([0, 0, 0], [0, 0, 44], 0xffd180, 0.035));
+  zAxis.add(makeArrow([0, 0, 0], [0, 0, 44], 0xffd180, 0.048));
   const labels = [
     ["x", [126, 0, 0], "#bce7ff"],
     ["y", [0, 126, 0], "#c5f7cf"],
@@ -916,8 +916,8 @@ document.querySelectorAll(".segment").forEach((button) => {
 function resize() {
   const rect = sceneEl.getBoundingClientRect();
   renderer.setSize(rect.width, rect.height, false);
-  camera.aspect = rect.width / Math.max(rect.height, 1);
-  camera.updateProjectionMatrix();
+  perspectiveCamera.aspect = rect.width / Math.max(rect.height, 1);
+  perspectiveCamera.updateProjectionMatrix();
   frameScene();
 }
 
@@ -931,13 +931,13 @@ function animate(now) {
   controls.update();
   treasure.rotation.y += 0.012;
   robot.rotation.y = Math.sin(now * 0.002) * 0.2;
-  if (targetMarker.userData.beacon) targetMarker.userData.beacon.lookAt(camera.position);
+  if (targetMarker.userData.beacon) targetMarker.userData.beacon.lookAt(activeCamera.position);
   if (state.animating) {
     const progress = Math.min((now - state.animationStart) / 2200, 1);
     drawRoute(ease(progress));
     if (progress >= 1) state.animating = false;
   }
-  renderer.render(scene, camera);
+  renderer.render(scene, activeCamera);
 }
 
 function ease(t) {

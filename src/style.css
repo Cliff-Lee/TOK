@@ -649,7 +649,7 @@ details p {
 
 @media (max-width: 860px) {
   .app-shell {
-    grid-template-rows: auto minmax(430px, 58vh) auto;
+    grid-template-rows: minmax(480px, 68dvh) auto auto;
   }
 
   .control-panel,
@@ -669,7 +669,19 @@ details p {
   }
 
   .scene-wrap {
-    min-height: 430px;
+    order: -1;
+  }
+
+  .control-panel {
+    order: 0;
+  }
+
+  .mission-drawer {
+    order: 1;
+  }
+
+  .scene-wrap {
+    min-height: min(68dvh, 620px);
   }
 
   .scene-hud {
@@ -680,6 +692,11 @@ details p {
 
   h1 {
     font-size: 1.2rem;
+  }
+
+  .status-pill {
+    max-width: 190px;
+    font-size: 0.9rem;
   }
 }
 
