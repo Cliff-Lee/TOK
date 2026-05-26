@@ -89,15 +89,22 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101820);
 scene.fog = new THREE.Fog(0x101820, 720, 1600);
 
-const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 2000);
-camera.position.set(28, 22, 58);
+const perspectiveCamera = new THREE.PerspectiveCamera(48, 1, 0.1, 2000);
+perspectiveCamera.position.set(28, 22, 58);
 
-const controls = new OrbitControls(camera, renderer.domElement);
+const orthographicCamera = new THREE.OrthographicCamera(-24, 24, 24, -24, 0.1, 2000);
+orthographicCamera.position.set(10, 10, 60);
+
+let activeCamera = orthographicCamera;
+
+const controls = new OrbitControls(activeCamera, renderer.domElement);
 controls.target.set(8, 6, 3);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.minDistance = 10;
 controls.maxDistance = 520;
+controls.minZoom = 0.55;
+controls.maxZoom = 3.2;
 
 scene.add(new THREE.HemisphereLight(0xf4fff8, 0x22333a, 2.2));
 const sun = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -124,6 +131,8 @@ root.add(targetLine);
 
 const targetMarker = new THREE.Group();
 root.add(targetMarker);
+const originMarker = new THREE.Group();
+root.add(originMarker);
 
 const axes = makeAxes();
 root.add(axes);
@@ -247,6 +256,31 @@ function makeTargetSprite() {
   const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
   const sprite = new THREE.Sprite(material);
   sprite.scale.set(4.4, 4.4, 1);
+  return sprite;
+}
+
+function makeOriginSprite() {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = 196;
+  canvas.height = 196;
+  const gradient = context.createRadialGradient(98, 98, 10, 98, 98, 80);
+  gradient.addColorStop(0, "#ffffff");
+  gradient.addColorStop(0.5, "#c2e6ff");
+  gradient.addColorStop(1, "rgba(194,230,255,0)");
+  context.fillStyle = gradient;
+  context.beginPath();
+  context.arc(98, 98, 86, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = "#0f1a20";
+  context.font = "900 74px Inter, Arial, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText("O", 98, 102);
+  const texture = new THREE.CanvasTexture(canvas);
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(2.8, 2.8, 1);
   return sprite;
 }
 
@@ -381,6 +415,21 @@ function updateTargetMarker() {
   targetMarker.userData.beacon = beacon;
 }
 
+function updateOriginMarker() {
+  clearGroup(originMarker);
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.55, 0.05, 12, 34),
+    new THREE.MeshStandardMaterial({ color: 0xc5ecff, emissive: 0x1f2c3c, emissiveIntensity: 0.34, roughness: 0.4 })
+  );
+  ring.position.copy(vec([0, 0, 0.06]));
+  const badge = makeOriginSprite();
+  badge.position.copy(vec([0, 0, 0.5]));
+  const label = makeTextSprite("O (0, 0, 0)", "#d3efff");
+  label.position.copy(vec([-3.7, -1.7, 0.9]));
+  label.scale.set(6.8, 1.9, 1);
+  originMarker.add(ring, badge, label);
+}
+
 function clearGroup(group) {
   while (group.children.length) {
     const child = group.children.pop();
@@ -452,72 +501,108 @@ function resetPuzzleProgress() {
 }
 
 function getWorldPoints() {
+  const point = currentPoint();
   const uEnd = scale(state.u, state.m);
-  const targetPad = state.mode === "worksheet" ? [5, 5, 1] : [7, 7, 6];
-  const originPad = state.mode === "worksheet" ? [-5, -5, -1] : [-7, -7, -4];
-  const zGuide = state.mode === "worksheet" ? [0, 0, 0] : [0, 0, 24];
-  return [
+  const points = [
     [0, 0, 0],
-    originPad,
     state.target,
-    add(state.target, targetPad),
-    currentPoint(),
-    add(currentPoint(), [3, 3, 3]),
-    sub(currentPoint(), [3, 3, 3]),
+    point,
     state.u,
     state.v,
     uEnd,
-    zGuide
+    add(point, [2, 2, 0]),
+    sub(point, [2, 2, 0])
   ];
+  if (state.mode === "3d") {
+    points.push([0, 0, 26]);
+    points.push([state.target[0], state.target[1], 0]);
+    points.push(add(point, [2, 2, 2]));
+    points.push(sub(point, [2, 2, 2]));
+  }
+  return points;
+}
+
+function setActiveCameraForMode() {
+  const nextCamera = state.mode === "worksheet" ? orthographicCamera : perspectiveCamera;
+  if (activeCamera === nextCamera) return;
+  activeCamera = nextCamera;
+  controls.object = activeCamera;
 }
 
 function frameScene() {
+  setActiveCameraForMode();
   const box = new THREE.Box3();
   getWorldPoints().forEach((point) => box.expandByPoint(vec(point)));
   if (box.isEmpty()) return;
 
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
-  const verticalFov = THREE.MathUtils.degToRad(camera.fov);
-  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   if (state.mode === "worksheet") {
-    const width = Math.max(size.x + 8, 34);
-    const height = Math.max(size.y + 8, 30);
-    const distance = Math.max(
-      width / (2 * Math.tan(horizontalFov / 2)),
-      height / (2 * Math.tan(verticalFov / 2))
-    ) * 1.12;
-    camera.up.set(0, 1, 0);
+    const rect = sceneEl.getBoundingClientRect();
+    const aspect = Math.max(rect.width, 1) / Math.max(rect.height, 1);
+    const halfWidth = Math.max(size.x * 0.5 + 6, 18);
+    const halfHeight = Math.max(size.y * 0.5 + 5, 16);
+    const frustumHalfWidth = Math.max(halfWidth, halfHeight * aspect);
+    const frustumHalfHeight = frustumHalfWidth / aspect;
+    const distance = Math.max(size.z + 40, 60);
+
+    orthographicCamera.left = -frustumHalfWidth;
+    orthographicCamera.right = frustumHalfWidth;
+    orthographicCamera.top = frustumHalfHeight;
+    orthographicCamera.bottom = -frustumHalfHeight;
+    orthographicCamera.up.set(0, 1, 0);
+    orthographicCamera.position.set(center.x, center.y, distance);
+    orthographicCamera.near = 0.1;
+    orthographicCamera.far = 2000;
+    orthographicCamera.zoom = 1;
+    orthographicCamera.updateProjectionMatrix();
+
     controls.target.set(center.x, center.y, 0);
-    camera.position.set(center.x, center.y, distance);
-    camera.near = 0.1;
-    camera.far = 2000;
-    camera.updateProjectionMatrix();
     controls.enableRotate = false;
     controls.enablePan = false;
     controls.enableZoom = true;
-    controls.minDistance = Math.max(10, distance * 0.48);
-    controls.maxDistance = Math.max(260, distance * 5.5);
+    controls.minZoom = 0.55;
+    controls.maxZoom = 3.2;
     controls.update();
     return;
   }
 
-  camera.up.set(0, 1, 0);
+  const verticalFov = THREE.MathUtils.degToRad(perspectiveCamera.fov);
+  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * perspectiveCamera.aspect);
+  perspectiveCamera.up.set(0, 1, 0);
   const fitFov = Math.min(verticalFov, horizontalFov);
-  const radius = Math.max(size.length() * 0.5, 18);
-  const distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.25, 46), 220);
-  const direction = new THREE.Vector3(0.72, 0.54, 1.16).normalize();
+  const radius = Math.max(size.length() * 0.45, 16);
+  let distance = Math.min(Math.max((radius / Math.sin(fitFov / 2)) * 1.16, 42), 190);
+  const direction = new THREE.Vector3(0.86, 0.8, 1.12).normalize();
+
+  // Keep origin and treasure clearly inside frame in 3D at reset.
+  const mustSee = [new THREE.Vector3(0, 0, 0), vec(state.target), vec(currentPoint())];
+  for (let step = 0; step < 24; step += 1) {
+    perspectiveCamera.position.copy(center).add(direction.clone().multiplyScalar(distance));
+    perspectiveCamera.lookAt(center);
+    perspectiveCamera.near = Math.max(0.1, distance / 180);
+    perspectiveCamera.far = 2000;
+    perspectiveCamera.updateProjectionMatrix();
+
+    let maxEdge = 0;
+    for (const point of mustSee) {
+      const projected = point.clone().project(perspectiveCamera);
+      maxEdge = Math.max(maxEdge, Math.abs(projected.x), Math.abs(projected.y));
+    }
+    if (maxEdge <= 0.84) break;
+    distance *= 1.08;
+  }
 
   controls.target.copy(center);
-  camera.position.copy(center).add(direction.multiplyScalar(distance));
-  camera.near = Math.max(0.1, distance / 180);
-  camera.far = 2000;
-  camera.updateProjectionMatrix();
+  perspectiveCamera.position.copy(center).add(direction.multiplyScalar(distance));
+  perspectiveCamera.near = Math.max(0.1, distance / 180);
+  perspectiveCamera.far = 2000;
+  perspectiveCamera.updateProjectionMatrix();
   controls.enableRotate = true;
   controls.enablePan = false;
   controls.enableZoom = true;
-  controls.minDistance = Math.max(16, distance * 0.55);
-  controls.maxDistance = Math.max(320, distance * 5.5);
+  controls.minDistance = Math.max(14, distance * 0.52);
+  controls.maxDistance = Math.max(260, distance * 5.8);
   controls.update();
 }
 
@@ -718,6 +803,7 @@ function refresh() {
   updateUi();
   updateAxes();
   updateTargetMarker();
+  updateOriginMarker();
   drawReachableWorld();
   drawRoute(1);
   frameScene();
