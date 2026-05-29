@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ultimate Coupled Differential Equations Explorer</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --bg:#f6f8fb;
+    --card:#ffffff;
+    --ink:#172033;
+    --muted:#5d697e;
+    --accent:#3157d5;
+    --accent2:#11a27f;
+    --warn:#c9542d;
+    --soft:#eaf0ff;
+    --soft2:#e9f8f3;
+    --line:#d7deeb;
+    --shadow:0 10px 30px rgba(20,32,55,.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:linear-gradient(180deg,#eef3ff 0%, var(--bg) 260px);
+    color:var(--ink);
+    line-height:1.45;
+  }
+  header{
+    padding:32px 18px 18px;
+    max-width:1200px;
+    margin:auto;
+  }
+  h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1.02;margin:0 0 10px;font-weight:850;letter-spacing:-.04em}
+  h2{font-size:1.55rem;margin:0 0 12px;letter-spacing:-.02em}
+  h3{font-size:1.05rem;margin:0 0 8px}
+  p{margin:8px 0;color:var(--muted)}
+  .hero{
+    display:grid;
+    grid-template-columns:1.25fr .75fr;
+    gap:18px;
+    align-items:stretch;
+  }
+  .pillbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:.9rem;color:var(--muted);box-shadow:var(--shadow)}
+  main{max-width:1200px;margin:auto;padding:0 18px 50px}
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:18px}
+  .sticky{position:sticky;top:12px}
+  .controls label{display:grid;grid-template-columns:36px 1fr;gap:8px;align-items:center;margin:8px 0;font-size:.95rem;color:var(--muted)}
+  input[type="number"], input[type="range"], select{
+    width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;color:var(--ink);font:inherit;
+  }
+  input[type="checkbox"]{transform:scale(1.15)}
+  .matrix-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{
+    border:0;border-radius:12px;padding:10px 12px;background:var(--accent);color:white;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 14px rgba(49,87,213,.22);
+  }
+  button.secondary{background:#eef2ff;color:var(--accent);box-shadow:none;border:1px solid #dce4ff}
+  button.good{background:var(--accent2)}
+  button.warn{background:var(--warn)}
+  button.small{padding:7px 9px;font-size:.85rem;border-radius:10px}
+  button:hover{filter:brightness(.98)}
+  .example-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .example-buttons button{font-size:.86rem;text-align:left}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .tab-btn{background:#fff;color:var(--muted);border:1px solid var(--line);box-shadow:none}
+  .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .panel{display:none}
+  .panel.active{display:block}
+  canvas{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:16px;display:block}
+  .canvas-wrap{position:relative}
+  .canvas-hint{position:absolute;left:12px;bottom:12px;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:.82rem;color:var(--muted);backdrop-filter:blur(4px)}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+  .stat{background:var(--soft);border:1px solid #dce4ff;border-radius:14px;padding:10px}
+  .portrait-stat{display:flex;flex-direction:column;gap:8px}
+  .portrait-mini{width:100%;height:auto;display:block;background:#fff;border:1px solid #dce4ff;border-radius:12px}
+  .portrait-note{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .motivation-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+  .motivation-card{background:#fbfcff;border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+  .motivation-card h3{font-size:1rem;margin:0;color:var(--ink)}
+  .motivation-card p{margin:0;color:var(--muted)}
+  .motivation-card .latex-box{margin:2px 0;padding:9px}
+  .motivation-card button{align-self:flex-start;margin-top:auto}
+  @media (max-width:900px){.motivation-grid{grid-template-columns:1fr}}
+  .stat .label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .stat .value{font-weight:800;font-size:1.1rem;margin-top:2px}
+  .explain{background:#fbfcff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+  .explain.good{background:var(--soft2);border-color:#cceee3}
+  .explain.warn{background:#fff4ef;border-color:#ffd5c4}
+  .step{border-left:4px solid var(--accent);padding:10px 12px;margin:12px 0;background:#fbfcff;border-radius:0 14px 14px 0}
+  .step h3{margin-bottom:2px}
+  .latex-box{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+  .checklist{counter-reset:item;display:grid;gap:10px}
+  .check-item{position:relative;padding:12px 12px 12px 46px;background:#fbfcff;border:1px solid var(--line);border-radius:14px}
+  .check-item:before{counter-increment:item;content:counter(item);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.85rem}
+  .quiz-options{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+  .quiz-options button{background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:none;text-align:left}
+  .quiz-options button.selected{background:#eaf0ff;border-color:var(--accent);color:var(--accent)}
+  .feedback{font-weight:700;margin-top:8px}
+  .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;background:#f0f3f8;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 5px;color:var(--ink)}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.86rem;color:var(--muted);margin-top:8px}
+  .swatch{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:5px;vertical-align:-2px}
+  .blue{background:#3157d5}.green{background:#11a27f}.orange{background:#c9542d}.grey{background:#8a93a6}
+  details{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;margin:10px 0}
+  summary{cursor:pointer;font-weight:750}
+  footer{max-width:1200px;margin:auto;padding:0 18px 50px;color:var(--muted);font-size:.9rem}
+  @media (max-width:900px){.grid,.hero{grid-template-columns:1fr}.sticky{position:static}.stat-grid{grid-template-columns:1fr}.quiz-options{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <div>
+      <h1>Coupled Differential Equations Explorer</h1>
+      <p style="font-size:1.1rem;max-width:780px">A guided applet that combines modelling, phase portraits, eigenvalue methods, exact solutions, exam-style working, and a final checklist.</p>
+      <div class="pillbar">
+        <span class="pill">From basics to exact solutions</span>
+        <span class="pill">Dynamic worked examples</span>
+        <span class="pill">Phase portraits + trajectories</span>
+        <span class="pill">Eigenvalues + eigenvectors</span>
+      </div>
+    </div>
+    <div class="card" style="margin:0">
+      <h2>The big idea</h2>
+      <p>Most starting points curve. But along special directions, called <strong>eigenvectors</strong>, the motion stays in a straight line.</p>
+      <div class="latex-box">\[\mathbf{x}'=M\mathbf{x}\quad\Rightarrow\quad \mathbf{x}=C_1e^{\lambda_1t}\mathbf{v}_1+C_2e^{\lambda_2t}\mathbf{v}_2\]</div>
+    </div>
+  </div>
+</header>
+<main class="grid">
+  <aside class="sticky">
+    <section class="card controls">
+      <h2>Control the system</h2>
+      <p>Explore the linear system</p>
+      <div class="latex-box" id="systemLatex">\[\begin{cases}x'=ax+by\\y'=cx+dy\end{cases}\]</div>
+      <div class="matrix-grid">
+        <label>\(a\)<input id="a" type="number" step="0.1" value="1"></label>
+        <label>\(b\)<input id="b" type="number" step="0.1" value="2"></label>
+        <label>\(c\)<input id="c" type="number" step="0.1" value="2"></label>
+        <label>\(d\)<input id="d" type="number" step="0.1" value="1"></label>
+      </div>
+      <h3>Initial point</h3>
+      <div class="matrix-grid">
+        <label>\(x_0\)<input id="x0" type="number" step="0.1" value="2"></label>
+        <label>\(y_0\)<input id="y0" type="number" step="0.1" value="1"></label>
+      </div>
+      <div class="row">
+        <button id="resetBtn" class="secondary">Reset view</button>
+        <button id="randomBtn" class="good">Random system</button>
+      </div>
+      <h3 style="margin-top:14px">Display</h3>
+      <label style="grid-template-columns:26px 1fr"><input id="showField" type="checkbox" checked>Vector field</label>
+      <label style="grid-template-columns:26px 1fr"><input id="showEigen" type="checkbox" checked>Eigenvector lines</label>
+      <label style="grid-template-columns:26px 1fr"><input id="showTraj" type="checkbox" checked>Sample trajectories</label>
+      <label style="grid-template-columns:36px 1fr">Scale<input id="scale" type="range" min="3" max="12" step="1" value="6"></label>
+      <div class="example-buttons">
+        <button class="secondary ex" data-m="1,2,2,1" data-x="2" data-y="1">Real distinct eigenvalues</button>
+        <button class="secondary ex" data-m="5,-3,-6,2" data-x="1" data-y="1">Saddle point example</button>
+        <button class="secondary ex" data-m="-3,4,-2,1" data-x="2" data-y="0">Stable spiral</button>
+        <button class="secondary ex" data-m="0,1,-1,0" data-x="2" data-y="0">Centre</button>
+        <button class="secondary ex" data-m="-2,0,0,-1" data-x="3" data-y="2">Stable node</button>
+        <button class="secondary ex" data-m="2,0,0,1" data-x="1" data-y="2">Unstable node</button>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Quick classification</h2>
+      <div id="classificationBox" class="explain good"></div>
+      <div class="stat-grid" style="grid-template-columns:1fr 1fr">
+        <div class="stat"><div class="label">m = half-trace</div><div id="traceVal" class="value"></div></div>
+        <div class="stat"><div class="label">p = determinant</div><div id="detVal" class="value"></div></div>
+      </div>
+    </section>
+  </aside>
+  <section>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="explore">Explore</button>
+      <button class="tab-btn" data-tab="basics">Start from basics</button>
+      <button class="tab-btn" data-tab="exact">Exact solution</button>
+      <button class="tab-btn" data-tab="worked">Dynamic worked example</button>
+      <button class="tab-btn" data-tab="phase">Phase portrait guide</button>
+      <button class="tab-btn" data-tab="practice">Practice</button>
+    </div>
+
+    <section id="explore" class="panel active">
+      <div class="card">
+        <h2>Why study coupled linear differential equations?</h2>
+        <p>Many real systems have two quantities that change together. The key idea is that the rate of change of one quantity can depend on the other quantity. In this applet, \(x\) and \(y\) often mean <strong>deviation from a normal or balanced level</strong>, so \((0,0)\) means “back to balance”.</p>
+        <div class="latex-box">\[\begin{cases}x'=ax+by\\y'=cx+dy\end{cases}\qquad\text{or}\qquad \mathbf{x}'=M\mathbf{x}\]</div>
+        <div class="motivation-grid">
+          <div class="motivation-card">
+            <div class="label">Mechanical motion</div>
+            <h3>A damped spring: position and velocity</h3>
+            <p>If \(x\) is position and \(y\) is velocity, then position changes because of velocity, and velocity changes because of the spring force and friction.</p>
+            <div class="latex-box">\[x'=y,\qquad y'=-2x-0.4y\]</div>
+            <button class="secondary ex small" data-m="0,1,-2,-0.4" data-x="2" data-y="0">Try spring model</button>
+          </div>
+          <div class="motivation-card">
+            <div class="label">Ecology</div>
+            <h3>Predator–prey changes near balance</h3>
+            <p>Near an equilibrium, small changes in prey and predator populations can be approximated by a linear system. One variable pushes the other.</p>
+            <div class="latex-box">\[x'=-2y,\qquad y'=x\]</div>
+            <button class="secondary ex small" data-m="0,-2,1,0" data-x="2" data-y="0">Try predator–prey model</button>
+          </div>
+          <div class="motivation-card">
+            <div class="label">Mixing and diffusion</div>
+            <h3>Two connected tanks or rooms</h3>
+            <p>Salt, heat, smoke, or pollution can move between two connected places. If \(x\) and \(y\) are deviations from normal concentration, the system is coupled.</p>
+            <div class="latex-box">\[x'=-0.5x+0.2y,\qquad y'=0.3x-0.4y\]</div>
+            <button class="secondary ex small" data-m="-0.5,0.2,0.3,-0.4" data-x="3" data-y="-1">Try mixing model</button>
+          </div>
+          <div class="motivation-card">
+            <div class="label">Economics and behaviour</div>
+            <h3>Two linked quantities adjusting together</h3>
+            <p>For example, price pressure and demand pressure may affect each other. A linear model can describe small movements around a steady state.</p>
+            <div class="latex-box">\[x'=-0.6x+0.8y,\qquad y'=0.2x-0.5y\]</div>
+            <button class="secondary ex small" data-m="-0.6,0.8,0.2,-0.5" data-x="2" data-y="1">Try adjustment model</button>
+          </div>
+          <div class="motivation-card">
+            <div class="label">Electric circuits</div>
+            <h3>An RLC circuit: charge and current</h3>
+            <p>Charge changes because of current. Current changes because of resistance, capacitance, and inductance. This produces another coupled linear system.</p>
+            <div class="latex-box">\[q'=i,\qquad i'=-3q-0.7i\]</div>
+            <button class="secondary ex small" data-m="0,1,-3,-0.7" data-x="2" data-y="0">Try circuit model</button>
+          </div>
+          <div class="motivation-card">
+            <div class="label">Social systems</div>
+            <h3>Two opinions or behaviours influencing each other</h3>
+            <p>A simple model can describe how two attitudes, habits, or groups pull each other towards or away from a balance point.</p>
+            <div class="latex-box">\[x'=0.4x+0.9y,\qquad y'=0.6x+0.1y\]</div>
+            <button class="secondary ex small" data-m="0.4,0.9,0.6,0.1" data-x="1" data-y="1">Try influence model</button>
+          </div>
+        </div>
+        <div class="explain good"><strong>Why eigenvalues matter:</strong> they tell us the long-term story: return to balance, spiral in, spiral out, move away, or split into saddle behaviour.</div>
+      </div>
+      <div class="card">
+        <h2>1. Explore the phase plane</h2>
+        <p>Click anywhere on the diagram to choose a new initial point \((x_0,y_0)\). Arrows show the instantaneous velocity \((x',y')\).</p>
+        <div class="canvas-wrap">
+          <canvas id="phaseCanvas" width="760" height="760" aria-label="Phase portrait"></canvas>
+          <div class="canvas-hint">Click to set \((x_0,y_0)\)</div>
+        </div>
+        <div class="legend">
+          <span><span class="swatch grey"></span>direction field</span>
+          <span><span class="swatch blue"></span>selected trajectory</span>
+          <span><span class="swatch green"></span>sample trajectories</span>
+          <span><span class="swatch orange"></span>eigenvector directions</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>What the diagram means</h2>
+        <div id="diagramMeaning"></div>
+      </div>
+    </section>
+
+    <section id="basics" class="panel">
+      <div class="card">
+        <h2>Start from the very basics</h2>
+        <div class="step">
+          <h3>1. A normal differential equation has one changing quantity</h3>
+          <p>For example, \(x'=kx\). The rate of change of \(x\) depends only on \(x\).</p>
+          <div class="latex-box">\[x'=kx \quad\Rightarrow\quad x(t)=Ce^{kt}\]</div>
+        </div>
+        <div class="step">
+          <h3>2. A coupled system has two changing quantities</h3>
+          <p>Now the rate of change of \(x\) can depend on \(x\) and \(y\), and the rate of change of \(y\) can also depend on \(x\) and \(y\).</p>
+          <div class="latex-box">\[\begin{cases}x'=ax+by\\y'=cx+dy\end{cases}\]</div>
+        </div>
+        <div class="step">
+          <h3>3. Write it as one vector equation</h3>
+          <p>This is cleaner and reveals the linear algebra.</p>
+          <div class="latex-box">\[\mathbf{x}=\begin{bmatrix}x\\y\end{bmatrix},\qquad \mathbf{x}'=\begin{bmatrix}x'\\y'\end{bmatrix},\qquad M=\begin{bmatrix}a&b\\c&d\end{bmatrix}\]</div>
+          <div class="latex-box">\[\mathbf{x}'=M\mathbf{x}\]</div>
+        </div>
+        <div class="step">
+          <h3>4. The phase plane shows motion</h3>
+          <p>Each point \((x,y)\) has an arrow. The arrow is the velocity vector:</p>
+          <div class="latex-box">\[\begin{bmatrix}x'\\y'\end{bmatrix}=\begin{bmatrix}a&b\\c&d\end{bmatrix}\begin{bmatrix}x\\y\end{bmatrix}\]</div>
+          <p>A solution curve is the path followed from a starting point.</p>
+        </div>
+      </div>
+      <div class="card">
+        <h2>The conceptual bridge</h2>
+        <p>The best way to understand the exact solution is to copy the one-variable idea, but with a vector:</p>
+        <div class="latex-box">\[\mathbf{x}=\mathbf{v}e^{kt}\]</div>
+        <p>Substitute it into \(\mathbf{x}'=M\mathbf{x}\):</p>
+        <div class="latex-box">\[k\mathbf{v}e^{kt}=M\mathbf{v}e^{kt}\]</div>
+        <p>Since \(e^{kt}\neq0\), this becomes</p>
+        <div class="latex-box">\[M\mathbf{v}=k\mathbf{v}\]</div>
+        <p>That is exactly the eigenvalue equation. So:</p>
+        <div class="explain good"><strong>Eigenvectors</strong> give straight-line directions of motion. <strong>Eigenvalues</strong> give the exponential growth or decay rate along those directions.</div>
+      </div>
+    </section>
+
+    <section id="exact" class="panel">
+      <div class="card">
+        <h2>Exact solution method</h2>
+        <p>For a \(2\times2\) system, set \(m=\frac{a+d}{2}\) and \(p=ad-bc\). Then \(\lambda=m\pm\sqrt{m^2-p}\). For real distinct eigenvalues, the exact solution is built from two eigenvector motions.</p>
+        <div class="latex-box">\[\mathbf{x}(t)=C_1e^{\lambda_1t}\mathbf{v}_1+C_2e^{\lambda_2t}\mathbf{v}_2\]</div>
+        <div class="checklist">
+          <div class="check-item"><strong>Write the system in matrix form:</strong> \(\mathbf{x}'=M\mathbf{x}\).</div>
+          <div class="check-item"><strong>Calculate the shortcut quantities:</strong> \(m=\frac{a+d}{2}\) and \(p=ad-bc\).</div>
+          <div class="check-item"><strong>Find eigenvalues:</strong> \(\lambda=m\pm\sqrt{m^2-p}\).</div>
+          <div class="check-item"><strong>Find eigenvectors:</strong> \(\mathbf{v}_1,\mathbf{v}_2\).</div>
+          <div class="check-item"><strong>Write the general solution:</strong> combine both exponential eigenvector motions.</div>
+          <div class="check-item"><strong>Use the initial condition:</strong> solve \(\mathbf{x}(0)=C_1\mathbf{v}_1+C_2\mathbf{v}_2\).</div>
+          <div class="check-item"><strong>Interpret the behaviour:</strong> stable, unstable, saddle, centre, or spiral.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Current exact solution</h2>
+        <div id="exactSolutionBox"></div>
+      </div>
+    </section>
+
+    <section id="worked" class="panel">
+      <div class="card">
+        <h2>Dynamic worked example</h2>
+        <p>Change the matrix on the left. The full solution updates automatically.</p>
+        <div id="workedBox"></div>
+      </div>
+    </section>
+
+    <section id="phase" class="panel">
+      <div class="card">
+        <h2>Phase portrait guide</h2>
+        <p>The values of \(m\), \(p\), and the type of eigenvalues predict the shape near the equilibrium point \((0,0)\), provided the matrix has no special degeneracy.</p>
+        <div class="stat-grid">
+          <div class="stat portrait-stat">
+            <div><div class="label">Both real positive</div><div class="value">Unstable node</div><p>Trajectories move away from the origin.</p></div>
+            <svg class="portrait-mini" viewBox="0 0 200 140" aria-label="Clear illustrative sketch of an unstable node with eigenvectors">
+              <defs>
+                <marker id="m-unstable-node" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#3157d5"/>
+                </marker>
+              </defs>
+              <g stroke="#b8c3dd" stroke-width="1.4">
+                <line x1="100" y1="12" x2="100" y2="128"/>
+                <line x1="16" y1="70" x2="184" y2="70"/>
+              </g>
+              <g stroke="#c9542d" stroke-width="2.2">
+                <line x1="25" y1="33" x2="175" y2="107"/>
+                <line x1="25" y1="107" x2="175" y2="33"/>
+              </g>
+              <circle cx="100" cy="70" r="3.3" fill="#172033"/>
+              <g fill="none" stroke="#3157d5" stroke-width="2.2" stroke-linecap="round" marker-end="url(#m-unstable-node)">
+                <path d="M100 70 L100 18"/>
+                <path d="M100 70 L100 122"/>
+                <path d="M100 70 L24 70"/>
+                <path d="M100 70 L176 70"/>
+                <path d="M100 70 C88 61, 74 49, 52 23"/>
+                <path d="M100 70 C112 79, 126 91, 148 117"/>
+                <path d="M100 70 C113 60, 130 46, 166 24"/>
+                <path d="M100 70 C87 80, 70 94, 34 116"/>
+              </g>
+            </svg>
+            <div class="portrait-note">Orange lines show eigenvector directions. Blue trajectories move out from the origin.</div>
+          </div>
+
+          <div class="stat portrait-stat">
+            <div><div class="label">Both real negative</div><div class="value">Stable node</div><p>Trajectories move towards the origin.</p></div>
+            <svg class="portrait-mini" viewBox="0 0 200 140" aria-label="Clear illustrative sketch of a stable node with eigenvectors">
+              <defs>
+                <marker id="m-stable-node" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#11a27f"/>
+                </marker>
+              </defs>
+              <g stroke="#b8c3dd" stroke-width="1.4">
+                <line x1="100" y1="12" x2="100" y2="128"/>
+                <line x1="16" y1="70" x2="184" y2="70"/>
+              </g>
+              <g stroke="#c9542d" stroke-width="2.2">
+                <line x1="28" y1="30" x2="172" y2="110"/>
+                <line x1="38" y1="116" x2="162" y2="24"/>
+              </g>
+              <circle cx="100" cy="70" r="3.3" fill="#172033"/>
+              <g fill="none" stroke="#11a27f" stroke-width="2.2" stroke-linecap="round" marker-end="url(#m-stable-node)">
+                <path d="M100 18 L100 58"/>
+                <path d="M100 122 L100 82"/>
+                <path d="M24 70 L88 70"/>
+                <path d="M176 70 L112 70"/>
+                <path d="M34 22 C57 37, 73 49, 92 63"/>
+                <path d="M166 118 C143 103, 127 91, 108 77"/>
+                <path d="M166 22 C145 37, 129 49, 108 63"/>
+                <path d="M34 118 C55 103, 71 91, 92 77"/>
+              </g>
+            </svg>
+            <div class="portrait-note">Trajectories are attracted inwards and line up with the eigenvectors.</div>
+          </div>
+
+          <div class="stat portrait-stat">
+            <div><div class="label">Opposite signs</div><div class="value">Saddle</div><p>Some directions move in, others move out.</p></div>
+            <svg class="portrait-mini" viewBox="0 0 200 140" aria-label="Clear illustrative sketch of a saddle point with eigenvectors">
+              <defs>
+                <marker id="m-saddle-out" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#3157d5"/>
+                </marker>
+                <marker id="m-saddle-in" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#11a27f"/>
+                </marker>
+              </defs>
+              <g stroke="#b8c3dd" stroke-width="1.4">
+                <line x1="100" y1="12" x2="100" y2="128"/>
+                <line x1="16" y1="70" x2="184" y2="70"/>
+              </g>
+              <g stroke="#c9542d" stroke-width="2.2">
+                <line x1="22" y1="24" x2="178" y2="116"/>
+                <line x1="22" y1="116" x2="178" y2="24"/>
+              </g>
+              <circle cx="100" cy="70" r="3.3" fill="#172033"/>
+              <g fill="none" stroke="#3157d5" stroke-width="2.2" stroke-linecap="round" marker-end="url(#m-saddle-out)">
+                <path d="M100 70 C116 56, 137 43, 176 24"/>
+                <path d="M100 70 C84 84, 63 97, 24 116"/>
+                <path d="M100 70 C116 84, 137 97, 176 116"/>
+                <path d="M100 70 C84 56, 63 43, 24 24"/>
+              </g>
+              <g fill="none" stroke="#11a27f" stroke-width="2.1" stroke-linecap="round" marker-end="url(#m-saddle-in)">
+                <path d="M40 24 C64 39, 81 52, 95 66"/>
+                <path d="M160 116 C136 101, 119 88, 105 74"/>
+                <path d="M40 116 C64 101, 81 88, 95 74"/>
+                <path d="M160 24 C136 39, 119 52, 105 66"/>
+              </g>
+            </svg>
+            <div class="portrait-note">Green branches move in along the stable direction. Blue branches move out along the unstable direction.</div>
+          </div>
+
+          <div class="stat portrait-stat">
+            <div><div class="label">Complex, real part positive</div><div class="value">Unstable spiral</div><p>Trajectories spiral away.</p></div>
+            <svg class="portrait-mini" viewBox="0 0 200 140" aria-label="Clear illustrative sketch of an unstable spiral">
+              <defs>
+                <marker id="m-unstable-spiral" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#3157d5"/>
+                </marker>
+              </defs>
+              <g stroke="#b8c3dd" stroke-width="1.4">
+                <line x1="100" y1="12" x2="100" y2="128"/>
+                <line x1="16" y1="70" x2="184" y2="70"/>
+              </g>
+              <circle cx="100" cy="70" r="3.3" fill="#172033"/>
+              <g fill="none" stroke="#3157d5" stroke-width="2.2" stroke-linecap="round" marker-end="url(#m-unstable-spiral)">
+                <path d="M101 70 C105 68,110 70,111 75 C112 84,104 90,94 89 C81 88,74 77,76 65 C79 49,94 42,110 44 C128 46,141 59,142 77 C143 101,125 118,101 120 C72 123,46 106,40 80 C34 52,47 24,76 14 C108 3,145 13,167 40"/>
+                <path d="M101 70 C106 70,109 73,108 78 C107 85,101 88,94 87 C87 85,82 80,82 72 C82 62,88 53,98 50 C110 46,122 49,132 58 C144 68,151 82,153 99"/>
+              </g>
+            </svg>
+            <div class="portrait-note">There are no real eigenvectors here. The motion rotates while the distance from the origin increases.</div>
+          </div>
+
+          <div class="stat portrait-stat">
+            <div><div class="label">Complex, real part negative</div><div class="value">Stable spiral</div><p>Trajectories spiral in.</p></div>
+            <svg class="portrait-mini" viewBox="0 0 200 140" aria-label="Clear illustrative sketch of a stable spiral">
+              <defs>
+                <marker id="m-stable-spiral" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#11a27f"/>
+                </marker>
+              </defs>
+              <g stroke="#b8c3dd" stroke-width="1.4">
+                <line x1="100" y1="12" x2="100" y2="128"/>
+                <line x1="16" y1="70" x2="184" y2="70"/>
+              </g>
+              <circle cx="100" cy="70" r="3.3" fill="#172033"/>
+              <g fill="none" stroke="#11a27f" stroke-width="2.2" stroke-linecap="round" marker-end="url(#m-stable-spiral)">
+                <path d="M168 40 C145 13,108 3,76 14 C47 24,34 52,40 80 C46 106,72 123,101 120 C125 118,143 101,142 77 C141 59,128 46,110 44 C94 42,79 49,76 65 C74 77,81 88,94 89 C104 90,112 84,111 75 C110 70,105 68,101 70"/>
+                <path d="M153 99 C151 82,144 68,132 58 C122 49,110 46,98 50 C88 53,82 62,82 72 C82 80,87 85,94 87 C101 88,107 85,108 78 C109 73,106 70,101 70"/>
+              </g>
+            </svg>
+            <div class="portrait-note">There are no real eigenvectors here. The motion rotates while the distance from the origin decreases.</div>
+          </div>
+
+          <div class="stat portrait-stat">
+            <div><div class="label">Pure imaginary</div><div class="value">Centre</div><p>Trajectories orbit around the origin.</p></div>
+            <svg class="portrait-mini" viewBox="0 0 200 140" aria-label="Clear illustrative sketch of a centre">
+              <defs>
+                <marker id="m-centre" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#3157d5"/>
+                </marker>
+              </defs>
+              <g stroke="#b8c3dd" stroke-width="1.4">
+                <line x1="100" y1="12" x2="100" y2="128"/>
+                <line x1="16" y1="70" x2="184" y2="70"/>
+              </g>
+              <circle cx="100" cy="70" r="3.3" fill="#172033"/>
+              <g fill="none" stroke="#3157d5" stroke-width="2.2">
+                <ellipse cx="100" cy="70" rx="56" ry="34"/>
+                <ellipse cx="100" cy="70" rx="40" ry="24"/>
+                <ellipse cx="100" cy="70" rx="24" ry="15"/>
+                <path d="M154 70 A56 34 0 0 1 143 93" marker-end="url(#m-centre)"/>
+                <path d="M140 70 A40 24 0 0 1 132 86" marker-end="url(#m-centre)"/>
+                <path d="M124 70 A24 15 0 0 1 119 80" marker-end="url(#m-centre)"/>
+              </g>
+            </svg>
+            <div class="portrait-note">Typical trajectories are closed loops around the equilibrium.</div>
+          </div>
+        </div>
+        <details open>
+          <summary>How to decide clockwise or anticlockwise</summary>
+          <p>Look at the arrow at a simple point. At \((1,0)\),</p>
+          <div class="latex-box">\[\begin{bmatrix}x'\\y'\end{bmatrix}=M\begin{bmatrix}1\\0\end{bmatrix}=\begin{bmatrix}a\\c\end{bmatrix}\]</div>
+          <p>If \(c>0\), the arrow points upward on the positive \(x\)-axis, so the motion is anticlockwise. If \(c<0\), it is clockwise.</p>
+        </details>
+      </div>
+      <div class="card">
+        <h2>Current phase portrait diagnosis</h2>
+        <div id="phaseDiagnosis"></div>
+      </div>
+    </section>
+
+    <section id="practice" class="panel">
+      <div class="card">
+        <h2>Practice mode</h2>
+        <p>Classify the current system. Use \(m\), \(p\), the eigenvalues, and the phase portrait.</p>
+        <div class="quiz-options" id="quizOptions">
+          <button data-answer="stable node">Stable node</button>
+          <button data-answer="unstable node">Unstable node</button>
+          <button data-answer="saddle">Saddle point</button>
+          <button data-answer="stable spiral">Stable spiral</button>
+          <button data-answer="unstable spiral">Unstable spiral</button>
+          <button data-answer="centre">Centre</button>
+        </div>
+        <div class="row">
+          <button id="checkQuiz" class="good">Check answer</button>
+          <button id="newQuiz" class="secondary">New practice system</button>
+        </div>
+        <div id="quizFeedback" class="feedback"></div>
+      </div>
+      <div class="card">
+        <h2>Final revision checklist</h2>
+        <div class="checklist">
+          <div class="check-item">Can I convert \(x'=ax+by,\;y'=cx+dy\) into \(\mathbf{x}'=M\mathbf{x}\)?</div>
+          <div class="check-item">Can I calculate \(m=\frac{a+d}{2}\) and \(p=ad-bc\)?</div>
+          <div class="check-item">Can I find eigenvectors for each real eigenvalue?</div>
+          <div class="check-item">Can I write \(\mathbf{x}=C_1e^{\lambda_1t}\mathbf{v}_1+C_2e^{\lambda_2t}\mathbf{v}_2\)?</div>
+          <div class="check-item">Can I use \((x_0,y_0)\) to find \(C_1,C_2\)?</div>
+          <div class="check-item">Can I classify the origin from the eigenvalues?</div>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+<footer>
+  <p>This applet is original teaching material. It is designed to combine a modelling introduction, visual phase-plane exploration, conceptual derivation, exam method, and revision checklist.</p>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const canvas = $('phaseCanvas');
+const ctx = canvas.getContext('2d');
+let selectedQuiz = null;
+let currentKind = '';
+
+function val(id){ return parseFloat($(id).value) || 0; }
+function setVal(id,v){ $(id).value = Number(v.toFixed ? v.toFixed(3) : v); }
+function near(x,eps=1e-9){ return Math.abs(x)<eps; }
+function fmt(x){
+  if (!Number.isFinite(x)) return '?';
+  if (Math.abs(x) < 1e-10) x=0;
+  if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+  return String(Math.round(x*1000)/1000);
+}
+function signedTerm(coef, variable){
+  if (near(coef)) return '';
+  const sign = coef >= 0 ? '+' : '-';
+  const mag = Math.abs(coef);
+  const c = near(mag-1) ? '' : fmt(mag);
+  return ` ${sign} ${c}${variable}`;
+}
+function linExpr(p,q){
+  let s = '';
+  if (!near(p)) s += (p<0?'-':'') + (near(Math.abs(p)-1)?'':fmt(Math.abs(p))) + 'x';
+  if (!near(q)) s += signedTerm(q,'y');
+  if (s.trim()==='') return '0';
+  return s.trim().replace(/^\+\s*/, '');
+}
+function matrix(){ return {a:val('a'), b:val('b'), c:val('c'), d:val('d')}; }
+function compute(){
+  const {a,b,c,d} = matrix();
+  const tr = a+d;
+  const m = tr/2;
+  const p = a*d-b*c;
+  const spread2 = m*m - p;
+  const det = p;          // alias used by older helper functions
+  const disc = 4*spread2; // alias; the displayed method uses m^2 - p
+  let out = {a,b,c,d,tr,m,p,det,spread2,disc};
+  if (spread2 > 1e-10){
+    const s = Math.sqrt(spread2);
+    out.type='realDistinct';
+    out.l1=m+s; out.l2=m-s;
+    out.v1=eigenVector(a,b,c,d,out.l1);
+    out.v2=eigenVector(a,b,c,d,out.l2);
+  } else if (spread2 < -1e-10){
+    out.type='complex';
+    out.alpha=m; out.beta=Math.sqrt(-spread2);
+  } else {
+    out.type='repeated';
+    out.l=m;
+    out.v=eigenVector(a,b,c,d,out.l);
+  }
+  out.kind = classify(out);
+  return out;
+}
+function eigenVector(a,b,c,d,lambda){
+  let x,y;
+  if (Math.abs(b)+Math.abs(lambda-a) > 1e-9){ x=b; y=lambda-a; }
+  else if (Math.abs(lambda-d)+Math.abs(c) > 1e-9){ x=lambda-d; y=c; }
+  else { x=1; y=0; }
+  const len = Math.hypot(x,y) || 1;
+  x/=len; y/=len;
+  if (Math.abs(x)<1e-10) x=0;
+  if (Math.abs(y)<1e-10) y=0;
+  return {x,y};
+}
+function classify(e){
+  if (e.type==='realDistinct'){
+    const l1=e.l1, l2=e.l2;
+    if (l1*l2 < 0) return 'saddle';
+    if (l1<0 && l2<0) return 'stable node';
+    if (l1>0 && l2>0) return 'unstable node';
+    return 'borderline real';
+  }
+  if (e.type==='complex'){
+    if (e.alpha < -1e-9) return 'stable spiral';
+    if (e.alpha > 1e-9) return 'unstable spiral';
+    return 'centre';
+  }
+  if (e.l < -1e-9) return 'stable repeated node';
+  if (e.l > 1e-9) return 'unstable repeated node';
+  return 'borderline repeated';
+}
+function matrixLatex(e){
+  return `\\begin{bmatrix}${fmt(e.a)}&${fmt(e.b)}\\\\${fmt(e.c)}&${fmt(e.d)}\\end{bmatrix}`;
+}
+function vectorLatex(v){ return `\\begin{bmatrix}${fmt(v.x)}\\\\${fmt(v.y)}\\end{bmatrix}`; }
+function eqnLatex(e){
+  return `\\begin{cases}x'=${linExpr(e.a,e.b)}\\\\y'=${linExpr(e.c,e.d)}\\end{cases}`;
+}
+function charLatex(e){
+  const T=e.tr, D=e.det;
+  let middle = near(T) ? '' : (T>0 ? `-${fmt(T)}\\lambda` : `+${fmt(-T)}\\lambda`);
+  let last = near(D) ? '' : (D>0 ? `+${fmt(D)}` : `-${fmt(-D)}`);
+  return `\\lambda^2${middle}${last}=0`;
+}
+function constantsForInitial(e){
+  if (e.type !== 'realDistinct') return null;
+  const x0=val('x0'), y0=val('y0');
+  const v1=e.v1, v2=e.v2;
+  const det = v1.x*v2.y - v1.y*v2.x;
+  if (Math.abs(det)<1e-9) return null;
+  const A = (x0*v2.y - y0*v2.x)/det;
+  const B = (v1.x*y0 - v1.y*x0)/det;
+  return {A,B};
+}
+function derivative(x,y,e){ return {x:e.a*x+e.b*y, y:e.c*x+e.d*y}; }
+function rk4Step(x,y,h,e){
+  const k1=derivative(x,y,e);
+  const k2=derivative(x+h*k1.x/2, y+h*k1.y/2, e);
+  const k3=derivative(x+h*k2.x/2, y+h*k2.y/2, e);
+  const k4=derivative(x+h*k3.x, y+h*k3.y, e);
+  return {x:x+h*(k1.x+2*k2.x+2*k3.x+k4.x)/6, y:y+h*(k1.y+2*k2.y+2*k3.y+k4.y)/6};
+}
+function tracePath(x,y,e,h,steps,limit){
+  const pts=[];
+  for(let i=0;i<steps;i++){
+    pts.push({x,y});
+    const n = rk4Step(x,y,h,e);
+    x=n.x; y=n.y;
+    if (!Number.isFinite(x+y) || Math.hypot(x,y)>limit) break;
+  }
+  return pts;
+}
+function drawArrow(ctx,x1,y1,x2,y2,color,width=1){
+  const angle = Math.atan2(y2-y1,x2-x1);
+  const head=6;
+  ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-head*Math.cos(angle-Math.PI/6), y2-head*Math.sin(angle-Math.PI/6));
+  ctx.lineTo(x2-head*Math.cos(angle+Math.PI/6), y2-head*Math.sin(angle+Math.PI/6));
+  ctx.closePath(); ctx.fill();
+}
+function draw(){
+  const e=compute();
+  const W=canvas.width, H=canvas.height;
+  const s=val('scale');
+  const toX = x => W/2 + x*(W/(2*s));
+  const toY = y => H/2 - y*(H/(2*s));
+  const fromX = px => (px-W/2)/(W/(2*s));
+  const fromY = py => -(py-H/2)/(H/(2*s));
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='#edf0f6'; ctx.lineWidth=1;
+  for(let i=-s;i<=s;i++){
+    ctx.beginPath(); ctx.moveTo(toX(i),0); ctx.lineTo(toX(i),H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,toY(i)); ctx.lineTo(W,toY(i)); ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle='#1d2433'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,toY(0)); ctx.lineTo(W,toY(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX(0),0); ctx.lineTo(toX(0),H); ctx.stroke();
+  ctx.fillStyle='#1d2433'; ctx.font='14px system-ui'; ctx.fillText('x', W-20, toY(0)-8); ctx.fillText('y', toX(0)+8, 18);
+  // vector field
+  if ($('showField').checked){
+    const density=19;
+    for(let ix=0; ix<density; ix++){
+      for(let iy=0; iy<density; iy++){
+        const x=-s + 2*s*ix/(density-1);
+        const y=-s + 2*s*iy/(density-1);
+        const d=derivative(x,y,e);
+        const mag=Math.hypot(d.x,d.y);
+        if (mag<1e-9) continue;
+        const len=14;
+        const ux=d.x/mag, uy=d.y/mag;
+        const px=toX(x), py=toY(y);
+        drawArrow(ctx, px-ux*len*0.45, py+uy*len*0.45, px+ux*len*0.45, py-uy*len*0.45, '#8a93a6', 1);
+      }
+    }
+  }
+  // sample trajectories
+  if ($('showTraj').checked){
+    const seeds=[];
+    for(let r of [1.5,3.2,4.8]){
+      for(let k=0;k<8;k++) seeds.push({x:r*Math.cos(k*Math.PI/4), y:r*Math.sin(k*Math.PI/4)});
+    }
+    drawTrajectories(seeds,e,toX,toY,s,'#11a27f',1.25,.02,450);
+  }
+  // selected trajectory
+  const x0=val('x0'), y0=val('y0');
+  drawTrajectories([{x:x0,y:y0}],e,toX,toY,s,'#3157d5',2.8,.018,650);
+  ctx.fillStyle='#3157d5'; ctx.beginPath(); ctx.arc(toX(x0),toY(y0),5,0,2*Math.PI); ctx.fill();
+  // eigenvectors
+  if ($('showEigen').checked && e.type==='realDistinct'){
+    ctx.save(); ctx.strokeStyle='#c9542d'; ctx.lineWidth=2.4; ctx.setLineDash([9,6]);
+    for (const v of [e.v1,e.v2]){
+      const L=s*1.45;
+      ctx.beginPath(); ctx.moveTo(toX(-v.x*L),toY(-v.y*L)); ctx.lineTo(toX(v.x*L),toY(v.y*L)); ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+function drawTrajectories(seeds,e,toX,toY,s,color,width,h,steps){
+  ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash([]);
+  const limit=s*3.5;
+  for (const seed of seeds){
+    const back=tracePath(seed.x,seed.y,e,-h,steps,limit).reverse();
+    const forward=tracePath(seed.x,seed.y,e,h,steps,limit);
+    const pts=back.concat(forward);
+    if (pts.length<2) continue;
+    ctx.beginPath(); ctx.moveTo(toX(pts[0].x),toY(pts[0].y));
+    for (let i=1;i<pts.length;i++) ctx.lineTo(toX(pts[i].x),toY(pts[i].y));
+    ctx.stroke();
+    const idx=Math.min(pts.length-2, Math.floor(pts.length*0.65));
+    if (idx>5){
+      const p=pts[idx], q=pts[idx+1];
+      drawArrow(ctx,toX(p.x),toY(p.y),toX(q.x),toY(q.y),color,width);
+    }
+  }
+}
+function updateText(){
+  const e=compute(); currentKind = e.kind;
+  $('systemLatex').innerHTML = `\\[${eqnLatex(e)}\\qquad\\Longleftrightarrow\\qquad \\mathbf{x}'=${matrixLatex(e)}\\mathbf{x}\\]`;
+  $('traceVal').textContent = fmt(e.m);
+  $('detVal').textContent = fmt(e.p);
+  const classHTML = classificationHTML(e);
+  $('classificationBox').innerHTML = classHTML;
+  $('diagramMeaning').innerHTML = diagramMeaningHTML(e);
+  $('exactSolutionBox').innerHTML = exactSolutionHTML(e);
+  $('workedBox').innerHTML = workedHTML(e);
+  $('phaseDiagnosis').innerHTML = phaseDiagnosisHTML(e);
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+}
+function classificationHTML(e){
+  let detail='';
+  let formula = `<div class="latex-box">\\[m=\\frac{a+d}{2}=\\frac{${fmt(e.a)}+${fmt(e.d)}}{2}=${fmt(e.m)}\\]</div>`;
+  formula += `<div class="latex-box">\\[p=\\det(M)=ad-bc=(${fmt(e.a)})(${fmt(e.d)})-(${fmt(e.b)})(${fmt(e.c)})=${fmt(e.p)}\\]</div>`;
+  formula += `<div class="latex-box">\\[\\lambda=m\\pm\\sqrt{m^2-p}\\]</div>`;
+  if(e.type==='realDistinct'){
+    formula += `<div class="latex-box">\\[\\lambda=${fmt(e.m)}\\pm\\sqrt{(${fmt(e.m)})^2-(${fmt(e.p)})}=${fmt(e.m)}\\pm\\sqrt{${fmt(e.spread2)}}\\]</div>`;
+    detail = `Eigenvalues: \\(\\lambda_1=${fmt(e.l1)},\\;\\lambda_2=${fmt(e.l2)}\\).`;
+  }
+  if(e.type==='complex'){
+    formula += `<div class="latex-box">\\[\\lambda=${fmt(e.m)}\\pm\\sqrt{(${fmt(e.m)})^2-(${fmt(e.p)})}=${fmt(e.alpha)}\\pm ${fmt(e.beta)}i\\]</div>`;
+    detail = `Eigenvalues: \\(\\lambda=${fmt(e.alpha)}\\pm ${fmt(e.beta)}i\\).`;
+  }
+  if(e.type==='repeated'){
+    formula += `<div class="latex-box">\\[\\lambda=${fmt(e.m)}\\pm\\sqrt{(${fmt(e.m)})^2-(${fmt(e.p)})}=${fmt(e.l)}\\]</div>`;
+    detail = `Repeated eigenvalue: \\(\\lambda=${fmt(e.l)}\\).`;
+  }
+  return `<h3>${titleCase(e.kind)}</h3>${formula}<p>${detail}</p><p>${kindExplanation(e.kind)}</p>`;
+}
+function kindExplanation(kind){
+  const map={
+    'saddle':'One eigenvalue is positive and one is negative. Some trajectories approach the origin, but most move away. This is unstable.',
+    'stable node':'Both real eigenvalues are negative, so exponential terms decay and trajectories move towards the origin.',
+    'unstable node':'Both real eigenvalues are positive, so exponential terms grow and trajectories move away from the origin.',
+    'stable spiral':'The eigenvalues are complex with negative real part. Rotation happens while the size decays.',
+    'unstable spiral':'The eigenvalues are complex with positive real part. Rotation happens while the size grows.',
+    'centre':'The eigenvalues are purely imaginary. The motion rotates without exponential growth or decay.',
+    'stable repeated node':'The repeated eigenvalue is negative. The origin is stable, but the exact portrait may be a star node or improper node.',
+    'unstable repeated node':'The repeated eigenvalue is positive. The origin is unstable, but the exact portrait may be a star node or improper node.',
+    'borderline real':'At least one eigenvalue is zero. This is a special case and may have a line of equilibria.',
+    'borderline repeated':'The repeated eigenvalue is zero. This special case needs extra care.'
+  };
+  return map[kind] || '';
+}
+function titleCase(s){ return s.replace(/\b\w/g,c=>c.toUpperCase()); }
+function diagramMeaningHTML(e){
+  let html = `<div class="explain"><strong>Current system:</strong> \\(\\mathbf{x}'=${matrixLatex(e)}\\mathbf{x}\\)</div>`;
+  html += `<p>The origin is an equilibrium because if \\(x=0\\) and \\(y=0\\), then \\(x'=0\\) and \\(y'=0\\).</p>`;
+  if(e.type==='realDistinct'){
+    html += `<p>The orange dashed lines are the eigenvector directions. Along these lines, the trajectory stays straight.</p>`;
+    html += `<div class="latex-box">\\[M${vectorLatex(e.v1)}=${fmt(e.l1)}${vectorLatex(e.v1)},\\qquad M${vectorLatex(e.v2)}=${fmt(e.l2)}${vectorLatex(e.v2)}\\]</div>`;
+  } else if(e.type==='complex'){
+    html += `<p>There are no real eigenvector lines. Instead, trajectories rotate. The real part \\(${fmt(e.alpha)}\\) controls whether the spiral grows, shrinks, or stays the same size.</p>`;
+  } else {
+    html += `<p>The system has a repeated eigenvalue. This is a useful extension case: the portrait may depend on whether there are enough eigenvectors.</p>`;
+  }
+  return html;
+}
+function exactSolutionHTML(e){
+  if(e.type==='realDistinct'){
+    const C=constantsForInitial(e);
+    let html = `<p>Because the eigenvalues are real and distinct, use the standard exact solution.</p>`;
+    html += `<div class="latex-box">\\[\\mathbf{x}(t)=C_1e^{${fmt(e.l1)}t}${vectorLatex(e.v1)}+C_2e^{${fmt(e.l2)}t}${vectorLatex(e.v2)}\\]</div>`;
+    if(C){
+      html += `<p>Using \\(\\mathbf{x}(0)=\\begin{bmatrix}${fmt(val('x0'))}\\\\${fmt(val('y0'))}\\end{bmatrix}\\), we get:</p>`;
+      html += `<div class="latex-box">\\[C_1=${fmt(C.A)},\\qquad C_2=${fmt(C.B)}\\]</div>`;
+      html += `<div class="latex-box">\\[\\mathbf{x}(t)=${fmt(C.A)}e^{${fmt(e.l1)}t}${vectorLatex(e.v1)}+${fmt(C.B)}e^{${fmt(e.l2)}t}${vectorLatex(e.v2)}\\]</div>`;
+      html += `<div class="latex-box">\\[x(t)=${fmt(C.A*e.v1.x)}e^{${fmt(e.l1)}t}+${fmt(C.B*e.v2.x)}e^{${fmt(e.l2)}t}\\]\\[y(t)=${fmt(C.A*e.v1.y)}e^{${fmt(e.l1)}t}+${fmt(C.B*e.v2.y)}e^{${fmt(e.l2)}t}\\]</div>`;
+    }
+    return html;
+  }
+  if(e.type==='complex'){
+    return `<div class="explain warn"><strong>Complex eigenvalue case:</strong> the real-eigenvector formula is not used in this course/exam style. But the phase portrait can still be classified.</div><div class="latex-box">\\[\\lambda=${fmt(e.alpha)}\\pm ${fmt(e.beta)}i\\]</div><p>${kindExplanation(e.kind)}</p>`;
+  }
+  return `<div class="explain warn"><strong>Repeated eigenvalue case:</strong> this is an extension case. The simple two-eigenvector formula may not apply without extra work.</div><div class="latex-box">\\[\\lambda=${fmt(e.l)}\\]</div>`;
+}
+function workedHTML(e){
+  let html='';
+  html += `<div class="step"><h3>Step 1: Write the system in matrix form</h3><div class="latex-box">\\[${eqnLatex(e)}\\]\\[\\mathbf{x}'=${matrixLatex(e)}\\mathbf{x}\\]</div></div>`;
+  html += `<div class="step"><h3>Step 2: Use the half-trace shortcut</h3><p>For a 2 by 2 matrix, calculate the midpoint of the eigenvalues and the determinant:</p><div class="latex-box">\\[m=\\frac{a+d}{2}=\\frac{${fmt(e.a)}+${fmt(e.d)}}{2}=${fmt(e.m)},\\qquad p=ad-bc=${fmt(e.p)}\\]</div><p>Then use:</p><div class="latex-box">\\[\\lambda=m\\pm\\sqrt{m^2-p}\\]</div></div>`;
+  if(e.type==='realDistinct'){
+    html += `<div class="step"><h3>Step 3: Find the eigenvalues</h3><div class="latex-box">\\[\\lambda_1=${fmt(e.l1)},\\qquad \\lambda_2=${fmt(e.l2)}\\]</div></div>`;
+    html += `<div class="step"><h3>Step 4: Find corresponding eigenvectors</h3><div class="latex-box">\\[\\mathbf{v}_1=${vectorLatex(e.v1)},\\qquad \\mathbf{v}_2=${vectorLatex(e.v2)}\\]</div><p>These are directions where the motion stays in a straight line.</p></div>`;
+    html += `<div class="step"><h3>Step 5: Write the general solution</h3><div class="latex-box">\\[\\mathbf{x}=C_1e^{${fmt(e.l1)}t}${vectorLatex(e.v1)}+C_2e^{${fmt(e.l2)}t}${vectorLatex(e.v2)}\\]</div></div>`;
+    const C=constantsForInitial(e);
+    if(C){
+      html += `<div class="step"><h3>Step 6: Use the initial condition</h3><div class="latex-box">\\[\\begin{bmatrix}${fmt(val('x0'))}\\\\${fmt(val('y0'))}\\end{bmatrix}=C_1${vectorLatex(e.v1)}+C_2${vectorLatex(e.v2)}\\]</div><div class="latex-box">\\[C_1=${fmt(C.A)},\\qquad C_2=${fmt(C.B)}\\]</div></div>`;
+    }
+    html += `<div class="step"><h3>Step 7: Interpret the result</h3><div class="explain good"><strong>${titleCase(e.kind)}.</strong> ${kindExplanation(e.kind)}</div></div>`;
+  } else if(e.type==='complex'){
+    html += `<div class="step"><h3>Step 3: Interpret the complex eigenvalues</h3><div class="latex-box">\\[\\lambda=${fmt(e.alpha)}\\pm ${fmt(e.beta)}i\\]</div><p>The imaginary part causes rotation. The real part controls growth or decay.</p><div class="explain good"><strong>${titleCase(e.kind)}.</strong> ${kindExplanation(e.kind)}</div></div>`;
+  } else {
+    html += `<div class="step"><h3>Step 3: Repeated eigenvalue</h3><div class="latex-box">\\[\\lambda=${fmt(e.l)}\\]</div><p>This is an extension case. It may need a generalized eigenvector if there is only one independent eigenvector.</p></div>`;
+  }
+  return html;
+}
+function phaseDiagnosisHTML(e){
+  let html = `<p>For \\(M=\\begin{bmatrix}a&b\\\\c&d\\end{bmatrix}\\), use:</p>`;
+  html += `<div class="latex-box">\\[m=\\frac{a+d}{2}=${fmt(e.m)},\\qquad p=ad-bc=${fmt(e.p)},\\qquad m^2-p=${fmt(e.spread2)}\\]</div>`;
+  html += `<p>The eigenvalues are found from the compact formula:</p>`;
+  html += `<div class="latex-box">\\[\\lambda=m\\pm\\sqrt{m^2-p}\\]</div>`;
+  if(e.type==='realDistinct'){
+    html += `<p>Since \\(m^2-p>0\\), the square root is real, so the system has two real eigenvalues.</p>`;
+    html += `<div class="latex-box">\\[\\lambda=${fmt(e.m)}\\pm\\sqrt{${fmt(e.spread2)}}\\]</div>`;
+    html += `<div class="latex-box">\\[\\lambda_1=${fmt(e.l1)},\\qquad \\lambda_2=${fmt(e.l2)}\\]</div>`;
+  } else if(e.type==='complex'){
+    html += `<p>Since \\(m^2-p<0\\), the square root is imaginary, so the eigenvalues are complex conjugates.</p>`;
+    html += `<div class="latex-box">\\[\\lambda=${fmt(e.alpha)}\\pm ${fmt(e.beta)}i\\]</div>`;
+    html += `<p>Direction check at \\((1,0)\\): \\(\\mathbf{x}'=\\begin{bmatrix}${fmt(e.a)}\\\\${fmt(e.c)}\\end{bmatrix}\\). ${directionText(e)}</p>`;
+  } else {
+    html += `<p>Since \\(m^2-p=0\\), the system has a repeated eigenvalue.</p>`;
+    html += `<div class="latex-box">\\[\\lambda=${fmt(e.l)}\\]</div>`;
+  }
+  html += `<div class="explain good"><strong>Conclusion:</strong> ${titleCase(e.kind)}. ${kindExplanation(e.kind)}</div>`;
+  return html;
+}
+function directionText(e){
+  if(e.c>1e-9) return 'The arrow points upward on the positive x-axis, so the rotation is anticlockwise.';
+  if(e.c<-1e-9) return 'The arrow points downward on the positive x-axis, so the rotation is clockwise.';
+  if(e.b>1e-9) return 'Use the positive y-axis: the arrow points right, suggesting clockwise rotation.';
+  if(e.b<-1e-9) return 'Use the positive y-axis: the arrow points left, suggesting anticlockwise rotation.';
+  return 'The rotation direction is not clear from this simple point.';
+}
+function update(){ draw(); updateText(); }
+function setMatrix(a,b,c,d,x0=2,y0=1){ setVal('a',a); setVal('b',b); setVal('c',c); setVal('d',d); setVal('x0',x0); setVal('y0',y0); $('quizFeedback').textContent=''; selectedQuiz=null; update(); }
+function randomSystem(){
+  const examples=[
+    [1,2,2,1,2,1], [5,-3,-6,2,1,1], [-2,0,0,-1,3,2], [2,0,0,1,1,2], [0,1,-1,0,2,0], [-3,4,-2,1,2,0], [2,3,-3,2,1,0], [1,3,1,-1,2,1], [-1,3,1,-1,1,2], [1,-4,2,-3,2,2]
+  ];
+  const r=examples[Math.floor(Math.random()*examples.length)];
+  setMatrix(...r);
+}
+function pickPractice(){ randomSystem(); }
+
+['a','b','c','d','x0','y0','scale','showField','showEigen','showTraj'].forEach(id=>$(id).addEventListener('input', update));
+$('resetBtn').addEventListener('click',()=>setMatrix(1,2,2,1,2,1));
+$('randomBtn').addEventListener('click',randomSystem);
+$('newQuiz').addEventListener('click',pickPractice);
+for (const btn of document.querySelectorAll('.ex')){
+  btn.addEventListener('click',()=>{
+    const parts=btn.dataset.m.split(',').map(Number);
+    setMatrix(parts[0],parts[1],parts[2],parts[3],Number(btn.dataset.x),Number(btn.dataset.y));
+  });
+}
+for (const btn of document.querySelectorAll('.tab-btn')){
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.tab).classList.add('active');
+    update();
+  });
+}
+for (const btn of document.querySelectorAll('#quizOptions button')){
+  btn.addEventListener('click',()=>{
+    selectedQuiz=btn.dataset.answer;
+    document.querySelectorAll('#quizOptions button').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+}
+$('checkQuiz').addEventListener('click',()=>{
+  const e=compute();
+  const accepted = currentKind.replace('unstable node','unstable node').replace('stable node','stable node');
+  if(!selectedQuiz){ $('quizFeedback').textContent='Choose an answer first.'; return; }
+  const ok = selectedQuiz===e.kind || (e.kind.includes(selectedQuiz));
+  $('quizFeedback').innerHTML = ok ? `✅ Correct: ${titleCase(e.kind)}.` : `Not quite. This one is <strong>${titleCase(e.kind)}</strong>. ${kindExplanation(e.kind)}`;
+});
+canvas.addEventListener('click',ev=>{
+  const rect=canvas.getBoundingClientRect();
+  const px=(ev.clientX-rect.left)*(canvas.width/rect.width);
+  const py=(ev.clientY-rect.top)*(canvas.height/rect.height);
+  const s=val('scale');
+  const x=(px-canvas.width/2)/(canvas.width/(2*s));
+  const y=-(py-canvas.height/2)/(canvas.height/(2*s));
+  setVal('x0',x); setVal('y0',y); update();
+});
+update();
+</script>
+</body>
+</html>
