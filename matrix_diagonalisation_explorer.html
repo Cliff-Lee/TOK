@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagonalisation Explorer: Eigenvectors, Powers, and Geometry</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --ink: #172033;
+      --muted: #5f6b7a;
+      --card: #ffffff;
+      --line: #dfe5ee;
+      --soft: #eef4ff;
+      --soft2: #fff6df;
+      --accent: #2563eb;
+      --accent2: #7c3aed;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: 0 10px 30px rgba(31, 41, 55, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #e0ecff 0, transparent 35%), var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      padding: 34px clamp(18px, 4vw, 54px) 20px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+    }
+
+    h2, h3 { letter-spacing: -0.025em; }
+
+    .subtitle {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      margin-top: 14px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .pill {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #334155;
+      font-size: 0.92rem;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    main {
+      max-width: 1320px;
+      margin: 0 auto 60px;
+      padding: 0 clamp(18px, 4vw, 54px) 50px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(310px, 370px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .side {
+      position: sticky;
+      top: 14px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(223, 229, 238, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .card h2, .card h3 {
+      margin: 0 0 10px;
+    }
+
+    .mini-title {
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+
+    .matrix-input {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select, button, textarea {
+      font: inherit;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 11px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: 0.18s ease;
+    }
+
+    input[type="number"]:focus, select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(147, 197, 253, 0.25);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    button {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      padding: 10px 13px;
+      border-radius: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.20);
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.secondary {
+      background: #e8eef9;
+      color: #1e293b;
+      box-shadow: none;
+      border: 1px solid #d7dfec;
+    }
+    button.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid #bfd3ff;
+      box-shadow: none;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .status {
+      border-radius: 14px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .status.good { background: #ecfdf5; color: var(--good); border-color: #a7f3d0; }
+    .status.warn { background: #fffbeb; color: var(--warn); border-color: #fde68a; }
+    .status.bad { background: #fef2f2; color: var(--bad); border-color: #fecaca; }
+
+    .tabs {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      background: #fff;
+      color: #334155;
+      border: 1px solid var(--line);
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+      padding: 10px 14px;
+      border-radius: 999px;
+    }
+
+    .tab.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: grid; gap: 18px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(238,244,255,0.95));
+      border: 1px solid #dbeafe;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .big-idea {
+      font-size: clamp(1.4rem, 2.7vw, 2.4rem);
+      line-height: 1.12;
+      font-weight: 900;
+      letter-spacing: -0.045em;
+      margin: 0 0 10px;
+    }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid #cfe0ff;
+      border-radius: 16px;
+      padding: 14px 15px;
+    }
+
+    .callout.gold { background: var(--soft2); border-color: #fde68a; }
+
+    .formula-box {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 16px;
+      padding: 16px;
+      overflow-x: auto;
+    }
+
+    .formula-box .muted { color: #bfdbfe; }
+
+    .math-live {
+      font-size: 1.02rem;
+      overflow-x: auto;
+    }
+
+    .canvas-wrap {
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fbfdff;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px 16px;
+      flex-wrap: wrap;
+      padding: 10px 12px 13px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+      background: #fff;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 22px;
+      height: 4px;
+      border-radius: 999px;
+      display: inline-block;
+      background: #334155;
+    }
+
+    .swatch.blue { background: #2563eb; }
+    .swatch.purple { background: #7c3aed; }
+    .swatch.green { background: #059669; }
+    .swatch.orange { background: #f97316; }
+    .swatch.gray { background: #94a3b8; }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .small {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .step-list {
+      display: grid;
+      gap: 10px;
+      counter-reset: steps;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .step-list li {
+      counter-increment: steps;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .step-list li::before {
+      content: counter(steps);
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      font-weight: 900;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+    th { background: #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: 0; }
+
+    details {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 12px 14px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .quiz-card {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 14px;
+    }
+
+    .quiz-options {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .quiz-options button {
+      text-align: left;
+      background: #f8fafc;
+      color: #1f2937;
+      border: 1px solid var(--line);
+      box-shadow: none;
+      font-weight: 700;
+    }
+
+    .feedback {
+      margin-top: 9px;
+      font-weight: 800;
+    }
+
+    .two-line {
+      display: grid;
+      gap: 7px;
+    }
+
+    @media (max-width: 1020px) {
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Diagonalisation Explorer</h1>
+    <p class="subtitle">A visual applet for building intuition first, then structure, then depth: eigenvectors as special directions, diagonalisation as a change of viewpoint, and matrix powers as the payoff.</p>
+    <div class="pill-row">
+      <span class="pill">2 × 2 matrices</span>
+      <span class="pill">real, distinct eigenvalues</span>
+      <span class="pill">geometry + algebra</span>
+      <span class="pill">matrix powers</span>
+      <span class="pill">population and differential-equation links</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <aside class="side">
+        <section class="card">
+          <h2>Control the matrix</h2>
+          <p class="note">Use a matrix with two distinct real eigenvalues to see diagonalisation clearly.</p>
+          <label>
+            Preset
+            <select id="preset">
+              <option value="symmetric">Clear stretch: eigenvectors at 45°</option>
+              <option value="population">Population movement</option>
+              <option value="saddle">Saddle: one direction grows, one shrinks</option>
+              <option value="negative">Negative eigenvalue: flip one direction</option>
+              <option value="diagonal">Already diagonal</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <div class="matrix-input">
+            <label>a <input id="a" type="number" step="0.1" value="3"></label>
+            <label>b <input id="b" type="number" step="0.1" value="1"></label>
+            <label>c <input id="c" type="number" step="0.1" value="1"></label>
+            <label>d <input id="d" type="number" step="0.1" value="3"></label>
+          </div>
+          <div class="button-row">
+            <button id="randomBtn" class="secondary">Random friendly matrix</button>
+            <button id="resetBtn" class="ghost">Reset</button>
+          </div>
+          <div id="status" class="status good" style="margin-top:12px"></div>
+        </section>
+
+        <section class="card">
+          <h3>Live values</h3>
+          <div id="liveMath" class="math-live"></div>
+        </section>
+
+        <section class="card">
+          <h3>Vector and powers</h3>
+          <div class="matrix-input">
+            <label>x <input id="vx" type="number" step="0.1" value="1.4"></label>
+            <label>y <input id="vy" type="number" step="0.1" value="0.7"></label>
+          </div>
+          <label>
+            Power n: <span id="nLabel">6</span>
+            <input id="powerN" type="range" min="0" max="12" value="6">
+          </label>
+          <label style="margin-top:10px">
+            Animation / interpolation: <span id="tLabel">1.00</span>
+            <input id="morphT" type="range" min="0" max="1" step="0.01" value="1">
+          </label>
+        </section>
+      </aside>
+
+      <section>
+        <nav class="tabs" aria-label="Applet sections">
+          <button class="tab active" data-panel="intuition">1. Intuition</button>
+          <button class="tab" data-panel="structure">2. Structure</button>
+          <button class="tab" data-panel="powers">3. Powers</button>
+          <button class="tab" data-panel="applications">4. Applications</button>
+          <button class="tab" data-panel="questions">5. Questions</button>
+        </nav>
+
+        <div id="intuition" class="panel active">
+          <section class="hero-card">
+            <p class="big-idea">A matrix moves almost every vector by turning and stretching it. Eigenvectors are the rare directions that do not turn.</p>
+            <p>Diagonalisation is the idea of changing to the eigenvector viewpoint. In that viewpoint, the matrix action becomes simple: one eigen-direction is multiplied by \(\lambda_1\), and the other by \(\lambda_2\).</p>
+          </section>
+
+          <section class="card">
+            <h2>Geometric view of \(A\)</h2>
+            <p class="note">Move the animation slider. The grey square and grid are the original plane. The blue/parallelogram image shows what the matrix does. The green and orange lines are eigen-directions.</p>
+            <div class="canvas-wrap">
+              <canvas id="geomCanvas" width="980" height="620"></canvas>
+              <div class="legend">
+                <span class="key"><span class="swatch gray"></span>original grid / unit square</span>
+                <span class="key"><span class="swatch blue"></span>image under \(A\)</span>
+                <span class="key"><span class="swatch green"></span>eigen-direction \(x_1\)</span>
+                <span class="key"><span class="swatch orange"></span>eigen-direction \(x_2\)</span>
+                <span class="key"><span class="swatch purple"></span>chosen vector \(v\) and \(Av\)</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="grid-2">
+            <div class="card">
+              <h3>What to notice</h3>
+              <ul>
+                <li>Most arrows change direction.</li>
+                <li>An eigenvector stays on the same line.</li>
+                <li>The eigenvalue tells the stretch factor on that line.</li>
+                <li>If the eigenvalue is negative, the vector flips through the origin.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Student explanation</h3>
+              <div class="callout">
+                Instead of thinking in ordinary \(x\)- and \(y\)-directions, diagonalisation says: use the two eigenvectors as your new axes. Then the matrix is just two independent stretches.
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div id="structure" class="panel">
+          <section class="hero-card">
+            <p class="big-idea">The whole method comes from one idea: \(A\mathbf{x}=\lambda\mathbf{x}\).</p>
+            <p>If the columns of \(P\) are eigenvectors, multiplying by \(A\) has the same effect as multiplying each column by its eigenvalue.</p>
+          </section>
+
+          <section class="grid-2">
+            <div class="card">
+              <h2>Build \(P\) and \(D\)</h2>
+              <div id="pdMath" class="math-live"></div>
+            </div>
+            <div class="card">
+              <h2>The key chain</h2>
+              <ol class="step-list">
+                <li><div><strong>Start with eigenvectors.</strong><br>\(A\mathbf{x}_1=\lambda_1\mathbf{x}_1\) and \(A\mathbf{x}_2=\lambda_2\mathbf{x}_2\).</div></li>
+                <li><div><strong>Put them into a matrix.</strong><br>\(P=(\mathbf{x}_1\ \mathbf{x}_2)\).</div></li>
+                <li><div><strong>Write both equations at once.</strong><br>\(AP=PD\).</div></li>
+                <li><div><strong>Rearrange.</strong><br>\(A=PDP^{-1}\).</div></li>
+              </ol>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Why \(AP=PD\) is the heart of the topic</h2>
+            <div class="formula-box">
+              <div id="apPdMath"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Trace–determinant shortcut for 2×2 matrices</h2>
+            <p>For \(A=\begin{pmatrix}a&b\\c&d\end{pmatrix}\), define</p>
+            <div class="callout gold" id="traceDetBox"></div>
+            <p class="note">This is useful because it connects the algebra to the shape of the transformation: the determinant tells area scale, while the trace helps locate the eigenvalues through the characteristic equation.</p>
+          </section>
+        </div>
+
+        <div id="powers" class="panel">
+          <section class="hero-card">
+            <p class="big-idea">The payoff: powers become easy.</p>
+            <p>Directly calculating \(A^n\) can be slow. But if \(A=PDP^{-1}\), then the middle terms cancel when we multiply repeatedly.</p>
+          </section>
+
+          <section class="grid-2">
+            <div class="card">
+              <h2>Repeated action on a vector</h2>
+              <p class="note">The path shows \(v, Av, A^2v, \dots, A^nv\). When one eigenvalue has larger size, the path often becomes pulled toward that eigen-direction.</p>
+              <div class="canvas-wrap">
+                <canvas id="powerCanvas" width="900" height="570"></canvas>
+                <div class="legend">
+                  <span class="key"><span class="swatch purple"></span>orbit of \(v\)</span>
+                  <span class="key"><span class="swatch green"></span>dominant eigen-direction</span>
+                  <span class="key"><span class="swatch blue"></span>final vector \(A^nv\)</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <h2>Power formula</h2>
+              <div id="powerMath" class="math-live"></div>
+              <details style="margin-top:12px">
+                <summary>Show why the cancellation works</summary>
+                <div class="math-live" style="margin-top:10px">
+                  \[
+                  A^n=(PDP^{-1})(PDP^{-1})\cdots(PDP^{-1})
+                  \]
+                  The pairs \(P^{-1}P\) become \(I\), so only one \(P\), many \(D\)'s, and one \(P^{-1}\) remain:
+                  \[
+                  A^n=PD^nP^{-1}.
+                  \]
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Table of repeated powers</h2>
+            <div id="orbitTable"></div>
+          </section>
+        </div>
+
+        <div id="applications" class="panel">
+          <section class="hero-card">
+            <p class="big-idea">Diagonalisation explains long-term behaviour.</p>
+            <p>Matrix powers appear whenever the same linear rule is repeated: migration, population movement, Markov-style transitions, economic exchange, and some discrete models of interacting quantities.</p>
+          </section>
+
+          <section class="grid-2">
+            <div class="card">
+              <h2>Discrete model: repeated movement</h2>
+              <p>Suppose \(u_k\) stores two quantities at step \(k\), such as people in two towns, two account balances, or two interacting populations.</p>
+              <div class="formula-box">
+                \[
+                u_{k+1}=Au_k,\qquad u_k=A^k u_0=PD^kP^{-1}u_0
+                \]
+              </div>
+              <p class="note">Use the vector controls on the left as \(u_0\). The table in the Powers section shows the evolution.</p>
+            </div>
+
+            <div class="card">
+              <h2>Continuous model: coupled differential equations</h2>
+              <p>For a system such as</p>
+              <div class="formula-box">
+                \[
+                \frac{d\mathbf{x}}{dt}=A\mathbf{x},
+                \]
+              </div>
+              <p>diagonalisation gives the solution structure:</p>
+              <div class="callout" id="diffEqBox"></div>
+              <p class="note">The eigenvalues control growth or decay rates. The eigenvectors give the natural directions of the system.</p>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Interpret the current matrix</h2>
+            <div id="interpretation"></div>
+          </section>
+        </div>
+
+        <div id="questions" class="panel">
+          <section class="hero-card">
+            <p class="big-idea">Check understanding by predicting before calculating.</p>
+            <p>Use these questions as a mini lesson, starter, or plenary.</p>
+          </section>
+
+          <section class="grid-3">
+            <div class="quiz-card">
+              <h3>1. Why use eigenvectors as columns of \(P\)?</h3>
+              <div class="quiz-options" data-answer="b">
+                <button data-choice="a">Because eigenvectors are always perpendicular.</button>
+                <button data-choice="b">Because \(A\) acts on each eigenvector by simple scaling.</button>
+                <button data-choice="c">Because they make the determinant zero.</button>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="quiz-card">
+              <h3>2. Why is \(D^n\) easy?</h3>
+              <div class="quiz-options" data-answer="c">
+                <button data-choice="a">Because all matrices commute.</button>
+                <button data-choice="b">Because diagonal matrices have determinant 1.</button>
+                <button data-choice="c">Because each diagonal entry is just raised to the power \(n\).</button>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="quiz-card">
+              <h3>3. What does a negative eigenvalue do?</h3>
+              <div class="quiz-options" data-answer="a">
+                <button data-choice="a">It stretches and flips along that eigen-direction.</button>
+                <button data-choice="b">It means the matrix cannot be diagonalised.</button>
+                <button data-choice="c">It rotates every vector by 90°.</button>
+              </div>
+              <div class="feedback"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Discussion prompts</h2>
+            <ul>
+              <li>What changes visually when the two eigenvalues are close together?</li>
+              <li>What changes when one eigenvalue is much larger than the other?</li>
+              <li>Why does \(A=PDP^{-1}\) feel like “change viewpoint → stretch → change back”?</li>
+              <li>When might a matrix not have two real eigen-directions?</li>
+              <li>How is diagonalisation like choosing better axes for the problem?</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const presets = {
+      symmetric: [3, 1, 1, 3],
+      population: [0.8, 0.3, 0.2, 0.7],
+      saddle: [1.3, 1.1, 0.7, 1.9],
+      negative: [0, 2, 1, 1],
+      diagonal: [2, 0, 0, 0.5]
+    };
+
+    const state = {
+      A: [[3, 1], [1, 3]],
+      v: [1.4, 0.7],
+      n: 6,
+      t: 1
+    };
+
+    function fmt(x, digits = 3) {
+      if (!Number.isFinite(x)) return '—';
+      if (Math.abs(x) < 1e-10) x = 0;
+      if (Math.abs(x - Math.round(x)) < 1e-10) return String(Math.round(x));
+      return Number(x.toFixed(digits)).toString();
+    }
+
+    function latexNum(x) {
+      return fmt(x, 3);
+    }
+
+    function matLatex(M) {
+      return `\\begin{pmatrix}${latexNum(M[0][0])}&${latexNum(M[0][1])}\\\\${latexNum(M[1][0])}&${latexNum(M[1][1])}\\end{pmatrix}`;
+    }
+
+    function vecLatex(v) {
+      return `\\begin{pmatrix}${latexNum(v[0])}\\\\${latexNum(v[1])}\\end{pmatrix}`;
+    }
+
+    function det2(M) {
+      return M[0][0] * M[1][1] - M[0][1] * M[1][0];
+    }
+
+    function mulMat(A, B) {
+      return [
+        [A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]],
+        [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]]
+      ];
+    }
+
+    function mulVec(A, v) {
+      return [A[0][0] * v[0] + A[0][1] * v[1], A[1][0] * v[0] + A[1][1] * v[1]];
+    }
+
+    function inv2(M) {
+      const k = det2(M);
+      if (Math.abs(k) < 1e-10) return null;
+      return [[M[1][1] / k, -M[0][1] / k], [-M[1][0] / k, M[0][0] / k]];
+    }
+
+    function norm(v) {
+      return Math.hypot(v[0], v[1]);
+    }
+
+    function normalize(v) {
+      const n = norm(v);
+      if (n < 1e-12) return [0, 0];
+      return [v[0] / n, v[1] / n];
+    }
+
+    function eigVec(A, lambda) {
+      const a = A[0][0], b = A[0][1], c = A[1][0], d = A[1][1];
+      let v;
+      if (Math.abs(b) > 1e-9) v = [b, lambda - a];
+      else if (Math.abs(c) > 1e-9) v = [lambda - d, c];
+      else if (Math.abs(a - lambda) < Math.abs(d - lambda)) v = [1, 0];
+      else v = [0, 1];
+      return normalize(v);
+    }
+
+    function eig2(A) {
+      const a = A[0][0], b = A[0][1], c = A[1][0], d = A[1][1];
+      const trace = a + d;
+      const m = trace / 2;
+      const p = det2(A);
+      const disc = m * m - p;
+      const out = { trace, m, p, disc };
+      if (disc < -1e-10) {
+        out.type = 'complex';
+        return out;
+      }
+      const s = Math.sqrt(Math.max(0, disc));
+      out.l1 = m + s;
+      out.l2 = m - s;
+      if (Math.abs(out.l1 - out.l2) < 1e-9) {
+        out.type = 'repeated';
+        return out;
+      }
+      out.x1 = eigVec(A, out.l1);
+      out.x2 = eigVec(A, out.l2);
+      out.P = [[out.x1[0], out.x2[0]], [out.x1[1], out.x2[1]]];
+      out.D = [[out.l1, 0], [0, out.l2]];
+      out.Pinverse = inv2(out.P);
+      if (!out.Pinverse) {
+        out.type = 'singularP';
+        return out;
+      }
+      out.type = 'diagonalizable';
+      return out;
+    }
+
+    function matrixPowerDirect(A, n) {
+      let R = [[1, 0], [0, 1]];
+      for (let i = 0; i < n; i++) R = mulMat(R, A);
+      return R;
+    }
+
+    function matrixPowerDiag(e, n) {
+      if (e.type !== 'diagonalizable') return null;
+      const Dn = [[Math.pow(e.l1, n), 0], [0, Math.pow(e.l2, n)]];
+      return mulMat(mulMat(e.P, Dn), e.Pinverse);
+    }
+
+    function updateStateFromInputs() {
+      state.A = [[parseFloat($('a').value), parseFloat($('b').value)], [parseFloat($('c').value), parseFloat($('d').value)]];
+      state.v = [parseFloat($('vx').value), parseFloat($('vy').value)];
+      state.n = parseInt($('powerN').value, 10);
+      state.t = parseFloat($('morphT').value);
+      $('nLabel').textContent = state.n;
+      $('tLabel').textContent = state.t.toFixed(2);
+    }
+
+    function setMatrix(vals) {
+      ['a', 'b', 'c', 'd'].forEach((id, i) => $(id).value = vals[i]);
+      updateAll();
+    }
+
+    function randomFriendlyMatrix() {
+      const angle = (Math.random() * 1.2 - 0.6);
+      const l1 = [1.5, 2, 2.5, 3, -1.5][Math.floor(Math.random() * 5)];
+      const l2 = [0.25, 0.5, 0.75, -0.5, -1][Math.floor(Math.random() * 5)];
+      const co = Math.cos(angle), si = Math.sin(angle);
+      const R = [[co, -si], [si, co]];
+      const Rt = [[co, si], [-si, co]];
+      const D = [[l1, 0], [0, l2]];
+      const A = mulMat(mulMat(R, D), Rt);
+      setMatrix([A[0][0].toFixed(2), A[0][1].toFixed(2), A[1][0].toFixed(2), A[1][1].toFixed(2)]);
+      $('preset').value = 'custom';
+    }
+
+    function updateMath(e) {
+      const A = state.A;
+      const status = $('status');
+      let statusText = '';
+      status.className = 'status';
+      if (e.type === 'diagonalizable') {
+        status.classList.add('good');
+        statusText = `Good: two distinct real eigenvalues, λ₁ = ${fmt(e.l1)}, λ₂ = ${fmt(e.l2)}. This matrix can be diagonalised.`;
+      } else if (e.type === 'complex') {
+        status.classList.add('warn');
+        statusText = `This matrix has complex eigenvalues because m² − p = ${fmt(e.disc)} < 0. It may involve rotation, so there are no real eigen-directions to draw.`;
+      } else if (e.type === 'repeated') {
+        status.classList.add('warn');
+        statusText = `This matrix has a repeated eigenvalue. It may or may not be diagonalizable; this applet focuses on distinct real eigenvalues.`;
+      } else {
+        status.classList.add('bad');
+        statusText = `The eigenvector matrix P is singular, so this example is not suitable for diagonalisation.`;
+      }
+      status.textContent = statusText;
+
+      const sqrtPart = e.disc >= 0 ? `\\sqrt{${latexNum(e.disc)}}` : `\\sqrt{${latexNum(e.disc)}}`;
+      $('liveMath').innerHTML = `
+        \\
+        \[
+        A=${matLatex(A)}
+        \]
+        \[
+        m=\\frac{a+d}{2}=${latexNum(e.m)},\\qquad p=\\det(A)=ad-bc=${latexNum(e.p)}
+        \]
+        \[
+        \\lambda=m\\pm\\sqrt{m^2-p}=${latexNum(e.m)}\\pm ${sqrtPart}
+        \]
+        ${e.type === 'diagonalizable' ? `\[\\lambda_1=${latexNum(e.l1)},\\quad \\lambda_2=${latexNum(e.l2)}\]` : ''}
+      `;
+
+      if (e.type === 'diagonalizable') {
+        $('pdMath').innerHTML = `
+          \[
+          \\mathbf{x}_1=${vecLatex(e.x1)},\\qquad \\mathbf{x}_2=${vecLatex(e.x2)}
+          \]
+          \[
+          P=(\\mathbf{x}_1\\ \\mathbf{x}_2)=${matLatex(e.P)},\\qquad D=${matLatex(e.D)}
+          \]
+          \[
+          P^{-1}=${matLatex(e.Pinverse)}
+          \]
+          \[
+          A=PDP^{-1}
+          \]
+        `;
+
+        const AP = mulMat(A, e.P);
+        const PD = mulMat(e.P, e.D);
+        $('apPdMath').innerHTML = `
+          <div class="muted">Current matrix:</div>
+          \\
+          \[
+          AP=${matLatex(AP)},\\qquad PD=${matLatex(PD)}
+          \]
+          \[
+          AP=PD\\quad\\Longrightarrow\\quad A=PDP^{-1}
+          \]
+        `;
+
+        const An = matrixPowerDiag(e, state.n);
+        const Dn = [[Math.pow(e.l1, state.n), 0], [0, Math.pow(e.l2, state.n)]];
+        $('powerMath').innerHTML = `
+          \[
+          A^n=PD^nP^{-1}
+          \]
+          \[
+          D^{${state.n}}=${matLatex(Dn)}
+          \]
+          \[
+          A^{${state.n}}=${matLatex(An)}
+          \]
+        `;
+
+        $('diffEqBox').innerHTML = `
+          \[
+          \\mathbf{x}(t)=P
+          \\begin{pmatrix}e^{${latexNum(e.l1)}t}&0\\\\0&e^{${latexNum(e.l2)}t}\\end{pmatrix}
+          P^{-1}\\mathbf{x}(0)
+          \]
+        `;
+      } else {
+        $('pdMath').innerHTML = '<p class="note">Choose a matrix with two distinct real eigenvalues to build P and D.</p>';
+        $('apPdMath').innerHTML = '<p>For this applet, use a matrix with two distinct real eigenvalues.</p>';
+        $('powerMath').innerHTML = '<p class="note">Diagonalisation formula unavailable for this matrix in this applet.</p>';
+        $('diffEqBox').innerHTML = '<p class="note">Choose a diagonalizable matrix to see the exponential solution form.</p>';
+      }
+
+      $('traceDetBox').innerHTML = `
+        \[
+        m=\\frac{a+d}{2}=\\frac{\\operatorname{tr}(A)}{2},\\qquad p=ad-bc=\\det(A)
+        \]
+        \[
+        \\lambda=m\\pm\\sqrt{m^2-p}
+        \]
+      `;
+
+      updateInterpretation(e);
+      updateOrbitTable(e);
+      if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+    }
+
+    function updateInterpretation(e) {
+      const box = $('interpretation');
+      if (e.type !== 'diagonalizable') {
+        box.innerHTML = `<div class="callout gold">This matrix is not in the applet's main case. Try a matrix with two distinct real eigenvalues.</div>`;
+        return;
+      }
+      const abs1 = Math.abs(e.l1), abs2 = Math.abs(e.l2);
+      const dominant = abs1 >= abs2 ? 'first' : 'second';
+      const domLambda = abs1 >= abs2 ? e.l1 : e.l2;
+      const smaller = abs1 >= abs2 ? e.l2 : e.l1;
+      let longTerm = '';
+      if (Math.abs(domLambda) > 1) longTerm = `Because the ${dominant} eigenvalue has size greater than 1, repeated powers tend to grow in that eigen-direction.`;
+      else if (Math.abs(domLambda) < 1) longTerm = `Both eigenvalues have size less than 1, so repeated powers tend to shrink vectors toward the origin.`;
+      else longTerm = `The largest eigenvalue has size about 1, so one component may persist while the other changes according to the smaller eigenvalue.`;
+      let flip = '';
+      if (e.l1 < 0 || e.l2 < 0) flip = ' A negative eigenvalue causes a flip through the origin each time that component is multiplied.';
+      box.innerHTML = `
+        <div class="grid-2">
+          <div class="callout">
+            <strong>Area scale:</strong> \(\\det(A)=${latexNum(e.p)}\). The unit square becomes a parallelogram with signed area scale ${fmt(e.p)}.
+          </div>
+          <div class="callout gold">
+            <strong>Long-term behaviour:</strong> ${longTerm}${flip}
+          </div>
+        </div>
+        <p class="note">The other eigenvalue is ${fmt(smaller)}. Its component becomes less important when its absolute value is smaller than the dominant eigenvalue.</p>
+      `;
+    }
+
+    function updateOrbitTable(e) {
+      const rows = [];
+      let v = [...state.v];
+      rows.push([0, v[0], v[1]]);
+      for (let k = 1; k <= Math.min(state.n, 12); k++) {
+        v = mulVec(state.A, v);
+        rows.push([k, v[0], v[1]]);
+      }
+      $('orbitTable').innerHTML = `
+        <table>
+          <thead><tr><th>Step</th><th>x-value</th><th>y-value</th></tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr><td>\(A^{${r[0]}}v\)</td><td>${fmt(r[1], 4)}</td><td>${fmt(r[2], 4)}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function drawArrow(ctx, p, q, color, width = 3, label = '') {
+      const dx = q[0] - p[0], dy = q[1] - p[1];
+      const len = Math.hypot(dx, dy);
+      if (len < 1e-6) return;
+      const ux = dx / len, uy = dy / len;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(p[0], p[1]);
+      ctx.lineTo(q[0], q[1]);
+      ctx.stroke();
+      const size = 11 + width;
+      ctx.beginPath();
+      ctx.moveTo(q[0], q[1]);
+      ctx.lineTo(q[0] - size * ux + size * 0.45 * uy, q[1] - size * uy - size * 0.45 * ux);
+      ctx.lineTo(q[0] - size * ux - size * 0.45 * uy, q[1] - size * uy + size * 0.45 * ux);
+      ctx.closePath();
+      ctx.fill();
+      if (label) {
+        ctx.font = 'bold 15px Inter, sans-serif';
+        ctx.fillText(label, q[0] + 8, q[1] - 8);
+      }
+      ctx.restore();
+    }
+
+    function makeProjector(canvas, scale = 72) {
+      const W = canvas.width, H = canvas.height;
+      const origin = [W / 2, H / 2];
+      return {
+        W, H, origin, scale,
+        toScreen: ([x, y]) => [origin[0] + x * scale, origin[1] - y * scale],
+        toMath: ([x, y]) => [(x - origin[0]) / scale, -(y - origin[1]) / scale]
+      };
+    }
+
+    function drawGrid(ctx, pr, A = null, t = 1, color = '#e2e8f0', boldColor = '#cbd5e1') {
+      const min = -5, max = 5;
+      ctx.save();
+      ctx.lineWidth = 1;
+      for (let k = min; k <= max; k++) {
+        for (const vertical of [true, false]) {
+          let p1 = vertical ? [k, min] : [min, k];
+          let p2 = vertical ? [k, max] : [max, k];
+          if (A) {
+            const Ap1 = mulVec(A, p1), Ap2 = mulVec(A, p2);
+            p1 = [(1 - t) * p1[0] + t * Ap1[0], (1 - t) * p1[1] + t * Ap1[1]];
+            p2 = [(1 - t) * p2[0] + t * Ap2[0], (1 - t) * p2[1] + t * Ap2[1]];
+          }
+          const s1 = pr.toScreen(p1), s2 = pr.toScreen(p2);
+          ctx.strokeStyle = k === 0 ? boldColor : color;
+          ctx.lineWidth = k === 0 ? 1.8 : 1;
+          ctx.beginPath();
+          ctx.moveTo(s1[0], s1[1]);
+          ctx.lineTo(s2[0], s2[1]);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawLineThrough(ctx, pr, v, color, label) {
+      const u = normalize(v);
+      if (norm(u) < 1e-9) return;
+      const p1 = pr.toScreen([-6 * u[0], -6 * u[1]]);
+      const p2 = pr.toScreen([6 * u[0], 6 * u[1]]);
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([8, 7]);
+      ctx.beginPath();
+      ctx.moveTo(p1[0], p1[1]);
+      ctx.lineTo(p2[0], p2[1]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = 'bold 15px Inter, sans-serif';
+      ctx.fillStyle = color;
+      ctx.fillText(label, p2[0] - 45, p2[1] + 20);
+      ctx.restore();
+    }
+
+    function drawPolygon(ctx, pr, pts, stroke, fill, width = 3) {
+      ctx.save();
+      ctx.strokeStyle = stroke;
+      ctx.fillStyle = fill;
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      pts.forEach((p, i) => {
+        const s = pr.toScreen(p);
+        if (i === 0) ctx.moveTo(s[0], s[1]);
+        else ctx.lineTo(s[0], s[1]);
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawGeom(e) {
+      const canvas = $('geomCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const pr = makeProjector(canvas, 66);
+      const A = state.A;
+      const t = state.t;
+
+      drawGrid(ctx, pr, null, 1, '#e7edf5', '#bfccd9');
+      drawGrid(ctx, pr, A, t, 'rgba(37,99,235,0.16)', 'rgba(37,99,235,0.42)');
+
+      const square = [[0,0], [1,0], [1,1], [0,1]];
+      drawPolygon(ctx, pr, square, '#94a3b8', 'rgba(148, 163, 184, 0.12)', 2);
+      const imageSquare = square.map(p => {
+        const Ap = mulVec(A, p);
+        return [(1 - t) * p[0] + t * Ap[0], (1 - t) * p[1] + t * Ap[1]];
+      });
+      drawPolygon(ctx, pr, imageSquare, '#2563eb', 'rgba(37, 99, 235, 0.12)', 3);
+
+      // Basis vectors and their images
+      const iImg = mulVec(A, [1, 0]);
+      const jImg = mulVec(A, [0, 1]);
+      const ti = [(1 - t) * 1 + t * iImg[0], t * iImg[1]];
+      const tj = [t * jImg[0], (1 - t) * 1 + t * jImg[1]];
+      drawArrow(ctx, pr.toScreen([0, 0]), pr.toScreen(ti), '#2563eb', 3, 'A i');
+      drawArrow(ctx, pr.toScreen([0, 0]), pr.toScreen(tj), '#2563eb', 3, 'A j');
+
+      if (e.type === 'diagonalizable') {
+        drawLineThrough(ctx, pr, e.x1, '#059669', 'x₁');
+        drawLineThrough(ctx, pr, e.x2, '#f97316', 'x₂');
+        const x1End = [e.l1 * e.x1[0], e.l1 * e.x1[1]];
+        const x2End = [e.l2 * e.x2[0], e.l2 * e.x2[1]];
+        const x1T = [(1 - t) * e.x1[0] + t * x1End[0], (1 - t) * e.x1[1] + t * x1End[1]];
+        const x2T = [(1 - t) * e.x2[0] + t * x2End[0], (1 - t) * e.x2[1] + t * x2End[1]];
+        drawArrow(ctx, pr.toScreen([0,0]), pr.toScreen(x1T), '#059669', 4, `λ₁x₁`);
+        drawArrow(ctx, pr.toScreen([0,0]), pr.toScreen(x2T), '#f97316', 4, `λ₂x₂`);
+      }
+
+      const v = state.v;
+      const Av = mulVec(A, v);
+      const vT = [(1 - t) * v[0] + t * Av[0], (1 - t) * v[1] + t * Av[1]];
+      drawArrow(ctx, pr.toScreen([0,0]), pr.toScreen(v), '#7c3aed', 2.4, 'v');
+      drawArrow(ctx, pr.toScreen([0,0]), pr.toScreen(vT), '#7c3aed', 4, 'Av');
+
+      ctx.save();
+      ctx.fillStyle = '#334155';
+      ctx.font = 'bold 16px Inter, sans-serif';
+      ctx.fillText('Ordinary view: A sends the unit square to a parallelogram', 18, 28);
+      ctx.font = '13px Inter, sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('Move the interpolation slider: identity transformation → full matrix transformation.', 18, 50);
+      ctx.restore();
+    }
+
+    function drawPowerCanvas(e) {
+      const canvas = $('powerCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const points = [];
+      let v = [...state.v];
+      points.push([...v]);
+      for (let k = 1; k <= state.n; k++) {
+        v = mulVec(state.A, v);
+        points.push([...v]);
+      }
+      let maxAbs = 3;
+      for (const p of points) maxAbs = Math.max(maxAbs, Math.abs(p[0]), Math.abs(p[1]));
+      const scale = Math.min(72, (canvas.height * 0.38) / Math.max(maxAbs, 1));
+      const pr = makeProjector(canvas, scale);
+      drawGrid(ctx, pr, null, 1, '#e7edf5', '#bfccd9');
+
+      if (e.type === 'diagonalizable') {
+        const dominant = Math.abs(e.l1) >= Math.abs(e.l2) ? e.x1 : e.x2;
+        drawLineThrough(ctx, pr, dominant, '#059669', 'dominant');
+      }
+
+      ctx.save();
+      ctx.strokeStyle = '#7c3aed';
+      ctx.fillStyle = '#7c3aed';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const s = pr.toScreen(p);
+        if (i === 0) ctx.moveTo(s[0], s[1]);
+        else ctx.lineTo(s[0], s[1]);
+      });
+      ctx.stroke();
+      points.forEach((p, i) => {
+        const s = pr.toScreen(p);
+        ctx.beginPath();
+        ctx.arc(s[0], s[1], i === points.length - 1 ? 6 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = i === points.length - 1 ? '#2563eb' : '#7c3aed';
+        ctx.fill();
+        if (i === 0 || i === points.length - 1 || i <= 3) {
+          ctx.font = 'bold 13px Inter, sans-serif';
+          ctx.fillStyle = '#334155';
+          ctx.fillText(i === 0 ? 'v' : `A^${i}v`, s[0] + 7, s[1] - 7);
+        }
+      });
+      ctx.restore();
+
+      ctx.save();
+      ctx.fillStyle = '#334155';
+      ctx.font = 'bold 16px Inter, sans-serif';
+      ctx.fillText(`Repeated action up to A^${state.n}v`, 18, 28);
+      ctx.font = '13px Inter, sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('The direction with the larger absolute eigenvalue often dominates after many repetitions.', 18, 50);
+      ctx.restore();
+    }
+
+    function updateAll() {
+      updateStateFromInputs();
+      const e = eig2(state.A);
+      updateMath(e);
+      drawGeom(e);
+      drawPowerCanvas(e);
+    }
+
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        $(btn.dataset.panel).classList.add('active');
+        updateAll();
+      });
+    });
+
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', () => {
+        $('preset').value = 'custom';
+        updateAll();
+      });
+    });
+
+    $('preset').addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (presets[val]) setMatrix(presets[val]);
+    });
+
+    $('randomBtn').addEventListener('click', randomFriendlyMatrix);
+    $('resetBtn').addEventListener('click', () => {
+      $('preset').value = 'symmetric';
+      setMatrix(presets.symmetric);
+      $('vx').value = 1.4;
+      $('vy').value = 0.7;
+      $('powerN').value = 6;
+      $('morphT').value = 1;
+      updateAll();
+    });
+
+    document.querySelectorAll('.quiz-options').forEach(group => {
+      group.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const ok = btn.dataset.choice === group.dataset.answer;
+          const feedback = group.parentElement.querySelector('.feedback');
+          feedback.textContent = ok ? 'Correct — that is the key idea.' : 'Not quite. Try connecting the answer to eigenvectors as special directions.';
+          feedback.style.color = ok ? '#0f766e' : '#b45309';
+        });
+      });
+    });
+
+    updateAll();
+  </script>
+</body>
+</html>
