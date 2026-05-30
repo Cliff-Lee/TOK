@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Coupled Differential Equations Explorer</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --bg:#f7f8fb;
+    --panel:#ffffff;
+    --ink:#1f2937;
+    --muted:#667085;
+    --line:#d8dee9;
+    --accent:#2563eb;
+    --accent2:#7c3aed;
+    --good:#059669;
+    --warn:#d97706;
+    --bad:#dc2626;
+    --hl:#fff2cc;
+    --sl:#e0f2fe;
+    --shadow:0 10px 30px rgba(15,23,42,.10);
+    --radius:20px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 28%,#fff 100%);
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--ink);
+  }
+  header{
+    padding:28px clamp(16px,3vw,42px) 16px;
+    max-width:1420px;
+    margin:auto;
+  }
+  h1{
+    margin:0 0 8px;
+    font-size:clamp(28px,4vw,52px);
+    line-height:1.02;
+    letter-spacing:-.04em;
+  }
+  .subtitle{
+    color:var(--muted);
+    max-width:940px;
+    font-size:clamp(15px,1.5vw,19px);
+    line-height:1.45;
+  }
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 10px;border-radius:999px;font-size:13px;font-weight:750;
+    border:1px solid rgba(31,41,55,.12);background:white;
+  }
+  .badge.hl{background:var(--hl)} .badge.sl{background:var(--sl)} .badge.exam{background:#ecfdf5}
+  .app{
+    max-width:1420px;margin:0 auto 50px;padding:0 clamp(12px,2vw,28px) 30px;
+    display:grid;grid-template-columns:300px 1fr;gap:18px;
+  }
+  nav{
+    position:sticky;top:12px;align-self:start;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+    border:1px solid rgba(31,41,55,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;
+  }
+  nav button{
+    width:100%;text-align:left;border:0;background:transparent;border-radius:14px;padding:12px 12px;margin:2px 0;
+    color:var(--ink);font-weight:750;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  }
+  nav button:hover{background:#f1f5f9}
+  nav button.active{background:#dbeafe;color:#0f3f9c}
+  nav small{font-weight:800;color:var(--muted)}
+  main{min-width:0}
+  .section{display:none;animation:fade .25s ease both}
+  .section.active{display:block}
+  @keyframes fade{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid.three{grid-template-columns:repeat(3,1fr)}
+  .grid.wide-left{grid-template-columns:minmax(430px,1.35fr) minmax(320px,.9fr)}
+  .card{
+    background:var(--panel);border:1px solid rgba(31,41,55,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;
+  }
+  .card h2,.card h3{margin-top:0;letter-spacing:-.02em}
+  .card h2{font-size:26px;margin-bottom:8px}.card h3{font-size:19px;margin-bottom:8px}
+  p,li{line-height:1.55}.muted{color:var(--muted)}
+  .mathbox{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;overflow-x:auto}
+  .controls{display:grid;gap:12px;margin-top:8px}
+  .control{display:grid;grid-template-columns:88px 1fr 58px;gap:10px;align-items:center;font-size:14px}
+  .control label{font-weight:750}.control output{font-variant-numeric:tabular-nums;text-align:right;color:var(--muted)}
+  input[type="range"]{width:100%}
+  select,input[type="number"]{
+    border:1px solid var(--line);background:white;border-radius:12px;padding:9px 10px;font-size:14px;
+  }
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .btn{
+    border:0;border-radius:13px;background:var(--accent);color:white;font-weight:800;padding:10px 12px;cursor:pointer;
+    box-shadow:0 6px 16px rgba(37,99,235,.22);
+  }
+  .btn.secondary{background:#334155}.btn.light{background:#e2e8f0;color:#0f172a;box-shadow:none}.btn.green{background:var(--good)}.btn.purple{background:var(--accent2)}
+  canvas{width:100%;height:auto;background:white;border:1px solid var(--line);border-radius:18px;display:block}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--muted)}
+  .key{display:flex;align-items:center;gap:6px}.swatch{width:13px;height:13px;border-radius:4px;display:inline-block;background:#111}
+  .swatch.r{background:#2563eb}.swatch.f{background:#dc2626}.swatch.e{background:#059669}.swatch.n{background:#7c3aed}.swatch.g{background:#64748b}.swatch.o{background:#f97316}
+  .mini{font-size:13px;color:var(--muted)}
+  .callout{border-left:5px solid var(--accent);background:#eff6ff;border-radius:14px;padding:13px;margin:12px 0}
+  .callout.warn{border-left-color:var(--warn);background:#fff7ed}.callout.good{border-left-color:var(--good);background:#ecfdf5}.callout.bad{border-left-color:var(--bad);background:#fef2f2}
+  .pillgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:12px}
+  .pill{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff}
+  .pill strong{display:block;margin-bottom:4px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin-top:10px} th,td{border:1px solid var(--line);padding:9px;vertical-align:top} th{background:#f1f5f9;text-align:left}
+  .termrow{display:grid;grid-template-columns:100px 1fr;gap:10px;border-bottom:1px solid #eef2f7;padding:9px 0}.termrow:last-child{border-bottom:0}.termrow code{font-weight:800;color:#0f3f9c}
+  .stepper{display:grid;gap:10px}.step{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff}.step.done{background:#ecfdf5;border-color:#a7f3d0}
+  .quiz-card{border:1px solid var(--line);border-radius:18px;padding:15px;background:#fff;margin-top:10px}.quiz-options{display:grid;gap:8px;margin-top:10px}.quiz-options button{text-align:left;border:1px solid var(--line);background:#f8fafc;border-radius:13px;padding:10px;cursor:pointer}.quiz-options button.correct{background:#dcfce7;border-color:#22c55e}.quiz-options button.wrong{background:#fee2e2;border-color:#ef4444}
+  .answer{display:none;background:#f8fafc;border:1px dashed #94a3b8;border-radius:14px;padding:12px;margin-top:10px}.answer.show{display:block}
+  .smallgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.stat{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px}.stat b{display:block;font-size:20px}
+  details{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;margin:10px 0}summary{font-weight:800;cursor:pointer}
+  .two-col{columns:2 320px;column-gap:28px}.two-col li{break-inside:avoid;margin-bottom:8px}
+  .footer-note{font-size:13px;color:var(--muted);text-align:center;margin:22px 0}
+  @media (max-width:1000px){.app{grid-template-columns:1fr}nav{position:relative;display:grid;grid-template-columns:repeat(2,1fr)}.grid,.grid.three,.grid.wide-left{grid-template-columns:1fr}.control{grid-template-columns:80px 1fr 52px}}
+  @media (max-width:600px){nav{grid-template-columns:1fr}.card{padding:14px}.termrow{grid-template-columns:1fr}.btnrow .btn{flex:1}.app{padding-left:8px;padding-right:8px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Coupled Differential Equations Explorer</h1>
+  <div class="subtitle">An exploratory and exam-preparation applet for predator–prey models, competing populations, Euler's method, phase portraits, equilibria, and the matrix/eigenvalue link in IB Mathematics: Applications and Interpretation HL.</div>
+  <div class="badges">
+    <span class="badge hl">HL / AHL focus</span>
+    <span class="badge exam">Exam preparation</span>
+    <span class="badge">Interactive phase plane</span>
+    <span class="badge">Euler + trajectories</span>
+    <span class="badge">Matrix connection</span>
+  </div>
+</header>
+<div class="app">
+  <nav id="nav"></nav>
+  <main>
+    <section id="intro" class="section active">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>1. Why do we need coupled differential equations?</h2>
+          <p>A single differential equation such as \(\frac{dR}{dt}=kR\) assumes that the rate of change of rabbits depends only on rabbits. But many real systems have variables that change each other.</p>
+          <div class="pillgrid">
+            <div class="pill"><strong>Ecology</strong>Rabbits increase, foxes eat rabbits, foxes depend on rabbits for food.</div>
+            <div class="pill"><strong>Disease</strong>Susceptible people, infected people, and recovered people change each other.</div>
+            <div class="pill"><strong>Economics</strong>Prices, demand, supply, and expectations interact over time.</div>
+            <div class="pill"><strong>Physics</strong>Position and velocity are linked: velocity changes position; acceleration changes velocity.</div>
+          </div>
+          <div class="callout good">
+            <strong>Big idea:</strong> a coupled system studies a moving point \((x(t),y(t))\). The graph in the \(xy\)-plane is not usually a graph of \(y\) against \(x\); it is the path of the whole system through time.
+          </div>
+          <div class="mathbox">
+            \[
+              \frac{dx}{dt}=f(x,y), \qquad \frac{dy}{dt}=g(x,y)
+            \]
+            <p class="mini">The first equation says how the horizontal coordinate changes. The second says how the vertical coordinate changes.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What should students be able to do?</h3>
+          <ul class="two-col">
+            <li>Recognise a coupled system.</li>
+            <li>Interpret the meaning of each term.</li>
+            <li>Find equilibrium points by setting both derivatives to zero.</li>
+            <li>Use Euler's method numerically.</li>
+            <li>Draw or interpret a direction field.</li>
+            <li>Sketch phase trajectories.</li>
+            <li>Connect the model to context.</li>
+            <li>For linear systems, use matrix form and eigenvalues.</li>
+          </ul>
+          <details open>
+            <summary>SL or HL?</summary>
+            <p>This applet is mainly for <strong>AI HL / AHL</strong>. Some modelling intuition is useful for any student, but coupled differential systems, Euler's method for systems, and eigenvalue links are HL extension material.</p>
+          </details>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>The learning route in this applet</h3>
+        <div class="stepper">
+          <div class="step done"><strong>Intuition:</strong> Why should the equations contain growth, death, and interaction terms?</div>
+          <div class="step"><strong>Structure:</strong> How do we read arrows, equilibria, nullclines, and trajectories?</div>
+          <div class="step"><strong>Computation:</strong> How does Euler's method step through time?</div>
+          <div class="step"><strong>Depth:</strong> How do matrices and eigenvalues explain linear systems?</div>
+          <div class="step"><strong>Exam readiness:</strong> How do IB-style questions ask for interpretation?</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="model" class="section">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>2. Build the predator–prey model</h2>
+          <p>Let \(x\) be prey and \(y\) be predator. The classic Lotka–Volterra model is:</p>
+          <div class="mathbox">
+            \[
+              \frac{dx}{dt}=(a-by)x, \qquad \frac{dy}{dt}=(cx-d)y
+            \]
+          </div>
+          <div class="termrow"><code>ax</code><span>Prey growth without predators. More prey means more births.</span></div>
+          <div class="termrow"><code>-bxy</code><span>Prey loss due to predation. Encounters depend on both \(x\) and \(y\).</span></div>
+          <div class="termrow"><code>cxy</code><span>Predator growth from available prey. More encounters mean more food.</span></div>
+          <div class="termrow"><code>-dy</code><span>Predator natural death without food.</span></div>
+          <div class="callout warn">
+            <strong>Modelling assumption:</strong> the term \(xy\) assumes random mixing. If prey and predators meet more often, the interaction term becomes larger.
+          </div>
+        </div>
+        <div class="card">
+          <h3>Change one term at a time</h3>
+          <p class="muted">Use the sliders to predict whether the system will cycle, spiral inward, or move toward extinction/coexistence. Then check in the phase-plane tab.</p>
+          <label class="mini"><strong>Model type</strong></label>
+          <select id="modelType">
+            <option value="lv">Classic predator–prey: Lotka–Volterra</option>
+            <option value="logistic">Predator–prey with prey carrying capacity</option>
+            <option value="competition">Competing species</option>
+            <option value="linear">Linear system: matrix model</option>
+          </select>
+          <div class="controls" id="paramControls"></div>
+          <div class="btnrow">
+            <button class="btn" id="resetParams">Reset model</button>
+            <button class="btn light" id="randomParams">Random sensible model</button>
+          </div>
+          <div id="equationDisplay" class="mathbox"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Equilibrium points</h3>
+        <p>At equilibrium, the system is not changing, so both derivatives are zero.</p>
+        <div class="mathbox">
+          \[
+          \frac{dx}{dt}=0 \quad \text{and} \quad \frac{dy}{dt}=0
+          \]
+        </div>
+        <div id="equilibriumText"></div>
+      </div>
+    </section>
+
+    <section id="phase" class="section">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>3. Phase portrait laboratory</h2>
+          <canvas id="phaseCanvas" width="780" height="620"></canvas>
+          <div class="legend">
+            <span class="key"><span class="swatch g"></span>direction field</span>
+            <span class="key"><span class="swatch r"></span>trajectory</span>
+            <span class="key"><span class="swatch e"></span>equilibrium</span>
+            <span class="key"><span class="swatch o"></span>nullclines</span>
+          </div>
+          <div class="btnrow">
+            <button class="btn" id="playBtn">Animate</button>
+            <button class="btn secondary" id="stepBtn">One Euler step</button>
+            <button class="btn light" id="clearTraj">Clear trajectories</button>
+            <button class="btn green" id="addMany">Add many starts</button>
+          </div>
+          <p class="mini">Click anywhere inside the phase plane to start a trajectory from that initial condition.</p>
+        </div>
+        <div class="card">
+          <h3>Initial conditions and view</h3>
+          <div class="controls">
+            <div class="control"><label>x₀</label><input type="range" id="x0" min="0" max="100" step="1" value="35"><output id="x0out"></output></div>
+            <div class="control"><label>y₀</label><input type="range" id="y0" min="0" max="100" step="1" value="25"><output id="y0out"></output></div>
+            <div class="control"><label>h</label><input type="range" id="h" min="0.01" max="0.5" step="0.01" value="0.05"><output id="hout"></output></div>
+            <div class="control"><label>steps</label><input type="range" id="steps" min="50" max="2000" step="50" value="900"><output id="stepsout"></output></div>
+            <div class="control"><label>x max</label><input type="range" id="xmax" min="20" max="200" step="5" value="100"><output id="xmaxout"></output></div>
+            <div class="control"><label>y max</label><input type="range" id="ymax" min="20" max="200" step="5" value="100"><output id="ymaxout"></output></div>
+          </div>
+          <div class="callout">
+            <strong>How to read it:</strong> each arrow shows the local velocity vector \(\left(\frac{dx}{dt},\frac{dy}{dt}\right)\). A trajectory follows the arrows through time.
+          </div>
+          <div class="smallgrid">
+            <div class="stat"><span class="mini">Current x</span><b id="statX">–</b></div>
+            <div class="stat"><span class="mini">Current y</span><b id="statY">–</b></div>
+            <div class="stat"><span class="mini">dx/dt</span><b id="statDX">–</b></div>
+            <div class="stat"><span class="mini">dy/dt</span><b id="statDY">–</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="time" class="section">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>4. Time-series view</h2>
+          <p>The phase portrait shows \(y\) against \(x\). The time-series view shows \(x(t)\) and \(y(t)\) against time.</p>
+          <canvas id="timeCanvas" width="780" height="460"></canvas>
+          <div class="legend">
+            <span class="key"><span class="swatch r"></span>x(t)</span>
+            <span class="key"><span class="swatch n"></span>y(t)</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Important interpretation</h3>
+          <p>For a predator–prey cycle, the prey usually rises first. Then predators rise because food is plentiful. Then prey falls because predation increases. Then predators fall because food is scarce. The cycle repeats.</p>
+          <div class="callout good">
+            <strong>Exam phrase:</strong> The predator population tends to lag behind the prey population because predator growth depends on the availability of prey.
+          </div>
+          <details open>
+            <summary>Phase plane versus time graph</summary>
+            <p>The phase plane does not show time on an axis. Time is hidden in the motion around the curve. The time graph makes the delay between the two populations easier to see.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="euler" class="section">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>5. Euler's method for a coupled system</h2>
+          <p>Euler's method uses the current rates of change to make a small step forward.</p>
+          <div class="mathbox">
+            \[
+              x_{n+1}=x_n+h f(x_n,y_n), \qquad
+              y_{n+1}=y_n+h g(x_n,y_n)
+            \]
+          </div>
+          <canvas id="eulerCanvas" width="780" height="420"></canvas>
+          <div class="btnrow">
+            <button class="btn" id="eulerReset">Reset table</button>
+            <button class="btn secondary" id="eulerStep10">Add 10 steps</button>
+            <button class="btn purple" id="eulerFill">Fill table</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Euler table</h3>
+          <div style="max-height:520px;overflow:auto;border-radius:14px">
+            <table id="eulerTable">
+              <thead><tr><th>n</th><th>t</th><th>x</th><th>y</th><th>dx/dt</th><th>dy/dt</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="callout warn">
+            <strong>Accuracy warning:</strong> Euler's method follows straight-line tangent steps. A smaller step size \(h\) is usually more accurate but requires more calculations.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="matrix" class="section">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>6. Matrix and eigenvalue connection</h2>
+          <p>Some coupled systems are linear:</p>
+          <div class="mathbox">
+            \[
+              \frac{d}{dt}\begin{pmatrix}x\\y\end{pmatrix}
+              =
+              \begin{pmatrix}a&b\\c&d\end{pmatrix}
+              \begin{pmatrix}x\\y\end{pmatrix}
+            \]
+          </div>
+          <p>Eigenvectors give special directions. If the system starts exactly on an eigenvector, it stays on that line. The corresponding eigenvalue tells whether motion grows, decays, or changes sign along that direction.</p>
+          <canvas id="matrixCanvas" width="780" height="560"></canvas>
+        </div>
+        <div class="card">
+          <h3>Linear system controls</h3>
+          <p class="muted">Choose “Linear system” in the model tab to make these controls active.</p>
+          <div class="controls">
+            <div class="control"><label>a</label><input type="range" id="ma" min="-3" max="3" step="0.1" value="1"><output id="maout"></output></div>
+            <div class="control"><label>b</label><input type="range" id="mb" min="-3" max="3" step="0.1" value="1"><output id="mbout"></output></div>
+            <div class="control"><label>c</label><input type="range" id="mc" min="-3" max="3" step="0.1" value="-1"><output id="mcout"></output></div>
+            <div class="control"><label>d</label><input type="range" id="md" min="-3" max="3" step="0.1" value="0"><output id="mdout"></output></div>
+          </div>
+          <div id="eigenText" class="mathbox"></div>
+          <details open>
+            <summary>Trace-determinant shortcut</summary>
+            <p>For \(A=\begin{pmatrix}a&b\\c&d\end{pmatrix}\), the eigenvalues are</p>
+            <div class="mathbox">
+              \[
+              \lambda=m\pm \sqrt{m^2-p},\qquad
+              m=\frac{a+d}{2},\quad p=ad-bc
+              \]
+            </div>
+            <p>Here \(m\) is half the trace and \(p\) is the determinant.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="exam" class="section">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>7. Exam-preparation mode</h2>
+          <p>Use this section to practise the exact thinking students usually need in an exam: identify variables, interpret terms, find equilibria, use Euler's method, and describe long-term behaviour.</p>
+          <div class="btnrow">
+            <button class="btn" id="newQuestion">New question</button>
+            <button class="btn secondary" id="showAnswer">Show worked answer</button>
+          </div>
+          <div id="questionBox" class="quiz-card"></div>
+          <div id="answerBox" class="answer"></div>
+        </div>
+        <div class="card">
+          <h3>Command words and what they mean</h3>
+          <table>
+            <tr><th>Command</th><th>What to do</th></tr>
+            <tr><td>Find</td><td>Show calculation and give exact or rounded value.</td></tr>
+            <tr><td>Interpret</td><td>Explain the mathematical result in the context of the population/model.</td></tr>
+            <tr><td>Describe</td><td>Say what happens over time, including direction, increase/decrease, equilibrium or cycle.</td></tr>
+            <tr><td>Use Euler's method</td><td>Write the update equations, substitute values carefully, repeat for required steps.</td></tr>
+            <tr><td>Hence</td><td>Use the result from the previous part; do not start a completely new method.</td></tr>
+          </table>
+          <div class="callout good">
+            <strong>High-mark answer pattern:</strong> calculation → mathematical conclusion → contextual sentence.
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Checklist before an assessment</h3>
+        <ul class="two-col">
+          <li>I can explain why an interaction term often contains \(xy\).</li>
+          <li>I can find equilibria by solving two equations simultaneously.</li>
+          <li>I can interpret \((0,0)\), extinction, coexistence, and carrying capacity.</li>
+          <li>I can use Euler's update formula for both variables.</li>
+          <li>I can read arrows in a direction field.</li>
+          <li>I can explain the meaning of a closed orbit or spiral.</li>
+          <li>I can compare phase portraits and time-series graphs.</li>
+          <li>I can write a linear system in matrix form.</li>
+          <li>I can use eigenvalues to discuss stability for a linear system.</li>
+          <li>I can write contextual conclusions, not just numbers.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="teacher" class="section">
+      <div class="card">
+        <h2>8. Teacher mode: suggested lesson sequence</h2>
+        <div class="grid three">
+          <div class="pill"><strong>Lesson 1: intuition</strong>Students build the predator–prey model from words. Focus on why terms are positive, negative, and multiplied.</div>
+          <div class="pill"><strong>Lesson 2: phase plane</strong>Students click starting points, describe trajectories, and locate equilibria.</div>
+          <div class="pill"><strong>Lesson 3: Euler method</strong>Students complete a table by hand, then compare with the applet.</div>
+          <div class="pill"><strong>Lesson 4: model comparison</strong>Compare Lotka–Volterra, logistic predator–prey, and competition models.</div>
+          <div class="pill"><strong>Lesson 5: matrices</strong>Use linear systems to connect phase portraits to eigenvectors and eigenvalues.</div>
+          <div class="pill"><strong>Lesson 6: exam practice</strong>Use mixed questions: interpretation, calculation, and long-term behaviour.</div>
+        </div>
+        <div class="callout">
+          <strong>Best classroom strategy:</strong> ask students to predict first, then test in the applet, then write a sentence explaining the result mathematically and contextually.
+        </div>
+      </div>
+      <div class="grid" style="margin-top:16px">
+        <div class="card">
+          <h3>Discussion prompts</h3>
+          <ul>
+            <li>Why is \((0,0)\) an equilibrium but often not the most interesting one?</li>
+            <li>What assumptions are hidden inside the term \(xy\)?</li>
+            <li>Why might the real world not follow a perfect closed cycle?</li>
+            <li>How could humans change the parameters in an ecosystem?</li>
+            <li>What does it mean if a trajectory spirals inward?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Differentiation</h3>
+          <table>
+            <tr><th>Support</th><td>Use only arrows: up/down/right/left. Ask whether each population is increasing or decreasing.</td></tr>
+            <tr><th>Core</th><td>Find equilibria and use Euler's method for 2–3 steps.</td></tr>
+            <tr><th>Extension</th><td>Compare models, discuss stability, and connect eigenvalues to phase portraits.</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">Designed for exploration first, formal structure second, and exam fluency third.</div>
+  </main>
+</div>
+
+<script>
+const sections = [
+  ['intro','Start','intuition'],
+  ['model','Model builder','terms'],
+  ['phase','Phase portrait','arrows'],
+  ['time','Time graphs','cycles'],
+  ['euler','Euler method','numerical'],
+  ['matrix','Matrix link','HL'],
+  ['exam','Exam mode','practice'],
+  ['teacher','Teacher mode','sequence']
+];
+const nav = document.getElementById('nav');
+sections.forEach(([id,label,tag],i)=>{
+  const b=document.createElement('button');
+  b.innerHTML=`<span>${i+1}. ${label}</span><small>${tag}</small>`;
+  b.onclick=()=>showSection(id);
+  if(i===0)b.classList.add('active');
+  nav.appendChild(b);
+});
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));
+  [...nav.children].forEach((b,i)=>b.classList.toggle('active',sections[i][0]===id));
+  setTimeout(()=>{ drawAll(); safeTypeset(); },30);
+}
+
+function safeTypeset(){
+  if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+    window.MathJax.typesetPromise().catch(()=>{});
+  }
+}
+window.addEventListener('load', safeTypeset);
+
+const colors = { blue:'#2563eb', red:'#dc2626', green:'#059669', purple:'#7c3aed', gray:'#64748b', orange:'#f97316', grid:'#e5e7eb', ink:'#111827' };
+const params = {
+  lv:{a:.55,b:.018,c:.012,d:.38},
+  logistic:{a:.7,b:.015,c:.01,d:.35,K:90},
+  competition:{a:.7,b:.007,c:.01,d:.55,e:.006,f:.011},
+  linear:{a:1,b:1,c:-1,d:0}
+};
+let state = { model:'lv', x0:35, y0:25, h:.05, steps:900, xmax:100, ymax:100, livePoint:null, trajectories:[], anim:false, animId:null, eulerRows:[] };
+
+const modelSelect = document.getElementById('modelType');
+modelSelect.onchange = () => { state.model = modelSelect.value; if(state.model==='linear'){ syncMatrixFromParams(); } rebuildParamControls(); resetEuler(); generateDefaultTrajectory(); drawAll(); };
+
+document.getElementById('resetParams').onclick=()=>{ params.lv={a:.55,b:.018,c:.012,d:.38}; params.logistic={a:.7,b:.015,c:.01,d:.35,K:90}; params.competition={a:.7,b:.007,c:.01,d:.55,e:.006,f:.011}; params.linear={a:1,b:1,c:-1,d:0}; syncMatrixFromParams(); rebuildParamControls(); generateDefaultTrajectory(); resetEuler(); drawAll(); };
+document.getElementById('randomParams').onclick=()=>{ randomiseCurrent(); rebuildParamControls(); generateDefaultTrajectory(); resetEuler(); drawAll(); };
+
+function randomiseCurrent(){
+  const r=(min,max,dp=3)=>+(min+Math.random()*(max-min)).toFixed(dp);
+  if(state.model==='lv') params.lv={a:r(.25,.9),b:r(.006,.025),c:r(.006,.02),d:r(.2,.7)};
+  if(state.model==='logistic') params.logistic={a:r(.3,1),b:r(.006,.025),c:r(.004,.018),d:r(.2,.7),K:r(60,150,0)};
+  if(state.model==='competition') params.competition={a:r(.3,1),b:r(.003,.014),c:r(.004,.014),d:r(.3,1),e:r(.003,.014),f:r(.004,.014)};
+  if(state.model==='linear') { params.linear={a:r(-1.5,1.5,1),b:r(-2,2,1),c:r(-2,2,1),d:r(-1.5,1.5,1)}; syncMatrixFromParams(); }
+}
+
+const paramMeta = {
+  lv:[['a','prey birth',0,1.2,.01],['b','predation on prey',0,.05,.001],['c','predator gain',0,.05,.001],['d','predator death',0,1.2,.01]],
+  logistic:[['a','prey birth',0,1.2,.01],['b','predation on prey',0,.05,.001],['c','predator gain',0,.05,.001],['d','predator death',0,1.2,.01],['K','carrying capacity',20,180,1]],
+  competition:[['a','x growth',0,1.2,.01],['b','x self-limiting',0,.03,.001],['c','y effect on x',0,.03,.001],['d','y growth',0,1.2,.01],['e','y self-limiting',0,.03,.001],['f','x effect on y',0,.03,.001]],
+  linear:[['a','matrix a',-3,3,.1],['b','matrix b',-3,3,.1],['c','matrix c',-3,3,.1],['d','matrix d',-3,3,.1]]
+};
+function rebuildParamControls(){
+  const box=document.getElementById('paramControls'); box.innerHTML='';
+  paramMeta[state.model].forEach(([key,label,min,max,step])=>{
+    const row=document.createElement('div'); row.className='control';
+    const id='p_'+key;
+    row.innerHTML=`<label title="${label}">${key}</label><input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${params[state.model][key]}"><output>${fmt(params[state.model][key])}</output>`;
+    box.appendChild(row);
+    const input=row.querySelector('input'), out=row.querySelector('output');
+    input.oninput=()=>{ params[state.model][key]=+input.value; out.textContent=fmt(+input.value); if(state.model==='linear') syncMatrixFromParams(); updateEquation(); generateDefaultTrajectory(false); resetEuler(); drawAll(); };
+  });
+  updateEquation();
+}
+function fmt(v){ if(Math.abs(v)>=10)return (+v).toFixed(0); if(Math.abs(v)>=1)return (+v).toFixed(2).replace(/\.00$/,''); return (+v).toFixed(3).replace(/0+$/,'').replace(/\.$/,''); }
+function updateEquation(){
+  const p=params[state.model];
+  let tex='', eq='';
+  if(state.model==='lv') tex=`\\[\\frac{dx}{dt}=(${fmt(p.a)}-${fmt(p.b)}y)x,\\qquad \\frac{dy}{dt}=(${fmt(p.c)}x-${fmt(p.d)})y\\]`;
+  if(state.model==='logistic') tex=`\\[\\frac{dx}{dt}=${fmt(p.a)}x\\left(1-\\frac{x}{${fmt(p.K)}}\\right)-${fmt(p.b)}xy,\\qquad \\frac{dy}{dt}=(${fmt(p.c)}x-${fmt(p.d)})y\\]`;
+  if(state.model==='competition') tex=`\\[\\frac{dx}{dt}=${fmt(p.a)}x-${fmt(p.b)}x^2-${fmt(p.c)}xy,\\qquad \\frac{dy}{dt}=${fmt(p.d)}y-${fmt(p.e)}y^2-${fmt(p.f)}xy\\]`;
+  if(state.model==='linear') tex=`\\[\\frac{d}{dt}\\begin{pmatrix}x\\\\y\\end{pmatrix}=\\begin{pmatrix}${fmt(p.a)}&${fmt(p.b)}\\\\${fmt(p.c)}&${fmt(p.d)}\\end{pmatrix}\\begin{pmatrix}x\\\\y\\end{pmatrix}\\]`;
+  document.getElementById('equationDisplay').innerHTML=tex;
+  document.getElementById('equilibriumText').innerHTML=equilibriumHTML();
+  safeTypeset();
+}
+function equilibriumHTML(){
+  const p=params[state.model];
+  if(state.model==='lv'){
+    const xe=p.d/p.c, ye=p.a/p.b;
+    return `<p>For the classic predator–prey model, the equilibrium points are:</p><div class="mathbox">\\[(0,0)\\quad\\text{and}\\quad\\left(\\frac d c,\\frac a b\\right)=(${fmt(xe)},${fmt(ye)})\\]</div><p>The second point means coexistence: the prey and predator populations are balanced.</p>`;
+  }
+  if(state.model==='logistic'){
+    const xe=p.d/p.c, ye=(p.a*(1-xe/p.K))/p.b;
+    return `<p>Equilibria include extinction and predator-free carrying capacity:</p><div class="mathbox">\\[(0,0),\\quad (${fmt(p.K)},0),\\quad (${fmt(xe)},${fmt(ye)})\\text{ if }y>0\\]</div><p>The logistic term often changes closed cycles into spirals or stable coexistence.</p>`;
+  }
+  if(state.model==='competition'){
+    const xOnly=p.a/p.b, yOnly=p.d/p.e;
+    const det=p.b*p.e-p.c*p.f;
+    let coexist='';
+    if(Math.abs(det)>1e-9){
+      const x=(p.a*p.e-p.c*p.d)/det; const y=(p.b*p.d-p.f*p.a)/det;
+      coexist=`<p>Possible coexistence point: \\((${fmt(x)},${fmt(y)})\\). This is meaningful only if both coordinates are positive.</p>`;
+    }
+    return `<p>Basic equilibria:</p><div class="mathbox">\\[(0,0),\\quad (${fmt(xOnly)},0),\\quad (0,${fmt(yOnly)})\\]</div>${coexist}<p>Competition models often lead to one species dominating, or stable coexistence if the interaction strengths allow it.</p>`;
+  }
+  if(state.model==='linear'){
+    return `<p>For a homogeneous linear system, \\((0,0)\\) is always an equilibrium. Eigenvalues determine whether nearby points move toward it, away from it, spiral, or follow saddle behaviour.</p>`;
+  }
+}
+
+function deriv(x,y){
+  const m=state.model, p=params[m];
+  if(m==='lv') return [(p.a-p.b*y)*x,(p.c*x-p.d)*y];
+  if(m==='logistic') return [p.a*x*(1-x/p.K)-p.b*x*y,(p.c*x-p.d)*y];
+  if(m==='competition') return [p.a*x-p.b*x*x-p.c*x*y,p.d*y-p.e*y*y-p.f*x*y];
+  if(m==='linear') return [p.a*x+p.b*y,p.c*x+p.d*y];
+}
+function rk4Step(x,y,h){
+  const k1=deriv(x,y);
+  const k2=deriv(x+h*k1[0]/2,y+h*k1[1]/2);
+  const k3=deriv(x+h*k2[0]/2,y+h*k2[1]/2);
+  const k4=deriv(x+h*k3[0],y+h*k3[1]);
+  return [x+h*(k1[0]+2*k2[0]+2*k3[0]+k4[0])/6, y+h*(k1[1]+2*k2[1]+2*k3[1]+k4[1])/6];
+}
+function eulerStepPoint(x,y,h){ const d=deriv(x,y); return [x+h*d[0], y+h*d[1]]; }
+function simulate(x0,y0,steps=state.steps,h=state.h,method='rk4'){
+  let pts=[[x0,y0,0]]; let x=x0,y=y0;
+  for(let i=0;i<steps;i++){
+    let n = method==='euler' ? eulerStepPoint(x,y,h) : rk4Step(x,y,h);
+    x=n[0]; y=n[1];
+    if(!isFinite(x)||!isFinite(y)||Math.abs(x)>1e6||Math.abs(y)>1e6) break;
+    if(state.model!=='linear' && (x<0||y<0)) { x=Math.max(0,x); y=Math.max(0,y); }
+    pts.push([x,y,(i+1)*h]);
+  }
+  return pts;
+}
+function generateDefaultTrajectory(resetLive=true){
+  const pts=simulate(state.x0,state.y0);
+  state.trajectories=[pts];
+  if(resetLive) state.livePoint={x:state.x0,y:state.y0,t:0,path:[[state.x0,state.y0,0]]};
+  updateStats();
+}
+
+// This must be declared before the first slider synchronisation, because
+// sync() calls resetEuler(). With let/const, using it before declaration
+// stops the whole app from attaching later button handlers.
+let eulerCount=0;
+
+['x0','y0','h','steps','xmax','ymax'].forEach(id=>{
+  const el=document.getElementById(id), out=document.getElementById(id+'out');
+  function sync(){ state[id]=+el.value; out.textContent= id==='h' ? (+el.value).toFixed(2) : el.value; generateDefaultTrajectory(); resetEuler(); drawAll(); }
+  el.oninput=sync; sync();
+});
+
+function setupCanvas(canvas, xmin=0,xmax=state.xmax,ymin=0,ymax=state.ymax){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,pad=52;
+  const sx=x=>pad+(x-xmin)/(xmax-xmin)*(W-2*pad);
+  const sy=y=>H-pad-(y-ymin)/(ymax-ymin)*(H-2*pad);
+  const invx=px=>xmin+(px-pad)/(W-2*pad)*(xmax-xmin);
+  const invy=py=>ymin+(H-pad-py)/(H-2*pad)*(ymax-ymin);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='white'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=colors.grid; ctx.lineWidth=1;
+  ctx.font='12px Inter, sans-serif'; ctx.fillStyle='#64748b';
+  for(let i=0;i<=10;i++){
+    const x=xmin+(xmax-xmin)*i/10, y=ymin+(ymax-ymin)*i/10;
+    ctx.beginPath();ctx.moveTo(sx(x),sy(ymin));ctx.lineTo(sx(x),sy(ymax));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(sx(xmin),sy(y));ctx.lineTo(sx(xmax),sy(y));ctx.stroke();
+    ctx.fillText(fmt(x),sx(x)-8,H-pad+20);ctx.fillText(fmt(y),pad-42,sy(y)+4);
+  }
+  ctx.strokeStyle='#111827'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(sx(xmin),sy(0));ctx.lineTo(sx(xmax),sy(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(sx(0),sy(ymin));ctx.lineTo(sx(0),sy(ymax));ctx.stroke();
+  return {ctx,W,H,pad,sx,sy,invx,invy,xmin,xmax,ymin,ymax};
+}
+function drawArrow(ctx,x1,y1,x2,y2,color=colors.gray,alpha=.75){
+  ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const ang=Math.atan2(y2-y1,x2-x1), len=5;
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-len*Math.cos(ang-.55),y2-len*Math.sin(ang-.55));ctx.lineTo(x2-len*Math.cos(ang+.55),y2-len*Math.sin(ang+.55));ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+function drawPhase(){
+  const canvas=document.getElementById('phaseCanvas'); if(!canvas)return;
+  const C=setupCanvas(canvas,0,state.xmax,0,state.ymax), {ctx,sx,sy}=C;
+  drawField(C); drawNullclines(C); drawEquilibria(C);
+  state.trajectories.forEach((pts,i)=>drawTrajectory(C,pts,i===0?colors.red:colors.blue,.92));
+  if(state.livePoint && state.livePoint.path.length>1) drawTrajectory(C,state.livePoint.path,colors.purple,.95);
+  if(state.livePoint){
+    ctx.fillStyle=colors.purple;ctx.beginPath();ctx.arc(sx(state.livePoint.x),sy(state.livePoint.y),5,0,Math.PI*2);ctx.fill();
+  }
+  ctx.fillStyle='#111827';ctx.font='700 14px Inter';ctx.fillText('x',C.W-C.pad+24,C.H-C.pad+4);ctx.fillText('y',C.pad-4,22);
+}
+function drawField(C){
+  const {ctx,sx,sy,xmin,xmax,ymin,ymax}=C; const nx=18,ny=14;
+  let maxMag=0, data=[];
+  for(let i=1;i<nx;i++)for(let j=1;j<ny;j++){
+    const x=xmin+(xmax-xmin)*i/nx, y=ymin+(ymax-ymin)*j/ny, d=deriv(x,y); const mag=Math.hypot(d[0],d[1]);
+    if(mag>maxMag)maxMag=mag; data.push([x,y,d[0],d[1],mag]);
+  }
+  data.forEach(([x,y,dx,dy,mag])=>{
+    if(mag<1e-9)return;
+    const px=sx(x),py=sy(y); const len=15; const ux=dx/mag, uy=-dy/mag;
+    drawArrow(ctx,px-ux*len/2,py-uy*len/2,px+ux*len/2,py+uy*len/2,colors.gray,.52);
+  });
+}
+function drawTrajectory(C,pts,color=colors.red,alpha=.9){
+  const {ctx,sx,sy,xmin,xmax,ymin,ymax}=C;
+  ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=2.2;ctx.beginPath();
+  let started=false;
+  pts.forEach(([x,y])=>{
+    const visible=x>=xmin&&x<=xmax&&y>=ymin&&y<=ymax;
+    if(visible&&!started){ctx.moveTo(sx(x),sy(y));started=true;} else if(visible){ctx.lineTo(sx(x),sy(y));}
+  });
+  ctx.stroke();
+  for(let k=20;k<pts.length;k+=Math.max(60,Math.floor(pts.length/8))){
+    const p0=pts[k-1],p1=pts[k]; if(!p0||!p1)continue;
+    if(p1[0]>=xmin&&p1[0]<=xmax&&p1[1]>=ymin&&p1[1]<=ymax) drawArrow(ctx,sx(p0[0]),sy(p0[1]),sx(p1[0]),sy(p1[1]),color,.85);
+  }
+  ctx.restore();
+}
+function drawEquilibria(C){
+  const eqs=getEquilibria(); const {ctx,sx,sy,xmax,ymax}=C;
+  eqs.forEach(([x,y,label])=>{
+    if(x>=0&&x<=xmax&&y>=0&&y<=ymax){
+      ctx.fillStyle=colors.green;ctx.beginPath();ctx.arc(sx(x),sy(y),6,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=colors.green;ctx.font='700 12px Inter';ctx.fillText(label||'eq',sx(x)+8,sy(y)-8);
+    }
+  });
+}
+function getEquilibria(){
+  const p=params[state.model];
+  if(state.model==='lv') return [[0,0,'(0,0)'],[p.d/p.c,p.a/p.b,'coexist']];
+  if(state.model==='logistic'){
+    const x=p.d/p.c, y=p.a*(1-x/p.K)/p.b; const arr=[[0,0,'(0,0)'],[p.K,0,'K']]; if(y>0)arr.push([x,y,'coexist']); return arr;
+  }
+  if(state.model==='competition'){
+    const arr=[[0,0,'(0,0)'],[p.a/p.b,0,'x only'],[0,p.d/p.e,'y only']]; const det=p.b*p.e-p.c*p.f; if(Math.abs(det)>1e-9){ const x=(p.a*p.e-p.c*p.d)/det, y=(p.b*p.d-p.f*p.a)/det; if(isFinite(x)&&isFinite(y))arr.push([x,y,'coexist']); } return arr;
+  }
+  if(state.model==='linear') return [[0,0,'origin']];
+}
+function drawNullclines(C){
+  const {ctx,sx,sy,xmax,ymax}=C, p=params[state.model];
+  ctx.save();ctx.setLineDash([6,5]);ctx.lineWidth=1.8;ctx.strokeStyle=colors.orange;
+  function vline(x){if(x>=0&&x<=xmax){ctx.beginPath();ctx.moveTo(sx(x),sy(0));ctx.lineTo(sx(x),sy(ymax));ctx.stroke();}}
+  function hline(y){if(y>=0&&y<=ymax){ctx.beginPath();ctx.moveTo(sx(0),sy(y));ctx.lineTo(sx(xmax),sy(y));ctx.stroke();}}
+  if(state.model==='lv'){ hline(p.a/p.b); vline(p.d/p.c); }
+  if(state.model==='logistic'){
+    vline(p.d/p.c);
+    ctx.beginPath(); let first=true;
+    for(let i=0;i<=200;i++){ const x=xmax*i/200; const y=(p.a*(1-x/p.K))/p.b; if(y>=0&&y<=ymax){ if(first){ctx.moveTo(sx(x),sy(y));first=false}else ctx.lineTo(sx(x),sy(y)); }} ctx.stroke();
+  }
+  if(state.model==='competition'){
+    ctx.beginPath(); let first=true; for(let i=0;i<=200;i++){ const x=xmax*i/200, y=(p.a-p.b*x)/p.c; if(y>=0&&y<=ymax){ if(first){ctx.moveTo(sx(x),sy(y));first=false}else ctx.lineTo(sx(x),sy(y)); }} ctx.stroke();
+    ctx.strokeStyle=colors.purple;ctx.beginPath(); first=true; for(let i=0;i<=200;i++){ const x=xmax*i/200, y=(p.d-p.f*x)/p.e; if(y>=0&&y<=ymax){ if(first){ctx.moveTo(sx(x),sy(y));first=false}else ctx.lineTo(sx(x),sy(y)); }} ctx.stroke();
+  }
+  if(state.model==='linear'){
+    // nullclines ax+by=0 and cx+dy=0, drawn in matrix canvas mainly
+  }
+  ctx.restore();
+}
+
+const phaseCanvas=document.getElementById('phaseCanvas');
+phaseCanvas.addEventListener('click',e=>{
+  const rect=phaseCanvas.getBoundingClientRect(); const scaleX=phaseCanvas.width/rect.width, scaleY=phaseCanvas.height/rect.height;
+  const C=setupCanvas(phaseCanvas,0,state.xmax,0,state.ymax); // temporary for inverse after clear, then redraw below
+  const x=C.invx((e.clientX-rect.left)*scaleX), y=C.invy((e.clientY-rect.top)*scaleY);
+  if(x>=0&&x<=state.xmax&&y>=0&&y<=state.ymax){ state.trajectories.push(simulate(x,y)); state.livePoint={x,y,t:0,path:[[x,y,0]]}; drawAll(); }
+});
+
+document.getElementById('clearTraj').onclick=()=>{state.trajectories=[];state.livePoint=null;drawAll();};
+document.getElementById('addMany').onclick=()=>{ state.trajectories=[]; const xs=[.2,.4,.6,.8], ys=[.25,.5,.75]; xs.forEach(xx=>ys.forEach(yy=>state.trajectories.push(simulate(state.xmax*xx,state.ymax*yy,700)))); drawAll(); };
+document.getElementById('stepBtn').onclick=()=>{ if(!state.livePoint) state.livePoint={x:state.x0,y:state.y0,t:0,path:[[state.x0,state.y0,0]]}; const n=eulerStepPoint(state.livePoint.x,state.livePoint.y,state.h); state.livePoint.x=n[0]; state.livePoint.y=n[1]; state.livePoint.t+=state.h; state.livePoint.path.push([n[0],n[1],state.livePoint.t]); updateStats(); drawAll(); };
+document.getElementById('playBtn').onclick=()=>{ state.anim=!state.anim; document.getElementById('playBtn').textContent=state.anim?'Pause':'Animate'; if(state.anim) animate(); };
+function animate(){ if(!state.anim)return; document.getElementById('stepBtn').click(); state.animId=requestAnimationFrame(()=>setTimeout(animate,25)); }
+function updateStats(){
+  const lp=state.livePoint||{x:state.x0,y:state.y0}; const d=deriv(lp.x,lp.y);
+  document.getElementById('statX').textContent=fmt(lp.x); document.getElementById('statY').textContent=fmt(lp.y); document.getElementById('statDX').textContent=fmt(d[0]); document.getElementById('statDY').textContent=fmt(d[1]);
+}
+
+function drawTime(){
+  const canvas=document.getElementById('timeCanvas'); if(!canvas)return;
+  const ctx=canvas.getContext('2d'), W=canvas.width,H=canvas.height,pad=52;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='white';ctx.fillRect(0,0,W,H);
+  const pts=state.trajectories[0]||simulate(state.x0,state.y0);
+  const tmax=pts[pts.length-1]?.[2]||1; const ymax=Math.max(1,...pts.map(p=>Math.max(p[0],p[1])))*1.08;
+  const sx=t=>pad+t/tmax*(W-2*pad), sy=v=>H-pad-v/ymax*(H-2*pad);
+  ctx.strokeStyle=colors.grid;ctx.lineWidth=1;ctx.fillStyle='#64748b';ctx.font='12px Inter';
+  for(let i=0;i<=10;i++){ const t=tmax*i/10, y=ymax*i/10; ctx.beginPath();ctx.moveTo(sx(t),pad);ctx.lineTo(sx(t),H-pad);ctx.stroke(); ctx.fillText(fmt(t),sx(t)-8,H-pad+20); ctx.beginPath();ctx.moveTo(pad,sy(y));ctx.lineTo(W-pad,sy(y));ctx.stroke();ctx.fillText(fmt(y),pad-42,sy(y)+4); }
+  function line(index,color){ctx.strokeStyle=color;ctx.lineWidth=2.4;ctx.beginPath(); pts.forEach((p,i)=>{const x=sx(p[2]), y=sy(p[index]); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);});ctx.stroke();}
+  line(0,colors.red); line(1,colors.purple);
+  ctx.strokeStyle='#111827';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);ctx.stroke();ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.stroke();
+  ctx.fillStyle='#111827';ctx.font='700 14px Inter';ctx.fillText('t',W-pad+24,H-pad+4);ctx.fillText('population',pad-10,24);
+}
+
+function resetEuler(){ eulerCount=0; state.eulerRows=[[0,0,state.x0,state.y0,...deriv(state.x0,state.y0)]]; renderEulerTable(); drawEuler(); }
+function addEulerSteps(n=1){
+  if(!state.eulerRows.length) resetEuler();
+  let last=state.eulerRows[state.eulerRows.length-1]; let x=last[2],y=last[3],t=last[1];
+  for(let i=0;i<n;i++){ const d=deriv(x,y); const nx=x+state.h*d[0], ny=y+state.h*d[1]; x=nx;y=ny;t+=state.h; const nd=deriv(x,y); state.eulerRows.push([state.eulerRows.length,t,x,y,nd[0],nd[1]]); }
+  renderEulerTable();drawEuler();
+}
+document.getElementById('eulerReset').onclick=resetEuler; document.getElementById('eulerStep10').onclick=()=>addEulerSteps(10); document.getElementById('eulerFill').onclick=()=>addEulerSteps(40);
+function renderEulerTable(){
+  const tbody=document.querySelector('#eulerTable tbody'); if(!tbody)return; tbody.innerHTML='';
+  state.eulerRows.slice(-80).forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r[0]}</td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td><td>${fmt(r[4])}</td><td>${fmt(r[5])}</td>`; tbody.appendChild(tr); });
+}
+function drawEuler(){
+  const canvas=document.getElementById('eulerCanvas'); if(!canvas)return;
+  const ctx=canvas.getContext('2d'), W=canvas.width,H=canvas.height,pad=48;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='white';ctx.fillRect(0,0,W,H);
+  const rows=state.eulerRows; const tmax=Math.max(1,rows[rows.length-1]?.[1]||1), ymax=Math.max(1,...rows.map(r=>Math.max(r[2],r[3])))*1.15;
+  const sx=t=>pad+t/tmax*(W-2*pad), sy=v=>H-pad-v/ymax*(H-2*pad);
+  ctx.strokeStyle=colors.grid;ctx.lineWidth=1; for(let i=0;i<=8;i++){ctx.beginPath();ctx.moveTo(pad, pad+i*(H-2*pad)/8);ctx.lineTo(W-pad,pad+i*(H-2*pad)/8);ctx.stroke();ctx.beginPath();ctx.moveTo(pad+i*(W-2*pad)/8,pad);ctx.lineTo(pad+i*(W-2*pad)/8,H-pad);ctx.stroke();}
+  function line(index,color){ctx.strokeStyle=color;ctx.lineWidth=2.4;ctx.beginPath(); rows.forEach((r,i)=>{const x=sx(r[1]), y=sy(r[index]); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);});ctx.stroke(); rows.forEach(r=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(sx(r[1]),sy(r[index]),3,0,Math.PI*2);ctx.fill();});}
+  line(2,colors.red); line(3,colors.purple);
+  ctx.fillStyle='#111827';ctx.font='700 14px Inter';ctx.fillText('Euler approximations for x(t) and y(t)',pad,24);
+}
+
+function syncMatrixFromParams(){
+  ['a','b','c','d'].forEach(k=>{ const el=document.getElementById('m'+k); if(el){ el.value=params.linear[k]; document.getElementById('m'+k+'out').textContent=fmt(params.linear[k]); }});
+}
+['a','b','c','d'].forEach(k=>{
+  const el=document.getElementById('m'+k), out=document.getElementById('m'+k+'out');
+  el.oninput=()=>{ params.linear[k]=+el.value; out.textContent=fmt(params.linear[k]); if(state.model==='linear') { rebuildParamControls(); generateDefaultTrajectory(); resetEuler(); } updateEigenText(); drawAll(); };
+});
+function eigenData(){
+  const {a,b,c,d}=params.linear; const tr=a+d, m=tr/2, det=a*d-b*c, disc=m*m-det;
+  if(disc>=0){ const s=Math.sqrt(disc); return {real:true,l1:m+s,l2:m-s,m,det,disc}; }
+  return {real:false,re:m,im:Math.sqrt(-disc),m,det,disc};
+}
+function updateEigenText(){
+  const {a,b,c,d}=params.linear, e=eigenData(); let type='';
+  if(e.real){
+    if(e.l1*e.l2<0) type='saddle behaviour: one direction grows and another decays';
+    else if(e.l1<0&&e.l2<0) type='stable node: trajectories move toward the origin';
+    else if(e.l1>0&&e.l2>0) type='unstable node: trajectories move away from the origin';
+    else type='one eigenvalue is close to zero, so one direction changes slowly';
+    document.getElementById('eigenText').innerHTML=`\\[m=\\frac{a+d}{2}=${fmt(e.m)},\\quad p=ad-bc=${fmt(e.det)}\\]\\[\\lambda=${fmt(e.m)}\\pm\\sqrt{${fmt(e.disc)}}\\Rightarrow \\lambda_1=${fmt(e.l1)},\\ \lambda_2=${fmt(e.l2)}\\]<p><strong>Interpretation:</strong> ${type}.</p>`;
+  } else {
+    type=e.re<0?'stable spiral':e.re>0?'unstable spiral':'centre-like rotation';
+    document.getElementById('eigenText').innerHTML=`\\[m=${fmt(e.m)},\\quad p=${fmt(e.det)},\\quad m^2-p=${fmt(e.disc)}<0\\]\\[\\lambda=${fmt(e.re)}\\pm ${fmt(e.im)}i\\]<p><strong>Interpretation:</strong> complex eigenvalues produce rotation; this is a ${type}.</p>`;
+  }
+  safeTypeset();
+}
+function drawMatrix(){
+  updateEigenText();
+  const canvas=document.getElementById('matrixCanvas'); if(!canvas)return;
+  const prev=state.model;
+  state.model='linear';
+  try{
+    const C=setupCanvas(canvas,-20,20,-20,20), {ctx,sx,sy}=C;
+    drawField(C);
+    // trajectories
+    [[12,0],[-12,0],[0,12],[0,-12],[8,8],[-8,8],[8,-8],[-8,-8],[15,5],[-15,-5]].forEach(pt=>drawTrajectory(C,simulate(pt[0],pt[1],500,.025),colors.blue,.65));
+    // eigenvector directions for real eigenvalues
+    const e=eigenData(), p=params.linear;
+    if(e.real){
+      [e.l1,e.l2].forEach((lam,idx)=>{
+        let vx,vy;
+        if(Math.abs(p.b)>1e-9){ vx=1; vy=(lam-p.a)/p.b; }
+        else if(Math.abs(p.c)>1e-9){ vy=1; vx=(lam-p.d)/p.c; }
+        else { vx=idx===0?1:0; vy=idx===0?0:1; }
+        const norm=Math.hypot(vx,vy)||1; vx/=norm; vy/=norm;
+        ctx.strokeStyle=idx===0?colors.red:colors.green;ctx.lineWidth=3;ctx.setLineDash([8,5]);
+        ctx.beginPath();ctx.moveTo(sx(-vx*20),sy(-vy*20));ctx.lineTo(sx(vx*20),sy(vy*20));ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle=idx===0?colors.red:colors.green;ctx.font='700 12px Inter';ctx.fillText(`λ${idx+1}=${fmt(lam)}`,sx(vx*12)+4,sy(vy*12)-4);
+      });
+    }
+    ctx.fillStyle=colors.green;ctx.beginPath();ctx.arc(sx(0),sy(0),6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#111827';ctx.font='700 14px Inter';ctx.fillText('Linear system phase portrait with eigen-directions',C.pad,24);
+  } finally {
+    state.model=prev;
+  }
+}
+
+function drawAll(){ updateEquation(); updateStats(); drawPhase(); drawTime(); drawEuler(); drawMatrix(); }
+
+const questionTemplates = [
+  ()=>{
+    const a=.6,b=.02,c=.01,d=.3; const xe=d/c, ye=a/b;
+    return {
+      q:`A predator–prey model is given by \\(\\frac{dx}{dt}=(${a}-${b}y)x\\), \\(\\frac{dy}{dt}=(${c}x-${d})y\\). Find the non-zero equilibrium point and interpret it.`,
+      a:`Set both derivatives to zero. For a non-zero equilibrium, \\(${a}-${b}y=0\\), so \\(y=${fmt(ye)}\\). Also \\(${c}x-${d}=0\\), so \\(x=${fmt(xe)}\\). The coexistence equilibrium is \\((x,y)=(${fmt(xe)},${fmt(ye)})\\). In context, this means the prey and predator populations are balanced, so neither population is instantaneously increasing or decreasing.`
+    };
+  },
+  ()=>{
+    const x=40,y=20,h=.1,a=.5,b=.01,c=.02,d=.3; const dx=(a-b*y)*x, dy=(c*x-d)*y;
+    return {
+      q:`Use one Euler step with \\(h=${h}\\) for \\(\\frac{dx}{dt}=(${a}-${b}y)x\\), \\(\\frac{dy}{dt}=(${c}x-${d})y\\), starting from \\((x_0,y_0)=(${x},${y})\\).`,
+      a:`First calculate the rates: \\(\\frac{dx}{dt}=(${a}-${b}\cdot ${y})${x}=${fmt(dx)}\\), and \\(\\frac{dy}{dt}=(${c}\cdot ${x}-${d})${y}=${fmt(dy)}\\). Then \\(x_1=${x}+${h}(${fmt(dx)})=${fmt(x+h*dx)}\\), and \\(y_1=${y}+${h}(${fmt(dy)})=${fmt(y+h*dy)}\\).`
+    };
+  },
+  ()=>({
+    q:`Explain why a predator–prey model often contains an \\(xy\\) term.`,
+    a:`The term \\(xy\\) represents interactions between the two populations. If there are more prey and more predators, there are more possible encounters. This makes predation depend on the product of the two population sizes, not just one population alone.`
+  }),
+  ()=>({
+    q:`A phase trajectory forms a closed loop around a non-zero equilibrium point. What does this suggest about the populations?`,
+    a:`A closed loop suggests repeated cycles. The populations do not settle at a fixed value; instead, prey and predator numbers rise and fall periodically. In a predator–prey context, predator peaks usually occur after prey peaks because predator growth depends on prey availability.`
+  }),
+  ()=>{
+    const a=1,b=2,c=-3,d=-1; const m=(a+d)/2, p=a*d-b*c, disc=m*m-p;
+    return {
+      q:`For \\(A=\\begin{pmatrix}${a}&${b}\\\\${c}&${d}\\end{pmatrix}\\), calculate \\(m=\\frac{a+d}{2}\\), \\(p=ad-bc\\), and use \\(\\lambda=m\\pm\\sqrt{m^2-p}\\).`,
+      a:`Here \\(m=\\frac{${a}+(${d})}{2}=0\\). Also \\(p=${a}(${d})-${b}(${c})=${p}\\). Therefore \\(m^2-p=0-${p}=${-p}\\). The eigenvalues are \\(\\lambda=0\\pm\\sqrt{${-p}}=\\pm ${fmt(Math.sqrt(-p))}\\). Since one eigenvalue is positive and one is negative, the origin is a saddle point.`
+    };
+  }
+];
+function newQuestion(){ const item=questionTemplates[Math.floor(Math.random()*questionTemplates.length)](); document.getElementById('questionBox').innerHTML=`<strong>Question</strong><p>${item.q}</p>`; const a=document.getElementById('answerBox'); a.classList.remove('show'); a.innerHTML=`<strong>Worked answer</strong><p>${item.a}</p>`; safeTypeset(); }
+document.getElementById('newQuestion').onclick=newQuestion; document.getElementById('showAnswer').onclick=()=>{document.getElementById('answerBox').classList.add('show'); safeTypeset();};
+
+function init(){ rebuildParamControls(); syncMatrixFromParams(); generateDefaultTrajectory(); resetEuler(); newQuestion(); drawAll(); }
+init();
+</script>
+</body>
+</html>
