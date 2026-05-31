@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eigenvalues and Eigenvectors Explorer</title>
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --panel:#ffffff;
+    --ink:#152238;
+    --muted:#64748b;
+    --line:#d8e0ec;
+    --accent:#2563eb;
+    --accent2:#0f766e;
+    --warn:#b45309;
+    --bad:#b91c1c;
+    --good:#047857;
+    --purple:#7c3aed;
+    --pink:#db2777;
+    --shadow:0 12px 30px rgba(15, 23, 42, .09);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:linear-gradient(180deg,#eef4ff 0%, var(--bg) 360px);
+    color:var(--ink);
+    line-height:1.45;
+  }
+  header{
+    padding:28px clamp(16px,4vw,48px) 18px;
+    max-width:1440px;
+    margin:auto;
+  }
+  .hero{
+    display:grid;
+    grid-template-columns: 1.35fr .65fr;
+    gap:22px;
+    align-items:stretch;
+  }
+  .hero-card{
+    background:rgba(255,255,255,.86);
+    border:1px solid rgba(37,99,235,.14);
+    box-shadow:var(--shadow);
+    border-radius:24px;
+    padding:24px;
+    backdrop-filter: blur(8px);
+  }
+  h1{
+    margin:0 0 10px;
+    font-size:clamp(2rem,4vw,4.2rem);
+    line-height:1.02;
+    letter-spacing:-.04em;
+  }
+  h2{font-size:1.45rem;margin:0 0 12px;letter-spacing:-.02em}
+  h3{font-size:1.05rem;margin:0 0 8px;letter-spacing:-.01em}
+  p{margin:0 0 12px}
+  .subhead{font-size:1.05rem;color:#334155;max-width:76ch}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:.84rem;font-weight:700;
+    border-radius:999px;padding:7px 10px;
+    background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;
+  }
+  .pill.green{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+  .pill.orange{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+  .pill.purple{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+  .layout{
+    display:grid;
+    grid-template-columns: 320px minmax(0,1fr);
+    gap:18px;
+    max-width:1440px;
+    margin:0 auto;
+    padding:0 clamp(16px,4vw,48px) 44px;
+  }
+  nav{
+    position:sticky;top:12px;align-self:start;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .card.soft{box-shadow:none;background:#fbfdff}
+  .navlinks a{
+    display:block;
+    text-decoration:none;color:#334155;
+    padding:8px 10px;border-radius:10px;font-weight:650;font-size:.94rem;
+  }
+  .navlinks a:hover{background:#eff6ff;color:#1d4ed8}
+  main{display:flex;flex-direction:column;gap:18px}
+  section.card{padding:18px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .wide-grid{display:grid;grid-template-columns:minmax(420px,1.15fr) minmax(320px,.85fr);gap:16px;align-items:start}
+  .matrix-editor{
+    display:grid;
+    grid-template-columns:auto auto;
+    gap:8px;
+    width:max-content;
+    padding:10px 14px;
+    border-left:3px solid var(--accent);
+    border-right:3px solid var(--accent);
+    border-radius:10px;
+    background:#f8fafc;
+    margin:8px 0 12px;
+  }
+  input[type="number"]{
+    width:76px;
+    border:1px solid #cbd5e1;
+    border-radius:9px;
+    padding:8px 9px;
+    font-size:1rem;
+    background:#fff;
+    color:var(--ink);
+  }
+  input[type="range"]{width:100%}
+  label{font-size:.92rem;color:#334155;font-weight:650}
+  .control-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  button{
+    appearance:none;border:0;border-radius:11px;
+    background:#e2e8f0;color:#0f172a;
+    padding:9px 11px;font-weight:750;cursor:pointer;
+    transition:.15s transform,.15s background,.15s box-shadow;
+  }
+  button:hover{transform:translateY(-1px);background:#dbe4f0}
+  button.primary{background:var(--accent);color:white;box-shadow:0 8px 18px rgba(37,99,235,.24)}
+  button.primary:hover{background:#1d4ed8}
+  button.green{background:#10b981;color:white}
+  button.purple{background:#7c3aed;color:white}
+  button.ghost{background:#f8fafc;border:1px solid #cbd5e1}
+  select{
+    border:1px solid #cbd5e1;border-radius:11px;padding:9px 10px;font-weight:700;background:#fff;color:var(--ink);
+  }
+  .canvas-wrap{
+    position:relative;
+    min-height:580px;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid #cbd5e1;
+    background:#ffffff;
+  }
+  canvas{display:block;width:100%;height:100%}
+  #mainCanvas{height:580px}
+  #lineCanvas{height:310px}
+  .canvas-hint{
+    position:absolute;left:12px;bottom:12px;
+    background:rgba(255,255,255,.9);border:1px solid #dbeafe;
+    border-radius:12px;padding:9px 10px;font-size:.85rem;color:#334155;
+    box-shadow:0 8px 22px rgba(15,23,42,.08);
+    max-width:360px;
+  }
+  .readout{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+  }
+  .fact{
+    padding:11px 12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;
+  }
+  .fact b{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:2px}
+  .fact span{font-size:1.05rem;font-weight:800;color:#0f172a;word-break:break-word}
+  .formula{
+    background:#0f172a;color:#e2e8f0;border-radius:14px;padding:13px 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow:auto;margin:10px 0;
+  }
+  .formula .hi{color:#93c5fd}.formula .good{color:#86efac}.formula .warn{color:#fde68a}.formula .pink{color:#f9a8d4}
+  .mini-note{font-size:.9rem;color:#64748b;margin:6px 0 0}
+  .callout{
+    border-left:4px solid var(--accent);
+    background:#eff6ff;
+    padding:12px 14px;border-radius:14px;margin:12px 0;
+  }
+  .callout.green{border-left-color:var(--good);background:#ecfdf5}
+  .callout.orange{border-left-color:var(--warn);background:#fff7ed}
+  .callout.purple{border-left-color:var(--purple);background:#f5f3ff}
+  .step-list{counter-reset:item;display:grid;gap:10px;margin:12px 0}
+  .step{
+    counter-increment:item;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;
+    background:#fbfdff;border:1px solid #e2e8f0;border-radius:15px;padding:12px;
+  }
+  .step:before{
+    content:counter(item);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;
+    background:#dbeafe;color:#1d4ed8;font-weight:900;
+  }
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab{background:#f8fafc;border:1px solid #cbd5e1;color:#334155}
+  .tab.active{background:#2563eb;color:white;border-color:#2563eb}
+  .tab-panel{display:none}.tab-panel.active{display:block}
+  .small{font-size:.9rem;color:#475569}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.86rem;margin:10px 0;color:#475569}
+  .key{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:14px;height:4px;border-radius:999px;display:inline-block;background:#222}.swatch.blue{background:#2563eb}.swatch.orange{background:#f97316}.swatch.green{background:#059669}.swatch.purple{background:#7c3aed}.swatch.gray{background:#94a3b8}
+  table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0}
+  th,td{padding:9px 10px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}
+  th{background:#f8fafc;color:#334155;font-size:.86rem;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:0}
+  .checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .checkline{display:flex;align-items:center;gap:7px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:8px 9px}
+  .checkline input{accent-color:#2563eb}
+  .practice-matrix{
+    font-size:1.3rem;font-weight:850;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;display:inline-block;
+  }
+  .answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+  .answer-grid input{width:100%}
+  .feedback{font-weight:800;padding:10px 12px;border-radius:13px;background:#f8fafc;border:1px solid #e2e8f0;margin-top:8px}
+  .feedback.good{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+  .feedback.bad{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+  details{border:1px solid #e2e8f0;background:#fbfdff;border-radius:14px;padding:10px 12px;margin:10px 0}
+  summary{font-weight:850;cursor:pointer}
+  footer{max-width:1440px;margin:0 auto;padding:0 clamp(16px,4vw,48px) 40px;color:#64748b;font-size:.9rem}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#e2e8f0;border-radius:6px;padding:1px 5px;font-weight:800;color:#334155}
+  @media (max-width: 1050px){
+    .layout,.hero,.wide-grid,.grid-2{grid-template-columns:1fr}
+    nav{position:static;display:none}
+    #mainCanvas{height:520px}
+  }
+  @media (max-width: 640px){
+    .grid-3,.readout,.checkbox-grid,.answer-grid{grid-template-columns:1fr}
+    .hero-card{padding:18px}
+    .canvas-wrap{min-height:430px}#mainCanvas{height:430px}#lineCanvas{height:260px}
+    input[type="number"]{width:68px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <div class="hero-card">
+      <h1>Eigenvalues & Eigenvectors Explorer</h1>
+      <p class="subhead">A visual, algebraic and exam-ready applet for understanding why some directions are special under a matrix transformation.</p>
+      <div class="pill-row">
+        <span class="pill">Explore invariant lines</span>
+        <span class="pill green">Connect graph to algebra</span>
+        <span class="pill orange">Practise exam method</span>
+        <span class="pill purple">See complex cases</span>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h2>The big idea</h2>
+      <p>A matrix usually <b>turns and stretches</b> a vector.</p>
+      <p>An eigenvector is a non-zero vector whose direction is not changed. It may be stretched, squashed, reversed, or left alone:</p>
+      <div class="formula"><span class="hi">A</span>v = <span class="good">λ</span>v</div>
+      <p class="mini-note">The number <b>λ</b> is the scale factor along that special direction.</p>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav>
+    <div class="card navlinks">
+      <h3>Sections</h3>
+      <a href="#explore">1. Transformation explorer</a>
+      <a href="#algebra">2. Algebra beside the graph</a>
+      <a href="#line">3. Line direction test</a>
+      <a href="#method">4. Exam method</a>
+      <a href="#powers">5. Repeated transformations</a>
+      <a href="#practice">6. Practice generator</a>
+      <a href="#misconceptions">7. Misconceptions</a>
+    </div>
+    <div class="card">
+      <h3>Current matrix</h3>
+      <div class="formula" id="navMatrix">A = [[2, 1], [1, 2]]</div>
+      <p class="small">Tip: drag the blue vector in the graph. When the blue and orange arrows become parallel, you have found an eigenvector direction.</p>
+    </div>
+  </nav>
+
+  <main>
+    <section class="card" id="explore">
+      <div class="wide-grid">
+        <div>
+          <h2>1. Transformation explorer</h2>
+          <p>Choose a matrix, then watch how it transforms the plane. The grey grid is the original plane; the coloured grid is the image under <b>A</b>.</p>
+          <div class="canvas-wrap">
+            <canvas id="mainCanvas" aria-label="Matrix transformation canvas"></canvas>
+            <div class="canvas-hint">Drag the <b style="color:#2563eb">blue vector</b>. The <b style="color:#f97316">orange vector</b> is its image under A. Eigenvectors happen when the two arrows are parallel.</div>
+          </div>
+          <div class="legend">
+            <span class="key"><span class="swatch gray"></span>original grid</span>
+            <span class="key"><span class="swatch green"></span>transformed grid</span>
+            <span class="key"><span class="swatch blue"></span>v</span>
+            <span class="key"><span class="swatch orange"></span>Av</span>
+            <span class="key"><span class="swatch purple"></span>eigenlines</span>
+          </div>
+        </div>
+
+        <aside class="card soft">
+          <h3>Matrix controls</h3>
+          <p class="small">Use a general 2×2 matrix:</p>
+          <div class="matrix-editor" aria-label="Matrix input">
+            <input id="a" type="number" value="2" step="0.1" />
+            <input id="b" type="number" value="1" step="0.1" />
+            <input id="c" type="number" value="1" step="0.1" />
+            <input id="d" type="number" value="2" step="0.1" />
+          </div>
+          <div class="control-row">
+            <button class="primary" id="animateBtn">Animate I → A</button>
+            <button id="resetVectorBtn">Reset vector</button>
+            <button id="randomVectorBtn">Random vector</button>
+          </div>
+          <label for="presetSelect">Presets</label>
+          <div class="control-row">
+            <select id="presetSelect">
+              <option value="symmetric">Symmetric stretch: clear eigenlines</option>
+              <option value="diagonal">Diagonal stretch</option>
+              <option value="shear">Shear: one eigenline</option>
+              <option value="reflection">Reflection</option>
+              <option value="rotation90">90° rotation: complex eigenvalues</option>
+              <option value="rotationScale">Rotate + shrink: complex eigenvalues</option>
+              <option value="fibonacci">Fibonacci matrix</option>
+              <option value="markov">Markov transition example</option>
+              <option value="defective">Repeated eigenvalue, one eigenline</option>
+              <option value="scalar">Every direction is eigen</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="checkbox-grid">
+            <label class="checkline"><input type="checkbox" id="showOriginalGrid" checked> original grid</label>
+            <label class="checkline"><input type="checkbox" id="showTransformedGrid" checked> transformed grid</label>
+            <label class="checkline"><input type="checkbox" id="showCircle" checked> unit circle image</label>
+            <label class="checkline"><input type="checkbox" id="showEigen" checked> eigenlines</label>
+            <label class="checkline"><input type="checkbox" id="showVector" checked> draggable vector</label>
+            <label class="checkline"><input type="checkbox" id="showIterates"> repeated Aⁿv</label>
+          </div>
+          <label for="iterateCount">Number of repeated transformations: <span id="iterateCountVal">6</span></label>
+          <input type="range" id="iterateCount" min="1" max="12" value="6" />
+          <div class="readout" style="margin-top:12px">
+            <div class="fact"><b>Vector v</b><span id="vReadout">(2, 1)</span></div>
+            <div class="fact"><b>Image Av</b><span id="avReadout">(5, 4)</span></div>
+            <div class="fact"><b>Parallel test</b><span id="parallelReadout">not parallel</span></div>
+            <div class="fact"><b>Scale if parallel</b><span id="scaleReadout">—</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="card" id="algebra">
+      <h2>2. Algebra beside the graph</h2>
+      <p>The graph asks: <i>Which directions keep their line?</i> The algebra asks the same thing in symbols.</p>
+      <div class="grid-2">
+        <div>
+          <div class="callout">
+            <h3>From geometry to algebra</h3>
+            <p>If v is an eigenvector, the transformed vector Av is just a scalar multiple of v:</p>
+            <div class="formula">Av = λv</div>
+            <p>Move everything to one side:</p>
+            <div class="formula">Av − λIv = 0<br>(A − λI)v = 0</div>
+            <p>For a non-zero solution, the matrix must be singular:</p>
+            <div class="formula">det(A − λI) = 0</div>
+          </div>
+          <div class="callout green">
+            <h3>The compact 2×2 shortcut</h3>
+            <p>For</p>
+            <div class="formula">A = [[a, b], [c, d]]</div>
+            <p>let</p>
+            <div class="formula">m = (a+d)/2 &nbsp;&nbsp; and &nbsp;&nbsp; p = det(A) = ad − bc</div>
+            <p>Then</p>
+            <div class="formula">λ = m ± √(m² − p)</div>
+          </div>
+        </div>
+        <div>
+          <h3>Live calculations for your matrix</h3>
+          <div class="readout">
+            <div class="fact"><b>trace T = a+d</b><span id="traceVal">4</span></div>
+            <div class="fact"><b>determinant p = ad−bc</b><span id="detVal">3</span></div>
+            <div class="fact"><b>m = T/2</b><span id="mVal">2</span></div>
+            <div class="fact"><b>m² − p</b><span id="discVal">1</span></div>
+          </div>
+          <div class="formula" id="polyVal">λ² − 4λ + 3 = 0</div>
+          <div class="formula" id="eigenFormulaVal">λ = 2 ± √1</div>
+          <div class="readout">
+            <div class="fact"><b>Eigenvalue 1</b><span id="eigVal1">3</span></div>
+            <div class="fact"><b>Eigenvalue 2</b><span id="eigVal2">1</span></div>
+          </div>
+          <div id="eigenvectorsBox" class="callout purple"></div>
+          <div class="callout green">
+            <h3>Same eigenvector, different scalings</h3>
+            <p>Eigenvectors describe a <b>direction</b>, not one fixed arrow. The forms <b>v</b>, <b>2v</b>, <b>−v</b>, <b>v/||v||</b>, or a version whose entries sum to 1 are all the same eigen-direction, as long as the vector is not zero.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="line">
+      <div class="wide-grid">
+        <div>
+          <h2>3. Line direction test</h2>
+          <p>An eigenvector is really an <b>eigen-direction</b>. Every non-zero scalar multiple lies on the same invariant line.</p>
+          <div class="canvas-wrap" style="min-height:310px">
+            <canvas id="lineCanvas" aria-label="Line direction test canvas"></canvas>
+          </div>
+        </div>
+        <aside class="card soft">
+          <h3>Rotate a test line</h3>
+          <label for="angleSlider">Direction angle: <span id="angleVal">35°</span></label>
+          <input id="angleSlider" type="range" min="0" max="180" step="1" value="35" />
+          <div class="readout" style="margin-top:12px">
+            <div class="fact"><b>Unit direction u</b><span id="uReadout">—</span></div>
+            <div class="fact"><b>Image Au</b><span id="auReadout">—</span></div>
+            <div class="fact"><b>Angle change</b><span id="angleChangeReadout">—</span></div>
+            <div class="fact"><b>Verdict</b><span id="lineVerdict">—</span></div>
+          </div>
+          <details open>
+            <summary>What is being tested?</summary>
+            <p class="small">The line through u is invariant if A maps it back onto the same line. Algebraically, this means Au is parallel to u, so the 2D cross product is zero:</p>
+            <div class="formula">u₁(Au)₂ − u₂(Au)₁ = 0</div>
+          </details>
+        </aside>
+      </div>
+    </section>
+
+    <section class="card" id="method">
+      <h2>4. Exam method: reliable steps</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="conceptTab">Concept</button>
+        <button class="tab" data-tab="detTab">Find λ</button>
+        <button class="tab" data-tab="vecTab">Find v</button>
+        <button class="tab" data-tab="interpretTab">Interpret</button>
+      </div>
+      <div id="conceptTab" class="tab-panel active">
+        <div class="step-list">
+          <div class="step"><div><b>Start with meaning.</b><br>We want non-zero vectors v where multiplying by A has the same effect as multiplying by a number λ.</div></div>
+          <div class="step"><div><b>Remember the zero vector is excluded.</b><br>The zero vector always satisfies A0 = λ0, so it tells us nothing about the transformation.</div></div>
+          <div class="step"><div><b>Think geometrically.</b><br>Eigenvectors are directions that are not turned by the transformation.</div></div>
+        </div>
+      </div>
+      <div id="detTab" class="tab-panel">
+        <div class="step-list">
+          <div class="step"><div><b>Write the characteristic equation.</b><div class="formula">det(A − λI) = 0</div></div></div>
+          <div class="step"><div><b>For a 2×2 matrix, expand.</b><div class="formula" id="liveDetExpansion">—</div></div></div>
+          <div class="step"><div><b>Solve the quadratic.</b><div class="formula" id="liveEigenSolve">—</div></div></div>
+        </div>
+      </div>
+      <div id="vecTab" class="tab-panel">
+        <div class="step-list">
+          <div class="step"><div><b>Substitute each eigenvalue.</b><div class="formula">(A − λI)v = 0</div></div></div>
+          <div class="step"><div><b>Let v = (x, y).</b><br>Solve the two equations. They should reduce to the same line equation.</div></div>
+          <div class="step"><div><b>Choose any convenient non-zero vector.</b><br>Scalar multiples are equally valid.</div></div>
+        </div>
+        <div id="liveVectorSolve" class="callout"></div>
+      </div>
+      <div id="interpretTab" class="tab-panel">
+        <table>
+          <thead><tr><th>What you see</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>λ &gt; 1</td><td>Stretch along the eigen-direction.</td></tr>
+            <tr><td>0 &lt; λ &lt; 1</td><td>Squash toward the origin along the eigen-direction.</td></tr>
+            <tr><td>λ = 1</td><td>Vectors on that line stay exactly the same.</td></tr>
+            <tr><td>λ = −1</td><td>Vectors reverse direction but keep length.</td></tr>
+            <tr><td>λ &lt; 0</td><td>Stretch/squash and flip through the origin.</td></tr>
+            <tr><td>Complex eigenvalues</td><td>No real invariant line; the transformation has rotational behaviour.</td></tr>
+            <tr><td>Repeated eigenvalue</td><td>May have one eigenline, infinitely many eigenlines, or not enough eigenvectors for a basis.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" id="powers">
+      <h2>5. Repeated transformations: why eigenvectors matter</h2>
+      <div class="grid-2">
+        <div>
+          <p>Eigenvectors are especially useful when a matrix is applied again and again.</p>
+          <div class="formula">If Av = λv, then A²v = λ²v, and Aⁿv = λⁿv.</div>
+          <p>This explains why eigenvalues appear in Markov chains, population models, differential equations, computer graphics, vibration analysis and Google-style ranking algorithms.</p>
+          <div class="callout orange">
+            <b>Use the repeated Aⁿv checkbox in the first graph.</b><br>
+            If one eigenvalue is much larger in size than the other, many starting vectors are eventually pulled toward the dominant eigen-direction.
+          </div>
+        </div>
+        <div>
+          <h3>Eigenbasis decomposition</h3>
+          <p class="small">When there are two independent real eigenvectors, many vectors can be broken into two eigenvector components.</p>
+          <div class="formula" id="decompBox">Choose a matrix with two distinct real eigenvalues.</div>
+          <p class="small">Then applying A repeatedly just scales each component separately. This is the hidden simplicity eigenvectors reveal.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="practice">
+      <h2>6. Practice generator</h2>
+      <p>Generate a matrix with friendly eigenvalues. First predict the eigenvalues, then reveal the full method.</p>
+      <div class="grid-2">
+        <div>
+          <button class="primary" id="newPracticeBtn">New practice question</button>
+          <button id="usePracticeBtn">Load into explorer</button>
+          <div style="margin-top:12px">
+            <div class="practice-matrix" id="practiceMatrix">A = [[2, 1], [0, 3]]</div>
+          </div>
+          <div class="answer-grid">
+            <label>First eigenvalue <input id="ans1" type="number" step="0.01" /></label>
+            <label>Second eigenvalue <input id="ans2" type="number" step="0.01" /></label>
+          </div>
+          <button class="green" id="checkPracticeBtn">Check eigenvalues</button>
+          <button class="ghost" id="showPracticeBtn">Show worked solution</button>
+          <div id="practiceFeedback" class="feedback">Enter your two eigenvalues in any order.</div>
+        </div>
+        <div id="practiceSolution" class="callout" style="display:none"></div>
+      </div>
+    </section>
+
+    <section class="card" id="misconceptions">
+      <h2>7. Common misconceptions</h2>
+      <div class="grid-3">
+        <div class="callout"><h3>“The eigenvector is unique.”</h3><p>No. Any non-zero scalar multiple of an eigenvector is also an eigenvector.</p></div>
+        <div class="callout green"><h3>“The zero vector counts.”</h3><p>No. The zero vector is excluded because it is always mapped to zero and gives no direction.</p></div>
+        <div class="callout orange"><h3>“Complex eigenvalues are a mistake.”</h3><p>No. They mean the real plane has no invariant line; the transformation includes rotation-like behaviour.</p></div>
+        <div class="callout purple"><h3>“Negative λ means impossible.”</h3><p>No. A negative eigenvalue means the vector is reversed as well as scaled.</p></div>
+        <div class="callout"><h3>“Repeated eigenvalue means two eigenvectors.”</h3><p>Not always. A repeated eigenvalue may have one eigenline, two independent eigenlines, or every direction.</p></div>
+        <div class="callout green"><h3>“det(A − λI) = 0 is magic.”</h3><p>It simply forces a non-zero solution to a homogeneous system.</p></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Built as a standalone HTML applet. No external libraries are required.
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  const EPS = 1e-9;
+  const $ = id => document.getElementById(id);
+
+  const els = {
+    a:$('a'), b:$('b'), c:$('c'), d:$('d'),
+    preset:$('presetSelect'),
+    mainCanvas:$('mainCanvas'), lineCanvas:$('lineCanvas'),
+    animateBtn:$('animateBtn'), resetVectorBtn:$('resetVectorBtn'), randomVectorBtn:$('randomVectorBtn'),
+    showOriginalGrid:$('showOriginalGrid'), showTransformedGrid:$('showTransformedGrid'), showCircle:$('showCircle'), showEigen:$('showEigen'), showVector:$('showVector'), showIterates:$('showIterates'),
+    iterateCount:$('iterateCount'), iterateCountVal:$('iterateCountVal'),
+    vReadout:$('vReadout'), avReadout:$('avReadout'), parallelReadout:$('parallelReadout'), scaleReadout:$('scaleReadout'),
+    navMatrix:$('navMatrix'), traceVal:$('traceVal'), detVal:$('detVal'), mVal:$('mVal'), discVal:$('discVal'), polyVal:$('polyVal'), eigenFormulaVal:$('eigenFormulaVal'), eigVal1:$('eigVal1'), eigVal2:$('eigVal2'), eigenvectorsBox:$('eigenvectorsBox'),
+    angleSlider:$('angleSlider'), angleVal:$('angleVal'), uReadout:$('uReadout'), auReadout:$('auReadout'), angleChangeReadout:$('angleChangeReadout'), lineVerdict:$('lineVerdict'),
+    liveDetExpansion:$('liveDetExpansion'), liveEigenSolve:$('liveEigenSolve'), liveVectorSolve:$('liveVectorSolve'), decompBox:$('decompBox'),
+    newPracticeBtn:$('newPracticeBtn'), usePracticeBtn:$('usePracticeBtn'), checkPracticeBtn:$('checkPracticeBtn'), showPracticeBtn:$('showPracticeBtn'), practiceMatrix:$('practiceMatrix'), ans1:$('ans1'), ans2:$('ans2'), practiceFeedback:$('practiceFeedback'), practiceSolution:$('practiceSolution')
+  };
+
+  const presets = {
+    symmetric:[[2,1],[1,2]],
+    diagonal:[[3,0],[0,0.5]],
+    shear:[[1,1.4],[0,1]],
+    reflection:[[1,0],[0,-1]],
+    rotation90:[[0,-1],[1,0]],
+    rotationScale:[[0.55,-0.75],[0.75,0.55]],
+    fibonacci:[[1,1],[1,0]],
+    markov:[[0.8,0.3],[0.2,0.7]],
+    defective:[[2,1],[0,2]],
+    scalar:[[2,0],[0,2]]
+  };
+
+  let state = {
+    A:[[2,1],[1,2]],
+    v:[2,1],
+    dragging:false,
+    view:{w:700,h:580,scale:45,cx:350,cy:290},
+    lineView:{w:500,h:310,scale:60,cx:250,cy:155},
+    animationMatrix:null,
+    practice:null
+  };
+
+  function num(x){ return Number.isFinite(x) ? x : 0; }
+  function readMatrix(){
+    return [[num(parseFloat(els.a.value)), num(parseFloat(els.b.value))], [num(parseFloat(els.c.value)), num(parseFloat(els.d.value))]];
+  }
+  function setMatrix(A){
+    els.a.value = cleanInput(A[0][0]); els.b.value = cleanInput(A[0][1]); els.c.value = cleanInput(A[1][0]); els.d.value = cleanInput(A[1][1]);
+    state.A = [[+els.a.value,+els.b.value],[+els.c.value,+els.d.value]];
+    updateAll();
+  }
+  function cleanInput(x){ return Math.abs(x-Math.round(x))<EPS ? String(Math.round(x)) : String(round(x,3)); }
+  function round(x,n=4){ const p=Math.pow(10,n); return Math.round((x+Number.EPSILON)*p)/p; }
+  function fmt(x,n=4){
+    if(!Number.isFinite(x)) return '—';
+    if(Math.abs(x)<1e-10) x=0;
+    const r = round(x,n);
+    return String(r).replace(/-0$/,'0');
+  }
+  function signed(x){
+    if(Math.abs(x)<EPS) return '+ 0';
+    return x>=0 ? '+ '+fmt(x) : '− '+fmt(Math.abs(x));
+  }
+  function vecFmt(v,n=3){ return '('+fmt(v[0],n)+', '+fmt(v[1],n)+')'; }
+  function matVec(A,v){ return [A[0][0]*v[0]+A[0][1]*v[1], A[1][0]*v[0]+A[1][1]*v[1]]; }
+  function matMul(A,B){
+    return [
+      [A[0][0]*B[0][0]+A[0][1]*B[1][0], A[0][0]*B[0][1]+A[0][1]*B[1][1]],
+      [A[1][0]*B[0][0]+A[1][1]*B[1][0], A[1][0]*B[0][1]+A[1][1]*B[1][1]]
+    ];
+  }
+  function det(A){ return A[0][0]*A[1][1]-A[0][1]*A[1][0]; }
+  function trace(A){ return A[0][0]+A[1][1]; }
+  function norm(v){ return Math.hypot(v[0],v[1]); }
+  function normalize(v){ const n=norm(v); return n<EPS ? [0,0] : [v[0]/n,v[1]/n]; }
+  function scale(v,k){ return [v[0]*k,v[1]*k]; }
+  function add(u,v){ return [u[0]+v[0],u[1]+v[1]]; }
+  function sub(u,v){ return [u[0]-v[0],u[1]-v[1]]; }
+  function dot(u,v){ return u[0]*v[0]+u[1]*v[1]; }
+  function cross(u,v){ return u[0]*v[1]-u[1]*v[0]; }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function lerpMatrix(A,t){ return [[lerp(1,A[0][0],t), lerp(0,A[0][1],t)], [lerp(0,A[1][0],t), lerp(1,A[1][1],t)]]; }
+  function eigenInfo(A){
+    const T = trace(A), p = det(A), m = T/2, disc = m*m-p;
+    if(disc >= -1e-10){
+      const s = Math.sqrt(Math.max(0,disc));
+      const l1 = m+s, l2 = m-s;
+      return {real:true,T,p,m,disc,l1,l2,repeated:Math.abs(s)<1e-8};
+    }
+    return {real:false,T,p,m,disc,realPart:m,imagPart:Math.sqrt(-disc)};
+  }
+  function eigenVector(A,lambda){
+    const r1 = [A[0][0]-lambda, A[0][1]];
+    const r2 = [A[1][0], A[1][1]-lambda];
+    const n1 = dot(r1,r1), n2 = dot(r2,r2);
+    if(n1<EPS && n2<EPS) return {all:true, vector:[1,0]};
+    const r = n1>=n2 ? r1 : r2;
+    let v = [-r[1], r[0]];
+    if(norm(v)<EPS){
+      const rr = n1<n2 ? r1 : r2;
+      v = [-rr[1], rr[0]];
+    }
+    v = normalize(v);
+    if(Math.abs(v[0])>EPS ? v[0]<0 : v[1]<0) v = scale(v,-1);
+    return {all:false, vector:v};
+  }
+  function independent(v,w){ return Math.abs(cross(v,w))>1e-6; }
+
+  function setupCanvas(canvas, minH){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.max(320, rect.width || 700);
+    const h = Math.max(minH || 300, rect.height || minH || 300);
+    if(canvas.width !== Math.round(w*dpr) || canvas.height !== Math.round(h*dpr)){
+      canvas.width = Math.round(w*dpr); canvas.height = Math.round(h*dpr);
+    }
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx,w,h};
+  }
+  function setViewFor(A, canvasW, canvasH){
+    const pts=[];
+    const corners=[[-5,-5],[-5,5],[5,-5],[5,5]];
+    corners.forEach(p=>{pts.push(p);pts.push(matVec(A,p));});
+    pts.push(state.v, matVec(A,state.v));
+    const info=eigenInfo(A);
+    if(info.real){
+      const evs=[eigenVector(A,info.l1).vector,eigenVector(A,info.l2).vector];
+      evs.forEach(v=>{pts.push(scale(v,5));pts.push(scale(v,-5));});
+    }
+    let maxAbs=4;
+    pts.forEach(p=>{ if(Number.isFinite(p[0])&&Number.isFinite(p[1])) maxAbs=Math.max(maxAbs,Math.abs(p[0]),Math.abs(p[1])); });
+    maxAbs=Math.min(25,Math.max(4,maxAbs));
+    return {w:canvasW,h:canvasH,cx:canvasW/2,cy:canvasH/2,scale:Math.min(canvasW,canvasH)/(2.35*maxAbs)};
+  }
+  function toCanvas(p, view){ return [view.cx+p[0]*view.scale, view.cy-p[1]*view.scale]; }
+  function fromCanvas(pt, view){ return [(pt[0]-view.cx)/view.scale, (view.cy-pt[1])/view.scale]; }
+
+  function drawAxes(ctx,view){
+    ctx.save();
+    ctx.lineWidth=1;
+    ctx.strokeStyle='#cbd5e1';
+    drawWorldLine(ctx,view,[-100,0],[100,0]);
+    drawWorldLine(ctx,view,[0,-100],[0,100]);
+    ctx.fillStyle='#64748b'; ctx.font='12px system-ui';
+    const ox=toCanvas([0,0],view); ctx.fillText('0',ox[0]+5,ox[1]-5);
+    ctx.restore();
+  }
+  function drawWorldLine(ctx,view,p,q){
+    const P=toCanvas(p,view), Q=toCanvas(q,view);
+    ctx.beginPath(); ctx.moveTo(P[0],P[1]); ctx.lineTo(Q[0],Q[1]); ctx.stroke();
+  }
+  function drawPolyline(ctx,view,pts){
+    if(!pts.length) return;
+    ctx.beginPath();
+    pts.forEach((p,i)=>{const P=toCanvas(p,view); if(i===0)ctx.moveTo(P[0],P[1]); else ctx.lineTo(P[0],P[1]);});
+    ctx.stroke();
+  }
+  function drawArrow(ctx,view,p,q,color,label,width=3){
+    const P=toCanvas(p,view), Q=toCanvas(q,view);
+    const dx=Q[0]-P[0], dy=Q[1]-P[1], L=Math.hypot(dx,dy);
+    ctx.save();
+    ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(P[0],P[1]); ctx.lineTo(Q[0],Q[1]); ctx.stroke();
+    if(L>5){
+      const a=Math.atan2(dy,dx), h=11+width;
+      ctx.beginPath();
+      ctx.moveTo(Q[0],Q[1]);
+      ctx.lineTo(Q[0]-h*Math.cos(a-Math.PI/7), Q[1]-h*Math.sin(a-Math.PI/7));
+      ctx.lineTo(Q[0]-h*Math.cos(a+Math.PI/7), Q[1]-h*Math.sin(a+Math.PI/7));
+      ctx.closePath(); ctx.fill();
+    }
+    if(label){
+      ctx.font='700 13px system-ui';
+      ctx.fillText(label,Q[0]+8,Q[1]-8);
+    }
+    ctx.restore();
+  }
+  function drawPoint(ctx,view,p,color,r=4){
+    const P=toCanvas(p,view); ctx.save(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(P[0],P[1],r,0,2*Math.PI); ctx.fill(); ctx.restore();
+  }
+  function drawGrid(ctx,view,A,transformed){
+    ctx.save();
+    ctx.lineWidth=1;
+    ctx.strokeStyle=transformed ? 'rgba(5,150,105,.42)' : 'rgba(148,163,184,.42)';
+    const N=7, samples=60;
+    for(let k=-N;k<=N;k++){
+      let pts=[];
+      for(let i=0;i<=samples;i++){
+        const t=-N + 2*N*i/samples;
+        const p=[k,t]; pts.push(transformed ? matVec(A,p) : p);
+      }
+      drawPolyline(ctx,view,pts);
+      pts=[];
+      for(let i=0;i<=samples;i++){
+        const t=-N + 2*N*i/samples;
+        const p=[t,k]; pts.push(transformed ? matVec(A,p) : p);
+      }
+      drawPolyline(ctx,view,pts);
+    }
+    ctx.restore();
+  }
+  function drawUnitCircle(ctx,view,A){
+    ctx.save();
+    ctx.lineWidth=2;
+    ctx.setLineDash([5,5]);
+    ctx.strokeStyle='rgba(37,99,235,.45)';
+    let pts=[];
+    for(let i=0;i<=180;i++){
+      const t=2*Math.PI*i/180; pts.push([Math.cos(t),Math.sin(t)]);
+    }
+    drawPolyline(ctx,view,pts);
+    ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(249,115,22,.75)';
+    pts=pts.map(p=>matVec(A,p));
+    drawPolyline(ctx,view,pts);
+    ctx.restore();
+  }
+  function drawEigenLines(ctx,view,A){
+    const info=eigenInfo(A);
+    ctx.save();
+    if(!info.real){
+      ctx.fillStyle='rgba(185,28,28,.92)';
+      ctx.font='700 14px system-ui';
+      ctx.fillText('No real eigenlines: complex eigenvalues', 16, 24);
+      ctx.restore();
+      return;
+    }
+    const vectors=[];
+    const ev1=eigenVector(A,info.l1), ev2=eigenVector(A,info.l2);
+    if(ev1.all){
+      ctx.fillStyle='rgba(124,58,237,.95)'; ctx.font='700 14px system-ui';
+      ctx.fillText('Every line is an eigenline', 16, 24);
+      ctx.restore(); return;
+    }
+    vectors.push({v:ev1.vector,l:info.l1});
+    if(!info.repeated){ vectors.push({v:ev2.vector,l:info.l2}); }
+    else if(independent(ev1.vector, ev2.vector)){ vectors.push({v:ev2.vector,l:info.l2}); }
+    vectors.forEach((obj,i)=>{
+      const v=obj.v;
+      ctx.strokeStyle=i===0?'rgba(124,58,237,.88)':'rgba(219,39,119,.88)';
+      ctx.lineWidth=3;
+      ctx.setLineDash([10,6]);
+      drawWorldLine(ctx,view,scale(v,-100),scale(v,100));
+      ctx.setLineDash([]);
+      const tip=scale(v,3.2);
+      const P=toCanvas(tip,view);
+      ctx.fillStyle=i===0?'#7c3aed':'#db2777';
+      ctx.font='800 13px system-ui';
+      ctx.fillText('λ='+fmt(obj.l),P[0]+8,P[1]-8);
+    });
+    ctx.restore();
+  }
+  function drawIterates(ctx,view,A){
+    const count=+els.iterateCount.value;
+    let p=state.v.slice();
+    const pts=[p.slice()];
+    for(let i=0;i<count;i++){
+      p=matVec(A,p);
+      if(!Number.isFinite(p[0])||!Number.isFinite(p[1])||norm(p)>1e5) break;
+      pts.push(p.slice());
+    }
+    if(pts.length<2) return;
+    ctx.save();
+    ctx.strokeStyle='rgba(15,118,110,.9)'; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+    for(let i=0;i<pts.length-1;i++){
+      drawArrow(ctx,view,pts[i],pts[i+1],'rgba(15,118,110,.75)','',2);
+      drawPoint(ctx,view,pts[i],'#0f766e',3.5);
+    }
+    drawPoint(ctx,view,pts[pts.length-1],'#0f766e',4);
+    ctx.restore();
+  }
+  function drawMain(overrideA){
+    const {ctx,w,h}=setupCanvas(els.mainCanvas, 430);
+    const A=overrideA || state.A;
+    state.view=setViewFor(A,w,h);
+    const view=state.view;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,h);
+    if(els.showOriginalGrid.checked) drawGrid(ctx,view,A,false);
+    if(els.showTransformedGrid.checked) drawGrid(ctx,view,A,true);
+    drawAxes(ctx,view);
+    if(els.showCircle.checked) drawUnitCircle(ctx,view,A);
+    if(els.showEigen.checked) drawEigenLines(ctx,view,A);
+    if(els.showIterates.checked) drawIterates(ctx,view,A);
+    if(els.showVector.checked){
+      const Av=matVec(A,state.v);
+      drawArrow(ctx,view,[0,0],state.v,'#2563eb','v',3.5);
+      drawArrow(ctx,view,[0,0],Av,'#f97316','Av',3.5);
+      drawPoint(ctx,view,state.v,'#2563eb',6);
+      ctx.save();
+      ctx.strokeStyle='rgba(37,99,235,.35)'; ctx.lineWidth=1.5; ctx.setLineDash([7,7]);
+      const nv=normalize(state.v);
+      if(norm(nv)>EPS) drawWorldLine(ctx,view,scale(nv,-100),scale(nv,100));
+      ctx.restore();
+    }
+  }
+
+  function drawLineExplorer(){
+    const {ctx,w,h}=setupCanvas(els.lineCanvas, 260);
+    const A=state.A;
+    const angle=+els.angleSlider.value * Math.PI/180;
+    const u=[Math.cos(angle), Math.sin(angle)];
+    const Au=matVec(A,u);
+    const pts=[[0,0],scale(u,3),scale(u,-3),scale(Au,3),scale(Au,-3)];
+    let maxAbs=3;
+    pts.forEach(p=>{maxAbs=Math.max(maxAbs,Math.abs(p[0]),Math.abs(p[1]));});
+    const view={w,h,cx:w/2,cy:h/2,scale:Math.min(w,h)/(2.55*maxAbs)};
+    state.lineView=view;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+    drawAxes(ctx,view);
+    ctx.save();
+    ctx.strokeStyle='rgba(37,99,235,.86)'; ctx.lineWidth=3; ctx.setLineDash([8,5]);
+    drawWorldLine(ctx,view,scale(u,-100),scale(u,100));
+    ctx.strokeStyle='rgba(249,115,22,.86)'; ctx.setLineDash([]);
+    if(norm(Au)>EPS){
+      const au=normalize(Au);
+      drawWorldLine(ctx,view,scale(au,-100),scale(au,100));
+    }
+    ctx.restore();
+    drawArrow(ctx,view,[0,0],scale(u,2),'#2563eb','u',3);
+    drawArrow(ctx,view,[0,0],Au,'#f97316','Au',3);
+    if(els.showEigen.checked) drawEigenLines(ctx,view,A);
+
+    const sinErr = norm(Au)<EPS ? 0 : Math.abs(cross(u,Au))/(norm(u)*norm(Au));
+    const angleChange = norm(Au)<EPS ? 0 : Math.asin(Math.min(1,sinErr))*180/Math.PI;
+    const lambda = dot(Au,u)/dot(u,u);
+    els.angleVal.textContent = Math.round(angle*180/Math.PI)+'°';
+    els.uReadout.textContent = vecFmt(u,3);
+    els.auReadout.textContent = vecFmt(Au,3);
+    els.angleChangeReadout.textContent = fmt(angleChange,2)+'°';
+    if(norm(Au)<EPS){
+      els.lineVerdict.textContent = 'maps to zero';
+    } else if(sinErr<0.025){
+      els.lineVerdict.textContent = 'eigen-direction, λ ≈ '+fmt(lambda,3);
+    } else {
+      els.lineVerdict.textContent = 'not invariant';
+    }
+  }
+
+  function updatePanels(){
+    const A=state.A;
+    const info=eigenInfo(A);
+    const Av=matVec(A,state.v);
+    const vNorm=norm(state.v), avNorm=norm(Av);
+    const par = (vNorm<EPS || avNorm<EPS) ? null : Math.abs(cross(state.v,Av))/(vNorm*avNorm);
+    const lambdaAlong = vNorm<EPS ? NaN : dot(Av,state.v)/dot(state.v,state.v);
+    els.vReadout.textContent=vecFmt(state.v);
+    els.avReadout.textContent=vecFmt(Av);
+    if(vNorm<EPS) els.parallelReadout.textContent='v is too close to zero';
+    else if(avNorm<EPS) els.parallelReadout.textContent='Av = 0';
+    else if(par<0.025) els.parallelReadout.textContent='parallel: eigenvector direction';
+    else els.parallelReadout.textContent='not parallel';
+    els.scaleReadout.textContent = (par!==null && par<0.025) ? 'λ ≈ '+fmt(lambdaAlong,4) : '—';
+
+    els.navMatrix.textContent = `A = [[${fmt(A[0][0])}, ${fmt(A[0][1])}], [${fmt(A[1][0])}, ${fmt(A[1][1])}]]`;
+    els.traceVal.textContent=fmt(info.T);
+    els.detVal.textContent=fmt(info.p);
+    els.mVal.textContent=fmt(info.m);
+    els.discVal.textContent=fmt(info.disc);
+    els.polyVal.textContent = polynomialString(info.T, info.p);
+    if(info.real){
+      els.eigenFormulaVal.textContent = `λ = ${fmt(info.m)} ± √${fmt(Math.max(0,info.disc))}`;
+      els.eigVal1.textContent=fmt(info.l1);
+      els.eigVal2.textContent=info.repeated ? fmt(info.l2)+' (repeated)' : fmt(info.l2);
+      els.eigenvectorsBox.innerHTML = eigenvectorsHTML(A,info);
+    } else {
+      els.eigenFormulaVal.textContent = `λ = ${fmt(info.realPart)} ± ${fmt(info.imagPart)}i`;
+      els.eigVal1.textContent=`${fmt(info.realPart)} + ${fmt(info.imagPart)}i`;
+      els.eigVal2.textContent=`${fmt(info.realPart)} − ${fmt(info.imagPart)}i`;
+      els.eigenvectorsBox.innerHTML = `<h3>Complex case</h3><p>The discriminant m² − p is negative, so there are no real eigenvector lines to draw. Geometrically, the matrix has rotation-like behaviour in the real plane.</p>`;
+    }
+    updateLiveMethod(A,info);
+    updateDecomp(A,info);
+  }
+
+  function polynomialString(T,p){
+    let mid = Math.abs(T)<EPS ? '' : (T>0 ? ` − ${fmt(T)}λ` : ` + ${fmt(-T)}λ`);
+    let last = Math.abs(p)<EPS ? '' : (p>0 ? ` + ${fmt(p)}` : ` − ${fmt(-p)}`);
+    return `λ²${mid}${last} = 0`;
+  }
+  function eigenvectorsHTML(A,info){
+    const rows=[];
+    const ev1=eigenVector(A,info.l1);
+    if(ev1.all){
+      return `<h3>Eigenvectors and normalising</h3>
+        <p>This is a scalar matrix. Every non-zero vector is an eigenvector with λ = ${fmt(info.l1)}.</p>
+        <p class="small">So you may choose any convenient non-zero vector and rescale it, for example to length 1.</p>`;
+    }
+    rows.push(vectorRow(A,info.l1,ev1.vector));
+    if(!info.repeated){ rows.push(vectorRow(A,info.l2,eigenVector(A,info.l2).vector)); }
+    else {
+      const ev2=eigenVector(A,info.l2);
+      if(independent(ev1.vector,ev2.vector)) rows.push(vectorRow(A,info.l2,ev2.vector));
+      else rows.push(`<p><b>Repeated eigenvalue:</b> this matrix appears to have only one real eigenline. This is the classic “defective” situation.</p>`);
+    }
+    return `<h3>Eigenvectors and normalising</h3>
+      <p class="small">Each row below gives the same eigen-direction in different useful forms.</p>
+      <table>
+        <thead><tr><th>λ</th><th>Direction family</th><th>Unit vector</th><th>Entries sum to 1</th></tr></thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>`;
+  }
+  function niceDirection(v){
+    let best=[1,0], bestScore=-Infinity;
+    for(let i=-9;i<=9;i++){
+      for(let j=-9;j<=9;j++){
+        if(i===0 && j===0) continue;
+        const w=normalize([i,j]);
+        const score=Math.abs(dot(v,w));
+        if(score>bestScore){ bestScore=score; best=[i,j]; }
+      }
+    }
+    if(dot(v,best)<0) best=scale(best,-1);
+    const g = gcd(Math.abs(best[0]), Math.abs(best[1]));
+    if(g>1) best=[best[0]/g,best[1]/g];
+    if(Math.abs(best[0])<EPS) best[0]=0;
+    if(Math.abs(best[1])<EPS) best[1]=0;
+    return best;
+  }
+  function gcd(a,b){
+    a=Math.round(Math.abs(a)); b=Math.round(Math.abs(b));
+    while(b){ const t=b; b=a%b; a=t; }
+    return a || 1;
+  }
+  function vectorRow(A,lambda,v){
+    const unit = normalize(v);
+    const w = niceDirection(unit);
+    const sum = w[0] + w[1];
+    let sumForm = 'not useful here';
+    if(Math.abs(sum)>1e-9){
+      const s=[w[0]/sum, w[1]/sum];
+      sumForm = `${vecFmt(s,4)}<br><span class="small">${fmt(s[0],4)} + ${fmt(s[1],4)} = 1</span>`;
+    }
+    const Av=matVec(A,unit);
+    return `<tr>
+      <td><b>${fmt(lambda)}</b></td>
+      <td><b>t${vecFmt(w,3)}</b>, t ≠ 0<br><span class="small">A scalar multiple is still an eigenvector.</span></td>
+      <td><b>${vecFmt(unit,4)}</b><br><span class="small">length ≈ ${fmt(norm(unit),3)}; check A${vecFmt(unit,3)} ≈ ${fmt(lambda)}${vecFmt(unit,3)}</span></td>
+      <td>${sumForm}</td>
+    </tr>`;
+  }
+  function updateLiveMethod(A,info){
+    const a=A[0][0], b=A[0][1], c=A[1][0], d=A[1][1];
+    els.liveDetExpansion.textContent = `det([[${fmt(a)}−λ, ${fmt(b)}], [${fmt(c)}, ${fmt(d)}−λ]]) = (${fmt(a)}−λ)(${fmt(d)}−λ) − (${fmt(b)})(${fmt(c)}) = 0`;
+    els.liveEigenSolve.textContent = info.real ? `${polynomialString(info.T,info.p)}  ⇒  λ = ${fmt(info.l1)}${info.repeated?' repeated':' or λ = '+fmt(info.l2)}` : `${polynomialString(info.T,info.p)}  ⇒  λ = ${fmt(info.realPart)} ± ${fmt(info.imagPart)}i`;
+    if(info.real){
+      const ev=eigenVector(A,info.l1);
+      if(ev.all){
+        els.liveVectorSolve.innerHTML = `<h3>Current vector step</h3><p>For this scalar matrix, A − λI is the zero matrix, so every non-zero vector works.</p>`;
+      } else {
+        const B=[[A[0][0]-info.l1,A[0][1]],[A[1][0],A[1][1]-info.l1]];
+        const nice = niceDirection(ev.vector);
+        els.liveVectorSolve.innerHTML = `<h3>Current vector step</h3><p>For λ = ${fmt(info.l1)}, solve:</p><div class="formula">[[${fmt(B[0][0])}, ${fmt(B[0][1])}], [${fmt(B[1][0])}, ${fmt(B[1][1])}]] [x, y]ᵀ = [0, 0]ᵀ</div><p>A convenient direction is <b>t${vecFmt(nice,3)}, t ≠ 0</b>. A normalised unit vector is approximately <b>${vecFmt(ev.vector,4)}</b>.</p>`;
+      }
+    } else {
+      els.liveVectorSolve.innerHTML = `<h3>Current vector step</h3><p>The eigenvalues are complex, so real vector solving does not produce a real invariant line. In a standard IB-style real-plane graph, you interpret this as rotational behaviour.</p>`;
+    }
+  }
+  function updateDecomp(A,info){
+    if(!info.real || info.repeated){
+      els.decompBox.textContent = 'No two distinct real eigenvectors are available for a simple real eigenbasis decomposition.';
+      return;
+    }
+    const v1=eigenVector(A,info.l1).vector, v2=eigenVector(A,info.l2).vector;
+    const D=cross(v1,v2);
+    if(Math.abs(D)<1e-6){
+      els.decompBox.textContent='The two eigenvectors are not independent, so they do not form a basis.';
+      return;
+    }
+    const v=state.v;
+    const alpha=cross(v,v2)/D;
+    const beta=cross(v1,v)/D;
+    els.decompBox.innerHTML = `v ≈ <span class="hi">${fmt(alpha,3)}</span>e₁ + <span class="good">${fmt(beta,3)}</span>e₂<br><br>Aⁿv ≈ ${fmt(alpha,3)}(${fmt(info.l1)})ⁿe₁ + ${fmt(beta,3)}(${fmt(info.l2)})ⁿe₂`;
+  }
+
+  function updateAll(){
+    state.A = readMatrix();
+    updatePanels();
+    drawMain(state.animationMatrix);
+    drawLineExplorer();
+  }
+
+  function animateTransform(){
+    const start=performance.now();
+    const duration=1050;
+    function frame(now){
+      let t=Math.min(1,(now-start)/duration);
+      t = 1 - Math.pow(1-t,3);
+      state.animationMatrix=lerpMatrix(state.A,t);
+      drawMain(state.animationMatrix);
+      if(t<1) requestAnimationFrame(frame); else {state.animationMatrix=null; drawMain();}
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function canvasPointerPos(canvas,e){
+    const rect=canvas.getBoundingClientRect();
+    return [e.clientX-rect.left, e.clientY-rect.top];
+  }
+  function handlePointerDown(e){
+    const pt=canvasPointerPos(els.mainCanvas,e);
+    const world=fromCanvas(pt,state.view);
+    const end=toCanvas(state.v,state.view);
+    const dist=Math.hypot(pt[0]-end[0],pt[1]-end[1]);
+    if(dist<28 || e.shiftKey){
+      state.dragging=true;
+      state.v=world;
+      e.preventDefault(); updateAll();
+    }
+  }
+  function handlePointerMove(e){
+    if(!state.dragging) return;
+    const pt=canvasPointerPos(els.mainCanvas,e);
+    const world=fromCanvas(pt,state.view);
+    state.v=[Math.max(-8,Math.min(8,world[0])), Math.max(-8,Math.min(8,world[1]))];
+    if(norm(state.v)<0.08) state.v=[0.08,0.04];
+    e.preventDefault(); updateAll();
+  }
+  function handlePointerUp(){ state.dragging=false; }
+
+  function makePractice(){
+    const vals=[-4,-3,-2,-1,1,2,3,4,5];
+    let l1=vals[Math.floor(Math.random()*vals.length)], l2=vals[Math.floor(Math.random()*vals.length)];
+    while(l2===l1) l2=vals[Math.floor(Math.random()*vals.length)];
+    const u=[-3,-2,-1,1,2,3][Math.floor(Math.random()*6)];
+    let A;
+    if(Math.random()<0.5){ A=[[l1, u*(l2-l1)],[0,l2]]; }
+    else { A=[[l1,0],[u*(l1-l2),l2]]; }
+    state.practice={A,l1,l2};
+    els.practiceMatrix.textContent=`A = [[${fmt(A[0][0])}, ${fmt(A[0][1])}], [${fmt(A[1][0])}, ${fmt(A[1][1])}]]`;
+    els.ans1.value=''; els.ans2.value='';
+    els.practiceFeedback.className='feedback';
+    els.practiceFeedback.textContent='Enter your two eigenvalues in any order.';
+    els.practiceSolution.style.display='none';
+  }
+  function checkPractice(){
+    if(!state.practice) makePractice();
+    const answers=[parseFloat(els.ans1.value), parseFloat(els.ans2.value)].sort((x,y)=>x-y);
+    const correct=[state.practice.l1,state.practice.l2].sort((x,y)=>x-y);
+    const ok=answers.every(Number.isFinite) && Math.abs(answers[0]-correct[0])<0.01 && Math.abs(answers[1]-correct[1])<0.01;
+    els.practiceFeedback.className='feedback '+(ok?'good':'bad');
+    els.practiceFeedback.textContent= ok ? 'Correct. Now reveal the full method or load it into the explorer.' : `Not yet. Hint: for triangular matrices, the eigenvalues are on the diagonal.`;
+  }
+  function showPractice(){
+    if(!state.practice) makePractice();
+    const A=state.practice.A, info=eigenInfo(A);
+    els.practiceSolution.style.display='block';
+    els.practiceSolution.innerHTML=`<h3>Worked solution</h3>
+      <p>Use the characteristic equation:</p>
+      <div class="formula">det(A − λI) = ${polynomialString(info.T,info.p).replace(' = 0','')}</div>
+      <p>So the eigenvalues are <b>${fmt(info.l1)}</b> and <b>${fmt(info.l2)}</b>.</p>
+      <p>For each λ, solve <b>(A − λI)v = 0</b>.</p>
+      ${eigenvectorsHTML(A,info)}`;
+  }
+
+  function activateTab(button){
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    button.classList.add('active');
+    $(button.dataset.tab).classList.add('active');
+  }
+
+  ['a','b','c','d'].forEach(id=>els[id].addEventListener('input',()=>{els.preset.value='custom';updateAll();}));
+  ['showOriginalGrid','showTransformedGrid','showCircle','showEigen','showVector','showIterates'].forEach(id=>els[id].addEventListener('change',updateAll));
+  els.iterateCount.addEventListener('input',()=>{els.iterateCountVal.textContent=els.iterateCount.value;updateAll();});
+  els.angleSlider.addEventListener('input',drawLineExplorer);
+  els.animateBtn.addEventListener('click',animateTransform);
+  els.resetVectorBtn.addEventListener('click',()=>{state.v=[2,1];updateAll();});
+  els.randomVectorBtn.addEventListener('click',()=>{state.v=[round(Math.random()*6-3,2),round(Math.random()*6-3,2)]; if(norm(state.v)<.3) state.v=[1,2]; updateAll();});
+  els.preset.addEventListener('change',()=>{ if(presets[els.preset.value]) setMatrix(presets[els.preset.value]); });
+  els.mainCanvas.addEventListener('pointerdown',handlePointerDown);
+  window.addEventListener('pointermove',handlePointerMove);
+  window.addEventListener('pointerup',handlePointerUp);
+  window.addEventListener('resize',updateAll);
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>activateTab(b)));
+  els.newPracticeBtn.addEventListener('click',makePractice);
+  els.usePracticeBtn.addEventListener('click',()=>{ if(!state.practice) makePractice(); els.preset.value='custom'; setMatrix(state.practice.A); });
+  els.checkPracticeBtn.addEventListener('click',checkPractice);
+  els.showPracticeBtn.addEventListener('click',showPractice);
+
+  makePractice();
+  updateAll();
+})();
+</script>
+</body>
+</html>
