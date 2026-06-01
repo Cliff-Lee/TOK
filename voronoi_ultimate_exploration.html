@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Voronoi Diagrams: Exploration, Algorithms and Exam Practice</title>
+<style>
+  :root{
+    --bg:#f7f8fb;
+    --panel:#ffffff;
+    --ink:#172033;
+    --muted:#596579;
+    --line:#d9dfec;
+    --accent:#2b6cb0;
+    --accent2:#805ad5;
+    --good:#16825d;
+    --warn:#b7791f;
+    --bad:#c53030;
+    --soft:#edf2ff;
+    --shadow: 0 12px 30px rgba(20,30,50,.08);
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background:linear-gradient(180deg,#f8fbff 0%,#f6f7fb 55%,#f9fafb 100%);
+    color:var(--ink);
+    line-height:1.45;
+  }
+  header{
+    padding:28px 18px 16px;
+    background:radial-gradient(circle at 18% 10%, #e6f0ff 0 22%, transparent 45%),
+               radial-gradient(circle at 88% 0%, #efe7ff 0 20%, transparent 42%);
+    border-bottom:1px solid var(--line);
+  }
+  .wrap{max-width:1220px;margin:auto}
+  h1{font-size:clamp(1.7rem,3vw,3rem);line-height:1.06;margin:0 0 10px}
+  h2{font-size:1.45rem;margin:0 0 12px}
+  h3{font-size:1.05rem;margin:16px 0 8px}
+  p{margin:8px 0}
+  .sub{max-width:960px;color:var(--muted);font-size:1.03rem}
+  .tabs{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:18px
+  }
+  .tab{
+    border:1px solid #cfd8eb;
+    background:#fff;
+    border-radius:999px;
+    padding:9px 13px;
+    cursor:pointer;
+    font-weight:650;
+    color:#26334d;
+    transition:.15s transform,.15s background,.15s border;
+  }
+  .tab:hover{transform:translateY(-1px)}
+  .tab.active{background:#20345d;color:#fff;border-color:#20345d}
+  main{padding:18px}
+  section{
+    display:none;
+    max-width:1220px;
+    margin:0 auto 26px;
+  }
+  section.active{display:block}
+  .grid{
+    display:grid;
+    grid-template-columns: minmax(360px, 1.38fr) minmax(320px,.92fr);
+    gap:16px;
+    align-items:start;
+  }
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--r);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .canvasCard{padding:12px}
+  canvas{
+    width:100%;
+    display:block;
+    border-radius:14px;
+    background:#fff;
+    border:1px solid #d8dfed;
+    touch-action:none;
+  }
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  button,.btn,label.selectLike{
+    appearance:none;
+    border:1px solid #cfd8eb;
+    background:#fff;
+    color:#172033;
+    padding:9px 11px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:650;
+    transition:.14s transform,.14s background;
+  }
+  button:hover,.btn:hover{transform:translateY(-1px);background:#f4f7ff}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.purple{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+  button.good{background:var(--good);color:#fff;border-color:var(--good)}
+  button.warn{background:#fff7e6;color:#744210;border-color:#f4d29a}
+  button.danger{background:#fff5f5;color:#8b1a1a;border-color:#ffcaca}
+  button.small{padding:6px 9px;border-radius:10px;font-size:.88rem}
+  button.activeToggle{background:#20345d;color:white;border-color:#20345d}
+  select,input[type="number"],input[type="text"]{
+    border:1px solid #cfd8eb;border-radius:12px;padding:9px 10px;background:#fff;color:var(--ink);
+    font:inherit;min-width:0;
+  }
+  input[type="range"]{width:180px}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    border-radius:999px;background:#edf2ff;border:1px solid #dbe5ff;color:#20345d;
+    padding:5px 9px;font-size:.88rem;font-weight:700;
+  }
+  .note{
+    border-left:4px solid var(--accent);
+    background:#f4f8ff;
+    padding:10px 12px;
+    border-radius:12px;
+    color:#26334d;
+  }
+  .warning{border-left-color:var(--warn);background:#fffaf0}
+  .success{border-left-color:var(--good);background:#f0fff7}
+  .mini{
+    font-size:.92rem;color:var(--muted)
+  }
+  .formula{
+    background:#fbfcff;
+    border:1px solid #dfe6f4;
+    border-radius:14px;
+    padding:10px 12px;
+    overflow-x:auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    color:#18223a;
+  }
+  .steps{counter-reset:step;margin:0;padding:0;display:grid;gap:8px}
+  .steps li{
+    list-style:none;
+    background:#fbfcff;border:1px solid #e1e7f3;border-radius:14px;padding:10px 12px;
+    display:grid;grid-template-columns:auto 1fr;gap:10px;
+  }
+  .steps li::before{
+    counter-increment:step;content:counter(step);
+    width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;
+    background:#20345d;color:#fff;font-weight:800;font-size:.86rem;
+  }
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:680px){.two{grid-template-columns:1fr}}
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media (max-width:900px){.three{grid-template-columns:1fr}}
+  table{border-collapse:collapse;width:100%;font-size:.92rem}
+  th,td{border-bottom:1px solid #e2e8f0;padding:8px;text-align:left;vertical-align:top}
+  th{background:#f7f9fd}
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .kpi div{border:1px solid #e1e7f3;border-radius:14px;padding:9px;background:#fbfcff}
+  .kpi b{display:block;font-size:1.05rem;color:#20345d}
+  .feedback{min-height:28px;margin-top:8px;font-weight:650}
+  .feedback.goodText{color:var(--good)}
+  .feedback.badText{color:var(--bad)}
+  .legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:5px;font-size:.86rem;color:var(--muted)}
+  .sw{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.16)}
+  .muted{color:var(--muted)}
+  .bigIdea{
+    display:grid;grid-template-columns:70px 1fr;gap:12px;align-items:center;
+    background:#fff;border:1px solid #dfe6f4;border-radius:20px;padding:14px;
+  }
+  .icon{
+    width:58px;height:58px;border-radius:18px;background:#edf2ff;display:grid;place-items:center;
+    font-size:1.8rem;
+  }
+  .examBox{
+    border:1px solid #dfe6f4;border-radius:16px;background:#fbfcff;padding:12px;margin-top:10px;
+  }
+  .answerLine{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .hide{display:none!important}
+  .footer{
+    color:#6b7280;font-size:.88rem;max-width:1220px;margin:10px auto 30px;padding:0 18px;
+  }
+  .thinSep{height:1px;background:#e2e8f0;margin:12px 0}
+  .tag{font-size:.78rem;background:#eef2f7;color:#334155;padding:3px 7px;border-radius:999px;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Voronoi Diagrams: from Intuition to Algorithms to Exam Practice</h1>
+    <p class="sub">An interactive lesson package for building the core idea: <b>a Voronoi diagram divides space into nearest-site regions</b>. Start by dragging points and testing distances, then construct perpendicular bisectors, add sites algorithmically, use nearest-neighbour interpolation, and practise exam-style questions.</p>
+    <div class="tabs" role="tablist" aria-label="Lesson sections">
+      <button class="tab active" data-tab="intuition">1. Intuition</button>
+      <button class="tab" data-tab="construct">2. Perpendicular bisectors</button>
+      <button class="tab" data-tab="algorithm">3. Incremental algorithm</button>
+      <button class="tab" data-tab="applications">4. Applications</button>
+      <button class="tab" data-tab="exam">5. Exam practice</button>
+      <button class="tab" data-tab="teacher">Teacher notes</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="intuition" class="active">
+  <div class="grid">
+    <div class="card canvasCard">
+      <canvas id="exploreCanvas" width="820" height="620" aria-label="Interactive Voronoi diagram"></canvas>
+      <div class="controls">
+        <button id="presetFire" class="primary">Fire stations</button>
+        <button id="presetAirport">Airports</button>
+        <button id="presetRandom">Random sites</button>
+        <button id="addSite">Add site</button>
+        <button id="removeSite" class="danger">Remove last</button>
+        <button id="toggleCells" class="activeToggle">Cells on</button>
+        <button id="toggleBisectors">Bisectors off</button>
+        <button id="toggleGrid" class="activeToggle">Grid on</button>
+      </div>
+      <div class="legend" id="exploreLegend"></div>
+    </div>
+
+    <div class="card">
+      <h2>What does a Voronoi diagram show?</h2>
+      <div class="bigIdea">
+        <div class="icon">📍</div>
+        <div>
+          <b>Each cell belongs to one site.</b>
+          <p class="mini">Every point inside a cell is closer to its site than to any other site.</p>
+        </div>
+      </div>
+      <h3>Explore</h3>
+      <ul class="steps">
+        <li>Drag the labelled sites A, B, C… and watch the regions change.</li>
+        <li>Drag the black probe point P. The panel shows which site is nearest.</li>
+        <li>Move P onto a boundary. You should see two distances become equal.</li>
+        <li>Move P onto a vertex. You should see three or more distances become equal.</li>
+      </ul>
+      <div class="kpi">
+        <div><span class="mini">Nearest site to P</span><b id="nearestSite">–</b></div>
+        <div><span class="mini">Distance</span><b id="nearestDist">–</b></div>
+        <div><span class="mini">Region idea</span><b id="regionIdea">closest</b></div>
+      </div>
+      <h3>Distances from P</h3>
+      <table>
+        <thead><tr><th>Site</th><th>Coordinates</th><th>Distance to P</th></tr></thead>
+        <tbody id="distanceTable"></tbody>
+      </table>
+      <div class="note">
+        <b>Key intuition:</b> the boundary between two sites is not guessed. It is the set of all points that are <b>equally distant</b> from those two sites.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="construct">
+  <div class="grid">
+    <div class="card canvasCard">
+      <canvas id="constructCanvas" width="820" height="620"></canvas>
+      <div class="controls">
+        <button id="constructPreset" class="primary">Reset example</button>
+        <button id="stepConstruct" class="good">Next construction step</button>
+        <button id="backConstruct">Back</button>
+        <button id="showFinalConstruct" class="purple">Show full diagram</button>
+        <button id="constructSnap">Snap to clean coordinates</button>
+      </div>
+      <div class="mini">Drag the sites. Choose two sites below to see the equation of their boundary.</div>
+    </div>
+
+    <div class="card">
+      <h2>Why perpendicular bisectors?</h2>
+      <p>For two sites A and B, the boundary is the line containing every point equally far from A and B.</p>
+      <div class="formula">Distance to A = Distance to B</div>
+      <p>This line passes through the midpoint of AB and is perpendicular to AB.</p>
+
+      <h3>Construction steps</h3>
+      <ol class="steps">
+        <li>Join a pair of sites with a line segment.</li>
+        <li>Find the midpoint of that segment.</li>
+        <li>Draw the perpendicular bisector.</li>
+        <li>Keep only the parts of boundaries that actually separate nearest regions.</li>
+      </ol>
+
+      <div class="thinSep"></div>
+      <h3>Algebra of one boundary</h3>
+      <div class="row">
+        <label>Site 1 <select id="siteOne"></select></label>
+        <label>Site 2 <select id="siteTwo"></select></label>
+      </div>
+      <div id="boundaryAlgebra" class="formula" style="margin-top:10px"></div>
+
+      <div class="note warning">
+        <b>Exam warning:</b> drawing every perpendicular bisector gives too many lines. A final Voronoi diagram keeps only the edges of the cells.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="algorithm">
+  <div class="grid">
+    <div class="card canvasCard">
+      <canvas id="algorithmCanvas" width="820" height="620"></canvas>
+      <div class="controls">
+        <button id="algoReset" class="primary">Reset</button>
+        <button id="algoPrev">Back</button>
+        <button id="algoNext" class="good">Next step</button>
+        <button id="algoPlay" class="purple">Play</button>
+        <button id="algoNewSite">Try new added site</button>
+      </div>
+      <div class="mini">The new site is added after the first four sites. The algorithm traces only the cell of the new site, then updates the diagram.</div>
+    </div>
+
+    <div class="card">
+      <h2>Incremental algorithm</h2>
+      <p>The incremental algorithm adds one site at a time. Instead of redrawing everything, it finds the new cell and cuts away the old cells around it.</p>
+      <div id="algoStepText" class="note"></div>
+
+      <h3>Core version</h3>
+      <ol class="steps">
+        <li>Start with a completed diagram for the old sites.</li>
+        <li>Add the new site N.</li>
+        <li>For each old site, draw the perpendicular bisector between N and that old site.</li>
+        <li>The side containing N is kept. Intersect all these half-planes.</li>
+        <li>The remaining polygon is the new cell for N.</li>
+        <li>Update neighbouring cells by trimming them along the new edges.</li>
+      </ol>
+
+      <div class="kpi">
+        <div><span class="mini">Algorithm step</span><b id="algoStepNo">0</b></div>
+        <div><span class="mini">Old sites</span><b id="algoOldCount">4</b></div>
+        <div><span class="mini">New cell sides</span><b id="algoCellSides">–</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="applications">
+  <div class="grid">
+    <div class="card canvasCard">
+      <canvas id="appCanvas" width="820" height="620"></canvas>
+      <div class="controls">
+        <button id="appWeather" class="primary">Weather interpolation</button>
+        <button id="appToxic">Largest empty circle</button>
+        <button id="appPoll">Polling booths</button>
+        <button id="appPhone">Phone towers</button>
+        <button id="appRandom">Random data</button>
+      </div>
+      <div class="controls" id="weatherControls">
+        <label class="selectLike">Probe value at P: <b id="probeValue">–</b></label>
+        <button id="dragProbeHint">Drag P to sample</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What are Voronoi diagrams used for?</h2>
+      <p id="appText">Choose an application.</p>
+
+      <div id="weatherPanel">
+        <h3>Nearest-neighbour interpolation</h3>
+        <p>Each site has a measured value. A point inside a cell is assigned the value of the nearest site.</p>
+        <table>
+          <thead><tr><th>Station</th><th>Value</th><th>Meaning</th></tr></thead>
+          <tbody id="valueTable"></tbody>
+        </table>
+      </div>
+
+      <div id="toxicPanel" class="hide">
+        <h3>Largest empty circle</h3>
+        <p>A good candidate for the centre of the largest empty circle is often a Voronoi vertex, because it is equally far from three nearby sites.</p>
+        <div class="kpi">
+          <div><span class="mini">Best centre</span><b id="bestCentre">–</b></div>
+          <div><span class="mini">Radius</span><b id="bestRadius">–</b></div>
+          <div><span class="mini">Touches sites</span><b id="touchSites">–</b></div>
+        </div>
+      </div>
+
+      <div class="note">
+        <b>Interpretation sentence:</b> “The Voronoi cell for site A contains all locations closer to A than to any other site.”
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="exam">
+  <div class="grid">
+    <div class="card canvasCard">
+      <canvas id="examCanvas" width="820" height="620"></canvas>
+      <div class="controls">
+        <button id="newExam" class="primary">New question</button>
+        <button id="showExamHint">Hint</button>
+        <button id="showExamSolution" class="purple">Show solution</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Exam practice trainer</h2>
+      <div class="row">
+        <label>Question type
+          <select id="examType">
+            <option value="nearest">Nearest site</option>
+            <option value="equation">Equation of boundary</option>
+            <option value="vertex">Voronoi vertex meaning</option>
+            <option value="interpolation">Nearest-neighbour interpolation</option>
+            <option value="largest">Largest empty circle</option>
+            <option value="mixed">Mixed random</option>
+          </select>
+        </label>
+        <label>Difficulty
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="examBox">
+        <h3 id="examTitle">Question</h3>
+        <p id="examQuestion"></p>
+        <div id="answerArea" class="answerLine"></div>
+        <div id="examFeedback" class="feedback"></div>
+      </div>
+
+      <div class="examBox">
+        <h3>Hint / solution</h3>
+        <div id="examHelp" class="mini">Use the buttons above when needed.</div>
+      </div>
+
+      <h3>Useful exam language</h3>
+      <div class="formula">
+Boundary between A and B: points equidistant from A and B.<br>
+Cell of A: points closer to A than all other sites.<br>
+Voronoi vertex: point equidistant from three or more sites.<br>
+Largest empty circle: centre is often a Voronoi vertex or boundary/corner, then choose the greatest minimum distance.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher">
+  <div class="card">
+    <h2>Teacher notes: suggested sequence</h2>
+    <div class="three">
+      <div class="note"><b>Lesson 1: intuition</b><br>Use the first tab. Ask students to drag P and explain why boundaries are “decision lines”.</div>
+      <div class="note"><b>Lesson 2: construction</b><br>Use perpendicular bisectors. Move from visual equality of distance to midpoint + gradient algebra.</div>
+      <div class="note"><b>Lesson 3: algorithm</b><br>Use the incremental tab. Emphasise “keep the side containing the new site”.</div>
+    </div>
+    <h3>Key vocabulary</h3>
+    <table>
+      <thead><tr><th>Word</th><th>Student-friendly meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Site</td><td>The fixed point, such as a fire station, airport, school, tower, or data station.</td></tr>
+        <tr><td>Cell / region</td><td>The area closest to one site.</td></tr>
+        <tr><td>Edge</td><td>A boundary line segment between two cells. Points on it are equally close to two sites.</td></tr>
+        <tr><td>Vertex</td><td>A corner where edges meet. Often equally close to three or more sites.</td></tr>
+        <tr><td>Nearest-neighbour interpolation</td><td>Assign a value to a location by using the value at the nearest site.</td></tr>
+        <tr><td>Largest empty circle</td><td>The largest circle that can fit without containing any sites inside it.</td></tr>
+      </tbody>
+    </table>
+    <h3>Assessment progression</h3>
+    <ol class="steps">
+      <li>Identify the nearest site by inspection and distance.</li>
+      <li>Explain what a cell, edge and vertex mean.</li>
+      <li>Construct boundaries using perpendicular bisectors.</li>
+      <li>Find an edge equation using midpoint and perpendicular gradient.</li>
+      <li>Use nearest-neighbour interpolation in context.</li>
+      <li>Reason about the largest empty circle / toxic waste style problem.</li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<div class="footer">
+  Single-file HTML. Drag sites or the probe point P on the canvases. Coordinates are rounded to one decimal place for display.
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const W = 820, H = 620;
+const margin = 42;
+const xmin = 0, xmax = 10, ymin = 0, ymax = 8;
+const colors = [
+  "rgba(49,130,206,.22)", "rgba(236,100,75,.22)", "rgba(72,187,120,.22)", "rgba(159,122,234,.22)",
+  "rgba(237,137,54,.22)", "rgba(56,178,172,.22)", "rgba(245,101,101,.20)", "rgba(102,126,234,.20)",
+  "rgba(214,158,46,.22)", "rgba(66,153,225,.18)"
+];
+const strokeColors = ["#2b6cb0","#c53030","#2f855a","#6b46c1","#c05621","#2c7a7b","#e53e3e","#4c51bf","#b7791f","#3182ce"];
+
+function $(id){return document.getElementById(id);}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function fmt(n, d=2){ if(!isFinite(n)) return "undefined"; let s = Number(n).toFixed(d); return s.replace(/\.?0+$/,""); }
+function sq(n){return n*n;}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function screen(p){return {x: margin + (p.x-xmin)/(xmax-xmin)*(W-2*margin), y: H-margin - (p.y-ymin)/(ymax-ymin)*(H-2*margin)}}
+function world(s){return {x: xmin + (s.x-margin)/(W-2*margin)*(xmax-xmin), y: ymin + (H-margin-s.y)/(H-2*margin)*(ymax-ymin)}}
+function label(i){return String.fromCharCode(65+i);}
+function deepCopySites(sites){return sites.map(s=>({...s}));}
+function insideBox(p){return p.x>=xmin && p.x<=xmax && p.y>=ymin && p.y<=ymax;}
+function pointToSegDist(p,a,b){
+  const vx=b.x-a.x, vy=b.y-a.y;
+  const wx=p.x-a.x, wy=p.y-a.y;
+  const c1=vx*wx+vy*wy, c2=vx*vx+vy*vy;
+  const t=c2===0?0:clamp(c1/c2,0,1);
+  const q={x:a.x+t*vx,y:a.y+t*vy};
+  return dist(p,q);
+}
+function bisectorLine(a,b){
+  const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+  const dx=b.x-a.x, dy=b.y-a.y;
+  // line direction perpendicular to AB is (-dy, dx)
+  return {mid, dx, dy, dir:{x:-dy,y:dx}};
+}
+function halfPlaneValue(p, keepSite, otherSite){
+  // keep points closer to keepSite than otherSite: |p-keep|^2 <= |p-other|^2
+  return sq(p.x-keepSite.x)+sq(p.y-keepSite.y) - (sq(p.x-otherSite.x)+sq(p.y-otherSite.y));
+}
+function clipPolygon(poly, keepSite, otherSite){
+  if(poly.length===0) return [];
+  const out=[];
+  for(let i=0;i<poly.length;i++){
+    const A=poly[i], B=poly[(i+1)%poly.length];
+    const fa=halfPlaneValue(A, keepSite, otherSite);
+    const fb=halfPlaneValue(B, keepSite, otherSite);
+    const ina = fa <= 1e-9, inb = fb <= 1e-9;
+    if(ina && inb){ out.push(B); }
+    else if(ina && !inb){
+      const t = fa/(fa-fb);
+      out.push({x:A.x+t*(B.x-A.x), y:A.y+t*(B.y-A.y)});
+    } else if(!ina && inb){
+      const t = fa/(fa-fb);
+      out.push({x:A.x+t*(B.x-A.x), y:A.y+t*(B.y-A.y)});
+      out.push(B);
+    }
+  }
+  return out.filter(p=>isFinite(p.x)&&isFinite(p.y));
+}
+function cellForSite(sites, idx){
+  let poly=[{x:xmin,y:ymin},{x:xmax,y:ymin},{x:xmax,y:ymax},{x:xmin,y:ymax}];
+  for(let j=0;j<sites.length;j++){
+    if(j===idx) continue;
+    poly=clipPolygon(poly, sites[idx], sites[j]);
+  }
+  return poly;
+}
+function allCells(sites){return sites.map((_,i)=>cellForSite(sites,i));}
+function polygonArea(poly){
+  let a=0; for(let i=0;i<poly.length;i++){const p=poly[i], q=poly[(i+1)%poly.length]; a += p.x*q.y - q.x*p.y;} return Math.abs(a)/2;
+}
+function nearestSite(p, sites){
+  let best=0, bestD=Infinity;
+  sites.forEach((s,i)=>{const d=dist(p,s); if(d<bestD){bestD=d; best=i;}});
+  return {i:best, d:bestD};
+}
+function uniquePoints(points, eps=.035){
+  const out=[];
+  for(const p of points){
+    if(!out.some(q=>dist(p,q)<eps)) out.push(p);
+  }
+  return out;
+}
+function verticesFromCells(cells){
+  let pts=[];
+  for(const poly of cells) pts=pts.concat(poly);
+  return uniquePoints(pts).filter(p=>p.x>xmin+1e-5&&p.x<xmax-1e-5&&p.y>ymin+1e-5&&p.y<ymax-1e-5);
+}
+function touchingSites(p, sites, eps=.08){
+  const ds=sites.map((s,i)=>({i,d:dist(p,s)})).sort((a,b)=>a.d-b.d);
+  return ds.filter(v=>Math.abs(v.d-ds[0].d)<eps).map(v=>v.i);
+}
+function drawGrid(ctx, show=true){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+  if(!show) return;
+  ctx.save();
+  ctx.strokeStyle="#e8edf7"; ctx.lineWidth=1;
+  ctx.font="12px system-ui"; ctx.fillStyle="#7b8799";
+  for(let x=xmin;x<=xmax;x++){
+    const a=screen({x,y:ymin}), b=screen({x,y:ymax});
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    ctx.fillText(x, a.x-3, H-margin+18);
+  }
+  for(let y=ymin;y<=ymax;y++){
+    const a=screen({x:xmin,y}), b=screen({x:xmax,y});
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    ctx.fillText(y, margin-24, a.y+4);
+  }
+  ctx.strokeStyle="#a8b3c7"; ctx.lineWidth=1.4;
+  const ox=screen({x:0,y:0}), xEnd=screen({x:xmax,y:0}), yEnd=screen({x:0,y:ymax});
+  ctx.beginPath(); ctx.moveTo(ox.x,ox.y); ctx.lineTo(xEnd.x, xEnd.y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox.x,ox.y); ctx.lineTo(yEnd.x, yEnd.y); ctx.stroke();
+  ctx.fillText("x", xEnd.x+8,xEnd.y+3); ctx.fillText("y", yEnd.x-4,yEnd.y-10);
+  ctx.restore();
+}
+function drawCells(ctx, sites, alpha=true, cells=null){
+  cells = cells || allCells(sites);
+  cells.forEach((poly,i)=>{
+    if(poly.length<3) return;
+    ctx.save();
+    ctx.beginPath();
+    poly.forEach((p,k)=>{const s=screen(p); if(k===0)ctx.moveTo(s.x,s.y); else ctx.lineTo(s.x,s.y);});
+    ctx.closePath();
+    ctx.fillStyle = colors[i%colors.length];
+    ctx.fill();
+    ctx.strokeStyle = strokeColors[i%strokeColors.length];
+    ctx.lineWidth=2;
+    ctx.globalAlpha=.85;
+    ctx.stroke();
+    ctx.restore();
+  });
+}
+function drawSites(ctx, sites, opts={}){
+  ctx.save();
+  ctx.font="bold 16px system-ui";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  sites.forEach((p,i)=>{
+    const s=screen(p);
+    ctx.beginPath();
+    ctx.fillStyle=opts.newIndex===i ? "#111827" : strokeColors[i%strokeColors.length];
+    ctx.strokeStyle="#fff"; ctx.lineWidth=3;
+    ctx.arc(s.x,s.y,9,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#111827";
+    ctx.fillText(label(i), s.x, s.y-22);
+  });
+  ctx.restore();
+}
+function drawProbe(ctx, p, sites){
+  const s=screen(p), near=nearestSite(p, sites);
+  const ns=screen(sites[near.i]);
+  ctx.save();
+  ctx.strokeStyle="#111827"; ctx.setLineDash([5,5]); ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(ns.x,ns.y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(s.x,s.y,8,0,Math.PI*2); ctx.fillStyle="#111827"; ctx.fill();
+  ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();
+  ctx.font="bold 16px system-ui"; ctx.fillStyle="#111827"; ctx.fillText("P",s.x+13,s.y-10);
+  ctx.restore();
+}
+function drawAllBisectors(ctx, sites, pairHighlight=null){
+  ctx.save();
+  for(let i=0;i<sites.length;i++){
+    for(let j=i+1;j<sites.length;j++){
+      const l=bisectorLine(sites[i],sites[j]);
+      const len=20, p1={x:l.mid.x-l.dir.x*len,y:l.mid.y-l.dir.y*len}, p2={x:l.mid.x+l.dir.x*len,y:l.mid.y+l.dir.y*len};
+      const a=screen(p1), b=screen(p2);
+      const hi=pairHighlight && ((pairHighlight[0]===i&&pairHighlight[1]===j)||(pairHighlight[0]===j&&pairHighlight[1]===i));
+      ctx.strokeStyle=hi?"#111827":"rgba(60,70,90,.35)";
+      ctx.lineWidth=hi?3:1.2;
+      ctx.setLineDash(hi?[]:[6,6]);
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+function drawSegment(ctx,a,b,color="#344054",dash=false){
+  const A=screen(a),B=screen(b);
+  ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=2;
+  if(dash) ctx.setLineDash([6,5]);
+  ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();ctx.restore();
+}
+function drawMidpoint(ctx,p){
+  const s=screen(p);
+  ctx.save();ctx.fillStyle="#111827";ctx.beginPath();ctx.rect(s.x-5,s.y-5,10,10);ctx.fill();
+  ctx.font="bold 14px system-ui";ctx.fillText("midpoint",s.x+10,s.y-10);ctx.restore();
+}
+function drawCircleWorld(ctx, c, r, color="#111827", fill=false){
+  const s=screen(c);
+  const edge=screen({x:c.x+r,y:c.y});
+  const rr=Math.abs(edge.x-s.x);
+  ctx.save();
+  ctx.strokeStyle=color; ctx.lineWidth=2.5;
+  ctx.fillStyle="rgba(17,24,39,.06)";
+  ctx.beginPath();ctx.arc(s.x,s.y,rr,0,Math.PI*2);
+  if(fill) ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+function drawTextBox(ctx, text, x=14, y=14){
+  ctx.save();
+  ctx.font="14px system-ui";
+  const lines=text.split("\n");
+  const w=Math.max(...lines.map(t=>ctx.measureText(t).width))+22, h=lines.length*20+16;
+  ctx.fillStyle="rgba(255,255,255,.94)";
+  ctx.strokeStyle="#d5ddec";
+  ctx.lineWidth=1;
+  roundRect(ctx,x,y,w,h,12); ctx.fill(); ctx.stroke();
+  ctx.fillStyle="#172033";
+  lines.forEach((t,i)=>ctx.fillText(t,x+11,y+24+i*20));
+  ctx.restore();
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function setupDrag(canvas, state, render, getDraggables){
+  let drag=null;
+  const pos = e => {
+    const rect=canvas.getBoundingClientRect();
+    return {x:(e.clientX-rect.left)*canvas.width/rect.width, y:(e.clientY-rect.top)*canvas.height/rect.height};
+  };
+  canvas.addEventListener("pointerdown", e=>{
+    const p=pos(e), w=world(p);
+    const ds=getDraggables();
+    for(const d of ds){
+      const sp=screen(d.get());
+      if(Math.hypot(sp.x-p.x,sp.y-p.y)<16){drag=d; canvas.setPointerCapture(e.pointerId); return;}
+    }
+  });
+  canvas.addEventListener("pointermove", e=>{
+    if(!drag) return;
+    const p=world(pos(e));
+    drag.set({x:clamp(p.x,xmin,xmax),y:clamp(p.y,ymin,ymax)});
+    render();
+  });
+  canvas.addEventListener("pointerup", e=>{drag=null;});
+  canvas.addEventListener("pointercancel", e=>{drag=null;});
+}
+function updateSelectOptions(sel1, sel2, sites){
+  const old1=sel1.value, old2=sel2.value;
+  sel1.innerHTML=""; sel2.innerHTML="";
+  sites.forEach((s,i)=>{
+    const o1=document.createElement("option"); o1.value=i; o1.textContent=label(i);
+    const o2=document.createElement("option"); o2.value=i; o2.textContent=label(i);
+    sel1.appendChild(o1); sel2.appendChild(o2);
+  });
+  sel1.value = old1 && +old1 < sites.length ? old1 : 0;
+  sel2.value = old2 && +old2 < sites.length ? old2 : Math.min(1,sites.length-1);
+  if(sel1.value===sel2.value) sel2.value = (+sel1.value+1)%sites.length;
+}
+function boundaryAlgebraText(a,b, nameA="A", nameB="B"){
+  const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+  const dx=b.x-a.x, dy=b.y-a.y;
+  let line="";
+  let gradAB, gradPerp;
+  if(Math.abs(dx)<1e-9){
+    line = `AB is vertical, so the perpendicular bisector is horizontal: y = ${fmt(mid.y,2)}`;
+  } else if(Math.abs(dy)<1e-9){
+    line = `AB is horizontal, so the perpendicular bisector is vertical: x = ${fmt(mid.x,2)}`;
+  } else {
+    gradAB=dy/dx; gradPerp=-1/gradAB;
+    const c = mid.y - gradPerp*mid.x;
+    line = `gradient AB = (${fmt(b.y)} - ${fmt(a.y)}) / (${fmt(b.x)} - ${fmt(a.x)}) = ${fmt(gradAB,3)}
+perpendicular gradient = ${fmt(gradPerp,3)}
+Using midpoint (${fmt(mid.x)}, ${fmt(mid.y)}):
+y - ${fmt(mid.y)} = ${fmt(gradPerp,3)}(x - ${fmt(mid.x)})
+so y = ${fmt(gradPerp,3)}x ${c>=0?"+":"-"} ${fmt(Math.abs(c),3)}`;
+  }
+  return `${nameA} = (${fmt(a.x)}, ${fmt(a.y)}), ${nameB} = (${fmt(b.x)}, ${fmt(b.y)})
+midpoint = ((${fmt(a.x)} + ${fmt(b.x)})/2, (${fmt(a.y)} + ${fmt(b.y)})/2)
+         = (${fmt(mid.x)}, ${fmt(mid.y)})
+${line}`;
+}
+
+// Tabs
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    $(btn.dataset.tab).classList.add("active");
+    setTimeout(()=>{renderExplore();renderConstruct();renderAlgorithm();renderApplications();renderExam();},20);
+  });
+});
+
+// 1 Explore
+const explore = {
+  canvas:$("exploreCanvas"), ctx:$("exploreCanvas").getContext("2d"),
+  sites:[{x:1.2,y:5.2},{x:7.8,y:5.5},{x:8.2,y:1.3},{x:2.1,y:1.4}],
+  probe:{x:5,y:3.2},
+  showCells:true, showBisectors:false, showGrid:true
+};
+function renderExplore(){
+  const ctx=explore.ctx;
+  drawGrid(ctx, explore.showGrid);
+  if(explore.showCells) drawCells(ctx, explore.sites);
+  if(explore.showBisectors) drawAllBisectors(ctx, explore.sites);
+  drawSites(ctx, explore.sites);
+  drawProbe(ctx, explore.probe, explore.sites);
+  drawTextBox(ctx, "Drag sites or P\nCells show nearest regions", 14, 14);
+
+  const near=nearestSite(explore.probe, explore.sites);
+  $("nearestSite").textContent=label(near.i);
+  $("nearestDist").textContent=fmt(near.d,2);
+  const ds=explore.sites.map((s,i)=>({i,d:dist(explore.probe,s)})).sort((a,b)=>a.d-b.d);
+  $("regionIdea").textContent = (ds.length>1 && Math.abs(ds[0].d-ds[1].d)<.05) ? "boundary" : "closest";
+  $("distanceTable").innerHTML = explore.sites.map((s,i)=>{
+    const d=dist(explore.probe,s);
+    const bold=i===near.i?"font-weight:800;color:#20345d":"";
+    return `<tr style="${bold}"><td>${label(i)}</td><td>(${fmt(s.x,1)}, ${fmt(s.y,1)})</td><td>${fmt(d,2)}</td></tr>`;
+  }).join("");
+  $("exploreLegend").innerHTML = explore.sites.map((s,i)=>`<span><i class="sw" style="background:${colors[i%colors.length]};border-color:${strokeColors[i%strokeColors.length]}"></i>${label(i)} cell</span>`).join("");
+}
+setupDrag(explore.canvas, explore, renderExplore, ()=>[
+  ...explore.sites.map((s,i)=>({get:()=>s,set:p=>{explore.sites[i]=p;}})),
+  {get:()=>explore.probe,set:p=>{explore.probe=p;}}
+]);
+$("presetFire").onclick=()=>{explore.sites=[{x:1.1,y:5.6},{x:7.9,y:5.9},{x:8.2,y:1.5},{x:2.2,y:1.2}]; explore.probe={x:5.0,y:3.1}; renderExplore();};
+$("presetAirport").onclick=()=>{explore.sites=[{x:1.6,y:6.1},{x:3.7,y:2.1},{x:7.3,y:5.2},{x:8.3,y:1.4},{x:5.0,y:6.8}]; explore.probe={x:5.7,y:3.6}; renderExplore();};
+$("presetRandom").onclick=()=>{explore.sites=randomSites(6); explore.probe={x:5,y:4}; renderExplore();};
+$("addSite").onclick=()=>{if(explore.sites.length<10){explore.sites.push({x:1+Math.random()*8,y:1+Math.random()*6}); renderExplore();}};
+$("removeSite").onclick=()=>{if(explore.sites.length>2){explore.sites.pop(); renderExplore();}};
+$("toggleCells").onclick=e=>{explore.showCells=!explore.showCells; e.target.textContent=explore.showCells?"Cells on":"Cells off"; e.target.classList.toggle("activeToggle",explore.showCells); renderExplore();};
+$("toggleBisectors").onclick=e=>{explore.showBisectors=!explore.showBisectors; e.target.textContent=explore.showBisectors?"Bisectors on":"Bisectors off"; e.target.classList.toggle("activeToggle",explore.showBisectors); renderExplore();};
+$("toggleGrid").onclick=e=>{explore.showGrid=!explore.showGrid; e.target.textContent=explore.showGrid?"Grid on":"Grid off"; e.target.classList.toggle("activeToggle",explore.showGrid); renderExplore();};
+
+// 2 Construct
+const construct = {
+  canvas:$("constructCanvas"), ctx:$("constructCanvas").getContext("2d"),
+  sites:[{x:1,y:6},{x:8,y:6},{x:3,y:2},{x:7,y:2.2}],
+  step:0, grid:true
+};
+function renderConstruct(){
+  const ctx=construct.ctx, sites=construct.sites;
+  drawGrid(ctx,true);
+  const i=+$("siteOne").value || 0, j=+$("siteTwo").value || 1;
+  const a=sites[i], b=sites[j];
+  if(construct.step>=4) drawCells(ctx, sites);
+  if(construct.step>=1) drawSegment(ctx,a,b,"#111827",false);
+  if(construct.step>=2) drawMidpoint(ctx,{x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+  if(construct.step>=3) drawAllBisectors(ctx, sites, [i,j]);
+  if(construct.step===0) drawTextBox(ctx,"Choose two sites.\nThen step through construction.",14,14);
+  if(construct.step===1) drawTextBox(ctx,"Step 1: join the two sites.",14,14);
+  if(construct.step===2) drawTextBox(ctx,"Step 2: find the midpoint.",14,14);
+  if(construct.step===3) drawTextBox(ctx,"Step 3: draw the perpendicular bisector.\nThis is the equal-distance line.",14,14);
+  if(construct.step>=4) drawTextBox(ctx,"Step 4: keep only cell edges.\nFull Voronoi diagram shown.",14,14);
+  drawSites(ctx, sites);
+  updateSelectOptions($("siteOne"), $("siteTwo"), sites);
+  $("boundaryAlgebra").textContent = boundaryAlgebraText(a,b,label(i),label(j));
+}
+setupDrag(construct.canvas, construct, renderConstruct, ()=>construct.sites.map((s,i)=>({get:()=>s,set:p=>{construct.sites[i]=p;}})));
+$("siteOne").onchange=renderConstruct; $("siteTwo").onchange=renderConstruct;
+$("constructPreset").onclick=()=>{construct.sites=[{x:1,y:6},{x:8,y:6},{x:3,y:2},{x:7,y:2.2}]; construct.step=0; updateSelectOptions($("siteOne"),$("siteTwo"),construct.sites); renderConstruct();};
+$("stepConstruct").onclick=()=>{construct.step=clamp(construct.step+1,0,4); renderConstruct();};
+$("backConstruct").onclick=()=>{construct.step=clamp(construct.step-1,0,4); renderConstruct();};
+$("showFinalConstruct").onclick=()=>{construct.step=4; renderConstruct();};
+$("constructSnap").onclick=()=>{construct.sites=construct.sites.map(p=>({x:Math.round(p.x),y:Math.round(p.y)})); renderConstruct();};
+updateSelectOptions($("siteOne"), $("siteTwo"), construct.sites);
+
+// 3 Algorithm
+const algorithm = {
+  canvas:$("algorithmCanvas"), ctx:$("algorithmCanvas").getContext("2d"),
+  base:[{x:1.2,y:6.2},{x:7.6,y:6.0},{x:8.1,y:1.5},{x:2.2,y:1.2}],
+  newSite:{x:4.9,y:3.2},
+  step:0, timer:null
+};
+function algoSites(){return [...algorithm.base, algorithm.newSite];}
+const algoTexts = [
+  "Start with the completed Voronoi diagram for the old sites.",
+  "Add the new site N. It has no cell yet.",
+  "Draw the perpendicular bisector between N and old site A. Keep the side containing N.",
+  "Add the bisector with old site B. The possible new cell is clipped again.",
+  "Add the bisector with old site C. The new cell gets smaller.",
+  "Add the bisector with old site D. The intersection of all kept half-planes is N's cell.",
+  "Insert the new cell and update the neighbouring cells. The final diagram is complete."
+];
+function renderAlgorithm(){
+  const ctx=algorithm.ctx;
+  const base=algorithm.base, newS=algorithm.newSite, all=algoSites();
+  drawGrid(ctx,true);
+  if(algorithm.step===0){
+    drawCells(ctx, base);
+    drawSites(ctx, base);
+  } else if(algorithm.step<6){
+    drawCells(ctx, base);
+    drawSites(ctx, base);
+    const ns=screen(newS);
+    ctx.save(); ctx.beginPath();ctx.arc(ns.x,ns.y,10,0,Math.PI*2);ctx.fillStyle="#111827";ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.stroke();ctx.fillStyle="#111827";ctx.font="bold 16px system-ui";ctx.fillText("N",ns.x+14,ns.y-10);ctx.restore();
+
+    let poly=[{x:xmin,y:ymin},{x:xmax,y:ymin},{x:xmax,y:ymax},{x:xmin,y:ymax}];
+    const k=Math.min(algorithm.step-1,4);
+    for(let j=0;j<k;j++){
+      drawAllBisectors(ctx,[newS,base[j]],[0,1]);
+      poly=clipPolygon(poly,newS,base[j]);
+    }
+    if(k>0){
+      ctx.save();
+      ctx.beginPath(); poly.forEach((p,i)=>{const s=screen(p); if(i===0)ctx.moveTo(s.x,s.y); else ctx.lineTo(s.x,s.y);}); ctx.closePath();
+      ctx.fillStyle="rgba(17,24,39,.12)";ctx.fill();ctx.strokeStyle="#111827";ctx.lineWidth=3;ctx.stroke();ctx.restore();
+    }
+  } else {
+    drawCells(ctx, all);
+    drawSites(ctx, all, {newIndex:4});
+  }
+  drawTextBox(ctx, `Step ${algorithm.step}: ${algoTexts[algorithm.step]}`, 14, 14);
+  $("algoStepText").innerHTML = `<b>Step ${algorithm.step}</b><br>${algoTexts[algorithm.step]}`;
+  $("algoStepNo").textContent=algorithm.step;
+  $("algoOldCount").textContent=algorithm.base.length;
+  const newCell=cellForSite(all,4);
+  $("algoCellSides").textContent = algorithm.step>=5 ? newCell.length : "–";
+}
+setupDrag(algorithm.canvas, algorithm, renderAlgorithm, ()=>[
+  ...algorithm.base.map((s,i)=>({get:()=>s,set:p=>{algorithm.base[i]=p;}})),
+  {get:()=>algorithm.newSite,set:p=>{algorithm.newSite=p;}}
+]);
+$("algoReset").onclick=()=>{algorithm.base=[{x:1.2,y:6.2},{x:7.6,y:6.0},{x:8.1,y:1.5},{x:2.2,y:1.2}]; algorithm.newSite={x:4.9,y:3.2}; algorithm.step=0; stopAlgo(); renderAlgorithm();};
+$("algoPrev").onclick=()=>{algorithm.step=clamp(algorithm.step-1,0,6); renderAlgorithm();};
+$("algoNext").onclick=()=>{algorithm.step=clamp(algorithm.step+1,0,6); renderAlgorithm();};
+$("algoPlay").onclick=()=>{ if(algorithm.timer){stopAlgo();return;} $("algoPlay").textContent="Pause"; algorithm.timer=setInterval(()=>{algorithm.step++; if(algorithm.step>6){algorithm.step=6;stopAlgo();} renderAlgorithm();},900); };
+$("algoNewSite").onclick=()=>{algorithm.newSite={x:1+Math.random()*8,y:1+Math.random()*6}; algorithm.step=1; renderAlgorithm();};
+function stopAlgo(){if(algorithm.timer){clearInterval(algorithm.timer); algorithm.timer=null; $("algoPlay").textContent="Play";}}
+
+// 4 Applications
+const applications = {
+  canvas:$("appCanvas"), ctx:$("appCanvas").getContext("2d"),
+  mode:"weather",
+  sites:[{x:1.2,y:6.2,v:22},{x:7.5,y:6.1,v:24},{x:8.2,y:1.3,v:21},{x:2.4,y:1.4,v:19},{x:5.2,y:3.2,v:23}],
+  probe:{x:4.5,y:4.1}
+};
+function setApp(mode){
+  applications.mode=mode;
+  $("weatherPanel").classList.toggle("hide", mode==="toxic");
+  $("toxicPanel").classList.toggle("hide", mode!=="toxic");
+  const texts = {
+    weather:"Weather stations measure temperature or rainfall. The Voronoi diagram assigns each location to the nearest station.",
+    toxic:"For a toxic waste dump problem, choose a point as far as possible from all sites. Voronoi vertices are natural candidates because they are equally distant from three sites.",
+    poll:"Polling booths or service centres can be placed so each household is assigned to the nearest location.",
+    phone:"Phone towers divide a map into coverage zones. A simple model connects each location to the nearest tower.",
+    random:"A general partition of space by nearest sites."
+  };
+  $("appText").textContent=texts[mode];
+  if(mode==="weather"){
+    applications.sites=[{x:1.2,y:6.2,v:22},{x:7.5,y:6.1,v:24},{x:8.2,y:1.3,v:21},{x:2.4,y:1.4,v:19},{x:5.2,y:3.2,v:23}];
+  } else if(mode==="toxic"){
+    applications.sites=[{x:1.2,y:6.3,v:0},{x:4.2,y:5.7,v:0},{x:8.0,y:6.0,v:0},{x:8.3,y:1.2,v:0},{x:2.1,y:1.4,v:0},{x:5.5,y:2.6,v:0}];
+  } else if(mode==="poll"){
+    applications.sites=[{x:1.3,y:6.1,v:0},{x:8.1,y:5.6,v:0},{x:2.0,y:2.0,v:0},{x:6.3,y:2.2,v:0},{x:4.8,y:4.1,v:0}];
+  } else if(mode==="phone"){
+    applications.sites=[{x:1.6,y:1.3,v:0},{x:2.0,y:6.6,v:0},{x:7.2,y:6.1,v:0},{x:8.2,y:1.6,v:0}];
+  } else {
+    applications.sites=randomSites(7).map(s=>({...s,v:Math.round(10+Math.random()*20)}));
+  }
+  renderApplications();
+}
+function bestEmptyCircle(sites){
+  const cells=allCells(sites);
+  const candidates=verticesFromCells(cells).concat([{x:xmin,y:ymin},{x:xmax,y:ymin},{x:xmax,y:ymax},{x:xmin,y:ymax}]);
+  let best=null;
+  for(const p of candidates){
+    const near=nearestSite(p,sites);
+    if(!best || near.d>best.r) best={p,r:near.d,touch:touchingSites(p,sites,.12)};
+  }
+  return best;
+}
+function renderApplications(){
+  const ctx=applications.ctx, sites=applications.sites;
+  drawGrid(ctx,true);
+  drawCells(ctx, sites);
+  if(applications.mode==="toxic"){
+    const b=bestEmptyCircle(sites);
+    drawCircleWorld(ctx,b.p,b.r,"#111827",true);
+    const sp=screen(b.p);
+    ctx.save(); ctx.fillStyle="#111827"; ctx.beginPath(); ctx.arc(sp.x,sp.y,7,0,Math.PI*2); ctx.fill(); ctx.font="bold 14px system-ui"; ctx.fillText("best centre", sp.x+10, sp.y-12); ctx.restore();
+    $("bestCentre").textContent=`(${fmt(b.p.x,2)}, ${fmt(b.p.y,2)})`;
+    $("bestRadius").textContent=fmt(b.r,2);
+    $("touchSites").textContent=b.touch.map(label).join(", ") || "nearest site";
+    drawTextBox(ctx,"Largest empty circle\nCircle contains no sites",14,14);
+  } else {
+    drawProbe(ctx, applications.probe, sites);
+    const n=nearestSite(applications.probe, sites);
+    $("probeValue").textContent = sites[n.i].v!==undefined ? `${sites[n.i].v}` : label(n.i);
+    drawTextBox(ctx,`P uses nearest site ${label(n.i)}\nAssigned value: ${$("probeValue").textContent}`,14,14);
+  }
+  drawSites(ctx, sites);
+  if(applications.mode==="weather" || applications.mode==="random"){
+    $("valueTable").innerHTML=sites.map((s,i)=>`<tr><td>${label(i)}</td><td>${s.v}</td><td>${applications.mode==="weather"?"temperature / rainfall":"data value"}</td></tr>`).join("");
+  }
+}
+setupDrag(applications.canvas, applications, renderApplications, ()=>[
+  ...applications.sites.map((s,i)=>({get:()=>s,set:p=>{applications.sites[i]={...applications.sites[i],...p};}})),
+  {get:()=>applications.probe,set:p=>{applications.probe=p;}}
+]);
+$("appWeather").onclick=()=>setApp("weather");
+$("appToxic").onclick=()=>setApp("toxic");
+$("appPoll").onclick=()=>setApp("poll");
+$("appPhone").onclick=()=>setApp("phone");
+$("appRandom").onclick=()=>setApp("random");
+$("dragProbeHint").onclick=()=>{applications.probe={x:1+Math.random()*8,y:1+Math.random()*6}; renderApplications();};
+
+// 5 Exam
+const exam = {
+  canvas:$("examCanvas"), ctx:$("examCanvas").getContext("2d"),
+  sites:[], probe:{x:5,y:4}, current:null
+};
+function randomSites(n){
+  const pts=[];
+  let tries=0;
+  while(pts.length<n && tries<500){
+    tries++;
+    const p={x:1+Math.random()*8,y:1+Math.random()*6};
+    if(pts.every(q=>dist(p,q)>1.15)) pts.push(p);
+  }
+  return pts;
+}
+function makeExam(){
+  let type=$("examType").value;
+  if(type==="mixed"){
+    const opts=["nearest","equation","vertex","interpolation","largest"];
+    type=opts[Math.floor(Math.random()*opts.length)];
+  }
+  const diff=$("difficulty").value;
+  const n = diff==="easy"?3:diff==="medium"?4:5;
+  exam.sites = randomSites(n).map((p,i)=>({...p,v:Math.round(10+Math.random()*20)}));
+  exam.probe = {x:1+Math.random()*8,y:1+Math.random()*6};
+  let current={type};
+  if(type==="nearest"){
+    current.title="Nearest site";
+    current.near=nearestSite(exam.probe, exam.sites).i;
+    current.question=`The sites are shown on the diagram. Point P is at (${fmt(exam.probe.x,1)}, ${fmt(exam.probe.y,1)}). Which site is nearest to P?`;
+    current.answer=label(current.near);
+    current.hint="Calculate the distance from P to each site, or inspect which cell contains P.";
+    current.solution=`Distances: ${exam.sites.map((s,i)=>`${label(i)}: ${fmt(dist(exam.probe,s),2)}`).join(", ")}. The smallest distance is to ${label(current.near)}.`;
+  }
+  if(type==="equation"){
+    current.i=0; current.j=1;
+    const a=exam.sites[0], b=exam.sites[1];
+    current.title="Equation of a boundary";
+    current.question=`Find the equation of the Voronoi boundary between A(${fmt(a.x,1)}, ${fmt(a.y,1)}) and B(${fmt(b.x,1)}, ${fmt(b.y,1)}). Give your answer as x = k, y = k, or y = mx + c.`;
+    current.hint="Find the midpoint of AB, then use the negative reciprocal gradient.";
+    current.solution=boundaryAlgebraText(a,b,"A","B");
+    current.answer="open";
+  }
+  if(type==="vertex"){
+    const cells=allCells(exam.sites);
+    const verts=verticesFromCells(cells);
+    const v=verts.length?verts[0]:{x:5,y:4};
+    current.title="Meaning of a Voronoi vertex";
+    current.question=`A Voronoi vertex is marked V. What does this point mean geometrically?`;
+    current.vertex=v;
+    current.answer="equidistant";
+    current.hint="Think about how many cell edges meet there.";
+    const touch=touchingSites(v,exam.sites,.18).map(label).join(", ");
+    current.solution=`A vertex is where edges meet. It is equally distant from three or more sites. Here it is approximately (${fmt(v.x,2)}, ${fmt(v.y,2)}) and is close to being equidistant from ${touch || "the neighbouring sites"}.`;
+  }
+  if(type==="interpolation"){
+    current.title="Nearest-neighbour interpolation";
+    current.near=nearestSite(exam.probe, exam.sites).i;
+    current.answer=exam.sites[current.near].v;
+    current.question=`Each site has a measured value shown on the diagram. Using nearest-neighbour interpolation, estimate the value at P(${fmt(exam.probe.x,1)}, ${fmt(exam.probe.y,1)}).`;
+    current.hint="Use the measured value at the nearest site to P.";
+    current.solution=`P is nearest to site ${label(current.near)}, so it is assigned the value ${current.answer}.`;
+  }
+  if(type==="largest"){
+    current.title="Largest empty circle";
+    const b=bestEmptyCircle(exam.sites);
+    current.best=b;
+    current.answer="open";
+    current.question=`A toxic-waste site should be as far as possible from the shown sites. Which type of point should you test first, and why?`;
+    current.hint="The centre of the largest empty circle often occurs at a Voronoi vertex.";
+    current.solution=`Test Voronoi vertices first, because a Voronoi vertex is equally far from three or more sites and can maximise the minimum distance. In this diagram, a strong candidate is (${fmt(b.p.x,2)}, ${fmt(b.p.y,2)}) with radius about ${fmt(b.r,2)}.`;
+  }
+  exam.current=current;
+  buildAnswerUI();
+  $("examTitle").textContent=current.title;
+  $("examQuestion").textContent=current.question;
+  $("examFeedback").textContent="";
+  $("examFeedback").className="feedback";
+  $("examHelp").textContent="Use the buttons above when needed.";
+  renderExam();
+}
+function buildAnswerUI(){
+  const c=exam.current;
+  const area=$("answerArea");
+  if(c.type==="nearest"){
+    area.innerHTML=`<input id="examAnswer" type="text" placeholder="A, B, C..." style="width:130px"><button id="checkExam" class="good">Check</button>`;
+  } else if(c.type==="interpolation"){
+    area.innerHTML=`<input id="examAnswer" type="number" placeholder="value" style="width:130px"><button id="checkExam" class="good">Check</button>`;
+  } else if(c.type==="vertex"){
+    area.innerHTML=`<input id="examAnswer" type="text" placeholder="What does it mean?" style="min-width:230px"><button id="checkExam" class="good">Check</button>`;
+  } else {
+    area.innerHTML=`<textarea id="examAnswer" placeholder="Write your reasoning or equation here" style="width:100%;min-height:76px;border:1px solid #cfd8eb;border-radius:12px;padding:9px;font:inherit"></textarea><button id="checkExam" class="good">Compare with solution</button>`;
+  }
+  $("checkExam").onclick=checkExam;
+}
+function checkExam(){
+  const c=exam.current;
+  const ans=String($("examAnswer").value || "").trim().toLowerCase();
+  const fb=$("examFeedback");
+  if(c.type==="nearest"){
+    const ok=ans===c.answer.toLowerCase();
+    fb.textContent=ok?"Correct. P is in that site's cell.":`Not quite. Check the distances to each site.`;
+    fb.className="feedback "+(ok?"goodText":"badText");
+  } else if(c.type==="interpolation"){
+    const ok=Math.abs(Number(ans)-Number(c.answer))<1e-9;
+    fb.textContent=ok?"Correct. Nearest-neighbour interpolation uses the value at the closest site.":`Not quite. Find the closest site first, then use its value.`;
+    fb.className="feedback "+(ok?"goodText":"badText");
+  } else if(c.type==="vertex"){
+    const ok=/(equal|equidistant|same).*(three|3|site|point)|three|3/.test(ans);
+    fb.textContent=ok?"Good. A vertex is where three or more nearest regions meet.":"Aim for: a point equally distant from three or more sites.";
+    fb.className="feedback "+(ok?"goodText":"badText");
+  } else {
+    fb.textContent="Now compare your answer with the worked solution.";
+    fb.className="feedback";
+    $("examHelp").textContent=c.solution;
+  }
+}
+function renderExam(){
+  const ctx=exam.ctx;
+  drawGrid(ctx,true);
+  if(exam.sites.length){
+    drawCells(ctx, exam.sites);
+    if(exam.current && exam.current.type==="equation"){
+      drawAllBisectors(ctx, exam.sites, [0,1]);
+      drawSegment(ctx, exam.sites[0], exam.sites[1], "#111827", true);
+    }
+    if(exam.current && exam.current.type==="vertex" && exam.current.vertex){
+      const v=screen(exam.current.vertex);
+      ctx.save();ctx.fillStyle="#111827";ctx.beginPath();ctx.arc(v.x,v.y,8,0,Math.PI*2);ctx.fill();ctx.font="bold 15px system-ui";ctx.fillText("V",v.x+12,v.y-8);ctx.restore();
+    }
+    if(exam.current && exam.current.type==="largest" && exam.current.best){
+      drawCircleWorld(ctx,exam.current.best.p,exam.current.best.r,"#111827",true);
+    }
+    if(["nearest","interpolation"].includes(exam.current?.type)) drawProbe(ctx, exam.probe, exam.sites);
+    drawSites(ctx, exam.sites);
+    if(exam.current?.type==="interpolation"){
+      ctx.save();ctx.font="bold 14px system-ui";ctx.fillStyle="#111827";
+      exam.sites.forEach((s,i)=>{const sp=screen(s); ctx.fillText(String(s.v),sp.x+18,sp.y+15);});
+      ctx.restore();
+    }
+  }
+}
+$("newExam").onclick=makeExam;
+$("examType").onchange=makeExam;
+$("difficulty").onchange=makeExam;
+$("showExamHint").onclick=()=>{$("examHelp").textContent=exam.current?.hint || "";};
+$("showExamSolution").onclick=()=>{$("examHelp").textContent=exam.current?.solution || "";};
+setupDrag(exam.canvas, exam, renderExam, ()=>[
+  ...exam.sites.map((s,i)=>({get:()=>s,set:p=>{exam.sites[i]={...exam.sites[i],...p};}})),
+  {get:()=>exam.probe,set:p=>{exam.probe=p;}}
+]);
+
+// init
+renderExplore();
+renderConstruct();
+renderAlgorithm();
+setApp("weather");
+makeExam();
+
+})();
+</script>
+</body>
+</html>
