@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Complex Numbers: Ultimate Exploration Lab</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(','\\)'], ['$', '$']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --bg:#f7f8fb; --panel:#ffffff; --ink:#172033; --muted:#607089;
+    --accent:#2b6cb0; --accent2:#805ad5; --good:#16845b; --warn:#b7791f; --bad:#c53030;
+    --line:#d7deea; --soft:#eef4ff; --soft2:#f4efff; --shadow:0 12px 30px rgba(24,33,52,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#f7f8fb,#eef4ff);color:var(--ink);line-height:1.5}
+  header{padding:28px 18px 18px;background:linear-gradient(135deg,#10213f,#2b6cb0);color:white}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{margin:0;font-size:clamp(1.7rem,4vw,3rem);letter-spacing:-.03em}
+  h2{margin:8px 0 12px;font-size:1.45rem}
+  h3{margin:16px 0 8px;font-size:1.08rem}
+  p{margin:8px 0}.lead{font-size:1.05rem;max-width:980px;color:#e6efff}.small{font-size:.9rem;color:var(--muted)}
+  .tabs{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.04)}
+  .tabbar{max-width:1180px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;padding:10px 12px}
+  .tabbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;cursor:pointer;white-space:nowrap;font-weight:700;color:#24324a}
+  .tabbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  main{padding:20px 12px 60px}.panel{display:none}.panel.active{display:block}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:14px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+  @media(max-width:900px){.grid.two,.grid.three,.grid.four{grid-template-columns:1fr}.tabbar{padding-left:8px}.card{padding:14px}}
+  .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;background:var(--soft);border:1px solid #cfe0fb;font-size:.86rem;font-weight:700;color:#244a77;margin:3px 4px 3px 0}
+  .pill.hl{background:#f4efff;border-color:#d8c7ff;color:#523a8a}.pill.exam{background:#fdf7e8;border-color:#f3d89d;color:#7a520f}.pill.green{background:#e9f8f1;border-color:#bde6d2;color:#116241}
+  .controls{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:end;margin:12px 0}
+  label{display:block;font-weight:700;font-size:.9rem;color:#2b3650}input,select,button,textarea{font:inherit}
+  input[type="range"]{width:100%}input[type="number"],select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:9px;background:#fff;color:var(--ink)}
+  button.action{border:0;background:var(--accent);color:white;border-radius:12px;padding:10px 13px;font-weight:800;cursor:pointer;box-shadow:0 6px 14px rgba(43,108,176,.18)}
+  button.action.secondary{background:#eef4ff;color:#244a77;border:1px solid #cfe0fb;box-shadow:none}button.action.purple{background:var(--accent2)}button.action.green{background:var(--good)}
+  button.action:active,.tabbtn:active{transform:translateY(1px)}
+  .result{background:#101827;color:#eef4ff;border-radius:16px;padding:14px;min-height:56px;overflow:auto}.result strong{color:#fff}.mono{font-family:"SFMono-Regular",Consolas,Menlo,monospace}.formula{background:#f9fbff;border:1px solid var(--line);border-radius:16px;padding:12px;margin:8px 0;overflow:auto}
+  canvas{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:16px;display:block}
+  .mini{padding:12px;border:1px solid var(--line);border-radius:16px;background:#fbfcff}.mini h3{margin-top:0}.checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.checkitem{padding:10px 12px;border-radius:14px;background:#fff;border:1px solid var(--line);display:flex;gap:8px;align-items:flex-start}.checkitem input{margin-top:4px}
+  .accordion{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:10px 0}.accordion button{width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--line);padding:13px 14px;font-weight:850;cursor:pointer}.accordion .body{display:none;padding:14px;background:#fbfcff}.accordion.open .body{display:block}.accordion.open button{background:#eef4ff}
+  .note{border-left:5px solid var(--accent);padding:10px 12px;background:#f5f9ff;border-radius:12px}.warn{border-left-color:var(--warn);background:#fff9eb}.good{border-left-color:var(--good);background:#eefaf5}.bad{border-left-color:var(--bad);background:#fff2f2}.kbd{border:1px solid var(--line);background:#fff;border-bottom-width:3px;border-radius:8px;padding:1px 6px;font-family:monospace;font-weight:700}.score{font-size:1.1rem;font-weight:900}.hidden{display:none!important}
+  .flow{counter-reset:step}.flow .mini{position:relative;padding-left:54px}.flow .mini:before{counter-increment:step;content:counter(step);position:absolute;left:14px;top:16px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Complex Numbers: Ultimate Exploration Lab</h1>
+    <p class="lead">From “why invent \(i\)?” to exam fluency: algebra, Argand diagrams, polar and Euler form, rotations and stretches, and phase-shifted sinusoidal modelling.</p>
+    <span class="pill green">Inquiry first</span><span class="pill">Concise notes</span><span class="pill hl">AI HL / AHL complex numbers</span><span class="pill exam">Exam practice</span>
+  </div>
+</header>
+<nav class="tabs">
+  <div class="tabbar">
+    <button class="tabbtn active" data-tab="overview">Map</button>
+    <button class="tabbtn" data-tab="why">1. Why \(i\)?</button>
+    <button class="tabbtn" data-tab="cartesian">2. Cartesian skills</button>
+    <button class="tabbtn" data-tab="plane">3. Complex plane</button>
+    <button class="tabbtn" data-tab="polar">4. Polar & Euler</button>
+    <button class="tabbtn" data-tab="geometry">5. Operations as geometry</button>
+    <button class="tabbtn" data-tab="phase">6. Phase modelling</button>
+    <button class="tabbtn" data-tab="practice">7. Exam practice</button>
+    <button class="tabbtn" data-tab="notes">Notes</button>
+  </div>
+</nav>
+<main class="wrap">
+<section id="overview" class="panel active">
+  <div class="card">
+    <h2>Lesson architecture</h2>
+    <p>This applet combines four textbook strengths: a <strong>need</strong> for complex numbers from quadratics, a <strong>clear skills spine</strong>, an <strong>inquiry/geometric model</strong> on the Argand plane, and <strong>concise consolidation</strong> with exam practice.</p>
+    <div class="grid two flow">
+      <div class="mini"><h3>Invent the number system extension</h3><p>Use quadratics with negative discriminant to force the question: what could \(\sqrt{-1}\) mean?</p></div>
+      <div class="mini"><h3>Build algebraic fluency</h3><p>Use \(z=a+bi\), real and imaginary parts, conjugates, powers of \(i\), products and quotients.</p></div>
+      <div class="mini"><h3>Move onto the Argand plane</h3><p>Represent complex numbers as points and vectors, including \(z\), \(\bar z\), \(-z\), \(|z|\) and \(\arg z\).</p></div>
+      <div class="mini"><h3>Switch representation when useful</h3><p>Use \(r(\cos\theta+i\sin\theta)\) and \(re^{i\theta}\) for powers, products, quotients and rotations.</p></div>
+      <div class="mini"><h3>Apply to phase</h3><p>Add same-frequency sinusoidal functions using phasors, connecting complex numbers to modelling.</p></div>
+      <div class="mini"><h3>Consolidate for exams</h3><p>Practice with generated questions, solution reveals, common traps and calculator reminders.</p></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Syllabus audit checklist</h2>
+    <div class="checklist" id="syllabusChecklist"></div>
+    <p class="small">Tick these as students complete them. The checklist is saved only in the current browser session.</p>
+  </div>
+</section>
+
+<section id="why" class="panel">
+  <div class="card">
+    <h2>1. Why invent \(i\)? — the quadratic wall</h2>
+    <p>Move the coefficients in \(x^2+bx+c=0\). Watch what happens when the discriminant crosses zero.</p>
+    <div class="controls">
+      <label>Coefficient \(b\): <span id="bVal"></span><input id="quadB" type="range" min="-8" max="8" step="0.1" value="-2"></label>
+      <label>Coefficient \(c\): <span id="cVal"></span><input id="quadC" type="range" min="-6" max="12" step="0.1" value="5"></label>
+      <button class="action secondary" id="quadReset">Reset to no real roots</button>
+    </div>
+    <div class="grid two">
+      <div><canvas id="quadCanvas" width="760" height="460"></canvas></div>
+      <div>
+        <div class="result" id="quadOutput"></div>
+        <canvas id="rootCanvas" width="760" height="460" style="margin-top:12px"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Powers of \(i\): a cycle, not magic</h2>
+    <p>Since \(i^2=-1\), powers of \(i\) repeat every 4.</p>
+    <div class="controls">
+      <label>Power \(n\): <span id="nIVal"></span><input id="nI" type="range" min="0" max="40" step="1" value="7"></label>
+      <button class="action secondary" id="iRandom">Random power</button>
+    </div>
+    <div class="grid two">
+      <canvas id="iCanvas" width="760" height="420"></canvas>
+      <div class="result" id="iOutput"></div>
+    </div>
+  </div>
+</section>
+
+<section id="cartesian" class="panel">
+  <div class="card">
+    <h2>2. Cartesian form skills: \(z=a+bi\)</h2>
+    <p>Enter two complex numbers and compare operations. The division step uses the conjugate, just like rationalising a surd denominator.</p>
+    <div class="controls">
+      <label>\(a\)<input id="za" type="number" step="0.5" value="3"></label>
+      <label>\(b\)<input id="zb" type="number" step="0.5" value="2"></label>
+      <label>\(c\)<input id="wc" type="number" step="0.5" value="1"></label>
+      <label>\(d\)<input id="wd" type="number" step="0.5" value="-4"></label>
+      <label>Operation<select id="cartOp"><option value="add">z + w</option><option value="sub">z - w</option><option value="mul">zw</option><option value="div">z / w</option><option value="conj">conjugates</option></select></label>
+    </div>
+    <div class="grid two">
+      <div class="result" id="cartOutput"></div>
+      <canvas id="cartCanvas" width="760" height="460"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Mini-check: real and imaginary parts</h2>
+    <div class="controls">
+      <button class="action" id="realImagNew">Generate question</button>
+      <label>Real part<input id="realGuess" type="number" step="0.01"></label>
+      <label>Imaginary part<input id="imagGuess" type="number" step="0.01"></label>
+      <button class="action green" id="realImagCheck">Check</button>
+    </div>
+    <div class="result" id="realImagBox"></div>
+  </div>
+</section>
+
+<section id="plane" class="panel">
+  <div class="card">
+    <h2>3. The complex plane: point, vector, distance and direction</h2>
+    <p>Drag the sliders. The same object can be read as a number \(a+bi\), a point \((a,b)\), or a vector from the origin.</p>
+    <div class="controls">
+      <label>Real part \(a\): <span id="planeAVal"></span><input id="planeA" type="range" min="-6" max="6" step="0.1" value="4"></label>
+      <label>Imaginary part \(b\): <span id="planeBVal"></span><input id="planeB" type="range" min="-6" max="6" step="0.1" value="3"></label>
+      <button class="action secondary" id="planeSnap">Snap to nice example</button>
+    </div>
+    <div class="grid two">
+      <canvas id="planeCanvas" width="760" height="520"></canvas>
+      <div class="result" id="planeOutput"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Argument trap explorer</h2>
+    <p>The argument is not just \(\tan^{-1}(b/a)\). The quadrant matters.</p>
+    <div class="controls">
+      <label>Choose quadrant example<select id="quadArgChoice"><option value="1">Quadrant I</option><option value="2">Quadrant II</option><option value="3">Quadrant III</option><option value="4">Quadrant IV</option><option value="axis">On an axis</option></select></label>
+      <button class="action" id="argExampleBtn">Show example</button>
+    </div>
+    <div class="result" id="argTrapOutput"></div>
+  </div>
+</section>
+
+<section id="polar" class="panel">
+  <div class="card">
+    <h2>4. Polar and exponential form</h2>
+    <p>Polar form gives the size and angle directly: \(z=r(\cos\theta+i\sin\theta)=re^{i\theta}\). It is the efficient form for products, quotients and powers.</p>
+    <div class="controls">
+      <label>Modulus \(r\): <span id="rVal"></span><input id="polarR" type="range" min="0" max="6" step="0.1" value="3"></label>
+      <label>Argument \(\theta\) degrees: <span id="thetaVal"></span><input id="polarTheta" type="range" min="-180" max="180" step="1" value="40"></label>
+      <label>Power \(n\)<input id="powerN" type="number" min="-8" max="8" step="1" value="3"></label>
+    </div>
+    <div class="grid two">
+      <canvas id="polarCanvas" width="760" height="520"></canvas>
+      <div class="result" id="polarOutput"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Conversion trainer</h2>
+    <div class="controls">
+      <button class="action" id="conversionNew">Generate conversion question</button>
+      <button class="action secondary" id="conversionReveal">Reveal solution</button>
+    </div>
+    <div class="result" id="conversionBox"></div>
+  </div>
+</section>
+
+<section id="geometry" class="panel">
+  <div class="card">
+    <h2>5. Operations as geometry</h2>
+    <p>Addition acts like vector addition. Multiplication by \(w=s e^{i\phi}\) rotates by \(\phi\) and stretches by factor \(s\).</p>
+    <div class="controls">
+      <label>\(z\) real: <span id="gzAVal"></span><input id="gzA" type="range" min="-5" max="5" step="0.1" value="2"></label>
+      <label>\(z\) imaginary: <span id="gzBVal"></span><input id="gzB" type="range" min="-5" max="5" step="0.1" value="1"></label>
+      <label>\(w\) real: <span id="gwAVal"></span><input id="gwA" type="range" min="-5" max="5" step="0.1" value="1"></label>
+      <label>\(w\) imaginary: <span id="gwBVal"></span><input id="gwB" type="range" min="-5" max="5" step="0.1" value="2"></label>
+    </div>
+    <div class="grid two">
+      <canvas id="geomCanvas" width="760" height="520"></canvas>
+      <div class="result" id="geomOutput"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Rotation challenge</h2>
+    <p>Find the complex multiplier that moves point \(A\) to point \(B\) by a rotation about the origin and enlargement.</p>
+    <div class="controls">
+      <button class="action" id="rotationNew">Generate challenge</button>
+      <button class="action secondary" id="rotationReveal">Reveal multiplier</button>
+    </div>
+    <div class="grid two">
+      <canvas id="rotationCanvas" width="760" height="460"></canvas>
+      <div class="result" id="rotationBox"></div>
+    </div>
+  </div>
+</section>
+
+<section id="phase" class="panel">
+  <div class="card">
+    <h2>6. Adding same-frequency sinusoids using phasors</h2>
+    <p>Any sum \(A\cos(t+\alpha)+B\cos(t+\beta)\) can be written as \(R\cos(t+\phi)\). Complex numbers make this a vector addition problem.</p>
+    <div class="controls">
+      <label>Amplitude \(A\): <span id="phaseAVal"></span><input id="phaseA" type="range" min="0" max="6" step="0.1" value="3"></label>
+      <label>Phase \(\alpha\): <span id="alphaVal"></span><input id="alpha" type="range" min="-180" max="180" step="1" value="20"></label>
+      <label>Amplitude \(B\): <span id="phaseBVal"></span><input id="phaseB" type="range" min="0" max="6" step="0.1" value="2"></label>
+      <label>Phase \(\beta\): <span id="betaVal"></span><input id="beta" type="range" min="-180" max="180" step="1" value="110"></label>
+    </div>
+    <div class="grid two">
+      <canvas id="phasorCanvas" width="760" height="520"></canvas>
+      <canvas id="waveCanvas" width="760" height="520"></canvas>
+    </div>
+    <div class="result" id="phaseOutput" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<section id="practice" class="panel">
+  <div class="card">
+    <h2>7. Exam practice generator</h2>
+    <p>Generate a question, attempt it on paper, then reveal a concise solution. Use this for retrieval practice after each lesson.</p>
+    <div class="controls">
+      <label>Question type<select id="practiceType"><option value="mixed">Mixed</option><option value="cartesian">Cartesian operations</option><option value="quadratic">Quadratic roots</option><option value="modarg">Modulus and argument</option><option value="polar">Polar/Euler conversion</option><option value="power">Powers</option><option value="phase">Phase sum</option><option value="geometry">Geometric transformation</option></select></label>
+      <button class="action" id="practiceNew">Generate question</button>
+      <button class="action secondary" id="practiceReveal">Reveal solution</button>
+    </div>
+    <div class="result" id="practiceQuestion"></div>
+    <div class="formula hidden" id="practiceSolution"></div>
+  </div>
+  <div class="card">
+    <h2>Timed quick-fire</h2>
+    <p>Ten short questions. Reveal feedback immediately and record a score.</p>
+    <div class="controls">
+      <button class="action green" id="quickStart">Start / restart</button>
+      <label>Your answer<input id="quickAnswer" placeholder="e.g. 3-2i or 5" /></label>
+      <button class="action" id="quickCheck">Check</button>
+    </div>
+    <div class="result" id="quickBox"></div>
+  </div>
+</section>
+
+<section id="notes" class="panel">
+  <div class="card">
+    <h2>Concise consolidation notes</h2>
+    <div class="accordion open"><button>1. Core vocabulary</button><div class="body"><p>\(z=a+bi\), where \(a=\operatorname{Re}(z)\), \(b=\operatorname{Im}(z)\), and \(i^2=-1\). The conjugate is \(\bar z=a-bi\).</p></div></div>
+    <div class="accordion"><button>2. Cartesian operations</button><div class="body"><p>\((a+bi)+(c+di)=(a+c)+(b+d)i\)</p><p>\((a+bi)(c+di)=(ac-bd)+(ad+bc)i\)</p><p>\(\dfrac{a+bi}{c+di}=\dfrac{(a+bi)(c-di)}{c^2+d^2}\), provided \(c+di\ne0\).</p></div></div>
+    <div class="accordion"><button>3. Modulus and argument</button><div class="body"><p>\(|z|=\sqrt{a^2+b^2}\). The argument \(\arg z=\theta\) is the angle from the positive real axis to the vector \((a,b)\). Use the quadrant, not just \(\tan^{-1}(b/a)\).</p></div></div>
+    <div class="accordion"><button>4. Polar and Euler form</button><div class="body"><p>\(z=r(\cos\theta+i\sin\theta)=re^{i\theta}\), where \(r=|z|\). In Cartesian form, \(a=r\cos\theta\), \(b=r\sin\theta\).</p></div></div>
+    <div class="accordion"><button>5. Products, quotients and powers in polar form</button><div class="body"><p>If \(z=r e^{i\theta}\) and \(w=s e^{i\phi}\), then \(zw=rs e^{i(\theta+\phi)}\), \(\dfrac zw=\dfrac rs e^{i(\theta-\phi)}\), and \(z^n=r^n e^{in\theta}\).</p></div></div>
+    <div class="accordion"><button>6. Geometric interpretation</button><div class="body"><p>Addition/subtraction are vector addition/subtraction. Multiplication by \(r e^{i\theta}\) is a stretch by scale factor \(r\) and a rotation by \(\theta\) about the origin.</p></div></div>
+    <div class="accordion"><button>7. Quadratics</button><div class="body"><p>For \(ax^2+bx+c=0\), \(x=\dfrac{-b\pm\sqrt{b^2-4ac}}{2a}\). If \(b^2-4ac<0\), the two roots are a conjugate pair.</p></div></div>
+    <div class="accordion"><button>8. Phase-shifted sinusoidal sums</button><div class="body"><p>Represent \(A\cos(t+\alpha)\) by the phasor \(A e^{i\alpha}\). Add phasors, then convert the result \(R e^{i\phi}\) back to \(R\cos(t+\phi)\).</p></div></div>
+  </div>
+  <div class="card">
+    <h2>Exam traps and calculator reminders</h2>
+    <div class="grid two">
+      <div class="note warn"><h3>Common traps</h3><p>Forgetting the quadrant for \(\arg z\); leaving answers in degrees when radians are requested; using Cartesian form for a high power; forgetting to multiply numerator and denominator by the conjugate; treating \(\sqrt{-a}\sqrt{-b}=\sqrt{ab}\) as a general rule.</p></div>
+      <div class="note good"><h3>TI-Nspire style workflow</h3><p>Set complex format to rectangular or polar as needed. Use <span class="kbd">cSolve</span> or complex mode for quadratics with no real roots. Use functions such as <span class="kbd">abs(z)</span>, <span class="kbd">angle(z)</span>, <span class="kbd">conj(z)</span>, <span class="kbd">real(z)</span>, and <span class="kbd">imag(z)</span>. For high powers, convert to polar/Euler form first when exact reasoning is needed.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+  const deg = r => r*180/Math.PI;
+  const rad = d => d*Math.PI/180;
+  const nice = x => Math.abs(x)<1e-10?0:x;
+  const fmt = (x,dp=3) => {
+    x = nice(x);
+    if(!Number.isFinite(x)) return 'undefined';
+    if(Math.abs(x-Math.round(x))<1e-10) return String(Math.round(x));
+    return Number(x.toFixed(dp)).toString();
+  };
+  const fmtDeg = x => `${fmt(x,1)}°`;
+  const fmtRad = x => `${fmt(x,3)} rad`;
+  const C = (re,im)=>({re:+re, im:+im});
+  const add=(z,w)=>C(z.re+w.re,z.im+w.im), sub=(z,w)=>C(z.re-w.re,z.im-w.im), mul=(z,w)=>C(z.re*w.re-z.im*w.im,z.re*w.im+z.im*w.re);
+  const conj=z=>C(z.re,-z.im), abs=z=>Math.hypot(z.re,z.im), arg=z=>Math.atan2(z.im,z.re);
+  const div=(z,w)=>{const den=w.re*w.re+w.im*w.im; return C((z.re*w.re+z.im*w.im)/den,(z.im*w.re-z.re*w.im)/den)};
+  const cpow=(z,n)=>{ if(n===0) return C(1,0); if(n<0) return div(C(1,0),cpow(z,-n)); let r=C(1,0); for(let k=0;k<n;k++) r=mul(r,z); return r; };
+  function fmtC(z,dp=3){
+    const a=fmt(z.re,dp), b=fmt(Math.abs(z.im),dp);
+    if(Math.abs(z.im)<1e-10) return a;
+    if(Math.abs(z.re)<1e-10) return (z.im<0?'-':'') + (b==='1'?'':b) + 'i';
+    return `${a} ${z.im<0?'−':'+'} ${b==='1'?'':b}i`;
+  }
+  function htmlC(z,dp=3){ return fmtC(z,dp).replace(/−/g,'&minus;'); }
+  function texC(z,dp=3){ return fmtC(z,dp).replace(/−/g,'-'); }
+  function typeset(){ if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(()=>{}); }
+
+  function drawGrid(canvas, opts={}){
+    const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height;
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+    const scale=opts.scale||40, ox=opts.ox??W/2, oy=opts.oy??H/2;
+    ctx.lineWidth=1; ctx.strokeStyle='#e5eaf3'; ctx.fillStyle='#607089'; ctx.font='14px system-ui';
+    const xmin=Math.floor((-ox)/scale), xmax=Math.ceil((W-ox)/scale), ymin=Math.floor((oy-H)/scale), ymax=Math.ceil(oy/scale);
+    for(let x=xmin;x<=xmax;x++){ const px=ox+x*scale; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke(); if(x!==0 && Math.abs(px)>18 && px<W-18){ctx.fillText(String(x),px+3,oy+16);} }
+    for(let y=ymin;y<=ymax;y++){ const py=oy-y*scale; ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(W,py); ctx.stroke(); if(y!==0 && Math.abs(py)>18 && py<H-18){ctx.fillText(String(y),ox+5,py-4);} }
+    ctx.strokeStyle='#27364f'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(W,oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox,H); ctx.lineTo(ox,0); ctx.stroke();
+    ctx.fillStyle='#27364f'; ctx.font='bold 15px system-ui'; ctx.fillText('Re',W-32,oy-8); ctx.fillText('Im',ox+8,16);
+    return {ctx,W,H,scale,ox,oy, px:x=>ox+x*scale, py:y=>oy-y*scale};
+  }
+  function drawArrow(ctx,x1,y1,x2,y2,color='#2b6cb0',width=3){
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    const ang=Math.atan2(y2-y1,x2-x1), L=10+width;
+    ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-L*Math.cos(ang-Math.PI/6),y2-L*Math.sin(ang-Math.PI/6)); ctx.lineTo(x2-L*Math.cos(ang+Math.PI/6),y2-L*Math.sin(ang+Math.PI/6)); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  function drawPoint(ctx,x,y,label,color='#2b6cb0'){
+    ctx.save(); ctx.fillStyle=color; ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=color; ctx.font='bold 15px system-ui'; ctx.fillText(label,x+10,y-10); ctx.restore();
+  }
+  function autoScale(points, base=40){
+    let max=6; points.forEach(p=>{max=Math.max(max,Math.abs(p.re),Math.abs(p.im));});
+    return Math.max(18, Math.min(52, 220/max));
+  }
+  function drawArgand(canvas, points, opts={}){
+    const scale = opts.scale || autoScale(points);
+    const g=drawGrid(canvas,{scale});
+    points.forEach(p=>{
+      const color=p.color||'#2b6cb0', x=g.px(p.re), y=g.py(p.im);
+      if(p.vector!==false) drawArrow(g.ctx,g.ox,g.oy,x,y,color,3);
+      drawPoint(g.ctx,x,y,p.label||'',color);
+    });
+    return g;
+  }
+
+  const syllabus = [
+    'Define \(i\) with \(i^2=-1\).','Use Cartesian form \(z=a+bi\).','Identify real part, imaginary part and conjugate.','Calculate sums, differences, products and quotients in Cartesian form.','Calculate powers of complex numbers.','Use and draw Argand diagrams.','Use the complex plane as points and vectors.','Find modulus \(|z|\) and argument \(\arg z\).','Solve quadratics with real coefficients and negative discriminant.','Connect complex roots to the graph of \(f(x)=ax^2+bx+c\).','Use polar/modulus-argument form.','Use exponential/Euler form.','Convert between Cartesian, polar and exponential forms.','Calculate products, quotients and integer powers in polar/exponential form.','Interpret addition/subtraction geometrically.','Interpret multiplication as rotation and stretch.','Add sinusoidal functions with equal frequency but different phase shifts.'
+  ];
+  function initChecklist(){
+    const box=$('syllabusChecklist');
+    box.innerHTML=syllabus.map((s,i)=>`<label class="checkitem"><input type="checkbox" id="sy${i}"><span>${s}</span></label>`).join('');
+  }
+
+  function updateQuadratic(){
+    const b=+$('quadB').value,c=+$('quadC').value; $('bVal').textContent=fmt(b,1); $('cVal').textContent=fmt(c,1);
+    const D=b*b-4*c;
+    let roots=[];
+    if(D>=0){ const s=Math.sqrt(D); roots=[C((-b+s)/2,0),C((-b-s)/2,0)]; }
+    else { const s=Math.sqrt(-D); roots=[C(-b/2,s/2),C(-b/2,-s/2)]; }
+    $('quadOutput').innerHTML = `<strong>Equation:</strong> x² ${b>=0?'+':'−'} ${fmt(Math.abs(b),1)}x ${c>=0?'+':'−'} ${fmt(Math.abs(c),1)} = 0<br>`+
+      `<strong>Discriminant:</strong> Δ = b² − 4c = ${fmt(D,3)}<br>`+
+      (D>0?`Two real roots: ${htmlC(roots[0])}, ${htmlC(roots[1])}`:D===0?`One repeated real root: ${htmlC(roots[0])}`:`No real roots. Complex roots: ${htmlC(roots[0])}, ${htmlC(roots[1])}. They are conjugates.`);
+    const canvas=$('quadCanvas'), ctx=canvas.getContext('2d'), W=canvas.width,H=canvas.height; ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    const xmin=-7,xmax=7; let ymin=Infinity,ymax=-Infinity; const vals=[];
+    for(let i=0;i<=350;i++){const x=xmin+(xmax-xmin)*i/350; const y=x*x+b*x+c; vals.push([x,y]); ymin=Math.min(ymin,y); ymax=Math.max(ymax,y);} ymin=Math.min(ymin,-2); ymax=Math.max(ymax,2); const pad=42;
+    const px=x=>pad+(x-xmin)/(xmax-xmin)*(W-2*pad), py=y=>H-pad-(y-ymin)/(ymax-ymin)*(H-2*pad);
+    ctx.strokeStyle='#e5eaf3';ctx.lineWidth=1; for(let x=Math.ceil(xmin);x<=xmax;x++){ctx.beginPath();ctx.moveTo(px(x),pad);ctx.lineTo(px(x),H-pad);ctx.stroke();} for(let y=Math.ceil(ymin);y<=ymax;y++){ctx.beginPath();ctx.moveTo(pad,py(y));ctx.lineTo(W-pad,py(y));ctx.stroke();}
+    ctx.strokeStyle='#27364f';ctx.lineWidth=2; ctx.beginPath();ctx.moveTo(pad,py(0));ctx.lineTo(W-pad,py(0));ctx.stroke(); ctx.beginPath();ctx.moveTo(px(0),pad);ctx.lineTo(px(0),H-pad);ctx.stroke();
+    ctx.strokeStyle='#2b6cb0';ctx.lineWidth=4; ctx.beginPath(); vals.forEach(([x,y],i)=>{if(i===0)ctx.moveTo(px(x),py(y)); else ctx.lineTo(px(x),py(y));}); ctx.stroke();
+    const vx=-b/2, vy=vx*vx+b*vx+c; drawPoint(ctx,px(vx),py(vy),'vertex','#805ad5');
+    if(D>=0) roots.forEach((r,i)=>drawPoint(ctx,px(r.re),py(0),`root ${i+1}`,'#16845b'));
+    ctx.fillStyle='#607089'; ctx.font='14px system-ui'; ctx.fillText('Parabola: real graph still exists even when roots move off the real axis.',pad,22);
+    drawArgand($('rootCanvas'), roots.map((r,i)=>({re:r.re,im:r.im,label:`x${i+1}`,color:i===0?'#2b6cb0':'#c53030'})), {scale:55});
+  }
+
+  function updateIPowers(){
+    const n=+$('nI').value; $('nIVal').textContent=n; const cycle=[C(1,0),C(0,1),C(-1,0),C(0,-1)]; const z=cycle[n%4];
+    $('iOutput').innerHTML=`<strong>Power:</strong> i<sup>${n}</sup><br><strong>Remainder:</strong> ${n} ÷ 4 leaves ${n%4}<br><strong>Therefore:</strong> i<sup>${n}</sup> = ${htmlC(z)}<br><br><span class="small">Cycle: 1, i, −1, −i, then repeat.</span>`;
+    const g=drawArgand($('iCanvas'),[{...z,label:`i^${n}`,color:'#805ad5'}],{scale:95});
+    g.ctx.strokeStyle='#d7deea'; g.ctx.beginPath(); g.ctx.arc(g.ox,g.oy,95,0,Math.PI*2); g.ctx.stroke();
+  }
+
+  let currentRI=C(0,0);
+  function updateCart(){
+    const z=C(+$('za').value,+$('zb').value), w=C(+$('wc').value,+$('wd').value), op=$('cartOp').value;
+    let result, text=''; const a=z.re,b=z.im,c=w.re,d=w.im;
+    if(op==='add'){result=add(z,w); text=`<strong>z = ${htmlC(z)}, w = ${htmlC(w)}</strong><br>z + w = (${fmt(a)}+${fmt(c)}) + (${fmt(b)}+${fmt(d)})i = <strong>${htmlC(result)}</strong>`;}
+    if(op==='sub'){result=sub(z,w); text=`<strong>z = ${htmlC(z)}, w = ${htmlC(w)}</strong><br>z − w = (${fmt(a)}−${fmt(c)}) + (${fmt(b)}−${fmt(d)})i = <strong>${htmlC(result)}</strong>`;}
+    if(op==='mul'){result=mul(z,w); text=`<strong>z = ${htmlC(z)}, w = ${htmlC(w)}</strong><br>zw = (ac − bd) + (ad + bc)i<br>= (${fmt(a*c)} − ${fmt(b*d)}) + (${fmt(a*d)} + ${fmt(b*c)})i = <strong>${htmlC(result)}</strong>`;}
+    if(op==='div'){ if(abs(w)<1e-10){text='Division by zero is undefined.'; result=C(0,0);} else {result=div(z,w); text=`<strong>z = ${htmlC(z)}, w = ${htmlC(w)}</strong><br>Multiply by the conjugate of the denominator:<br>z/w = (z\u0305? no) \(\dfrac{(${texC(z)})(${texC(conj(w))})}{${fmt(w.re*w.re+w.im*w.im)}}\)<br>= <strong>${htmlC(result)}</strong>`;}}
+    if(op==='conj'){ text=`<strong>z = ${htmlC(z)}</strong>, so z̄ = ${htmlC(conj(z))}<br><strong>w = ${htmlC(w)}</strong>, so w̄ = ${htmlC(conj(w))}<br>z z̄ = |z|² = ${fmt(abs(z)**2)} and w w̄ = |w|² = ${fmt(abs(w)**2)}.`; result=conj(z); }
+    $('cartOutput').innerHTML=text; drawArgand($('cartCanvas'),[{...z,label:'z',color:'#2b6cb0'},{...w,label:'w',color:'#805ad5'},{...result,label:'result',color:'#16845b'}]); typeset();
+  }
+  function newRealImag(){ currentRI=C(Math.floor(Math.random()*13)-6,Math.floor(Math.random()*13)-6); $('realImagBox').innerHTML=`For z = <strong>${htmlC(currentRI)}</strong>, enter Re(z) and Im(z).`; $('realGuess').value=''; $('imagGuess').value=''; }
+  function checkRealImag(){ const rg=+$('realGuess').value, ig=+$('imagGuess').value; const ok=Math.abs(rg-currentRI.re)<1e-9 && Math.abs(ig-currentRI.im)<1e-9; $('realImagBox').innerHTML += `<br><strong>${ok?'Correct.':'Not yet.'}</strong> Re(z)=${fmt(currentRI.re)}, Im(z)=${fmt(currentRI.im)}.`; }
+
+  function updatePlane(){
+    const a=+$('planeA').value,b=+$('planeB').value,z=C(a,b); $('planeAVal').textContent=fmt(a,1); $('planeBVal').textContent=fmt(b,1);
+    const pts=[{...z,label:'z',color:'#2b6cb0'},{...conj(z),label:'z̄',color:'#805ad5'},{re:-a,im:-b,label:'−z',color:'#c53030'}]; const g=drawArgand($('planeCanvas'),pts,{scale:45});
+    g.ctx.strokeStyle='#16845b'; g.ctx.lineWidth=2; g.ctx.setLineDash([6,5]); g.ctx.beginPath(); g.ctx.arc(g.ox,g.oy,abs(z)*g.scale,0,Math.PI*2); g.ctx.stroke(); g.ctx.setLineDash([]);
+    const theta=arg(z);
+    $('planeOutput').innerHTML=`<strong>z = ${htmlC(z)}</strong><br>Point form: (${fmt(a)}, ${fmt(b)})<br>Conjugate: z̄ = ${htmlC(conj(z))}<br>Opposite: −z = ${htmlC(C(-a,-b))}<br>Modulus: |z| = √(${fmt(a*a)} + ${fmt(b*b)}) = <strong>${fmt(abs(z),3)}</strong><br>Principal argument: arg(z) = <strong>${fmtRad(theta)}</strong> = ${fmtDeg(deg(theta))}<br><br><span class="small">The green circle marks all points with the same modulus.</span>`;
+  }
+  function showArgTrap(){
+    const choice=$('quadArgChoice').value; let z;
+    if(choice==='1') z=C(3,2); if(choice==='2') z=C(-3,2); if(choice==='3') z=C(-3,-2); if(choice==='4') z=C(3,-2); if(choice==='axis') z=C(0,-4);
+    const naive = z.re===0?'undefined':deg(Math.atan(z.im/z.re));
+    $('argTrapOutput').innerHTML=`Example: z = <strong>${htmlC(z)}</strong><br>Naive tan⁻¹(b/a): ${typeof naive==='number'?fmtDeg(naive):naive}<br>Correct principal argument from atan2/quadrant: <strong>${fmtDeg(deg(arg(z)))}</strong> = ${fmtRad(arg(z))}.`;
+  }
+
+  function updatePolar(){
+    const r=+$('polarR').value, thDeg=+$('polarTheta').value, th=rad(thDeg), n=parseInt($('powerN').value||0); $('rVal').textContent=fmt(r,1); $('thetaVal').textContent=fmtDeg(thDeg);
+    const z=C(r*Math.cos(th),r*Math.sin(th)); const zn=C(Math.pow(r,n)*Math.cos(n*th),Math.pow(r,n)*Math.sin(n*th));
+    const pts=[{...z,label:'z',color:'#2b6cb0'}]; if(Number.isFinite(zn.re)&&Math.abs(n)<=8) pts.push({...zn,label:`z^${n}`,color:'#16845b'}); const g=drawArgand($('polarCanvas'),pts);
+    g.ctx.strokeStyle='#d7deea'; g.ctx.beginPath(); g.ctx.arc(g.ox,g.oy,r*g.scale,0,Math.PI*2); g.ctx.stroke();
+    $('polarOutput').innerHTML=`<strong>Polar form:</strong> z = ${fmt(r,2)}(cos ${fmtDeg(thDeg)} + i sin ${fmtDeg(thDeg)})<br><strong>Euler form:</strong> z = ${fmt(r,2)}e<sup>i${fmtRad(th)}</sup><br><strong>Cartesian form:</strong> z = ${htmlC(z,3)}<br><br><strong>Power:</strong> z<sup>${n}</sup> = ${fmt(r,2)}<sup>${n}</sup> e<sup>i(${n}×${fmtRad(th)})</sup><br>= <strong>${htmlC(zn,3)}</strong><br><span class="small">Powers multiply the argument and raise the modulus to the power.</span>`;
+  }
+  let conversionAnswer='';
+  function newConversion(){
+    const mode=Math.random()<.5?'toPolar':'toCart';
+    if(mode==='toPolar'){ const z=C(Math.floor(Math.random()*9)-4,Math.floor(Math.random()*9)-4); if(abs(z)<.1){return newConversion()} conversionAnswer=`|z|=${fmt(abs(z),3)}, arg(z)=${fmtRad(arg(z))} = ${fmtDeg(deg(arg(z)))}. Thus z=${fmt(abs(z),3)}e^{i${fmt(arg(z),3)}}.`; $('conversionBox').innerHTML=`Write <strong>z = ${htmlC(z)}</strong> in modulus-argument and exponential form.`; }
+    else { const r=Math.floor(Math.random()*5)+1, ths=[-150,-120,-60,-45,30,45,60,120,135,150], thDeg=ths[Math.floor(Math.random()*ths.length)], z=C(r*Math.cos(rad(thDeg)),r*Math.sin(rad(thDeg))); conversionAnswer=`a=r cosθ=${fmt(r)}cos(${thDeg}°)=${fmt(z.re,3)}, b=r sinθ=${fmt(r)}sin(${thDeg}°)=${fmt(z.im,3)}. So z=${htmlC(z,3)}.`; $('conversionBox').innerHTML=`Convert <strong>z = ${r}(cos ${thDeg}° + i sin ${thDeg}°)</strong> to Cartesian form.`; }
+  }
+
+  function updateGeometry(){
+    const z=C(+$('gzA').value,+$('gzB').value), w=C(+$('gwA').value,+$('gwB').value); ['gzA','gzB','gwA','gwB'].forEach(id=>$(id+'Val').textContent=fmt(+$(id).value,1));
+    const sum=add(z,w), prod=mul(z,w); const points=[{...z,label:'z',color:'#2b6cb0'},{...w,label:'w',color:'#805ad5'},{...sum,label:'z+w',color:'#16845b'},{...prod,label:'zw',color:'#c53030'}];
+    drawArgand($('geomCanvas'),points);
+    $('geomOutput').innerHTML=`<strong>z = ${htmlC(z)}, w = ${htmlC(w)}</strong><br>z + w = <strong>${htmlC(sum)}</strong> &larr; vector addition<br>zw = <strong>${htmlC(prod)}</strong><br><br>|z|=${fmt(abs(z),3)}, arg(z)=${fmtDeg(deg(arg(z)))}<br>|w|=${fmt(abs(w),3)}, arg(w)=${fmtDeg(deg(arg(w)))}<br><br>|zw| = |z||w| = ${fmt(abs(z)*abs(w),3)}<br>arg(zw) = arg(z)+arg(w) = ${fmtDeg(deg(arg(z)+arg(w)))}<br><span class="small">Multiplication by w rotates by arg(w) and stretches by |w|.</span>`;
+  }
+  let rotationData=null;
+  function newRotation(){
+    const A=C([1,2,3,4][Math.floor(Math.random()*4)], [1,2,3][Math.floor(Math.random()*3)]); const scale=[1,1.5,2,3][Math.floor(Math.random()*4)], angle=[30,45,60,90,120,-45][Math.floor(Math.random()*6)]; const m=C(scale*Math.cos(rad(angle)), scale*Math.sin(rad(angle))); const B=mul(A,m); rotationData={A,B,m,scale,angle};
+    drawArgand($('rotationCanvas'),[{...A,label:'A',color:'#2b6cb0'},{...B,label:'B',color:'#16845b'}]); $('rotationBox').innerHTML=`Point A is represented by z = <strong>${htmlC(A)}</strong>. Point B is represented by <strong>${htmlC(B,3)}</strong>.<br>Find the complex multiplier m such that B = mA. Give the rotation angle and scale factor.`;
+  }
+  function revealRotation(){ if(!rotationData) newRotation(); const {m,scale,angle,A,B}=rotationData; $('rotationBox').innerHTML += `<br><br><strong>Solution:</strong> m = B/A = ${htmlC(B,3)} ÷ ${htmlC(A)} = <strong>${htmlC(m,3)}</strong>.<br>Scale factor = |m| = ${fmt(scale,3)}. Rotation angle = arg(m) = ${fmtDeg(angle)}.`; }
+
+  function updatePhase(){
+    const A=+$('phaseA').value,B=+$('phaseB').value,al=+$('alpha').value,be=+$('beta').value; $('phaseAVal').textContent=fmt(A,1); $('phaseBVal').textContent=fmt(B,1); $('alphaVal').textContent=fmtDeg(al); $('betaVal').textContent=fmtDeg(be);
+    const p1=C(A*Math.cos(rad(al)),A*Math.sin(rad(al))), p2=C(B*Math.cos(rad(be)),B*Math.sin(rad(be))), total=add(p1,p2), R=abs(total), phi=deg(arg(total));
+    drawArgand($('phasorCanvas'),[{...p1,label:'A',color:'#2b6cb0'},{...p2,label:'B',color:'#805ad5'},{...total,label:'sum',color:'#16845b'}],{scale:45});
+    drawWave(A,al,B,be,R,phi);
+    $('phaseOutput').innerHTML=`Phasors: ${fmt(A)}e<sup>i${fmtDeg(al)}</sup> + ${fmt(B)}e<sup>i${fmtDeg(be)}</sup> = <strong>${htmlC(total,3)}</strong><br>Resultant amplitude: <strong>R = ${fmt(R,3)}</strong><br>Resultant phase: <strong>φ = ${fmtDeg(phi)}</strong><br><br>Therefore:<br><strong>${fmt(A)}cos(t + ${fmtDeg(al)}) + ${fmt(B)}cos(t + ${fmtDeg(be)}) = ${fmt(R,3)}cos(t + ${fmtDeg(phi)})</strong>`;
+  }
+  function drawWave(A,al,B,be,R,phi){
+    const canvas=$('waveCanvas'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height; ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H); const pad=45, maxY=Math.max(1,A+B,R)+.5;
+    const px=t=>pad+t/(2*Math.PI)*(W-2*pad), py=y=>H/2-y/maxY*(H/2-pad);
+    ctx.strokeStyle='#e5eaf3';ctx.lineWidth=1; for(let i=0;i<=8;i++){let x=pad+i/8*(W-2*pad);ctx.beginPath();ctx.moveTo(x,pad);ctx.lineTo(x,H-pad);ctx.stroke();} for(let j=-4;j<=4;j++){let y=py(j*maxY/4);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+    ctx.strokeStyle='#27364f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad,H/2);ctx.lineTo(W-pad,H/2);ctx.stroke();
+    function path(fn,color,width){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath(); for(let i=0;i<=500;i++){const t=2*Math.PI*i/500, y=fn(t); if(i===0)ctx.moveTo(px(t),py(y)); else ctx.lineTo(px(t),py(y));} ctx.stroke();}
+    path(t=>A*Math.cos(t+rad(al)),'#2b6cb0',2); path(t=>B*Math.cos(t+rad(be)),'#805ad5',2); path(t=>R*Math.cos(t+rad(phi)),'#16845b',4);
+    ctx.fillStyle='#27364f';ctx.font='bold 15px system-ui';ctx.fillText('Blue + purple = green resultant',pad,24); ctx.fillText('t',W-28,H/2-8);
+  }
+
+  let practiceSol='';
+  function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+  function randNonzero(a,b){let x=0; while(x===0)x=randInt(a,b); return x;}
+  function choose(arr){return arr[Math.floor(Math.random()*arr.length)]}
+  function newPractice(){
+    let type=$('practiceType').value; if(type==='mixed') type=choose(['cartesian','quadratic','modarg','polar','power','phase','geometry']); $('practiceSolution').classList.add('hidden');
+    if(type==='cartesian'){const z=C(randInt(-5,5),randInt(-5,5)),w=C(randNonzero(-4,4),randNonzero(-4,4)); const op=choose(['+','−','×','÷']); let ans, sol; if(op==='+'){ans=add(z,w);sol=`Add real parts and imaginary parts: ${htmlC(ans)}.`} if(op==='−'){ans=sub(z,w);sol=`Subtract real parts and imaginary parts: ${htmlC(ans)}.`} if(op==='×'){ans=mul(z,w);sol=`Use (ac-bd)+(ad+bc)i: ${htmlC(ans)}.`} if(op==='÷'){ans=div(z,w);sol=`Multiply top and bottom by ${htmlC(conj(w))}. Denominator=${fmt(abs(w)**2)}. Result=${htmlC(ans,3)}.`} $('practiceQuestion').innerHTML=`Calculate: (${htmlC(z)}) ${op} (${htmlC(w)}).`; practiceSol=sol;}
+    if(type==='quadratic'){const p=randInt(-5,5), q=randInt(1,5); const b=-2*p,c=p*p+q*q; $('practiceQuestion').innerHTML=`Solve x² ${b>=0?'+':'−'} ${Math.abs(b)}x + ${c} = 0.`; practiceSol=`Discriminant Δ=${b*b-4*c}=-${4*q*q}. Roots are x=${p}±${q}i.`;}
+    if(type==='modarg'){const z=C(randNonzero(-5,5),randNonzero(-5,5)); $('practiceQuestion').innerHTML=`Find the modulus and principal argument of z = ${htmlC(z)}.`; practiceSol=`|z|=√(${z.re*z.re+z.im*z.im})=${fmt(abs(z),3)}. Since z is in the correct quadrant, arg(z)=${fmtRad(arg(z))}=${fmtDeg(deg(arg(z)))}.`;}
+    if(type==='polar'){const r=randInt(2,6), th=choose([30,45,60,90,120,135,150,-30,-45,-60]); const z=C(r*Math.cos(rad(th)),r*Math.sin(rad(th))); $('practiceQuestion').innerHTML=`Convert ${r}(cos ${th}° + i sin ${th}°) to Cartesian form and exponential form.`; practiceSol=`Cartesian: ${htmlC(z,3)}. Exponential form: ${r}e^{i${fmt(rad(th),3)}}.`;}
+    if(type==='power'){const r=randInt(1,4), th=choose([30,45,60,90,-45]), n=randInt(2,5); const zn=C(Math.pow(r,n)*Math.cos(rad(th*n)),Math.pow(r,n)*Math.sin(rad(th*n))); $('practiceQuestion').innerHTML=`If z=${r}e^{i${fmt(rad(th),3)}}, find z^${n} in Cartesian form.`; practiceSol=`z^${n}=${r}^${n}e^{i(${n}×${fmt(rad(th),3)})}=${Math.pow(r,n)}e^{i${fmt(rad(th*n),3)}}=${htmlC(zn,3)}.`;}
+    if(type==='phase'){const A=randInt(1,5), B=randInt(1,5), al=choose([0,30,45,60]), be=choose([90,120,150,-60]); const p=add(C(A*Math.cos(rad(al)),A*Math.sin(rad(al))),C(B*Math.cos(rad(be)),B*Math.sin(rad(be)))); $('practiceQuestion').innerHTML=`Write ${A}cos(t+${al}°)+${B}cos(t+${be}°) as Rcos(t+φ).`; practiceSol=`Add phasors: ${A}e^{i${al}°}+${B}e^{i${be}°}=${htmlC(p,3)}. So R=${fmt(abs(p),3)} and φ=${fmtDeg(deg(arg(p)))}.`;}
+    if(type==='geometry'){const s=choose([1,2,3]), ang=choose([30,45,90,-60]); const m=C(s*Math.cos(rad(ang)),s*Math.sin(rad(ang))); $('practiceQuestion').innerHTML=`Describe the transformation produced by multiplying every complex number by ${htmlC(m,3)}.`; practiceSol=`The multiplier has modulus ${s} and argument ${fmtDeg(ang)}. So it is an enlargement by scale factor ${s} and a rotation by ${fmtDeg(ang)} about the origin.`;}
+    typeset();
+  }
+  function revealPractice(){ $('practiceSolution').innerHTML=`<strong>Solution:</strong> ${practiceSol}`; $('practiceSolution').classList.remove('hidden'); typeset(); }
+
+  let quick=[], qi=0, qscore=0;
+  function makeQuickQ(){
+    const z=C(randInt(-5,5),randInt(-5,5)); const kind=choose(['real','imag','conj','mod2','ipow']);
+    if(kind==='real') return {q:`Find Re(${htmlC(z)}).`, ans:String(z.re), feedback:`Re(z)=${z.re}.`};
+    if(kind==='imag') return {q:`Find Im(${htmlC(z)}).`, ans:String(z.im), feedback:`Im(z)=${z.im}.`};
+    if(kind==='conj') return {q:`Find the conjugate of ${htmlC(z)}.`, ans:fmtC(conj(z)).replace(/−/g,'-').replace(/ /g,''), feedback:`Conjugate = ${htmlC(conj(z))}.`};
+    if(kind==='mod2') return {q:`Find |${htmlC(z)}|².`, ans:String(z.re*z.re+z.im*z.im), feedback:`|z|²=a²+b²=${z.re*z.re+z.im*z.im}.`};
+    const n=randInt(0,20), cycle=['1','i','-1','-i']; return {q:`Simplify i^${n}.`, ans:cycle[n%4], feedback:`${n} mod 4 = ${n%4}, so i^${n}=${cycle[n%4]}.`};
+  }
+  function startQuick(){quick=Array.from({length:10},makeQuickQ); qi=0;qscore=0;$('quickAnswer').value=''; showQuick();}
+  function normalAns(s){return String(s).toLowerCase().replace(/\s+/g,'').replace(/−/g,'-').replace(/\+\-/g,'-');}
+  function showQuick(extra=''){$('quickBox').innerHTML=`<span class="score">Question ${qi+1}/10 | Score ${qscore}</span><br>${quick[qi].q}${extra}`; typeset();}
+  function checkQuick(){ if(!quick.length) startQuick(); const user=normalAns($('quickAnswer').value); const ans=normalAns(quick[qi].ans); const ok=user===ans; if(ok)qscore++; const extra=`<br><br><strong>${ok?'Correct':'Not quite'}.</strong> ${quick[qi].feedback}`; qi++; $('quickAnswer').value=''; if(qi>=10){$('quickBox').innerHTML=`<span class="score">Finished: ${qscore}/10</span><br>${qscore>=8?'Excellent fluency.':qscore>=5?'Good start. Review the notes and try again.':'Focus on vocabulary, conjugates and the i-cycle, then retry.'}`;} else showQuick(extra);}
+
+  function bind(){
+    document.querySelectorAll('.tabbtn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$(btn.dataset.tab).classList.add('active'); setTimeout(()=>{updateAllVisible(); typeset();},50);}));
+    document.querySelectorAll('.accordion button').forEach(btn=>btn.addEventListener('click',()=>btn.parentElement.classList.toggle('open')));
+    ['quadB','quadC'].forEach(id=>$(id).addEventListener('input',updateQuadratic)); $('quadReset').addEventListener('click',()=>{$('quadB').value=-2;$('quadC').value=5;updateQuadratic();});
+    $('nI').addEventListener('input',updateIPowers); $('iRandom').addEventListener('click',()=>{$('nI').value=randInt(0,40);updateIPowers();});
+    ['za','zb','wc','wd','cartOp'].forEach(id=>$(id).addEventListener('input',updateCart)); $('realImagNew').addEventListener('click',newRealImag); $('realImagCheck').addEventListener('click',checkRealImag);
+    ['planeA','planeB'].forEach(id=>$(id).addEventListener('input',updatePlane)); $('planeSnap').addEventListener('click',()=>{$('planeA').value=3;$('planeB').value=4;updatePlane();}); $('argExampleBtn').addEventListener('click',showArgTrap);
+    ['polarR','polarTheta','powerN'].forEach(id=>$(id).addEventListener('input',updatePolar)); $('conversionNew').addEventListener('click',newConversion); $('conversionReveal').addEventListener('click',()=>{$('conversionBox').innerHTML += `<br><br><strong>Solution:</strong> ${conversionAnswer}`;typeset();});
+    ['gzA','gzB','gwA','gwB'].forEach(id=>$(id).addEventListener('input',updateGeometry)); $('rotationNew').addEventListener('click',newRotation); $('rotationReveal').addEventListener('click',revealRotation);
+    ['phaseA','alpha','phaseB','beta'].forEach(id=>$(id).addEventListener('input',updatePhase));
+    $('practiceNew').addEventListener('click',newPractice); $('practiceReveal').addEventListener('click',revealPractice); $('quickStart').addEventListener('click',startQuick); $('quickCheck').addEventListener('click',checkQuick); $('quickAnswer').addEventListener('keydown',e=>{if(e.key==='Enter')checkQuick();});
+  }
+  function updateAllVisible(){
+    const active=document.querySelector('.panel.active')?.id;
+    if(active==='why'){updateQuadratic();updateIPowers();}
+    if(active==='cartesian'){updateCart();}
+    if(active==='plane'){updatePlane();}
+    if(active==='polar'){updatePolar();}
+    if(active==='geometry'){updateGeometry();}
+    if(active==='phase'){updatePhase();}
+  }
+  function init(){initChecklist();bind();updateQuadratic();updateIPowers();updateCart();newRealImag();updatePlane();showArgTrap();updatePolar();newConversion();updateGeometry();newRotation();updatePhase();newPractice();startQuick();typeset();}
+  document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+</body>
+</html>

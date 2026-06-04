@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vectors Exploration Lab — From Intuition to Exam Style</title>
+<style>
+:root{
+  --bg:#f5f7fb; --panel:#ffffff; --ink:#172033; --muted:#5b6475; --line:#d9e0ec;
+  --accent:#2563eb; --accent2:#7c3aed; --good:#15803d; --warn:#b45309; --bad:#b91c1c;
+  --soft:#eef4ff; --soft2:#f4efff; --shadow:0 10px 26px rgba(15,23,42,.08);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 340px);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+header{padding:32px 18px 16px;max-width:1220px;margin:auto}
+.kicker{font-weight:800;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+h1{font-size:clamp(2rem,4vw,4rem);line-height:1.02;margin:.25rem 0 1rem}
+.subtitle{max-width:900px;color:var(--muted);font-size:1.08rem}
+.topgrid{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:20px}
+.card{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card h2,.card h3{margin-top:0}.card h2{font-size:1.45rem}.card h3{font-size:1.05rem}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.badge{padding:6px 10px;border-radius:999px;background:var(--soft);border:1px solid #d8e6ff;font-size:.86rem;font-weight:700;color:#1d4ed8}
+nav{position:sticky;top:0;z-index:20;background:rgba(245,247,251,.92);backdrop-filter:blur(12px);border-block:1px solid var(--line);padding:8px 12px;overflow-x:auto;white-space:nowrap}
+.navinner{max-width:1220px;margin:auto;display:flex;gap:8px;align-items:center}
+.tabbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:750;color:#30394c;transition:.15s}.tabbtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,23,42,.08)}.tabbtn.active{background:var(--accent);color:white;border-color:var(--accent)}
+main{max-width:1220px;margin:20px auto 56px;padding:0 18px}.tab{display:none}.tab.active{display:block;animation:fade .18s ease-in}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.labgrid{display:grid;grid-template-columns:minmax(280px,430px) 1fr;gap:18px;align-items:start}.widegrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.section-title{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin:12px 0 16px}.section-title p{color:var(--muted);margin:.4rem 0 0}.mini{font-size:.9rem;color:var(--muted)}
+.controls{display:grid;gap:12px}.control{display:grid;grid-template-columns:1fr 86px;gap:10px;align-items:center}.control label{font-weight:700}.control input[type="range"]{width:100%}.num{width:82px;padding:8px;border-radius:10px;border:1px solid var(--line);font-size:1rem}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{border:none;background:var(--accent);color:#fff;border-radius:12px;padding:10px 13px;cursor:pointer;font-weight:800}.btn.secondary{background:#fff;color:var(--accent);border:1px solid #b7c9ff}.btn.purple{background:var(--accent2)}.btn.green{background:var(--good)}.btn.warn{background:var(--warn)}.btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.output{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}.formula{background:#fff;border-left:5px solid var(--accent);border-radius:12px;padding:12px;box-shadow:0 2px 10px rgba(15,23,42,.04);margin:10px 0}.questionbox{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;margin-top:12px}.hintbox{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:12px;margin-top:12px}.exam{background:#ffffff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.svgwrap{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:10px;box-shadow:var(--shadow);overflow:hidden}.svgwrap>svg{width:100%;height:auto;display:block}.gridline{stroke:#e9edf5;stroke-width:.04}.axis{stroke:#111827;stroke-width:.07}.arrowA{stroke:#2563eb;stroke-width:.14;fill:none}.arrowB{stroke:#dc2626;stroke-width:.14;fill:none}.arrowC{stroke:#059669;stroke-width:.14;fill:none}.arrowD{stroke:#7c3aed;stroke-width:.13;fill:none;stroke-dasharray:.35 .25}.path{stroke:#0f766e;stroke-width:.11;fill:none}.thin{stroke:#64748b;stroke-width:.06;fill:none}.pt{fill:#111827}.label{font-size:.55px;fill:#111827;font-family:Arial,sans-serif;font-weight:700}.smalllabel{font-size:.42px;fill:#475569;font-family:Arial,sans-serif}.mathline{margin:.4rem 0}.pill{padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:white;font-size:.85rem}.checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.checkitem{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}.done{border-color:#bbf7d0;background:#f0fdf4}.locked{opacity:.65}details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}summary{cursor:pointer;font-weight:850}.markscheme{display:none;margin-top:12px}.markscheme.show{display:block}.footer{color:var(--muted);font-size:.9rem;text-align:center;margin-top:28px}
+.table{width:100%;border-collapse:collapse;font-size:.94rem}.table th,.table td{border:1px solid var(--line);padding:8px;text-align:left}.table th{background:#f1f5f9}.callout{border-left:5px solid var(--accent2);background:#faf5ff;padding:12px;border-radius:12px;margin:12px 0}.tiny{font-size:.82rem;color:var(--muted)}
+mjx-container{max-width:100%; overflow-x:auto; overflow-y:hidden;}
+mjx-container[display="true"]{display:block; padding:.15rem 0;}
+@media (max-width:900px){.topgrid,.labgrid,.widegrid{grid-template-columns:1fr}.section-title{display:block}.control{grid-template-columns:1fr 72px}.num{width:70px}}
+@media print{nav,.btn,.tabbtn{display:none}.tab{display:block;page-break-before:always}.card,.svgwrap,.exam{box-shadow:none}body{background:#fff}.markscheme{display:block}}
+</style>
+<script>
+window.MathJax = {tex:{inlineMath:[["\\(","\\)"],["$","$"]],displayMath:[["\\[","\\]"],["$$","$$"]]},svg:{fontCache:"global"}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<header>
+  <div class="kicker">IB DP Mathematics: Applications & Interpretation — Vectors</div>
+  <h1>Vectors Exploration Lab</h1>
+  <p class="subtitle">A single-page interactive sequence that starts with arrows and movement, builds algebraic fluency, and finishes with exam-style vector modelling. Every applet updates the diagram and the mathematics together.</p>
+  <div class="topgrid">
+    <div class="card">
+      <h2>Learning route</h2>
+      <div class="checklist" id="progressList"></div>
+    </div>
+    <div class="card">
+      <h2>Core idea</h2>
+      <p>A vector is a quantity with <strong>magnitude</strong> and <strong>direction</strong>. The same object can be represented by an arrow, by components, by column notation, or by base vectors.</p>
+      <div class="formula">\[\vec v=\begin{pmatrix}v_1\\v_2\\v_3\end{pmatrix}=v_1\mathbf i+v_2\mathbf j+v_3\mathbf k,\qquad |\vec v|=\sqrt{v_1^2+v_2^2+v_3^2}.\]</div>
+      <div class="badges"><span class="badge">Explore</span><span class="badge">Explain</span><span class="badge">Practise</span><span class="badge">Exam style</span></div>
+    </div>
+  </div>
+</header>
+<nav><div class="navinner" id="tabs"></div></nav>
+<main>
+<section class="tab active" id="intro">
+  <div class="section-title"><div><h2>0. Orientation: what the lab builds</h2><p>Use the tabs in order. Each section has an investigation prompt, an interactive diagram, concise notes, and an exam step.</p></div><button class="btn green" onclick="markDone('intro')">Mark complete</button></div>
+  <div class="widegrid">
+    <div class="card">
+      <h3>Big connections</h3>
+      <table class="table"><tr><th>Representation</th><th>What it helps with</th></tr><tr><td>Arrow</td><td>Direction, movement, resultant, geometry</td></tr><tr><td>Column vector</td><td>Adding, subtracting, magnitude, unit vectors</td></tr><tr><td>Position vector</td><td>Coordinates, displacement, distance between points</td></tr><tr><td>Vector equation</td><td>Lines, paths, intersections, relative motion</td></tr><tr><td>Dot/cross products</td><td>Angles, perpendicularity, areas, torque-style interpretation</td></tr><tr><td>Vector functions</td><td>Kinematics, projectiles, circular motion, closest approach</td></tr></table>
+    </div>
+    <div class="card">
+      <h3>Success criteria</h3>
+      <p>You should be able to move between these forms fluently:</p>
+      <div class="formula">\[\vec{AB}=\vec{OB}-\vec{OA}=\vec b-\vec a,\qquad \vec r=\vec a+\lambda\vec d,\qquad \vec r(t)=\vec r_0+t\vec v.\]</div>
+      <p>And interpret these products:</p>
+      <div class="formula">\[\vec a\cdot\vec b=|\vec a||\vec b|\cos\theta,\qquad |\vec a\times\vec b|=|\vec a||\vec b|\sin\theta.\]</div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="vectors">
+  <div class="section-title"><div><h2>1. Vector playground: arrows, components and resultants</h2><p>Change \(\vec a\), \(\vec b\), and the scalar \(k\). Watch the diagram, column notation, and base-vector notation update together.</p></div><button class="btn green" onclick="markDone('vectors')">Mark complete</button></div>
+  <div class="labgrid">
+    <div class="card controls">
+      <h3>Controls</h3>
+      <div class="control"><label>\(a_x\)</label><input class="num" id="v_ax" type="number" value="3" min="-8" max="8" step="1"></div>
+      <div class="control"><label>\(a_y\)</label><input class="num" id="v_ay" type="number" value="2" min="-8" max="8" step="1"></div>
+      <div class="control"><label>\(b_x\)</label><input class="num" id="v_bx" type="number" value="-2" min="-8" max="8" step="1"></div>
+      <div class="control"><label>\(b_y\)</label><input class="num" id="v_by" type="number" value="4" min="-8" max="8" step="1"></div>
+      <div class="control"><label>Scalar \(k\)</label><input class="num" id="v_k" type="number" value="2" min="-5" max="5" step="0.5"></div>
+      <div class="row"><button class="btn secondary" onclick="randomVectorPlayground()">Random sensible values</button><button class="btn secondary" onclick="resetVectorPlayground()">Reset</button></div>
+      <div class="questionbox"><strong>Investigate:</strong> When does \(\vec a+\vec b\) get longer than both original vectors? When can it be shorter?</div>
+      <div class="output" id="v_out"></div>
+    </div>
+    <div class="svgwrap"><svg id="v_svg" viewBox="0 0 640 480"></svg></div>
+  </div>
+</section>
+
+<section class="tab" id="position">
+  <div class="section-title"><div><h2>2. Position and displacement vectors</h2><p>Coordinates become position vectors. Displacement is the difference between position vectors.</p></div><button class="btn green" onclick="markDone('position')">Mark complete</button></div>
+  <div class="labgrid">
+    <div class="card controls">
+      <h3>Move points \(A\) and \(B\)</h3>
+      <div class="row"><span class="pill">\(A=(\)</span><input class="num" id="p_ax" type="number" value="-3"><span>,</span><input class="num" id="p_ay" type="number" value="2"><span class="pill">\()\)</span></div>
+      <div class="row"><span class="pill">\(B=(\)</span><input class="num" id="p_bx" type="number" value="4"><span>,</span><input class="num" id="p_by" type="number" value="5"><span class="pill">\()\)</span></div>
+      <div class="callout">The diagram shows \(\vec{OA}\), \(\vec{OB}\), and \(\vec{AB}\). The key move is to subtract coordinates in the order <em>end minus start</em>.</div>
+      <div class="output" id="p_out"></div>
+    </div>
+    <div class="svgwrap"><svg id="p_svg" viewBox="0 0 640 480"></svg></div>
+  </div>
+</section>
+
+<section class="tab" id="unit">
+  <div class="section-title"><div><h2>3. Magnitude, unit vectors and direction</h2><p>Rescaling keeps direction but changes length. A unit vector has length \(1\).</p></div><button class="btn green" onclick="markDone('unit')">Mark complete</button></div>
+  <div class="labgrid">
+    <div class="card controls">
+      <h3>Choose \(\vec u\)</h3>
+      <div class="control"><label>\(u_x\)</label><input class="num" id="u_x" type="number" value="6"></div>
+      <div class="control"><label>\(u_y\)</label><input class="num" id="u_y" type="number" value="8"></div>
+      <div class="control"><label>Scale \(s\)</label><input class="num" id="u_s" type="number" value="0.5" step="0.1"></div>
+      <div class="questionbox"><strong>Prompt:</strong> Find two different vectors parallel to \(\vec u\). How do you know they are parallel?</div>
+      <div class="output" id="u_out"></div>
+    </div>
+    <div class="svgwrap"><svg id="u_svg" viewBox="0 0 640 480"></svg></div>
+  </div>
+</section>
+
+<section class="tab" id="lines">
+  <div class="section-title"><div><h2>4. Vector equations of lines and intersections</h2><p>A line is a starting point plus any scalar multiple of a direction vector.</p></div><button class="btn green" onclick="markDone('lines')">Mark complete</button></div>
+  <div class="labgrid">
+    <div class="card controls">
+      <h3>Line controls</h3>
+      <p class="mini">\(L_1:\vec r=\vec p+\lambda\vec d\), \(L_2:\vec r=\vec q+\mu\vec e\)</p>
+      <div class="row"><span class="pill">\(\vec p\)</span><input class="num" id="l_p_x" type="number" value="-4"><input class="num" id="l_p_y" type="number" value="-1"><span class="pill">\(\vec d\)</span><input class="num" id="l_d_x" type="number" value="2"><input class="num" id="l_d_y" type="number" value="1"></div>
+      <div class="row"><span class="pill">\(\vec q\)</span><input class="num" id="l_q_x" type="number" value="-2"><input class="num" id="l_q_y" type="number" value="5"><span class="pill">\(\vec e\)</span><input class="num" id="l_e_x" type="number" value="3"><input class="num" id="l_e_y" type="number" value="-2"></div>
+      <div class="row"><button class="btn secondary" onclick="presetLines('intersect')">Intersecting</button><button class="btn secondary" onclick="presetLines('parallel')">Parallel</button><button class="btn secondary" onclick="presetLines('same')">Same line</button></div>
+      <div class="output" id="l_out"></div>
+    </div>
+    <div class="svgwrap"><svg id="l_svg" viewBox="0 0 640 480"></svg></div>
+  </div>
+</section>
+
+<section class="tab" id="dot">
+  <div class="section-title"><div><h2>5. Scalar product: angles and perpendicularity</h2><p>The dot product turns two vectors into a scalar and reveals the angle between them.</p></div><button class="btn green" onclick="markDone('dot')">Mark complete</button></div>
+  <div class="labgrid">
+    <div class="card controls">
+      <h3>Choose \(\vec a\) and \(\vec b\)</h3>
+      <div class="row"><span class="pill">\(\vec a\)</span><input class="num" id="d_ax" type="number" value="5"><input class="num" id="d_ay" type="number" value="1"><span class="pill">\(\vec b\)</span><input class="num" id="d_bx" type="number" value="2"><input class="num" id="d_by" type="number" value="4"></div>
+      <div class="questionbox"><strong>Investigate:</strong> Can you make the dot product positive, zero, and negative? What does each case say about the angle?</div>
+      <div class="output" id="d_out"></div>
+    </div>
+    <div class="svgwrap"><svg id="d_svg" viewBox="0 0 640 480"></svg></div>
+  </div>
+</section>
+
+<section class="tab" id="cross">
+  <div class="section-title"><div><h2>6. Vector product: perpendicular directions and areas</h2><p>The cross product creates a vector perpendicular to both inputs. Its magnitude is an area.</p></div><button class="btn green" onclick="markDone('cross')">Mark complete</button></div>
+  <div class="widegrid">
+    <div class="card controls">
+      <h3>3D vector product</h3>
+      <div class="row"><span class="pill">\(\vec a\)</span><input class="num" id="c_ax" type="number" value="2"><input class="num" id="c_ay" type="number" value="1"><input class="num" id="c_az" type="number" value="3"></div>
+      <div class="row"><span class="pill">\(\vec b\)</span><input class="num" id="c_bx" type="number" value="-1"><input class="num" id="c_by" type="number" value="4"><input class="num" id="c_bz" type="number" value="2"></div>
+      <div class="output" id="c_out"></div>
+    </div>
+    <div class="card controls">
+      <h3>Projection and components</h3>
+      <p class="mini">Component of \(\vec a\) in the direction of \(\vec b\), plus the vector projection.</p>
+      <div class="row"><span class="pill">\(\vec a\)</span><input class="num" id="pr_ax" type="number" value="5"><input class="num" id="pr_ay" type="number" value="3"><span class="pill">\(\vec b\)</span><input class="num" id="pr_bx" type="number" value="4"><input class="num" id="pr_by" type="number" value="1"></div>
+      <div class="output" id="pr_out"></div>
+      <div class="svgwrap" style="box-shadow:none;margin-top:10px"><svg id="pr_svg" viewBox="0 0 640 420"></svg></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="kinematics">
+  <div class="section-title"><div><h2>7. Vector kinematics: paths, speed and relative motion</h2><p>Use vectors to describe motion in two dimensions. Velocity is the rate of change of position; speed is the magnitude of velocity.</p></div><button class="btn green" onclick="markDone('kinematics')">Mark complete</button></div>
+  <div class="widegrid">
+    <div class="card controls">
+      <h3>Relative motion: two ships</h3>
+      <div class="row"><span class="pill">\(A_0\)</span><input class="num" id="rm_ax0" type="number" value="-5"><input class="num" id="rm_ay0" type="number" value="-1"><span class="pill">\(\vec v_A\)</span><input class="num" id="rm_avx" type="number" value="2"><input class="num" id="rm_avy" type="number" value="1"></div>
+      <div class="row"><span class="pill">\(B_0\)</span><input class="num" id="rm_bx0" type="number" value="4"><input class="num" id="rm_by0" type="number" value="5"><span class="pill">\(\vec v_B\)</span><input class="num" id="rm_bvx" type="number" value="-1"><input class="num" id="rm_bvy" type="number" value="0"></div>
+      <div class="control"><label>Time \(t\)</label><input class="num" id="rm_t" type="number" value="2" min="0" step="0.25"></div>
+      <div class="output" id="rm_out"></div>
+      <div class="svgwrap" style="box-shadow:none"><svg id="rm_svg" viewBox="0 0 640 420"></svg></div>
+    </div>
+    <div class="card controls">
+      <h3>Projectile motion</h3>
+      <div class="row"><span class="pill">\(u_x\)</span><input class="num" id="pm_ux" type="number" value="14"><span class="pill">\(u_y\)</span><input class="num" id="pm_uy" type="number" value="18"><span class="pill">\(g\)</span><input class="num" id="pm_g" type="number" value="9.8" step="0.1"></div>
+      <div class="control"><label>Time \(t\)</label><input class="num" id="pm_t" type="number" value="1.5" min="0" step="0.1"></div>
+      <div class="output" id="pm_out"></div>
+      <div class="svgwrap" style="box-shadow:none"><svg id="pm_svg" viewBox="0 0 640 420"></svg></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="exam">
+  <div class="section-title"><div><h2>8. Exam-style builder</h2><p>Generate a fresh question, try it, then reveal a markscheme. These are original questions built from the syllabus skills.</p></div><button class="btn green" onclick="markDone('exam')">Mark complete</button></div>
+  <div class="exam">
+    <div class="row"><button class="btn" onclick="newExamQuestion()">Generate new question</button><button class="btn secondary" onclick="toggleMarkscheme()">Show/hide markscheme</button><span class="pill" id="examMeta">No question yet</span></div>
+    <div id="examQuestion" class="questionbox"><p>Press <strong>Generate new question</strong>.</p></div>
+    <div id="examMarkscheme" class="markscheme hintbox"></div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h3>Exam habits checklist</h3>
+    <div class="checklist"><div class="checkitem">Write the vector equation before solving: \(\vec r=\vec a+\lambda\vec d\).</div><div class="checkitem">For an angle, use the direction vectors, not points on the line.</div><div class="checkitem">For displacement, subtract in the order \(\text{final}-\text{initial}\).</div><div class="checkitem">For speed, take \(|\vec v|\), not the vector itself.</div><div class="checkitem">For projectile max height, use the vertical velocity component \(v_y=0\).</div><div class="checkitem">For area, use \(|\vec a\times\vec b|\) for a parallelogram and half of that for a triangle.</div></div>
+  </div>
+</section>
+
+<div class="footer">Made as a standalone HTML lab. Progress is saved only in this browser using local storage.</div>
+</main>
+<script>
+const tabs = [
+  ['intro','0 Overview'],['vectors','1 Arrows'],['position','2 Position'],['unit','3 Unit vectors'],['lines','4 Lines'],['dot','5 Dot product'],['cross','6 Cross/product'],['kinematics','7 Kinematics'],['exam','8 Exam style']
+];
+const skillLabels = {intro:'Orientation',vectors:'Represent vectors',position:'Position & displacement',unit:'Magnitude & unit vectors',lines:'Vector lines',dot:'Scalar product',cross:'Vector product & projections',kinematics:'Vector kinematics',exam:'Exam-style practice'};
+const $ = id => document.getElementById(id);
+const val = id => Number($(id).value);
+function fmt(x,dp=3){ if(!isFinite(x)) return 'undefined'; if(Math.abs(x)<1e-10) x=0; return Number.isInteger(x)?String(x):Number(x.toFixed(dp)).toString(); }
+function texNum(x){ return (typeof x === 'string') ? x : fmt(x); }
+function col2(v){ return `\\begin{pmatrix}${texNum(v[0])}\\\\${texNum(v[1])}\\end{pmatrix}`; }
+function col3(v){ return `\\begin{pmatrix}${texNum(v[0])}\\\\${texNum(v[1])}\\\\${texNum(v[2])}\\end{pmatrix}`; }
+function mag2(v){ return Math.hypot(v[0],v[1]); }
+function mag3(v){ return Math.hypot(v[0],v[1],v[2]); }
+function dot2(a,b){ return a[0]*b[0]+a[1]*b[1]; }
+function dot3(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+function cross3(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+function cross2(a,b){ return a[0]*b[1]-a[1]*b[0]; }
+function renderMath(el=document.body){ if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([el]).catch(()=>{}); } }
+function setHTML(id,html){ const el=$(id); el.innerHTML=html; renderMath(el); }
+function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+function rndInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function safeVec2(ids){ return [val(ids[0]), val(ids[1])]; }
+function makeTabs(){ const nav=$('tabs'); nav.innerHTML=''; tabs.forEach(([id,label])=>{ const b=document.createElement('button'); b.className='tabbtn'+(id==='intro'?' active':''); b.textContent=label; b.onclick=()=>showTab(id); nav.appendChild(b); }); renderProgress(); }
+function showTab(id){ document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active',s.id===id)); document.querySelectorAll('.tabbtn').forEach((b,i)=>b.classList.toggle('active',tabs[i][0]===id)); setTimeout(()=>{updateAll(); renderMath();},30); }
+function doneSet(){ try{return new Set(JSON.parse(localStorage.getItem('vectorLabDone')||'[]'));}catch(e){return new Set();} }
+function markDone(id){ const s=doneSet(); s.add(id); localStorage.setItem('vectorLabDone', JSON.stringify([...s])); renderProgress(); }
+function renderProgress(){ const s=doneSet(); const list=$('progressList'); if(!list) return; list.innerHTML=''; tabs.forEach(([id])=>{ const div=document.createElement('div'); div.className='checkitem '+(s.has(id)?'done':''); div.innerHTML=(s.has(id)?'✓ ':'○ ')+skillLabels[id]; list.appendChild(div); }); }
+function bindInputs(){ document.querySelectorAll('input').forEach(inp=>{ inp.addEventListener('input', updateAll); }); }
+function svgBase(id,bounds={xmin:-8,xmax:8,ymin:-6,ymax:6}){
+  const svg=$(id); svg.innerHTML='';
+  const w=640,h=480; svg.setAttribute('viewBox',`${bounds.xmin} ${bounds.ymin} ${bounds.xmax-bounds.xmin} ${bounds.ymax-bounds.ymin}`);
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+  [['arrowBlue','#2563eb'],['arrowRed','#dc2626'],['arrowGreen','#059669'],['arrowPurple','#7c3aed'],['arrowGray','#64748b']].forEach(([mid,color])=>{ const marker=document.createElementNS('http://www.w3.org/2000/svg','marker'); marker.setAttribute('id',mid); marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','8'); marker.setAttribute('refX','5'); marker.setAttribute('refY','3'); marker.setAttribute('orient','auto'); marker.setAttribute('markerUnits','strokeWidth'); const path=document.createElementNS('http://www.w3.org/2000/svg','path'); path.setAttribute('d','M0,0 L0,6 L6,3 z'); path.setAttribute('fill',color); marker.appendChild(path); defs.appendChild(marker); });
+  svg.appendChild(defs);
+  for(let x=Math.ceil(bounds.xmin); x<=Math.floor(bounds.xmax); x++){ line(svg,x,bounds.ymin,x,bounds.ymax,'gridline'); if(x!==0) text(svg,x+.05,.35,String(x),'smalllabel'); }
+  for(let y=Math.ceil(bounds.ymin); y<=Math.floor(bounds.ymax); y++){ line(svg,bounds.xmin,y,bounds.xmax,y,'gridline'); if(y!==0) text(svg,.15,y-.12,String(y),'smalllabel'); }
+  line(svg,bounds.xmin,0,bounds.xmax,0,'axis'); line(svg,0,bounds.ymin,0,bounds.ymax,'axis');
+  text(svg,bounds.xmax-.55,-.28,'x','label'); text(svg,.22,bounds.ymin+.55,'y','label');
+  return svg;
+}
+function line(svg,x1,y1,x2,y2,cls){ const e=document.createElementNS('http://www.w3.org/2000/svg','line'); e.setAttribute('x1',x1); e.setAttribute('y1',-y1); e.setAttribute('x2',x2); e.setAttribute('y2',-y2); e.setAttribute('class',cls); svg.appendChild(e); return e; }
+function path(svg,d,cls){ const e=document.createElementNS('http://www.w3.org/2000/svg','path'); e.setAttribute('d',d); e.setAttribute('class',cls); svg.appendChild(e); return e; }
+function circle(svg,x,y,r,cls){ const e=document.createElementNS('http://www.w3.org/2000/svg','circle'); e.setAttribute('cx',x); e.setAttribute('cy',-y); e.setAttribute('r',r); e.setAttribute('class',cls); svg.appendChild(e); return e; }
+function text(svg,x,y,t,cls='label'){ const e=document.createElementNS('http://www.w3.org/2000/svg','text'); e.setAttribute('x',x); e.setAttribute('y',-y); e.setAttribute('class',cls); e.textContent=t; svg.appendChild(e); return e; }
+function arrow(svg,x1,y1,x2,y2,cls='arrowA',marker='arrowBlue'){ const e=line(svg,x1,y1,x2,y2,cls); e.setAttribute('marker-end',`url(#${marker})`); return e; }
+function segmentLineThroughBox(p,d,b){
+  let pts=[]; if(Math.abs(d[0])>1e-9){ for(const x of [b.xmin,b.xmax]){ const t=(x-p[0])/d[0]; const y=p[1]+t*d[1]; if(y>=b.ymin-1e-6 && y<=b.ymax+1e-6) pts.push([x,y]); }}
+  if(Math.abs(d[1])>1e-9){ for(const y of [b.ymin,b.ymax]){ const t=(y-p[1])/d[1]; const x=p[0]+t*d[0]; if(x>=b.xmin-1e-6 && x<=b.xmax+1e-6) pts.push([x,y]); }}
+  // dedupe
+  pts = pts.filter((pt,i,arr)=> arr.findIndex(q=>Math.hypot(q[0]-pt[0],q[1]-pt[1])<1e-6)===i);
+  return pts.length>=2 ? [pts[0],pts[1]] : [[p[0]-d[0]*10,p[1]-d[1]*10],[p[0]+d[0]*10,p[1]+d[1]*10]];
+}
+function updateVectorPlayground(){
+  const a=[val('v_ax'),val('v_ay')], b=[val('v_bx'),val('v_by')], k=val('v_k'); const sum=[a[0]+b[0],a[1]+b[1]], ka=[k*a[0],k*a[1]];
+  const svg=svgBase('v_svg',{xmin:-9,xmax:9,ymin:-7,ymax:7});
+  arrow(svg,0,0,a[0],a[1],'arrowA','arrowBlue'); text(svg,a[0]+.15,a[1]+.25,'a','label');
+  arrow(svg,a[0],a[1],a[0]+b[0],a[1]+b[1],'arrowB','arrowRed'); text(svg,a[0]+b[0]+.15,a[1]+b[1]+.25,'b','label');
+  arrow(svg,0,0,sum[0],sum[1],'arrowC','arrowGreen'); text(svg,sum[0]+.18,sum[1]-.25,'a+b','label');
+  arrow(svg,0,0,ka[0],ka[1],'arrowD','arrowPurple'); text(svg,ka[0]+.18,ka[1]+.28,'ka','label');
+  setHTML('v_out', `<div class="mathline">\\(\\vec a=${col2(a)}=${texNum(a[0])}\\mathbf i+${texNum(a[1])}\\mathbf j\\)</div>
+  <div class="mathline">\\(\\vec b=${col2(b)}=${texNum(b[0])}\\mathbf i+${texNum(b[1])}\\mathbf j\\)</div>
+  <div class="formula">\\[\\vec a+\\vec b=${col2(sum)},\\qquad k\\vec a=${col2(ka)}\\]</div>
+  <div class="mathline">\\(|\\vec a|=${fmt(mag2(a))},\\quad |\\vec b|=${fmt(mag2(b))},\\quad |\\vec a+\\vec b|=${fmt(mag2(sum))}\\)</div>`);
+}
+function randomVectorPlayground(){ ['v_ax','v_ay','v_bx','v_by'].forEach(id=>$(id).value=rndInt(-5,5)); $('v_k').value=[-2,-1,.5,1.5,2,3][rndInt(0,5)]; updateAll(); }
+function resetVectorPlayground(){ $('v_ax').value=3;$('v_ay').value=2;$('v_bx').value=-2;$('v_by').value=4;$('v_k').value=2; updateAll(); }
+function updatePosition(){
+  const A=[val('p_ax'),val('p_ay')], B=[val('p_bx'),val('p_by')], AB=[B[0]-A[0],B[1]-A[1]]; const svg=svgBase('p_svg',{xmin:-9,xmax:9,ymin:-7,ymax:7});
+  arrow(svg,0,0,A[0],A[1],'arrowA','arrowBlue'); arrow(svg,0,0,B[0],B[1],'arrowB','arrowRed'); arrow(svg,A[0],A[1],B[0],B[1],'arrowC','arrowGreen'); circle(svg,A[0],A[1],.12,'pt'); circle(svg,B[0],B[1],.12,'pt'); text(svg,A[0]+.15,A[1]+.25,'A','label'); text(svg,B[0]+.15,B[1]+.25,'B','label'); text(svg,(A[0]+B[0])/2+.2,(A[1]+B[1])/2+.2,'AB','label');
+  setHTML('p_out', `<div class="mathline">\\(\\vec{OA}=${col2(A)},\\quad \\vec{OB}=${col2(B)}\\)</div>
+  <div class="formula">\\[\\vec{AB}=\\vec{OB}-\\vec{OA}=${col2(B)}-${col2(A)}=${col2(AB)}\\]</div>
+  <div class="mathline">\\(AB=|\\vec{AB}|=\\sqrt{${texNum(AB[0])}^2+${texNum(AB[1])}^2}=${fmt(mag2(AB))}\\)</div>`);
+}
+function updateUnit(){
+  const u=[val('u_x'),val('u_y')], s=val('u_s'), su=[s*u[0],s*u[1]], m=mag2(u), unit=m?[u[0]/m,u[1]/m]:[0,0]; const svg=svgBase('u_svg',{xmin:-10,xmax:10,ymin:-8,ymax:8});
+  arrow(svg,0,0,u[0],u[1],'arrowA','arrowBlue'); text(svg,u[0]+.15,u[1]+.25,'u','label'); arrow(svg,0,0,su[0],su[1],'arrowD','arrowPurple'); text(svg,su[0]+.15,su[1]+.25,'su','label'); arrow(svg,0,0,unit[0]*4,unit[1]*4,'arrowC','arrowGreen'); text(svg,unit[0]*4+.15,unit[1]*4+.25,'unit direction','label');
+  const parallel = m===0?'undefined':`\\frac{${texNum(su[0])}}{${texNum(u[0])}}=\\frac{${texNum(su[1])}}{${texNum(u[1])}}=${texNum(s)}`;
+  setHTML('u_out', `<div class="formula">\\[|\\vec u|=\\sqrt{${texNum(u[0])}^2+${texNum(u[1])}^2}=${fmt(m)}\\]</div>
+  <div class="mathline">\\(\\hat{\\vec u}=\\dfrac{\\vec u}{|\\vec u|}=${col2(unit)}\\)</div>
+  <div class="mathline">\\(s\\vec u=${col2(su)}\\)</div>
+  <div class="mathline">Parallel test: \\(s\\vec u=s(\\vec u)\\), so the direction is the same if \\(s>0\\) and opposite if \\(s<0\\).</div>`);
+}
+function updateLines(){
+  const p=[val('l_p_x'),val('l_p_y')], d=[val('l_d_x'),val('l_d_y')], q=[val('l_q_x'),val('l_q_y')], e=[val('l_e_x'),val('l_e_y')]; const b={xmin:-10,xmax:10,ymin:-8,ymax:8}; const svg=svgBase('l_svg',b); const L1=segmentLineThroughBox(p,d,b), L2=segmentLineThroughBox(q,e,b); line(svg,L1[0][0],L1[0][1],L1[1][0],L1[1][1],'arrowA'); line(svg,L2[0][0],L2[0][1],L2[1][0],L2[1][1],'arrowB'); arrow(svg,p[0],p[1],p[0]+d[0],p[1]+d[1],'arrowA','arrowBlue'); arrow(svg,q[0],q[1],q[0]+e[0],q[1]+e[1],'arrowB','arrowRed'); circle(svg,p[0],p[1],.12,'pt'); circle(svg,q[0],q[1],.12,'pt'); text(svg,p[0]+.15,p[1]+.25,'p','label'); text(svg,q[0]+.15,q[1]+.25,'q','label');
+  const det = d[1]*e[0]-d[0]*e[1]; let status='', inter='';
+  if(Math.abs(det)>1e-9){ const rhs=[q[0]-p[0],q[1]-p[1]]; const lam=(rhs[0]*(-e[1]) - (-e[0])*rhs[1])/det; const mu=(d[0]*rhs[1]-d[1]*rhs[0])/det; const X=[p[0]+lam*d[0], p[1]+lam*d[1]]; circle(svg,X[0],X[1],.16,'pt'); text(svg,X[0]+.18,X[1]+.24,'intersection','label'); status=`The lines intersect at \\((${fmt(X[0])},${fmt(X[1])})\\).`; inter=`\\(\\lambda=${fmt(lam)},\\quad \\mu=${fmt(mu)}\\)`;
+  } else { const same=Math.abs(cross2([q[0]-p[0],q[1]-p[1]],d))<1e-9; status=same?'The lines are coincident: every point is shared.':'The lines are parallel and distinct: no intersection.'; inter=''; }
+  const md=mag2(d), me=mag2(e); let angle='undefined'; if(md&&me){ const cos=clamp(Math.abs(dot2(d,e))/(md*me),-1,1); angle=fmt(Math.acos(cos)*180/Math.PI,2)+'^\\circ'; }
+  setHTML('l_out', `<div class="formula">\\[L_1:\\vec r=${col2(p)}+\\lambda${col2(d)},\\qquad L_2:\\vec r=${col2(q)}+\\mu${col2(e)}\\]</div>
+  <div class="mathline">${status} ${inter}</div>
+  <div class="mathline">Direction-vector angle: \\(\\theta=\\cos^{-1}\\left(\\dfrac{|\\vec d\\cdot\\vec e|}{|\\vec d||\\vec e|}\\right)=${angle}\\)</div>
+  <div class="mini">Use absolute value for the acute angle between two lines.</div>`);
+}
+function presetLines(type){ if(type==='intersect'){Object.assign($('l_p_x'),{value:-4});$('l_p_y').value=-1;$('l_d_x').value=2;$('l_d_y').value=1;$('l_q_x').value=-2;$('l_q_y').value=5;$('l_e_x').value=3;$('l_e_y').value=-2;} if(type==='parallel'){$('l_p_x').value=-4;$('l_p_y').value=-1;$('l_d_x').value=2;$('l_d_y').value=1;$('l_q_x').value=-4;$('l_q_y').value=2;$('l_e_x').value=4;$('l_e_y').value=2;} if(type==='same'){$('l_p_x').value=-4;$('l_p_y').value=-1;$('l_d_x').value=2;$('l_d_y').value=1;$('l_q_x').value=0;$('l_q_y').value=1;$('l_e_x').value=4;$('l_e_y').value=2;} updateAll(); }
+function updateDot(){
+  const a=[val('d_ax'),val('d_ay')], b=[val('d_bx'),val('d_by')], da=dot2(a,b), ma=mag2(a), mb=mag2(b); const svg=svgBase('d_svg',{xmin:-9,xmax:9,ymin:-7,ymax:7}); arrow(svg,0,0,a[0],a[1],'arrowA','arrowBlue'); arrow(svg,0,0,b[0],b[1],'arrowB','arrowRed'); text(svg,a[0]+.15,a[1]+.25,'a','label'); text(svg,b[0]+.15,b[1]+.25,'b','label');
+  const angle = ma&&mb?Math.acos(clamp(da/(ma*mb),-1,1))*180/Math.PI:NaN; const desc = Math.abs(da)<1e-9?'perpendicular': da>0?'acute angle':'obtuse angle';
+  const r=1.1, ang1=Math.atan2(a[1],a[0]), ang2=Math.atan2(b[1],b[0]); const start=[r*Math.cos(ang1),r*Math.sin(ang1)], end=[r*Math.cos(ang2),r*Math.sin(ang2)]; const large=Math.abs(ang2-ang1)>Math.PI?0:(Math.abs(ang2-ang1)>.5?0:0); path(svg,`M ${start[0]} ${-start[1]} A ${r} ${r} 0 ${large} 1 ${end[0]} ${-end[1]}`,'thin');
+  setHTML('d_out', `<div class="formula">\\[\\vec a\\cdot\\vec b=${texNum(a[0])}(${texNum(b[0])})+${texNum(a[1])}(${texNum(b[1])})=${texNum(da)}\\]</div>
+  <div class="mathline">\\(|\\vec a|=${fmt(ma)},\\quad |\\vec b|=${fmt(mb)}\\)</div>
+  <div class="mathline">\\(\\cos\\theta=\\dfrac{\\vec a\\cdot\\vec b}{|\\vec a||\\vec b|}=${ma&&mb?fmt(da/(ma*mb)): 'undefined'}\\), so \\(\\theta=${isFinite(angle)?fmt(angle,2)+'^\\circ':'undefined'}\\).</div>
+  <div class="hintbox"><strong>Interpretation:</strong> \(\\vec a\\cdot\\vec b=${texNum(da)}\\), so the vectors suggest a <strong>${desc}</strong>.</div>`);
+}
+function updateCross(){
+  const a=[val('c_ax'),val('c_ay'),val('c_az')], b=[val('c_bx'),val('c_by'),val('c_bz')], c=cross3(a,b), area=mag3(c), tri=area/2;
+  setHTML('c_out', `<div class="formula">\\[\\vec a\\times\\vec b=${col3(c)}\\]</div>
+  <div class="mathline">Check perpendicularity: \\(\\vec a\\cdot(\\vec a\\times\\vec b)=${fmt(dot3(a,c))}\\), \\(\\vec b\\cdot(\\vec a\\times\\vec b)=${fmt(dot3(b,c))}\\).</div>
+  <div class="formula">\\[\\text{Area of parallelogram}=|\\vec a\\times\\vec b|=${fmt(area)},\\qquad \\text{Area of triangle}=\\frac12|\\vec a\\times\\vec b|=${fmt(tri)}.\\]</div>`);
+}
+function updateProjection(){
+  const a=[val('pr_ax'),val('pr_ay')], b=[val('pr_bx'),val('pr_by')], d=dot2(a,b), mb=mag2(b), factor=mb?d/(mb*mb):0, proj=[factor*b[0],factor*b[1]], comp=mb?d/mb:NaN; const svg=svgBase('pr_svg',{xmin:-8,xmax:8,ymin:-6,ymax:6}); arrow(svg,0,0,a[0],a[1],'arrowA','arrowBlue'); arrow(svg,0,0,b[0],b[1],'arrowB','arrowRed'); arrow(svg,0,0,proj[0],proj[1],'arrowC','arrowGreen'); line(svg,a[0],a[1],proj[0],proj[1],'thin'); text(svg,a[0]+.15,a[1]+.25,'a','label'); text(svg,b[0]+.15,b[1]+.25,'b','label'); text(svg,proj[0]+.15,proj[1]-.3,'proj','label');
+  setHTML('pr_out', `<div class="formula">\\[\\operatorname{comp}_{\\vec b}\\vec a=\\frac{\\vec a\\cdot\\vec b}{|\\vec b|}=${isFinite(comp)?fmt(comp):'undefined'}\\]</div>
+  <div class="formula">\\[\\operatorname{proj}_{\\vec b}\\vec a=\\frac{\\vec a\\cdot\\vec b}{|\\vec b|^2}\\vec b=${col2(proj)}\\]</div>`);
+}
+function updateRelativeMotion(){
+  const A0=[val('rm_ax0'),val('rm_ay0')], vA=[val('rm_avx'),val('rm_avy')], B0=[val('rm_bx0'),val('rm_by0')], vB=[val('rm_bvx'),val('rm_bvy')], t=val('rm_t'); const A=[A0[0]+vA[0]*t,A0[1]+vA[1]*t], B=[B0[0]+vB[0]*t,B0[1]+vB[1]*t], rel0=[B0[0]-A0[0],B0[1]-A0[1]], vrel=[vB[0]-vA[0],vB[1]-vA[1]], sep=[B[0]-A[0],B[1]-A[1]], speedRel=mag2(vrel); const tc=speedRel?Math.max(0,-dot2(rel0,vrel)/(speedRel*speedRel)):0;
+  const svg=svgBase('rm_svg',{xmin:-10,xmax:10,ymin:-8,ymax:8}); arrow(svg,A0[0],A0[1],A[0],A[1],'arrowA','arrowBlue'); arrow(svg,B0[0],B0[1],B[0],B[1],'arrowB','arrowRed'); arrow(svg,A[0],A[1],B[0],B[1],'arrowC','arrowGreen'); circle(svg,A[0],A[1],.16,'pt'); circle(svg,B[0],B[1],.16,'pt'); text(svg,A[0]+.18,A[1]+.2,'A(t)','label'); text(svg,B[0]+.18,B[1]+.2,'B(t)','label');
+  setHTML('rm_out', `<div class="formula">\\[\\vec r_A(t)=${col2(A0)}+t${col2(vA)},\\qquad \\vec r_B(t)=${col2(B0)}+t${col2(vB)}\\]</div>
+  <div class="mathline">At \\(t=${fmt(t)}\\): \\(\\vec r_A=${col2(A)},\\quad \\vec r_B=${col2(B)}\\).</div>
+  <div class="mathline">Relative displacement: \\(\\vec r_B-\\vec r_A=${col2(sep)}\\), separation \\(=${fmt(mag2(sep))}\\).</div>
+  <div class="mathline">Closest-approach time from now model: \\(t=${fmt(tc)}\\) using \\(t=-\\dfrac{\\vec r_0\\cdot\\vec v_{rel}}{|\\vec v_{rel}|^2}\\).</div>`);
+}
+function updateProjectile(){
+  const ux=val('pm_ux'), uy=val('pm_uy'), g=Math.max(.1,val('pm_g')), t=val('pm_t'), r=[ux*t, uy*t-.5*g*t*t], v=[ux,uy-g*t], speed=mag2(v); const tMax=Math.max(0,uy/g), hMax=uy>0?uy*uy/(2*g):0, T=uy>0?2*uy/g:0, range=ux*T;
+  const xMax=Math.max(30,range*1.1,r[0]*1.2,50), yMax=Math.max(20,hMax*1.25,r[1]*1.4,20); const svg=$('pm_svg'); svg.innerHTML=''; svg.setAttribute('viewBox',`0 ${-yMax} ${xMax} ${yMax+6}`);
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs'); const marker=document.createElementNS('http://www.w3.org/2000/svg','marker'); marker.setAttribute('id','pmArrow'); marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','8'); marker.setAttribute('refX','5'); marker.setAttribute('refY','3'); marker.setAttribute('orient','auto'); const mpath=document.createElementNS('http://www.w3.org/2000/svg','path'); mpath.setAttribute('d','M0,0 L0,6 L6,3 z'); mpath.setAttribute('fill','#2563eb'); marker.appendChild(mpath); defs.appendChild(marker); svg.appendChild(defs);
+  for(let x=0;x<=xMax;x+=10) line(svg,x,0,x,yMax,'gridline'); for(let y=0;y<=yMax;y+=5) line(svg,0,y,xMax,y,'gridline'); line(svg,0,0,xMax,0,'axis'); line(svg,0,0,0,yMax,'axis');
+  let d=''; const n=90; for(let i=0;i<=n;i++){ const tt=T>0?T*i/n:Math.max(t,4)*i/n; const x=ux*tt, y=uy*tt-.5*g*tt*tt; d+=(i?' L ':'M ')+x+' '+(-y); } path(svg,d,'path'); circle(svg,r[0],r[1],Math.max(.35,xMax/180),'pt'); text(svg,r[0]+xMax*.015,r[1]+yMax*.03,'particle','smalllabel'); const scale=Math.max(0.15, Math.min(0.5, xMax/120)); const vel=line(svg,r[0],r[1],r[0]+v[0]*scale,r[1]+v[1]*scale,'arrowA'); vel.setAttribute('marker-end','url(#pmArrow)');
+  setHTML('pm_out', `<div class="formula">\\[\\vec r(t)=${col2([0,0])}+t${col2([ux,uy])}+\\frac12t^2${col2([0,-g])}=${col2(r)}\\]</div>
+  <div class="mathline">\\(\\vec v(t)=${col2(v)},\\quad |\\vec v(t)|=${fmt(speed)}\\)</div>
+  <div class="mathline">Maximum height occurs when \\(v_y=0\\): \\(t=${fmt(tMax)}\\), \\(h=${fmt(hMax)}\\).</div>
+  <div class="mathline">Landing time \\(T=${fmt(T)}\\), horizontal range \\(=${fmt(range)}\\).</div>`);
+}
+function updateAll(){ updateVectorPlayground(); updatePosition(); updateUnit(); updateLines(); updateDot(); updateCross(); updateProjection(); updateRelativeMotion(); updateProjectile(); }
+let currentExam=null;
+function newExamQuestion(){
+  const type=rndInt(1,6); let q='', ms='', marks=0, title='';
+  if(type===1){ title='Unit vector'; marks=4; const a=[rndInt(-6,6)||3,rndInt(-6,6)||4,rndInt(-4,5)||2]; const m=mag3(a); q=`<h3>Question: unit vector [4 marks]</h3><p>Given \\(\\vec a=${col3(a)}\\), find \\(|\\vec a|\\) and a unit vector in the direction of \\(\\vec a\\).</p>`; ms=`<p>Magnitude: \\(|\\vec a|=\\sqrt{${a[0]}^2+${a[1]}^2+${a[2]}^2}=${fmt(m)}\\). [2]</p><p>Unit vector: \\(\\hat{\\vec a}=\\dfrac{\\vec a}{|\\vec a|}=\\dfrac1{${fmt(m)}}${col3(a)}=${col3(a.map(x=>x/m))}\\). [2]</p>`; }
+  if(type===2){ title='Line intersection'; marks=6; const P=[rndInt(-3,4),rndInt(-3,4)], d=[rndInt(1,4),rndInt(-3,3)||1], e=[rndInt(-4,-1),rndInt(1,4)], lam=rndInt(1,3), mu=rndInt(1,3), p=[P[0]-lam*d[0],P[1]-lam*d[1]], q0=[P[0]-mu*e[0],P[1]-mu*e[1]]; q=`<h3>Question: intersection of two vector lines [6 marks]</h3><p>Find the point of intersection of</p><div class="formula">\\[L_1:\\vec r=${col2(p)}+\\lambda${col2(d)},\\qquad L_2:\\vec r=${col2(q0)}+\\mu${col2(e)}.\\]</div>`; ms=`<p>Equate components: \\(${p[0]}+${d[0]}\\lambda=${q0[0]}+${e[0]}\\mu\\), \\(${p[1]}+${d[1]}\\lambda=${q0[1]}+${e[1]}\\mu\\). [2]</p><p>Solving gives \\(\\lambda=${lam},\\;\\mu=${mu}\\). [2]</p><p>Substitute into either line: point of intersection \\((${P[0]},${P[1]})\\). [2]</p>`; }
+  if(type===3){ title='Angle between vectors'; marks=5; const a=[rndInt(-5,6)||3,rndInt(-5,6)||2], b=[rndInt(-5,6)||-2,rndInt(-5,6)||5], da=dot2(a,b), ma=mag2(a), mb=mag2(b), angle=Math.acos(clamp(da/(ma*mb),-1,1))*180/Math.PI; q=`<h3>Question: scalar product angle [5 marks]</h3><p>Find the angle between \\(\\vec a=${col2(a)}\\) and \\(\\vec b=${col2(b)}\\).</p>`; ms=`<p>Dot product: \\(\\vec a\\cdot\\vec b=${da}\\). [1]</p><p>Magnitudes: \\(|\\vec a|=${fmt(ma)},\\ |\\vec b|=${fmt(mb)}\\). [2]</p><p>Use \\(\\cos\\theta=\\dfrac{\\vec a\\cdot\\vec b}{|\\vec a||\\vec b|}\\), so \\(\\theta=${fmt(angle,2)}^\\circ\\). [2]</p>`; }
+  if(type===4){ title='Triangle area with cross product'; marks=5; const a=[rndInt(1,4),rndInt(-3,4),rndInt(1,5)], b=[rndInt(-4,3)||-2,rndInt(1,5),rndInt(-3,3)||1], c=cross3(a,b), area=mag3(c)/2; q=`<h3>Question: vector product area [5 marks]</h3><p>Two sides of a triangle from the same vertex are \\(\\vec a=${col3(a)}\\) and \\(\\vec b=${col3(b)}\\). Find the area of the triangle.</p>`; ms=`<p>Compute \\(\\vec a\\times\\vec b=${col3(c)}\\). [3]</p><p>Area of triangle: \\(\\frac12|\\vec a\\times\\vec b|=\\frac12\\sqrt{${c[0]}^2+${c[1]}^2+${c[2]}^2}=${fmt(area)}\\). [2]</p>`; }
+  if(type===5){ title='Projectile vector function'; marks=7; const ux=[8,10,12,15][rndInt(0,3)], uy=[15,20,25,30][rndInt(0,3)], g=10; q=`<h3>Question: projectile motion [7 marks]</h3><p>A particle starts at the origin and has velocity \\(\\vec v(t)=${col2([ux,`${uy}-10t`])}\\), where distances are in metres and time is in seconds.</p><p>Find the time of maximum height, the maximum height, and the horizontal range.</p>`; const tmax=uy/g, h=uy*uy/(2*g), T=2*uy/g, R=ux*T; ms=`<p>Maximum height when vertical velocity is zero: \\(${uy}-10t=0\\), so \\(t=${fmt(tmax)}\\). [2]</p><p>Integrate velocity: \\(\\vec r(t)=${col2([`${ux}t`,`${uy}t-5t^2`])}\\). [2]</p><p>Maximum height: \\(y(${fmt(tmax)})=${fmt(h)}\\). [1]</p><p>Landing when \\(y=0\\): \\(t(${uy}-5t)=0\\), so non-zero landing time \\(T=${fmt(T)}\\). [1]</p><p>Range: \\(x(${fmt(T)})=${fmt(R)}\\). [1]</p>`; }
+  if(type===6){ title='Relative motion'; marks=6; const A0=[0,0], vA=[rndInt(2,5),rndInt(0,3)], B0=[rndInt(8,14),rndInt(5,12)], vB=[-rndInt(1,3),-rndInt(0,2)], t=rndInt(1,4); const A=[A0[0]+vA[0]*t,A0[1]+vA[1]*t], B=[B0[0]+vB[0]*t,B0[1]+vB[1]*t], sep=[B[0]-A[0],B[1]-A[1]]; q=`<h3>Question: relative position [6 marks]</h3><p>Objects A and B move with constant velocity. \\(\\vec r_A(t)=${col2(A0)}+t${col2(vA)}\\) and \\(\\vec r_B(t)=${col2(B0)}+t${col2(vB)}\\). Find the distance between them when \\(t=${t}\\).</p>`; ms=`<p>Find positions: \\(\\vec r_A(${t})=${col2(A)}\\), \\(\\vec r_B(${t})=${col2(B)}\\). [2]</p><p>Relative displacement: \\(\\vec r_B-\\vec r_A=${col2(sep)}\\). [2]</p><p>Distance: \\(|\\vec r_B-\\vec r_A|=\\sqrt{${sep[0]}^2+${sep[1]}^2}=${fmt(mag2(sep))}\\). [2]</p>`; }
+  currentExam={q,ms,title,marks}; $('examMeta').textContent=`${title} — ${marks} marks`; setHTML('examQuestion',q); const msEl=$('examMarkscheme'); msEl.classList.remove('show'); msEl.innerHTML=ms; renderMath(msEl);
+}
+function toggleMarkscheme(){ const el=$('examMarkscheme'); el.classList.toggle('show'); renderMath(el); }
+function init(){ makeTabs(); bindInputs(); updateAll(); newExamQuestion(); renderMath(); }
+window.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
