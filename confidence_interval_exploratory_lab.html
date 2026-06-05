@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confidence Intervals for a Mean — Exploratory Lab</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#f6f7fb; --panel:#ffffff; --ink:#182230; --muted:#667085;
+      --line:#d0d5dd; --accent:#3b82f6; --accent2:#14b8a6; --warn:#f97316; --bad:#e11d48; --good:#16a34a;
+      --soft:#eef6ff; --soft2:#ecfdf5; --soft3:#fff7ed; --shadow: 0 10px 25px rgba(16,24,40,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#eef4ff 0,#f6f7fb 260px);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+    header{padding:30px 22px 18px;max-width:1220px;margin:auto}
+    h1{font-size:clamp(2rem,5vw,4.6rem);letter-spacing:-.06em;line-height:.96;margin:0 0 12px;font-weight:850}
+    h2{font-size:clamp(1.35rem,2vw,2.1rem);letter-spacing:-.035em;margin:0 0 12px}
+    h3{font-size:1.1rem;margin:0 0 8px;letter-spacing:-.02em}
+    p{margin:0 0 12px}.lead{font-size:1.12rem;color:#344054;max-width:900px}.muted{color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;background:#fff;padding:6px 11px;font-size:.9rem;color:#344054;margin:4px 6px 4px 0}
+    .layout{max-width:1220px;margin:0 auto;padding:0 22px 36px;display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+    nav{position:sticky;top:12px;background:rgba(255,255,255,.78);backdrop-filter: blur(10px);border:1px solid rgba(208,213,221,.8);border-radius:var(--radius);padding:10px;box-shadow:var(--shadow)}
+    .tabbtn{width:100%;border:0;background:transparent;color:#344054;text-align:left;border-radius:13px;padding:11px 12px;cursor:pointer;font-weight:700;margin:2px 0;display:flex;gap:8px;align-items:center}
+    .tabbtn:hover{background:#f2f4f7}.tabbtn.active{background:#eaf2ff;color:#174ea6}.tabnum{font-variant-numeric:tabular-nums;color:#475467;min-width:1.7em}
+    main{min-width:0}.tab{display:none}.tab.active{display:block}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}.card.soft{background:var(--soft)}.card.green{background:var(--soft2)}.card.orange{background:var(--soft3)}
+    .grid{display:grid;gap:16px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .controls{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:12px;margin:12px 0}.control{background:#f9fafb;border:1px solid #eaecf0;border-radius:14px;padding:10px}.control label{display:block;font-weight:700;font-size:.86rem;color:#344054;margin-bottom:5px}.control input[type="range"]{width:100%}.control input[type="number"], .control select, .control input[type="text"]{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;font:inherit}.value{font-variant-numeric:tabular-nums;color:#101828;font-weight:800}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:800;padding:10px 14px;cursor:pointer;box-shadow:0 4px 10px rgba(59,130,246,.22)}.btn.secondary{background:#475467}.btn.ghost{background:#fff;color:#344054;border:1px solid var(--line);box-shadow:none}.btn.good{background:var(--good)}.btn.warn{background:var(--warn)}.btn:active{transform:translateY(1px)}
+    canvas{width:100%;height:auto;border:1px solid var(--line);border-radius:16px;background:#fff;display:block}.statline{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:150px}.stat b{display:block;font-size:1.35rem;letter-spacing:-.03em}.formula{background:#101828;color:#f9fafb;border-radius:16px;padding:14px;overflow:auto}.formula .MathJax{font-size:115%!important}.callout{border-left:5px solid var(--accent);background:#f8fbff;border-radius:12px;padding:12px;margin:12px 0}.warning{border-left-color:var(--warn);background:#fff8ed}.success{border-left-color:var(--good);background:#f0fdf4}.bad{border-left-color:var(--bad);background:#fff1f2}.mini{font-size:.91rem}.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef2f7;border:1px solid #d0d5dd;border-bottom-width:2px;border-radius:7px;padding:1px 6px;white-space:nowrap}.step{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start;margin:12px 0}.badge{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf2ff;color:#174ea6;font-weight:900}.bigstat{font-size:2.5rem;font-weight:900;letter-spacing:-.06em}.qbox{background:#f8fafc;border:1px dashed #b8c4d6;border-radius:16px;padding:14px}.answer{display:none;margin-top:12px}.answer.show{display:block}.radio{display:flex;gap:8px;align-items:flex-start;margin:8px 0}.radio input{margin-top:4px}.mark{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f2f4f7;border-radius:12px;padding:10px;white-space:pre-wrap}.sectiontag{font-size:.78rem;text-transform:uppercase;letter-spacing:.11em;font-weight:900;color:#475467;margin-bottom:8px}.tiny{font-size:.8rem}.divider{height:1px;background:var(--line);margin:14px 0}.hidden{display:none!important}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--line)}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#f2f4f7}.nowrap{white-space:nowrap}.printonly{display:none}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}nav{position:relative;top:0}.controls,.grid.two,.grid.three,.grid.four{grid-template-columns:1fr}.tabbtn{display:inline-flex;width:auto}.navwrap{display:flex;overflow:auto;gap:4px}.tabbtn span:last-child{white-space:nowrap}}
+    @media print{body{background:#fff}.layout{display:block}nav,.btn,.no-print{display:none}.tab{display:block}.card{box-shadow:none;break-inside:avoid}.printonly{display:block}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="pill">AHL 4.16</div><div class="pill">Confidence intervals for a normal mean</div><div class="pill">Visual → theory → TI‑Nspire → exam</div>
+    <h1>Confidence intervals should feel like a picture before they become a formula.</h1>
+    <p class="lead">This lab starts with repeated samples and intervals, then slowly builds the ideas of sampling distributions, margin of error, known versus unknown variance, calculator workflow and examination-style responses.</p>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="Lab sections">
+      <div class="navwrap">
+        <button class="tabbtn active" data-tab="story"><span class="tabnum">0</span><span>Teacher route</span></button>
+        <button class="tabbtn" data-tab="visual"><span class="tabnum">1</span><span>Visual meaning</span></button>
+        <button class="tabbtn" data-tab="sampling"><span class="tabnum">2</span><span>Sampling means</span></button>
+        <button class="tabbtn" data-tab="formula"><span class="tabnum">3</span><span>Build formula</span></button>
+        <button class="tabbtn" data-tab="zt"><span class="tabnum">4</span><span>z or t?</span></button>
+        <button class="tabbtn" data-tab="tinspire"><span class="tabnum">5</span><span>TI‑Nspire</span></button>
+        <button class="tabbtn" data-tab="practice"><span class="tabnum">6</span><span>Exam practice</span></button>
+        <button class="tabbtn" data-tab="exit"><span class="tabnum">7</span><span>Exit ticket</span></button>
+      </div>
+    </nav>
+
+    <main>
+      <section id="story" class="tab active">
+        <div class="card soft">
+          <div class="sectiontag">lesson architecture</div>
+          <h2>Use the strengths of the three approaches</h2>
+          <div class="grid three">
+            <div class="card"><h3>Lead visually</h3><p>Students first see many intervals. Some miss the true mean. The confidence level is about the long-run method, not one magic interval.</p></div>
+            <div class="card"><h3>Build the theory</h3><p>Move from sample means to standard error and margin of error: \(\bar x \pm \text{critical value}\times \text{SE}\).</p></div>
+            <div class="card"><h3>Finish exam-ready</h3><p>Students choose z or t, operate the TI‑Nspire, state the interval and interpret it in context.</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Suggested 60–75 minute flow</h2>
+          <table>
+            <thead><tr><th>Time</th><th>Activity</th><th>Teacher move</th></tr></thead>
+            <tbody>
+              <tr><td class="nowrap">0–8 min</td><td>Run the “many intervals” simulation at 80%, 90%, 95%, 99%.</td><td>Ask: “Does 95% mean this particular interval has probability 0.95 of containing \(\mu\)?”</td></tr>
+              <tr><td class="nowrap">8–20 min</td><td>Change \(n\), \(\sigma\), and confidence level.</td><td>Students complete: wider when..., narrower when...</td></tr>
+              <tr><td class="nowrap">20–35 min</td><td>Show sampling means and the standard error.</td><td>Connect \(\sigma\) to \(\sigma/\sqrt n\). Emphasise: samples vary, so \(\bar X\) varies.</td></tr>
+              <tr><td class="nowrap">35–50 min</td><td>Build z and t intervals.</td><td>Known \(\sigma\Rightarrow z\). Unknown \(\sigma\Rightarrow s\) and \(t_{n-1}\).</td></tr>
+              <tr><td class="nowrap">50–65 min</td><td>TI‑Nspire workflow.</td><td>Raw data versus summary statistics. Students must state the chosen interval type first.</td></tr>
+              <tr><td class="nowrap">65–75 min</td><td>Exam practice and exit ticket.</td><td>Reward interpretation in context, not just two numbers.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card orange">
+          <h2>Core misconception to tackle</h2>
+          <p><b>Weak interpretation:</b> “There is a 95% probability that \(\mu\) is between these two numbers.”</p>
+          <p><b>Better examination wording:</b> “Using this method, we are 95% confident that the population mean is between these two numbers.”</p>
+          <p class="muted mini">In frequentist confidence intervals, the population mean is fixed. The random part is the interval produced from the sample.</p>
+        </div>
+      </section>
+
+      <section id="visual" class="tab">
+        <div class="card soft">
+          <div class="sectiontag">exploration 1</div>
+          <h2>What does “95% confident” look like?</h2>
+          <p>Each horizontal line is one confidence interval from one sample. The vertical line is the true population mean. An interval that misses the true mean is highlighted.</p>
+          <div class="controls">
+            <div class="control"><label>True mean \(\mu\)</label><input id="v_mu" type="number" value="50" step="1"></div>
+            <div class="control"><label>Population SD \(\sigma\)</label><input id="v_sigma" type="number" value="10" min="0.1" step="0.5"></div>
+            <div class="control"><label>Sample size: <span id="v_n_val" class="value">25</span></label><input id="v_n" type="range" min="4" max="120" value="25"></div>
+            <div class="control"><label>Confidence: <span id="v_conf_val" class="value">95%</span></label><input id="v_conf" type="range" min="80" max="99" value="95"></div>
+            <div class="control"><label>Number of intervals</label><input id="v_count" type="number" min="10" max="160" value="60" step="10"></div>
+            <div class="control"><label>Interval type</label><select id="v_type"><option value="known">Known \(\sigma\): z-interval</option><option value="unknown">Unknown \(\sigma\): t-interval</option></select></div>
+            <div class="control"><label>Population shape</label><select id="v_dist"><option value="normal">Normal</option><option value="skew">Right-skewed</option><option value="uniform">Uniform</option></select></div>
+            <div class="control"><label>&nbsp;</label><button class="btn" id="runVisual">Generate intervals</button></div>
+          </div>
+          <canvas id="intervalCanvas" width="1000" height="560" aria-label="Confidence interval simulation"></canvas>
+          <div class="statline">
+            <div class="stat"><span class="muted">Captured \(\mu\)</span><b id="v_covered">—</b></div>
+            <div class="stat"><span class="muted">Missed \(\mu\)</span><b id="v_missed">—</b></div>
+            <div class="stat"><span class="muted">Observed coverage</span><b id="v_cov">—</b></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Prompts</h2>
+          <div class="grid three">
+            <div><h3>Change confidence</h3><p>What happens to the width as you move from 80% to 99%?</p></div>
+            <div><h3>Change sample size</h3><p>Why does increasing \(n\) make the intervals narrower?</p></div>
+            <div><h3>Known or unknown?</h3><p>Why should unknown \(\sigma\) usually give a wider interval, especially for small \(n\)?</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sampling" class="tab">
+        <div class="card soft">
+          <div class="sectiontag">exploration 2</div>
+          <h2>The hidden object: the sampling distribution of \(\bar X\)</h2>
+          <p>Draw many samples from a population. Plot only their means. The spread of these sample means is the <b>standard error</b>.</p>
+          <div class="controls">
+            <div class="control"><label>Population shape</label><select id="s_dist"><option value="normal">Normal</option><option value="skew">Right-skewed</option><option value="uniform">Uniform</option></select></div>
+            <div class="control"><label>Sample size: <span id="s_n_val" class="value">10</span></label><input id="s_n" type="range" min="2" max="150" value="10"></div>
+            <div class="control"><label>Number of samples</label><input id="s_count" type="number" value="1000" min="100" max="8000" step="100"></div>
+            <div class="control"><label>&nbsp;</label><button class="btn" id="runSampling">Sample means</button></div>
+          </div>
+          <canvas id="samplingCanvas" width="1000" height="420" aria-label="Histogram of sample means"></canvas>
+          <div class="statline">
+            <div class="stat"><span class="muted">Mean of sample means</span><b id="s_mean">—</b></div>
+            <div class="stat"><span class="muted">SD of sample means</span><b id="s_sd">—</b></div>
+            <div class="stat"><span class="muted">Theoretical SE</span><b id="s_se">—</b></div>
+          </div>
+        </div>
+        <div class="card green">
+          <h2>The theory being discovered</h2>
+          <p>If \(X\) has population standard deviation \(\sigma\), then the sample mean \(\bar X\) varies less than individual observations:</p>
+          <div class="formula">\[\operatorname{SD}(\bar X)=\frac{\sigma}{\sqrt n}\]</div>
+          <p class="mini muted">That is why the margin of error contains \(\sqrt n\) in the denominator.</p>
+        </div>
+      </section>
+
+      <section id="formula" class="tab">
+        <div class="card soft">
+          <div class="sectiontag">exploration 3</div>
+          <h2>Build the interval from three ingredients</h2>
+          <div class="grid three">
+            <div class="card"><h3>Centre</h3><p>The sample mean \(\bar x\).</p></div>
+            <div class="card"><h3>Spread</h3><p>The standard error: \(\sigma/\sqrt n\) or \(s/\sqrt n\).</p></div>
+            <div class="card"><h3>Confidence</h3><p>The critical value: \(z^*\) or \(t^*\).</p></div>
+          </div>
+          <div class="controls">
+            <div class="control"><label>Sample mean \(\bar x\)</label><input id="f_xbar" type="number" value="16.3" step="0.1"></div>
+            <div class="control"><label>Spread \(\sigma\) or \(s\)</label><input id="f_sd" type="number" value="2.8" min="0.1" step="0.1"></div>
+            <div class="control"><label>Sample size: <span id="f_n_val" class="value">20</span></label><input id="f_n" type="range" min="3" max="150" value="20"></div>
+            <div class="control"><label>Confidence: <span id="f_conf_val" class="value">95%</span></label><input id="f_conf" type="range" min="80" max="99" value="95"></div>
+            <div class="control"><label>Critical value</label><select id="f_type"><option value="z">Known \(\sigma\): use \(z^*\)</option><option value="t">Unknown \(\sigma\): use \(t^*\)</option></select></div>
+            <div class="control"><label>Rounding</label><select id="f_round"><option value="3">3 d.p.</option><option value="2">2 d.p.</option><option value="1">1 d.p.</option></select></div>
+          </div>
+          <canvas id="formulaCanvas" width="1000" height="190" aria-label="Interval plot"></canvas>
+          <div class="statline">
+            <div class="stat"><span class="muted">Critical value</span><b id="f_crit">—</b></div>
+            <div class="stat"><span class="muted">Standard error</span><b id="f_se">—</b></div>
+            <div class="stat"><span class="muted">Margin of error</span><b id="f_me">—</b></div>
+            <div class="stat"><span class="muted">Interval</span><b id="f_interval">—</b></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>The two formulas</h2>
+          <div class="grid two">
+            <div class="formula">\[\text{Known }\sigma:\quad \bar x \pm z^*\frac{\sigma}{\sqrt n}\]</div>
+            <div class="formula">\[\text{Unknown }\sigma:\quad \bar x \pm t^*_{n-1}\frac{s}{\sqrt n}\]</div>
+          </div>
+          <div class="callout warning"><b>Key point:</b> the unknown-\(\sigma\) interval uses the sample standard deviation \(s\), so the extra uncertainty is paid for by using the wider \(t\)-distribution.</div>
+        </div>
+      </section>
+
+      <section id="zt" class="tab">
+        <div class="card soft">
+          <div class="sectiontag">decision rule</div>
+          <h2>Which interval should I use?</h2>
+          <table>
+            <thead><tr><th>Information given</th><th>Use</th><th>Form</th></tr></thead>
+            <tbody>
+              <tr><td>Population standard deviation \(\sigma\) is known.</td><td><b>z-interval</b></td><td>\(\bar x \pm z^*\frac{\sigma}{\sqrt n}\)</td></tr>
+              <tr><td>Population standard deviation \(\sigma\) is not known; raw data or sample \(s\) is given.</td><td><b>t-interval</b></td><td>\(\bar x \pm t^*_{n-1}\frac{s}{\sqrt n}\)</td></tr>
+              <tr><td>Sample size is large but \(\sigma\) is still unknown.</td><td><b>t-interval</b></td><td>Large \(n\) makes \(t\) close to \(z\), but it is still a \(t\)-interval.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h2>Decision trainer</h2>
+          <div class="qbox" id="decisionScenario">Press “New scenario”.</div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="newDecision">New scenario</button>
+            <button class="btn ghost" data-choice="z">Choose z-interval</button>
+            <button class="btn ghost" data-choice="t">Choose t-interval</button>
+          </div>
+          <div id="decisionFeedback" class="callout hidden"></div>
+        </div>
+        <div class="card green">
+          <h2>Why t is wider</h2>
+          <p>When \(\sigma\) is unknown, \(s\) itself changes from sample to sample. The \(t\)-distribution compensates by using a larger critical value, especially when \(n\) is small.</p>
+          <div class="controls">
+            <div class="control"><label>Degrees of freedom: <span id="t_df_val" class="value">7</span></label><input id="t_df" type="range" min="1" max="80" value="7"></div>
+            <div class="control"><label>Confidence</label><select id="t_conf"><option value="0.90">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+          </div>
+          <div class="statline">
+            <div class="stat"><span class="muted">z critical</span><b id="t_zcrit">—</b></div>
+            <div class="stat"><span class="muted">t critical</span><b id="t_tcrit">—</b></div>
+            <div class="stat"><span class="muted">Extra width</span><b id="t_extra">—</b></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tinspire" class="tab">
+        <div class="card soft">
+          <div class="sectiontag">calculator process</div>
+          <h2>TI‑Nspire workflow</h2>
+          <p>Before touching the calculator, write one sentence: <b>“I will use a z-interval because \(\sigma\) is known”</b> or <b>“I will use a t-interval because \(\sigma\) is unknown.”</b></p>
+          <div class="grid two">
+            <div class="card">
+              <h3>When raw data is given</h3>
+              <div class="step"><div class="badge">1</div><p>Open a <span class="kbd">Lists & Spreadsheet</span> page. Enter the data into a named list, for example <span class="kbd">lifetimes</span>.</p></div>
+              <div class="step"><div class="badge">2</div><p>Open a <span class="kbd">Calculator</span> page, then use <span class="kbd">menu</span> → <span class="kbd">Statistics</span> → <span class="kbd">Confidence Intervals</span>.</p></div>
+              <div class="step"><div class="badge">3</div><p>Choose <span class="kbd">t Interval</span> if \(\sigma\) is unknown, or <span class="kbd">z Interval</span> if \(\sigma\) is known.</p></div>
+              <div class="step"><div class="badge">4</div><p>Choose <span class="kbd">Data</span>. Enter the list name, frequency \(=1\), confidence level, and \(\sigma\) if using a z-interval.</p></div>
+            </div>
+            <div class="card">
+              <h3>When summary statistics are given</h3>
+              <div class="step"><div class="badge">1</div><p>Use a <span class="kbd">Calculator</span> page. Go to <span class="kbd">menu</span> → <span class="kbd">Statistics</span> → <span class="kbd">Confidence Intervals</span>.</p></div>
+              <div class="step"><div class="badge">2</div><p>Choose <span class="kbd">t Interval</span> for \(\bar x, s, n\). Choose <span class="kbd">z Interval</span> for \(\bar x, \sigma, n\).</p></div>
+              <div class="step"><div class="badge">3</div><p>Choose <span class="kbd">Stats</span>. Enter \(\bar x\), sample standard deviation \(s\) or population standard deviation \(\sigma\), sample size \(n\), and confidence level.</p></div>
+              <div class="step"><div class="badge">4</div><p>Record the lower and upper bounds. Then write the interpretation in context.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="card orange">
+          <h2>Calculator-to-exam translation</h2>
+          <table>
+            <thead><tr><th>Calculator output</th><th>What to write</th></tr></thead>
+            <tbody>
+              <tr><td><span class="kbd">Lower = 15.02</span>, <span class="kbd">Upper = 17.58</span></td><td>\(15.02<\mu<17.58\), or \([15.02,17.58]\), depending on context.</td></tr>
+              <tr><td><span class="kbd">x̄ = ...</span></td><td>This is the centre of the interval, not the population mean.</td></tr>
+              <tr><td><span class="kbd">ME = ...</span></td><td>This is the amount added/subtracted from \(\bar x\).</td></tr>
+              <tr><td>Any interval</td><td>“We are ___% confident that the true population mean ___ is between ___ and ___.”</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="practice" class="tab">
+        <div class="card soft">
+          <div class="sectiontag">exam practice</div>
+          <h2>Random confidence interval question</h2>
+          <p>Use the TI‑Nspire or the formula. Then enter your lower and upper bounds.</p>
+          <div class="row">
+            <button class="btn" id="newExam">New exam question</button>
+            <button class="btn ghost" id="showScheme">Show mark scheme</button>
+          </div>
+          <div class="qbox" id="examQ" style="margin-top:12px">Press “New exam question”.</div>
+          <div class="controls">
+            <div class="control"><label>Lower bound</label><input id="ansLow" type="text" placeholder="e.g. 15.02"></div>
+            <div class="control"><label>Upper bound</label><input id="ansHigh" type="text" placeholder="e.g. 17.58"></div>
+            <div class="control"><label>&nbsp;</label><button class="btn good" id="checkExam">Check answer</button></div>
+          </div>
+          <div id="examFeedback" class="callout hidden"></div>
+          <div id="examScheme" class="answer mark"></div>
+        </div>
+        <div class="card">
+          <h2>Examination habits</h2>
+          <div class="grid three">
+            <div class="callout"><b>1. Name the interval.</b><br>“Since \(\sigma\) is unknown, use a t-interval.”</div>
+            <div class="callout"><b>2. Show key values.</b><br>Include \(\bar x\), \(s\) or \(\sigma\), \(n\), confidence level.</div>
+            <div class="callout"><b>3. Interpret in context.</b><br>Do not leave the answer as just two numbers.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="exit" class="tab">
+        <div class="card soft">
+          <div class="sectiontag">exit ticket</div>
+          <h2>Can you explain it without a calculator?</h2>
+          <div class="grid two">
+            <div class="qbox">
+              <h3>1. Complete the sentence</h3>
+              <p>A 95% confidence interval means that if we repeated the sampling process many times, then about _____% of the intervals produced by this method would contain the true population mean.</p>
+            </div>
+            <div class="qbox">
+              <h3>2. Choose the method</h3>
+              <p>A normal population is sampled. The sample mean is \(43.2\), the sample standard deviation is \(5.1\), and \(n=40\). Should this be a z-interval or t-interval?</p>
+            </div>
+            <div class="qbox">
+              <h3>3. Explain width</h3>
+              <p>Why is a 99% interval wider than a 90% interval?</p>
+            </div>
+            <div class="qbox">
+              <h3>4. Correct the misconception</h3>
+              <p>“There is a 95% chance that the true mean is in my interval.” Rewrite this more carefully.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card green">
+          <h2>Teacher quick answers</h2>
+          <button class="btn ghost" id="toggleExit">Reveal / hide</button>
+          <div id="exitAnswers" class="answer">
+            <ol>
+              <li>95.</li>
+              <li>t-interval, because the population standard deviation \(\sigma\) is unknown and only sample \(s\) is given.</li>
+              <li>To be more confident, the method must capture the true mean more often, so it uses a larger critical value and a wider interval.</li>
+              <li>“We are 95% confident that the true population mean lies in this interval.”</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+(function(){
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+  const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+  const fmt = (x, dp=3) => Number.isFinite(x) ? Number(x).toFixed(dp) : "—";
+  const pct = x => (100*x).toFixed(1)+"%";
+
+  function typeset(){ if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise().catch(()=>{}); } }
+
+  $$('.tabbtn').forEach(btn=>btn.addEventListener('click',()=>{
+    $$('.tabbtn').forEach(b=>b.classList.remove('active'));
+    $$('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    $('#'+btn.dataset.tab).classList.add('active');
+    setTimeout(()=>{ drawAllVisible(); typeset(); }, 30);
+  }));
+
+  function randn(){
+    let u=0,v=0; while(u===0) u=Math.random(); while(v===0) v=Math.random();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+  }
+  function sampleStdNormal(dist){
+    if(dist==='normal') return randn();
+    if(dist==='uniform') return (Math.random()*2-1)*Math.sqrt(3);
+    // standardised lognormal with shape 0.8
+    const a=.8, z=randn();
+    const y=Math.exp(a*z), m=Math.exp(a*a/2), variance=(Math.exp(a*a)-1)*Math.exp(a*a);
+    return (y-m)/Math.sqrt(variance);
+  }
+  function drawSample(n, mu, sigma, dist){
+    const arr=[]; for(let i=0;i<n;i++) arr.push(mu + sigma*sampleStdNormal(dist)); return arr;
+  }
+  function mean(a){ return a.reduce((s,x)=>s+x,0)/a.length; }
+  function sdSample(a){ const m=mean(a); return Math.sqrt(a.reduce((s,x)=>s+(x-m)*(x-m),0)/(a.length-1)); }
+
+  // Acklam inverse normal approximation
+  function invNorm(p){
+    if(p<=0 || p>=1) return NaN;
+    const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+    const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+    const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+    const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+    const plow=.02425, phigh=1-plow;
+    let q,r;
+    if(p<plow){
+      q=Math.sqrt(-2*Math.log(p));
+      return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+    }
+    if(p>phigh){
+      q=Math.sqrt(-2*Math.log(1-p));
+      return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+    }
+    q=p-.5; r=q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  }
+  function zCrit(conf){ return invNorm(1-(1-conf)/2); }
+  function tCrit(conf, df){
+    const z=zCrit(conf), v=df;
+    if(v<=0) return NaN;
+    // Cornish-Fisher expansion; good enough for display/checking. TI values may differ in final decimals.
+    return z + (Math.pow(z,3)+z)/(4*v) + (5*Math.pow(z,5)+16*Math.pow(z,3)+3*z)/(96*v*v) + (3*Math.pow(z,7)+19*Math.pow(z,5)+17*Math.pow(z,3)-15*z)/(384*v*v*v);
+  }
+  function intervalFromStats(xbar, spread, n, conf, type){
+    const crit = type==='z' ? zCrit(conf) : tCrit(conf, n-1);
+    const se = spread/Math.sqrt(n);
+    const me = crit*se;
+    return {crit,se,me,lo:xbar-me,hi:xbar+me};
+  }
+
+  function clearCanvas(c){ const ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); return ctx; }
+  function roundedRect(ctx,x,y,w,h,r){
+    ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function drawAxis(ctx, x0,x1, y, scale, ticks=7){
+    ctx.strokeStyle='#98a2b3'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+    ctx.fillStyle='#667085'; ctx.font='14px system-ui'; ctx.textAlign='center';
+    for(let i=0;i<=ticks;i++){
+      const x=x0+(x1-x0)*i/ticks; const val=scale.min+(scale.max-scale.min)*i/ticks;
+      ctx.beginPath(); ctx.moveTo(x,y-4); ctx.lineTo(x,y+4); ctx.stroke(); ctx.fillText(fmt(val,1),x,y+20);
+    }
+  }
+
+  let visualIntervals=[];
+  function runVisual(){
+    const mu=parseFloat($('#v_mu').value), sigma=parseFloat($('#v_sigma').value), n=parseInt($('#v_n').value), conf=parseInt($('#v_conf').value)/100, count=clamp(parseInt($('#v_count').value)||60,10,160);
+    const type = $('#v_type').value==='known'?'z':'t', dist=$('#v_dist').value;
+    visualIntervals=[];
+    for(let i=0;i<count;i++){
+      const data=drawSample(n,mu,sigma,dist), xb=mean(data), spread=type==='z'?sigma:sdSample(data);
+      const I=intervalFromStats(xb, spread, n, conf, type);
+      visualIntervals.push({lo:I.lo,hi:I.hi,xbar:xb,hit:I.lo<=mu && mu<=I.hi});
+    }
+    drawIntervals();
+    const hits=visualIntervals.filter(d=>d.hit).length;
+    $('#v_covered').textContent=hits;
+    $('#v_missed').textContent=visualIntervals.length-hits;
+    $('#v_cov').textContent=pct(hits/visualIntervals.length);
+  }
+  function drawIntervals(){
+    const c=$('#intervalCanvas'), ctx=clearCanvas(c), intervals=visualIntervals;
+    if(!intervals.length){
+      ctx.fillStyle='#667085'; ctx.font='24px system-ui'; ctx.textAlign='center'; ctx.fillText('Generate intervals to begin.', c.width/2, c.height/2); return;
+    }
+    const mu=parseFloat($('#v_mu').value);
+    const min=Math.min(mu,...intervals.map(d=>d.lo)), max=Math.max(mu,...intervals.map(d=>d.hi));
+    const pad=(max-min)*.12 || 1; const scale={min:min-pad,max:max+pad};
+    const xOf=v=>70+(v-scale.min)/(scale.max-scale.min)*(c.width-120);
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    drawAxis(ctx,70,c.width-50,c.height-34,scale,8);
+    const xmu=xOf(mu);
+    ctx.strokeStyle='#111827'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(xmu,30); ctx.lineTo(xmu,c.height-46); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#111827'; ctx.font='bold 14px system-ui'; ctx.textAlign='center'; ctx.fillText('true μ',xmu,22);
+    const top=42, bottom=c.height-56, row=(bottom-top)/intervals.length;
+    intervals.forEach((d,i)=>{
+      const y=top+i*row+row/2; const hit=d.hit;
+      ctx.strokeStyle=hit?'#3b82f6':'#e11d48'; ctx.lineWidth=Math.max(1.6, Math.min(6,row*.45));
+      ctx.beginPath(); ctx.moveTo(xOf(d.lo),y); ctx.lineTo(xOf(d.hi),y); ctx.stroke();
+      ctx.fillStyle=hit?'#174ea6':'#be123c'; ctx.beginPath(); ctx.arc(xOf(d.xbar),y,Math.max(2.2,Math.min(4.5,row*.33)),0,Math.PI*2); ctx.fill();
+    });
+  }
+
+  let sampleMeans=[];
+  function runSampling(){
+    const n=parseInt($('#s_n').value), count=clamp(parseInt($('#s_count').value)||1000,100,8000), dist=$('#s_dist').value;
+    const mu=0, sigma=1;
+    sampleMeans=[];
+    for(let i=0;i<count;i++) sampleMeans.push(mean(drawSample(n,mu,sigma,dist)));
+    drawSampling();
+    $('#s_mean').textContent=fmt(mean(sampleMeans),3);
+    $('#s_sd').textContent=fmt(sdSample(sampleMeans),3);
+    $('#s_se').textContent=fmt(1/Math.sqrt(n),3);
+  }
+  function drawSampling(){
+    const c=$('#samplingCanvas'), ctx=clearCanvas(c);
+    if(!sampleMeans.length){ctx.fillStyle='#667085';ctx.font='24px system-ui';ctx.textAlign='center';ctx.fillText('Generate sample means to begin.',c.width/2,c.height/2);return;}
+    const min=Math.min(...sampleMeans), max=Math.max(...sampleMeans), pad=(max-min)*.08||.1;
+    const scale={min:min-pad,max:max+pad}; const xOf=v=>60+(v-scale.min)/(scale.max-scale.min)*(c.width-100);
+    const bins=36, counts=Array(bins).fill(0);
+    sampleMeans.forEach(v=>{ const k=clamp(Math.floor((v-scale.min)/(scale.max-scale.min)*bins),0,bins-1); counts[k]++; });
+    const maxC=Math.max(...counts), base=c.height-46, top=25, bw=(c.width-100)/bins;
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    counts.forEach((ct,i)=>{
+      const h=(ct/maxC)*(base-top); const x=60+i*bw, y=base-h;
+      ctx.fillStyle='#93c5fd'; ctx.fillRect(x+1,y,bw-2,h);
+    });
+    const x0=xOf(0); ctx.strokeStyle='#111827'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath();ctx.moveTo(x0,top);ctx.lineTo(x0,base);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#111827'; ctx.font='bold 14px system-ui'; ctx.textAlign='center'; ctx.fillText('population mean μ',x0,18);
+    drawAxis(ctx,60,c.width-40,base,scale,8);
+  }
+
+  function updateFormula(){
+    const xbar=parseFloat($('#f_xbar').value), sd=parseFloat($('#f_sd').value), n=parseInt($('#f_n').value), conf=parseInt($('#f_conf').value)/100, type=$('#f_type').value, dp=parseInt($('#f_round').value);
+    const I=intervalFromStats(xbar,sd,n,conf,type);
+    $('#f_crit').textContent=fmt(I.crit,3);
+    $('#f_se').textContent=fmt(I.se,3);
+    $('#f_me').textContent=fmt(I.me,3);
+    $('#f_interval').textContent='['+fmt(I.lo,dp)+', '+fmt(I.hi,dp)+']';
+    drawFormulaInterval(I,xbar,dp);
+  }
+  function drawFormulaInterval(I,xbar,dp){
+    const c=$('#formulaCanvas'), ctx=clearCanvas(c), min=I.lo-I.me*.7, max=I.hi+I.me*.7;
+    const xOf=v=>80+(v-min)/(max-min)*(c.width-160); const y=90;
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    drawAxis(ctx,80,c.width-80,145,{min,max},6);
+    ctx.strokeStyle='#3b82f6'; ctx.lineWidth=8; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(xOf(I.lo),y); ctx.lineTo(xOf(I.hi),y); ctx.stroke();
+    ctx.fillStyle='#174ea6'; ctx.beginPath(); ctx.arc(xOf(xbar),y,9,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#101828'; ctx.font='bold 16px system-ui'; ctx.textAlign='center'; ctx.fillText('x̄',xOf(xbar),y-17);
+    ctx.fillStyle='#344054'; ctx.font='14px system-ui'; ctx.fillText(fmt(I.lo,dp),xOf(I.lo),y-17); ctx.fillText(fmt(I.hi,dp),xOf(I.hi),y-17);
+  }
+
+  let decisionAnswer='z';
+  const scenarios=[
+    {text:'A normal population is sampled. The population standard deviation is known to be 2.4. The sample mean is 18.6 and n = 30.', ans:'z', why:'Use a z-interval because the population standard deviation σ is known.'},
+    {text:'A normal population is sampled. The sample mean is 72.1, the sample standard deviation is 8.6, and n = 64. The population standard deviation is not given.', ans:'t', why:'Use a t-interval because σ is unknown. Large n does not change the decision rule.'},
+    {text:'A sample of 12 values from a normal population is given as raw data. No population standard deviation is stated.', ans:'t', why:'Use a t-interval because σ is unknown and must be estimated from the sample.'},
+    {text:'A normal population has known σ = 15. A sample of size 9 has mean 102.3.', ans:'z', why:'Use a z-interval because σ is known, even though n is small.'},
+    {text:'The question gives x̄ = 43.2, s = 5.1, n = 40, and says the population is normal.', ans:'t', why:'Use a t-interval because the given spread is sample s, not population σ.'}
+  ];
+  function newDecision(){
+    const sc=scenarios[Math.floor(Math.random()*scenarios.length)]; decisionAnswer=sc.ans;
+    $('#decisionScenario').innerHTML='<b>Scenario:</b> '+sc.text;
+    const fb=$('#decisionFeedback'); fb.className='callout hidden'; fb.textContent=sc.why; fb.dataset.why=sc.why;
+  }
+  function chooseDecision(choice){
+    const fb=$('#decisionFeedback'); fb.classList.remove('hidden','success','bad');
+    if(choice===decisionAnswer){ fb.classList.add('success'); fb.innerHTML='<b>Correct.</b> '+fb.dataset.why; }
+    else{ fb.classList.add('bad'); fb.innerHTML='<b>Not this time.</b> '+fb.dataset.why; }
+  }
+  function updateTCrit(){
+    const df=parseInt($('#t_df').value), conf=parseFloat($('#t_conf').value), z=zCrit(conf), t=tCrit(conf,df);
+    $('#t_df_val').textContent=df; $('#t_zcrit').textContent=fmt(z,3); $('#t_tcrit').textContent=fmt(t,3); $('#t_extra').textContent=pct(t/z-1);
+  }
+
+  let exam={lo:NaN,hi:NaN,scheme:''};
+  function randomChoice(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function newExam(){
+    const type=randomChoice(['known','summary','raw','interpret']);
+    const conf=randomChoice([.90,.95,.99]); const confPct=Math.round(conf*100);
+    let html='', scheme='';
+    if(type==='known'){
+      const n=randomChoice([16,20,25,36,50,64]); const sigma=+(Math.random()*4+1.2).toFixed(1); const xbar=+(Math.random()*40+40).toFixed(1);
+      const I=intervalFromStats(xbar,sigma,n,conf,'z'); exam={lo:I.lo,hi:I.hi};
+      html=`A normal population has known standard deviation \(\sigma=${sigma}\). A random sample of size \(n=${n}\) has sample mean \(\bar x=${xbar}\). Find a ${confPct}% confidence interval for the population mean.`;
+      scheme=`Known σ, so use a z-interval.\nz* = ${fmt(I.crit,3)}\nSE = σ/√n = ${sigma}/√${n} = ${fmt(I.se,3)}\nME = z* × SE = ${fmt(I.me,3)}\nCI = ${xbar} ± ${fmt(I.me,3)} = [${fmt(I.lo,3)}, ${fmt(I.hi,3)}]\nInterpret: We are ${confPct}% confident that the true population mean lies between ${fmt(I.lo,3)} and ${fmt(I.hi,3)}.`;
+    } else if(type==='summary'){
+      const n=randomChoice([8,10,12,15,18,30,45]); const s=+(Math.random()*5+1.5).toFixed(1); const xbar=+(Math.random()*30+10).toFixed(1);
+      const I=intervalFromStats(xbar,s,n,conf,'t'); exam={lo:I.lo,hi:I.hi};
+      html=`A random sample from a normal population gives \(\bar x=${xbar}\), sample standard deviation \(s=${s}\), and \(n=${n}\). Find a ${confPct}% confidence interval for the population mean.`;
+      scheme=`Unknown σ, so use a t-interval with df = n − 1 = ${n-1}.\nt* ≈ ${fmt(I.crit,3)}\nSE = s/√n = ${s}/√${n} = ${fmt(I.se,3)}\nME = t* × SE = ${fmt(I.me,3)}\nCI = ${xbar} ± ${fmt(I.me,3)} = [${fmt(I.lo,3)}, ${fmt(I.hi,3)}]\nInterpret in context.`;
+    } else if(type==='raw'){
+      const n=randomChoice([7,8,9,10]); const trueMu=Math.random()*20+20, trueSd=Math.random()*4+2;
+      const data=drawSample(n,trueMu,trueSd,'normal').map(x=>+x.toFixed(1)); const xb=mean(data), s=sdSample(data);
+      const I=intervalFromStats(xb,s,n,conf,'t'); exam={lo:I.lo,hi:I.hi};
+      html=`The following data are a random sample from a normal population:<br><b>${data.join(', ')}</b><br>Find a ${confPct}% confidence interval for the population mean.`;
+      scheme=`Raw data and σ is unknown, so use a t-interval.\nFrom the data: x̄ = ${fmt(xb,3)}, s = ${fmt(s,3)}, n = ${n}, df = ${n-1}.\nt* ≈ ${fmt(I.crit,3)}\nSE = ${fmt(I.se,3)}\nME = ${fmt(I.me,3)}\nCI = [${fmt(I.lo,3)}, ${fmt(I.hi,3)}]\nCalculator route: t Interval → Data → list name → confidence level ${conf}.`;
+    } else {
+      exam={lo:NaN,hi:NaN};
+      html=`A student writes: “There is a ${confPct}% probability that the population mean is inside my calculated interval.” Explain what is wrong and write a better interpretation.`;
+      scheme=`The population mean μ is fixed; the random object is the interval produced from the sample.\nBetter wording: We are ${confPct}% confident that the true population mean lies within the interval.\nLong-run meaning: if the same sampling method were repeated many times, about ${confPct}% of the intervals would contain μ.`;
+    }
+    $('#examQ').innerHTML=html; $('#examScheme').textContent=scheme; $('#examScheme').classList.remove('show'); $('#examFeedback').className='callout hidden'; $('#ansLow').value=''; $('#ansHigh').value=''; typeset();
+  }
+  function checkExam(){
+    const fb=$('#examFeedback'); fb.classList.remove('hidden','success','bad','warning');
+    if(!Number.isFinite(exam.lo)){
+      fb.classList.add('warning'); fb.innerHTML='This is an interpretation question. Use the mark scheme to compare your explanation.'; return;
+    }
+    const lo=parseFloat($('#ansLow').value), hi=parseFloat($('#ansHigh').value);
+    if(!Number.isFinite(lo)||!Number.isFinite(hi)){ fb.classList.add('bad'); fb.textContent='Enter numerical lower and upper bounds.'; return; }
+    const tol=Math.max(.035, Math.abs(exam.hi-exam.lo)*.004);
+    const ok=Math.abs(lo-exam.lo)<=tol && Math.abs(hi-exam.hi)<=tol;
+    if(ok){ fb.classList.add('success'); fb.innerHTML='<b>Correct.</b> Your bounds are within rounding tolerance. Now add the interpretation sentence.'; }
+    else { fb.classList.add('bad'); fb.innerHTML=`Not quite. Expected approximately [${fmt(exam.lo,3)}, ${fmt(exam.hi,3)}]. Check whether you used z or t, and whether you used s or σ.`; }
+  }
+
+  function drawAllVisible(){
+    if($('#visual').classList.contains('active')) drawIntervals();
+    if($('#sampling').classList.contains('active')) drawSampling();
+    if($('#formula').classList.contains('active')) updateFormula();
+  }
+
+  // listeners
+  ['v_n','v_conf'].forEach(id=>$('#'+id).addEventListener('input',()=>{ $('#v_n_val').textContent=$('#v_n').value; $('#v_conf_val').textContent=$('#v_conf').value+'%'; }));
+  $('#runVisual').addEventListener('click',runVisual);
+  ['s_n'].forEach(id=>$('#'+id).addEventListener('input',()=>{ $('#s_n_val').textContent=$('#s_n').value; }));
+  $('#runSampling').addEventListener('click',runSampling);
+  ['f_xbar','f_sd','f_n','f_conf','f_type','f_round'].forEach(id=>$('#'+id).addEventListener('input',()=>{ $('#f_n_val').textContent=$('#f_n').value; $('#f_conf_val').textContent=$('#f_conf').value+'%'; updateFormula(); }));
+  $('#newDecision').addEventListener('click',newDecision);
+  $$('[data-choice]').forEach(b=>b.addEventListener('click',()=>chooseDecision(b.dataset.choice)));
+  ['t_df','t_conf'].forEach(id=>$('#'+id).addEventListener('input',updateTCrit));
+  $('#newExam').addEventListener('click',newExam); $('#checkExam').addEventListener('click',checkExam); $('#showScheme').addEventListener('click',()=>$('#examScheme').classList.toggle('show'));
+  $('#toggleExit').addEventListener('click',()=>$('#exitAnswers').classList.toggle('show'));
+
+  // initial values
+  $('#v_n_val').textContent=$('#v_n').value; $('#v_conf_val').textContent=$('#v_conf').value+'%';
+  $('#s_n_val').textContent=$('#s_n').value; $('#f_n_val').textContent=$('#f_n').value; $('#f_conf_val').textContent=$('#f_conf').value+'%';
+  updateFormula(); updateTCrit(); runVisual(); runSampling(); newDecision(); newExam(); typeset();
+})();
+</script>
+</body>
+</html>
