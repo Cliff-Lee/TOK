@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB AI Hypothesis Testing Explorer</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --ink:#142033; --muted:#64748b; --line:#dbe3ef;
+  --sl:#059669; --slSoft:#d1fae5; --hl:#7c3aed; --hlSoft:#ede9fe;
+  --blue:#2563eb; --blueSoft:#dbeafe; --red:#dc2626; --redSoft:#fee2e2; --amber:#d97706; --amberSoft:#fef3c7;
+  --shadow:0 16px 40px rgba(15,23,42,.08); --radius:22px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top left,#eef6ff 0,transparent 34rem),var(--bg);color:var(--ink);line-height:1.5}
+header{max-width:1240px;margin:auto;padding:34px 22px 20px}.wrap{max-width:1240px;margin:auto;padding:0 22px 60px}.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:24px}.hero-card,.card{background:rgba(255,255,255,.93);border:1px solid rgba(219,227,239,.95);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(8px)}.hero-card{padding:28px;position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(124,58,237,.12));right:-80px;top:-80px}.hero-side{padding:20px;display:flex;flex-direction:column;gap:12px}.tag{display:inline-flex;padding:7px 12px;border-radius:999px;background:var(--blueSoft);color:#1e40af;font-size:13px;font-weight:850}h1{font-size:clamp(31px,4vw,52px);line-height:1.02;margin:18px 0 16px;letter-spacing:-.04em}h2{font-size:clamp(24px,3vw,36px);line-height:1.1;margin:0 0 12px;letter-spacing:-.03em}h3{font-size:20px;margin:0 0 10px;letter-spacing:-.02em}p{margin:0 0 12px;color:#344155}.lead{font-size:16.5px;max-width:78ch}.mini-stat{padding:15px;border-radius:18px;border:1px solid var(--line);background:#fff}.mini-stat strong{display:block;font-size:24px;line-height:1.05}.mini-stat span{font-size:14px;color:var(--muted)}
+.tabs{position:sticky;top:0;z-index:10;display:flex;gap:8px;overflow:auto;padding:12px 0 14px;background:linear-gradient(to bottom,rgba(246,247,251,.97),rgba(246,247,251,.80));backdrop-filter:blur(8px)}.tab-btn{border:1px solid var(--line);background:#fff;color:#334155;padding:10px 14px;border-radius:999px;font-weight:850;cursor:pointer;white-space:nowrap}.tab-btn.active{background:var(--ink);color:white;border-color:var(--ink)}section.panel{display:none}section.panel.active{display:block}.card{padding:22px;margin-bottom:18px}.grid{display:grid;gap:18px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.soft,.test-card,.ti-card,.scenario-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}.sl-card{border-top:6px solid var(--sl);background:linear-gradient(to bottom,#fff,#f6fffb)}.hl-card{border-top:6px solid var(--hl);background:linear-gradient(to bottom,#fff,#fbf8ff)}.warn-card{border-top:6px solid var(--amber);background:linear-gradient(to bottom,#fff,#fffbeb)}.pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.pill.sl{background:var(--slSoft);color:#065f46}.pill.hl{background:var(--hlSoft);color:#5b21b6}.pill.info{background:#f1f5f9;color:#475569}.legend{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}.tiny-label{font-size:12px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#64748b;margin-bottom:6px}.callout{border-left:5px solid var(--blue);background:#eff6ff;padding:14px 16px;border-radius:14px}.exam-box{border-left:5px solid var(--amber);background:#fffbeb;padding:14px 16px;border-radius:14px}.formula{font-size:18px;background:#f8fafc;padding:12px 14px;border:1px solid var(--line);border-radius:14px;overflow:auto}.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.step b{display:block;color:var(--blue);margin-bottom:6px}label{display:block;font-weight:850;color:#334155;margin:10px 0 6px}input,select{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;font:inherit;color:var(--ink);background:#fff}input[type=range]{padding:0;accent-color:var(--blue)}button.action{border:0;background:var(--blue);color:#fff;border-radius:15px;padding:11px 15px;font-weight:900;cursor:pointer;box-shadow:0 9px 20px rgba(37,99,235,.22)}button.action.secondary{background:#0f172a;box-shadow:none}button.action.ghost{background:#f1f5f9;color:#334155;box-shadow:none;border:1px solid var(--line)}.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.result{margin-top:12px;border-radius:18px;padding:16px;background:#f8fafc;border:1px solid var(--line)}.result.good{background:var(--slSoft);border-color:#a7f3d0}.result.bad{background:var(--redSoft);border-color:#fecaca}.result.blue{background:var(--blueSoft);border-color:#bfdbfe}.svg-box{width:100%;min-height:260px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px}.diagram-svg,.svg-box>svg,.ti-screen svg{width:100%;height:auto;display:block}.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#eef2ff;color:#3730a3;padding:2px 6px;border-radius:7px;font-weight:850}.small{font-size:13px;color:var(--muted)}.choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.choice{text-align:left;border:1px solid var(--line);background:#fff;padding:13px 14px;border-radius:16px;cursor:pointer;font-weight:850;color:#334155}.choice.correct{background:var(--slSoft);border-color:#34d399}.choice.wrong{background:var(--redSoft);border-color:#f87171}table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:16px;border:1px solid var(--line);background:#fff}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f8fafc;color:#334155}tr:last-child td{border-bottom:0}.ti-screen{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#f8fafc;margin-bottom:12px}.footer-note{color:var(--muted);font-size:13px;padding:20px 0}
+
+.student-route{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 4px}.route-card{border:1px solid var(--line);background:#fff;border-radius:18px;padding:14px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.route-card:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(15,23,42,.08)}.route-card b{display:block;font-size:15px;color:var(--ink)}.route-card span{display:block;font-size:13px;color:var(--muted);margin-top:3px}.task-panel{border:1px solid #bfdbfe;background:#eff6ff;border-left:6px solid var(--blue);border-radius:18px;padding:16px;margin:14px 0}.task-panel h3{margin-bottom:8px}.clear-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0 0;padding:0;list-style:none}.clear-steps li{background:#fff;border:1px solid #bfdbfe;border-radius:14px;padding:12px}.clear-steps b{display:block;color:#1d4ed8;margin-bottom:4px}.example-line{margin-top:10px;padding:10px 12px;border-radius:14px;background:#f8fafc;border:1px dashed #cbd5e1;color:#334155}.mini-link{border:1px solid var(--line);background:#fff;color:#1d4ed8;border-radius:999px;padding:7px 10px;font-weight:850;cursor:pointer;margin-top:8px}.example-bank{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.example-btn{border:1px solid var(--line);background:#fff;color:#334155;border-radius:999px;padding:9px 12px;font-weight:850;cursor:pointer}.example-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}.active-scenario{margin-top:12px;border:1px solid var(--line);background:#fff;border-radius:18px;padding:14px}.active-scenario .small{margin-bottom:0}.next-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.next-steps div{background:#fff;border:1px solid #bfdbfe;border-radius:14px;padding:11px}.section-intro{font-size:16px;max-width:90ch}.student-do{border-left:5px solid var(--sl);background:#ecfdf5;padding:14px 16px;border-radius:14px;margin:12px 0}.now-box{border:1px solid #c7d2fe;background:#eef2ff;border-radius:16px;padding:13px;margin-top:12px}.student-choice-card{transition:background .2s ease,border-color .2s ease,box-shadow .2s ease}.student-choice-card.correct{border-color:#34d399;background:linear-gradient(to bottom,#ffffff,#ecfdf5);box-shadow:0 0 0 4px rgba(52,211,153,.18)}.student-choice-card.incorrect{border-color:#f87171;background:linear-gradient(to bottom,#ffffff,#fef2f2);box-shadow:0 0 0 4px rgba(248,113,113,.14)}.student-choice-card.correct h3::after{content:"  ✓ Correct";display:inline-flex;margin-left:8px;padding:3px 8px;border-radius:999px;background:var(--slSoft);color:#065f46;font-size:13px;font-weight:900;vertical-align:middle}.student-choice-card.incorrect h3::after{content:"  Try again";display:inline-flex;margin-left:8px;padding:3px 8px;border-radius:999px;background:var(--redSoft);color:#991b1b;font-size:13px;font-weight:900;vertical-align:middle}.student-choice-card.correct select{border-color:#34d399;background:#f0fdf4}.student-choice-card.incorrect select{border-color:#f87171;background:#fff7f7}
+
+.worked-example{margin-top:14px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:16px;padding:14px}.worked-example h4{margin:0 0 8px;font-size:16px}.calc-list{display:grid;gap:7px;margin:10px 0}.calc-line{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 10px;color:#1f2937;overflow:auto}.decision-box{margin-top:10px;border-left:5px solid var(--sl);background:#ecfdf5;border-radius:12px;padding:10px 12px}.decision-box.caution{border-left-color:var(--amber);background:#fffbeb}.mini-table{font-size:14px;margin:8px 0}.mini-table th,.mini-table td{padding:7px 9px}.try-cover{border:1px dashed #94a3b8;background:#fff;border-radius:14px;padding:10px 12px;margin:12px 0;color:#334155}.test-card .formula{font-size:16px}
+
+.ti-practice-note{border-left:6px solid var(--blue);background:#eff6ff;border-radius:16px;padding:14px 16px;margin:14px 0}.ti-practice-note b{color:#1d4ed8}.ti-data{background:#fff;border:1px dashed #94a3b8;border-radius:14px;padding:11px 12px;margin:10px 0}.ti-data b{display:block;margin-bottom:4px}.ti-enter{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin:10px 0}.ti-enter ul{margin:6px 0 0 18px}.ti-check{margin-top:10px;border:1px solid #bfdbfe;background:#fff;border-radius:14px;padding:10px 12px}.ti-check summary{cursor:pointer;font-weight:900;color:#1d4ed8}.ti-check[open]{background:#f0fdf4;border-color:#86efac}.ti-check .calc-line{margin-top:8px}.ti-student-output{border:1px solid #c7d2fe;background:#eef2ff;border-radius:14px;padding:10px 12px;margin-top:10px}.data-table{font-size:14px;margin:8px 0}.data-table th,.data-table td{padding:7px 9px;text-align:center}.pathline{font-weight:850;background:#ecfdf5;border-radius:10px;padding:7px 9px;margin-bottom:9px}.hl-card .pathline{background:#f3e8ff}.ti-card h4{margin:10px 0 6px;font-size:15px}.ti-card .small{margin-top:6px}.matrix-help{background:#fff;border:1px solid #cbd5e1;border-radius:14px;padding:12px;margin:10px 0}.matrix-help h4{margin:0 0 8px;font-size:15px}.matrix-steps{counter-reset:step;display:grid;gap:8px;margin:8px 0}.matrix-step{position:relative;padding:10px 10px 10px 42px;background:#f8fafc;border:1px solid var(--line);border-radius:12px}.matrix-step:before{counter-increment:step;content:counter(step);position:absolute;left:10px;top:10px;width:22px;height:22px;border-radius:50%;background:#2563eb;color:#fff;font-weight:900;text-align:center;line-height:22px;font-size:13px}.matrix-code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;overflow:auto}.matrix-warning{border-left:5px solid var(--amber);background:#fffbeb;border-radius:12px;padding:10px;margin-top:8px}.mini-matrix{display:grid;grid-template-columns:90px repeat(3,70px);gap:0;margin:8px 0;max-width:330px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.mini-matrix div{padding:7px 9px;text-align:center;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}.mini-matrix div:nth-child(-n+4){background:#f8fafc;font-weight:850}.mini-matrix div:nth-child(4n){border-right:0}.mini-matrix div:nth-last-child(-n+4){border-bottom:0}.ti-field-table{width:100%;font-size:14px;margin-top:8px}.ti-field-table td,.ti-field-table th{padding:7px 9px}.checklist-tight{margin:6px 0 0 18px}.checklist-tight li{margin:3px 0}
+
+@media(max-width:950px){.hero,.grid.two,.grid.three,.grid.four,.student-route,.clear-steps,.next-steps{grid-template-columns:1fr}.flow{grid-template-columns:1fr 1fr}.choice-grid{grid-template-columns:1fr}}@media(max-width:560px){.flow{grid-template-columns:1fr}header,.wrap{padding-left:14px;padding-right:14px}.hero-card,.card{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <div class="hero-card">
+      <span class="tag">IB AI Hypothesis Testing Explorer</span>
+      <h1>From “maybe” to mathematical evidence.</h1>
+      <p class="lead">A complete teaching and revision applet for IB Mathematics: Applications and Interpretation. Start by choosing the situation and data type, then learn the test, calculator workflow, decision rule and exam conclusion.</p>
+      <div class="btn-row"><button class="action" onclick="goTab('chooser')">Start with the test chooser</button><button class="action ghost" onclick="goTab('ti')">TI-Nspire guide</button><button class="action secondary" onclick="goTab('exam')">Exam trainer</button></div>
+    </div>
+    <div class="hero-side hero-card">
+      <div class="mini-stat"><strong>SL Core</strong><span>χ² goodness-of-fit, χ² independence, pooled two-sample t-test.</span></div>
+      <div class="mini-stat"><strong>HL / AHL</strong><span>One-sample tests, paired tests, binomial, Poisson, correlation, Type I/II errors and power.</span></div>
+      <div class="mini-stat"><strong>Decision</strong><span>Reject H₀ when p-value is less than α.</span></div>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+<nav class="tabs" aria-label="Main sections">
+  <button class="tab-btn active" data-tab="bigidea">1 Start</button>
+  <button class="tab-btn" data-tab="chooser">2 Choose test</button>
+  <button class="tab-btn" data-tab="tests">3 Test notes</button>
+  <button class="tab-btn" data-tab="visual">4 See p-value</button>
+  <button class="tab-btn" data-tab="ti">5 TI steps</button>
+  <button class="tab-btn" data-tab="calculators">6 Calculate</button>
+  <button class="tab-btn" data-tab="errors">7 Errors & power</button>
+  <button class="tab-btn" data-tab="exam">8 Practice</button>
+  <button class="tab-btn" data-tab="checklist">9 Checklist</button>
+</nav>
+
+<section class="panel active" id="bigidea">
+  <div class="card">
+    <h2>Start here: identify the situation</h2>
+    <p class="section-intro">Before choosing a formula, decide what kind of data the question gives you. This page is a map: match the worded problem to one of the cards, then go to <b>2 Choose test</b>.</p>
+    <div class="task-panel">
+      <h3>What students do on this page</h3>
+      <ol class="clear-steps">
+        <li><b>1 Read the story</b>What was measured or counted?</li>
+        <li><b>2 Name the data</b>Counts, table, two groups, before/after, rate, or relationship?</li>
+        <li><b>3 Match a card</b>Use the practical examples below.</li>
+        <li><b>4 Move on</b>Use <b>2 Choose test</b> to write H₀ and H₁.</li>
+      </ol>
+    </div>
+    <div class="student-route">
+      <div class="route-card" onclick="goTab('chooser')"><b>Need to choose a test?</b><span>Go to 2 Choose test.</span></div>
+      <div class="route-card" onclick="goTab('ti')"><b>Already know the test?</b><span>Go to 5 TI steps.</span></div>
+      <div class="route-card" onclick="goTab('visual')"><b>Confused by p-values?</b><span>Go to 4 See p-value.</span></div>
+      <div class="route-card" onclick="goTab('exam')"><b>Ready to practise?</b><span>Go to 8 Practice.</span></div>
+    </div>
+    <div class="legend"><span class="pill sl">SL core</span><span class="pill hl">HL / AHL extension</span><span class="pill info">Exam skill</span></div>
+    <div class="grid three">
+      <div class="soft sl-card"><div class="tiny-label">Categorical counts</div><h3>Observed vs expected?</h3><p>One categorical variable. You count how many items fall in each category.</p><div class="example-line"><b>Example:</b> Roll a die 120 times. Are the six faces equally likely?</div><p><b>Test:</b> χ² goodness-of-fit.</p><button class="mini-link" onclick="goTab('chooser');setTimeout(()=>loadChooserExample(0),50)">Try this example</button></div>
+      <div class="soft sl-card"><div class="tiny-label">Categorical table</div><h3>Two variables associated?</h3><p>Two categorical variables arranged in a two-way table.</p><div class="example-line"><b>Example:</b> Is lunch choice related to year group?</div><p><b>Test:</b> χ² test for independence.</p><button class="mini-link" onclick="goTab('chooser');setTimeout(()=>loadChooserExample(1),50)">Try this example</button></div>
+      <div class="soft sl-card"><div class="tiny-label">Two independent means</div><h3>Group 1 vs group 2?</h3><p>Two separate groups with numerical measurements.</p><div class="example-line"><b>Example:</b> Did Class A and Class B get different mean scores?</div><p><b>Test:</b> pooled two-sample t-test.</p><button class="mini-link" onclick="goTab('chooser');setTimeout(()=>loadChooserExample(2),50)">Try this example</button></div>
+      <div class="soft hl-card"><div class="tiny-label">One mean</div><h3>Sample mean vs claim?</h3><p>One numerical sample compared with a claimed mean.</p><div class="example-line"><b>Example:</b> A company claims batteries last 10 hours. Does your sample suggest less?</div><p><b>Test:</b> one-sample t-test, or z-test if population variance is known.</p><button class="mini-link" onclick="goTab('chooser');setTimeout(()=>loadChooserExample(3),50)">Try this example</button></div>
+      <div class="soft hl-card"><div class="tiny-label">Paired data</div><h3>Before/after?</h3><p>The same people or matched items measured twice. Analyse the differences.</p><div class="example-line"><b>Example:</b> Do students improve after a revision lesson?</div><p><b>Test:</b> paired t-test.</p><button class="mini-link" onclick="goTab('chooser');setTimeout(()=>loadChooserExample(4),50)">Try this example</button></div>
+      <div class="soft hl-card"><div class="tiny-label">Probability or rate</div><h3>Successes or counts?</h3><p>Success/failure suggests binomial. Counts in a fixed interval suggest Poisson.</p><div class="example-line"><b>Examples:</b> 18 successes out of 25, or 12 arrivals per minute.</div><p><b>Test:</b> binomial or Poisson test.</p><button class="mini-link" onclick="goTab('chooser');setTimeout(()=>loadChooserExample(5),50)">Try this example</button></div>
+    </div>
+    <div class="exam-box" style="margin-top:16px"><b>SL focus:</b> χ² goodness-of-fit, χ² independence, pooled two-sample t-test. <b>HL/AHL focus:</b> add one-sample, paired, binomial, Poisson, correlation tests, critical regions, Type I/II errors and power.</div>
+  </div>
+  <div class="card"><h2>What is a hypothesis test?</h2><div class="grid two"><div><p>A hypothesis test asks:</p><div class="formula">If H₀ were true, would this sample result be surprisingly extreme?</div><p style="margin-top:12px">It does not prove that a claim is true. It measures how unusual the evidence is under a model.</p><div class="callout"><b>Core logic:</b> assume H₀ → calculate evidence → find p-value or critical region → compare with α → conclude in context.</div></div><div class="svg-box"><svg id="logicSvg" class="diagram-svg" viewBox="0 0 760 400"></svg></div></div></div>
+  <div class="card"><h2>The universal exam structure</h2><p>Use this structure for every test, even when the calculation is done by technology.</p><div class="flow"><div class="step"><b>1. Claim</b>Identify parameter or relationship.</div><div class="step"><b>2. Hypotheses</b>Write H₀ and H₁.</div><div class="step"><b>3. Model</b>Choose test/distribution.</div><div class="step"><b>4. Evidence</b>Calculate statistic or p-value.</div><div class="step"><b>5. Decision</b>Compare p with α.</div><div class="step"><b>6. Context</b>Answer the question.</div></div></div>
+</section>
+
+<section class="panel" id="chooser">
+  <div class="card">
+    <h2>Student task: choose the correct test</h2>
+    <p class="section-intro">Use this page like a short quiz. Read a worded problem, make your own choice, then press <b>Check my choice</b>. The answer and explanation stay hidden until you check.</p>
+    <div class="student-do"><b>What to do:</b> 1) choose a practical example, 2) decide the data type, claim direction, and test, 3) check your choice, then improve your reasoning if needed.</div>
+    <div class="grid two">
+      <div class="soft">
+        <h3>Try a practical example</h3>
+        <p>Click one example to get the problem. The dropdowns will <b>not</b> be filled in for you.</p>
+        <div class="example-bank" id="chooserExamples"></div>
+        <div id="activeExample" class="active-scenario"><b>No example selected yet.</b><p class="small">Choose an example above, or use the dropdowns with your own problem.</p></div>
+        <button type="button" class="mini-link" onclick="useOwnChooserProblem()">Use my own problem</button>
+      </div>
+      <div class="soft student-choice-card" id="chooserChoicePanel">
+        <h3>Your choice</h3>
+        <label>1. What kind of data is in the question?</label>
+        <select id="dataType" onchange="resetChooserFeedback()"><option value="" selected>Choose the data type...</option><option value="cat1">Counts in categories: observed vs expected</option><option value="cat2">Two-way table: two categorical variables</option><option value="twoMeans">Two separate numerical groups</option><option value="oneMeanUnknown">One numerical sample, variance unknown</option><option value="oneMeanKnown">One numerical sample, variance known</option><option value="paired">Paired numerical data: before/after or matched</option><option value="binomial">Success/failure trials</option><option value="poisson">Counts in a fixed time/space</option><option value="correlation">Two numerical or ranked variables</option></select>
+        <label>2. What is the claim trying to show?</label>
+        <select id="claimDirection" onchange="resetChooserFeedback()"><option value="" selected>Choose the claim direction...</option><option value="different">Different / changed / not equal (≠)</option><option value="greater">Greater than / increased / positive (&gt;)</option><option value="less">Less than / decreased / negative (&lt;)</option><option value="association">Association / dependence / relationship</option><option value="fit">Fits a stated distribution or expected pattern</option></select>
+        <label>3. Which test do you think should be used?</label>
+        <select id="studentTest" onchange="resetChooserFeedback()"><option value="" selected>Choose the test...</option><option value="χ² goodness-of-fit">χ² goodness-of-fit</option><option value="χ² independence">χ² independence</option><option value="Pooled two-sample t-test">Pooled two-sample t-test</option><option value="One-sample t-test">One-sample t-test</option><option value="z-test for a mean">z-test for a mean</option><option value="Paired t-test">Paired t-test</option><option value="Binomial test">Binomial test</option><option value="Poisson test">Poisson test</option><option value="Correlation test">Correlation test</option></select>
+        <div class="btn-row"><button type="button" class="action" onclick="checkChooser()">Check my choice</button><button type="button" class="action ghost" onclick="resetChooserInputs()">Reset choices</button></div>
+        <div class="now-box"><b>Before checking, say:</b> “I think this is a ___ test because the data are ___.”</div>
+      </div>
+    </div>
+    <div id="chooserResult" class="result blue"><h3>Answer hidden</h3><p>Make your choices, then press <b>Check my choice</b>. Feedback will appear here.</p></div>
+    <div class="task-panel">
+      <h3>After this page, what next?</h3>
+      <div class="next-steps"><div><b>Need the calculator steps?</b><br>Go to <button class="mini-link" onclick="goTab('ti')">5 TI steps</button></div><div><b>Want to calculate with numbers?</b><br>Go to <button class="mini-link" onclick="goTab('calculators')">6 Calculate</button></div><div><b>Want exam practice?</b><br>Go to <button class="mini-link" onclick="goTab('exam')">8 Practice</button></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="tests">
+  <div class="card">
+    <h2>Test notes, numerical examples and calculations</h2>
+    <p class="section-intro">Use this page as a reference after you have chosen a test. Each card gives the data type, hypotheses, a small numerical example, the calculation setup, and the decision at the 5% significance level.</p>
+    <div class="student-do"><b>Student task:</b> choose a test first, then come here. Cover the final decision, calculate the test statistic or p-value, then check your answer.</div>
+    <div class="legend"><span class="pill sl">SL core</span><span class="pill hl">HL / AHL</span></div>
+    <div class="grid two">
+
+      <div class="test-card sl-card">
+        <h3>χ² goodness-of-fit <span class="pill sl">SL</span></h3>
+        <p><b>Data:</b> one categorical variable.</p>
+        <p><b>H₀:</b> data follows the stated distribution. <b>H₁:</b> data does not follow the stated distribution.</p>
+        <div class="formula">χ² = Σ (O − E)² / E, df = categories − 1</div>
+        <div class="worked-example">
+          <h4>Numerical example: fair die</h4>
+          <p>A die is rolled 120 times. Observed counts are 18, 22, 17, 19, 20, 24. If the die is fair, each expected count is 20.</p>
+          <div class="calc-list">
+            <div class="calc-line">χ² = (18−20)²/20 + (22−20)²/20 + ... + (24−20)²/20</div>
+            <div class="calc-line">χ² = (4+4+9+1+0+16)/20 = 1.70</div>
+            <div class="calc-line">df = 6 − 1 = 5, so p ≈ 0.889</div>
+          </div>
+          <div class="decision-box caution"><b>Decision:</b> p &gt; 0.05, so do not reject H₀. There is not enough evidence that the die is unfair.</div>
+        </div>
+      </div>
+
+      <div class="test-card sl-card">
+        <h3>χ² independence <span class="pill sl">SL</span></h3>
+        <p><b>Data:</b> two categorical variables in a contingency table.</p>
+        <p><b>H₀:</b> variables are independent. <b>H₁:</b> variables are not independent.</p>
+        <div class="formula">Expected = row total × column total ÷ grand total</div>
+        <div class="worked-example">
+          <h4>Numerical example: lunch choice × year group</h4>
+          <table class="mini-table"><thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>Total</th></tr></thead><tbody><tr><th>Year 10</th><td>28</td><td>19</td><td>13</td><td>60</td></tr><tr><th>Year 11</th><td>14</td><td>24</td><td>22</td><td>60</td></tr><tr><th>Total</th><td>42</td><td>43</td><td>35</td><td>120</td></tr></tbody></table>
+          <div class="calc-list">
+            <div class="calc-line">Expected Year 10, A = 60×42÷120 = 21</div>
+            <div class="calc-line">Expected row values: 21, 21.5, 17.5 and 21, 21.5, 17.5</div>
+            <div class="calc-line">χ² = Σ(O−E)²/E ≈ 7.56, df = (2−1)(3−1) = 2</div>
+            <div class="calc-line">p ≈ 0.0228</div>
+          </div>
+          <div class="decision-box"><b>Decision:</b> p &lt; 0.05, so reject H₀. There is evidence that lunch choice is related to year group.</div>
+        </div>
+      </div>
+
+      <div class="test-card sl-card">
+        <h3>Pooled two-sample t-test <span class="pill sl">SL</span></h3>
+        <p><b>Data:</b> two independent numerical samples.</p>
+        <p><b>H₀:</b> μ₁ = μ₂. <b>H₁:</b> μ₁ ≠ μ₂, μ₁ &gt; μ₂, or μ₁ &lt; μ₂.</p>
+        <p><b>SL note:</b> population variances are unknown but assumed equal, so use pooled = yes.</p>
+        <div class="worked-example">
+          <h4>Numerical example: two classes</h4>
+          <p>Class A: n₁=14, x̄₁=72.4, s₁=8.1. Class B: n₂=16, x̄₂=66.8, s₂=7.4. Test whether the means are different.</p>
+          <div class="calc-list">
+            <div class="calc-line">sₚ = √(((13)(8.1²)+(15)(7.4²))/(14+16−2)) ≈ 7.733</div>
+            <div class="calc-line">t = (72.4−66.8)/(7.733√(1/14+1/16)) ≈ 1.979</div>
+            <div class="calc-line">df = 28, two-tailed p ≈ 0.0577</div>
+          </div>
+          <div class="decision-box caution"><b>Decision:</b> p &gt; 0.05, so do not reject H₀. The evidence is not quite strong enough at 5%.</div>
+        </div>
+      </div>
+
+      <div class="test-card hl-card">
+        <h3>One-sample t-test <span class="pill hl">HL</span></h3>
+        <p><b>Data:</b> one numerical sample, population variance unknown.</p>
+        <p><b>H₀:</b> μ = μ₀. <b>H₁:</b> μ ≠ μ₀, μ &gt; μ₀, or μ &lt; μ₀.</p>
+        <div class="worked-example">
+          <h4>Numerical example: battery claim</h4>
+          <p>A company claims μ=10 hours. A sample of 8 batteries gives mean x̄=9.75 and standard deviation s=0.245. Test whether the mean is less than 10.</p>
+          <div class="calc-list">
+            <div class="calc-line">H₀: μ = 10, H₁: μ &lt; 10</div>
+            <div class="calc-line">t = (9.75−10)/(0.245/√8) ≈ −2.887</div>
+            <div class="calc-line">df = 7, left-tailed p ≈ 0.0117</div>
+          </div>
+          <div class="decision-box"><b>Decision:</b> p &lt; 0.05, so reject H₀. There is evidence that the mean battery life is less than 10 hours.</div>
+        </div>
+      </div>
+
+      <div class="test-card hl-card">
+        <h3>z-test for a mean <span class="pill hl">HL</span></h3>
+        <p><b>Data:</b> one numerical sample, population variance known.</p>
+        <p><b>H₀:</b> μ = μ₀. Use this only when σ is known.</p>
+        <div class="worked-example">
+          <h4>Numerical example: filling machine</h4>
+          <p>A machine should fill bottles with μ=500 ml. From n=36 bottles, x̄=501.8 ml. The population standard deviation is known: σ=6 ml. Test whether the mean is different from 500.</p>
+          <div class="calc-list">
+            <div class="calc-line">H₀: μ = 500, H₁: μ ≠ 500</div>
+            <div class="calc-line">z = (501.8−500)/(6/√36) = 1.80</div>
+            <div class="calc-line">two-tailed p ≈ 0.0719</div>
+          </div>
+          <div class="decision-box caution"><b>Decision:</b> p &gt; 0.05, so do not reject H₀. There is not enough evidence that the mean fill has changed.</div>
+        </div>
+      </div>
+
+      <div class="test-card hl-card">
+        <h3>Paired t-test <span class="pill hl">HL</span></h3>
+        <p><b>Data:</b> before/after or matched pairs.</p>
+        <p><b>Method:</b> create differences d, then run a one-sample t-test on d.</p>
+        <div class="worked-example">
+          <h4>Numerical example: before and after revision</h4>
+          <p>Six students improve by d = after − before: 5, −1, 4, 2, 1, 3 marks. Test whether the mean improvement is greater than 0.</p>
+          <div class="calc-list">
+            <div class="calc-line">H₀: μd = 0, H₁: μd &gt; 0</div>
+            <div class="calc-line">d̄ = 2.333, sd ≈ 2.160</div>
+            <div class="calc-line">t = 2.333/(2.160/√6) ≈ 2.646</div>
+            <div class="calc-line">df = 5, right-tailed p ≈ 0.0228</div>
+          </div>
+          <div class="decision-box"><b>Decision:</b> p &lt; 0.05, so reject H₀. There is evidence of an improvement after revision.</div>
+        </div>
+      </div>
+
+      <div class="test-card hl-card">
+        <h3>Binomial test <span class="pill hl">HL</span></h3>
+        <p><b>Data:</b> fixed independent success/failure trials.</p>
+        <p><b>H₀:</b> p = p₀. Under H₀, X follows B(n, p₀).</p>
+        <div class="worked-example">
+          <h4>Numerical example: penalty saves</h4>
+          <p>A goalkeeper usually saves 30% of penalties. In 20 penalties, they save 10. Test whether the save rate is greater than 30%.</p>
+          <div class="calc-list">
+            <div class="calc-line">H₀: p = 0.30, H₁: p &gt; 0.30</div>
+            <div class="calc-line">X ~ B(20, 0.30) under H₀</div>
+            <div class="calc-line">p-value = P(X ≥ 10) ≈ 0.0480</div>
+          </div>
+          <div class="decision-box"><b>Decision:</b> p &lt; 0.05, so reject H₀. There is evidence that the save rate is greater than 30%.</div>
+        </div>
+      </div>
+
+      <div class="test-card hl-card">
+        <h3>Poisson test <span class="pill hl">HL</span></h3>
+        <p><b>Data:</b> counts in fixed time, area or space.</p>
+        <p><b>H₀:</b> λ = λ₀. Under H₀, X follows Poisson(λ₀).</p>
+        <div class="worked-example">
+          <h4>Numerical example: cars per minute</h4>
+          <p>A road usually has a mean of 8 cars per minute. In one minute, 14 cars are counted. Test whether the rate has increased.</p>
+          <div class="calc-list">
+            <div class="calc-line">H₀: λ = 8, H₁: λ &gt; 8</div>
+            <div class="calc-line">X ~ Poisson(8) under H₀</div>
+            <div class="calc-line">p-value = P(X ≥ 14) ≈ 0.0342</div>
+          </div>
+          <div class="decision-box"><b>Decision:</b> p &lt; 0.05, so reject H₀. There is evidence that the car rate has increased.</div>
+        </div>
+      </div>
+
+      <div class="test-card hl-card">
+        <h3>Correlation test <span class="pill hl">HL</span></h3>
+        <p><b>Data:</b> two numerical variables or ranked variables.</p>
+        <p><b>H₀:</b> ρ = 0. <b>H₁:</b> ρ ≠ 0, ρ &gt; 0, or ρ &lt; 0.</p>
+        <div class="worked-example">
+          <h4>Numerical example: height and arm span</h4>
+          <p>For n=10 students, technology gives a sample correlation r=0.64. Test whether there is a positive linear relationship.</p>
+          <div class="calc-list">
+            <div class="calc-line">H₀: ρ = 0, H₁: ρ &gt; 0</div>
+            <div class="calc-line">t = r√((n−2)/(1−r²)) = 0.64√(8/(1−0.64²)) ≈ 2.356</div>
+            <div class="calc-line">df = 8, right-tailed p ≈ 0.0231</div>
+          </div>
+          <div class="decision-box"><b>Decision:</b> p &lt; 0.05, so reject H₀. There is evidence of a positive linear relationship. This does not prove causation.</div>
+        </div>
+      </div>
+
+      <div class="test-card warn-card">
+        <h3>Critical value method <span class="pill info">Exam skill</span></h3>
+        <p>Instead of comparing p with α, compare the test statistic with a critical value or critical region.</p>
+        <div class="worked-example">
+          <h4>Numerical example: same z-test, critical values</h4>
+          <p>For a two-tailed z-test at the 5% level, the critical values are −1.96 and 1.96. Suppose the observed test statistic is z=1.80.</p>
+          <div class="calc-list">
+            <div class="calc-line">Rejection region: z &lt; −1.96 or z &gt; 1.96</div>
+            <div class="calc-line">Observed z = 1.80, which is not in the rejection region</div>
+          </div>
+          <div class="decision-box caution"><b>Decision:</b> do not reject H₀. This matches the p-value method because p≈0.0719 &gt; 0.05.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="visual">
+  <div class="card"><h2>Visual lab: p-values and critical regions</h2><p>Use this page to understand the decision rule visually. Move the observed statistic and significance level. Watch the shaded area change, then read whether H₀ is rejected.</p><div class="student-do"><b>Student task:</b> make the statistic more extreme, then lower α. Explain how the decision changes.</div><div class="grid two"><div><label>Alternative hypothesis type</label><select id="tailType" onchange="updateNormalLab()"><option value="two">Two-tailed: parameter not equal</option><option value="right">Right-tailed: parameter greater than</option><option value="left">Left-tailed: parameter less than</option></select><label>Observed statistic: <span id="zLabel" class="kbd"></span></label><input id="zSlider" type="range" min="-3.5" max="3.5" value="1.85" step="0.01" oninput="updateNormalLab()"><label>Significance level α: <span id="alphaLabel" class="kbd"></span></label><input id="alphaSlider" type="range" min="0.01" max="0.10" value="0.05" step="0.01" oninput="updateNormalLab()"><div id="normalResult" class="result"></div></div><div class="svg-box"><svg id="normalSvg" class="diagram-svg" viewBox="0 0 820 450"></svg></div></div></div>
+</section>
+
+
+<section class="panel" id="ti">
+  <div class="card">
+    <h2>TI-Nspire calculator practice</h2>
+    <p class="section-intro">Use this page as a self-check. Each card gives a small data set. Enter it into your TI-Nspire, choose the correct test, record the p-value and decision, then open the check box.</p>
+    <div class="ti-practice-note"><b>Student routine:</b> copy the data → choose the menu item → choose the alternative hypothesis → record the p-value → decide at the 5% level → only then reveal the check.</div>
+    <div class="legend"><span class="pill sl">SL core</span><span class="pill hl">HL / AHL</span></div>
+    <div class="grid two">
+
+      <div class="ti-card sl-card">
+        <h3>Pooled two-sample t-test <span class="pill sl">SL</span></h3>
+        <div class="pathline">Menu ▸ Statistics ▸ Stat Tests ▸ 2-Sample t Test</div>
+        <p><b>Question:</b> Class A and Class B used different teaching methods. Is Class A's mean score higher?</p>
+        <div class="ti-data"><b>Sample data</b>Class A: 68, 72, 75, 70, 69, 74, 71, 77<br>Class B: 61, 65, 66, 63, 69, 64, 62, 67</div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Put Class A in list <span class="kbd">a</span> and Class B in list <span class="kbd">b</span>.</li><li>Input: Data.</li><li>List 1: <span class="kbd">a</span>, List 2: <span class="kbd">b</span>.</li><li>Alternative: μ₁ &gt; μ₂.</li><li><b>Pooled: Yes.</b></li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> write down t, df, p-value, and whether you reject H₀ at 5%.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">x̄₁ = 72.000, s₁ ≈ 3.117; x̄₂ = 64.625, s₂ ≈ 2.669</div><div class="calc-line">t ≈ 5.083, df = 14, p ≈ 0.00008</div><div class="decision-box">Since p &lt; 0.05, reject H₀. There is sufficient evidence that Class A has a higher mean score.</div></details>
+      </div>
+
+      <div class="ti-card sl-card">
+        <h3>χ² goodness-of-fit <span class="pill sl">SL</span></h3>
+        <div class="pathline">Menu ▸ Statistics ▸ Stat Tests ▸ χ² GOF Test</div>
+        <p><b>Question:</b> A die is rolled 60 times. Are the six faces equally likely?</p>
+        <div class="ti-data"><b>Sample data</b>Observed counts: 8, 11, 9, 10, 12, 10<br>Expected counts: 10, 10, 10, 10, 10, 10</div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Observed list: <span class="kbd">obs</span>.</li><li>Expected list: <span class="kbd">exp</span>.</li><li>Degrees of freedom: categories − 1 = 5.</li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> decide whether the rolls are unusual enough to reject a fair die.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">χ² = Σ(O − E)²/E = 1.000</div><div class="calc-line">df = 5, p ≈ 0.963</div><div class="decision-box">Since p &gt; 0.05, do not reject H₀. There is insufficient evidence that the die is unfair.</div></details>
+      </div>
+
+      <div class="ti-card sl-card">
+        <h3>χ² independence <span class="pill sl">SL</span></h3>
+        <div class="pathline">Menu ▸ Statistics ▸ Stat Tests ▸ χ² Test</div>
+        <p><b>Question:</b> Is music preference independent of year group?</p>
+        <div class="ti-data"><b>Observed table</b>
+          <table class="data-table"><thead><tr><th></th><th>Pop</th><th>Rock</th><th>Classical</th></tr></thead><tbody><tr><th>Year 10</th><td>28</td><td>19</td><td>13</td></tr><tr><th>Year 11</th><td>14</td><td>24</td><td>22</td></tr></tbody></table>
+        </div>
+        <div class="ti-enter"><b>Enter on TI-Nspire: observed matrix, step by step</b>
+          <div class="exam-box" style="margin:10px 0 14px"><b>Important:</b> On many TI-Nspire versions, the χ² Test stores the expected matrix in the statistics results as <span class="kbd">stat.ExpMatrix</span>. If you also type a name such as <span class="kbd">exp</span> in the <b>Expected Matrix</b> field, the calculator may store a copy there too. After calculating, type <span class="kbd">stat.ExpMatrix</span> on a Calculator page to display the expected counts.</div>
+          <div class="matrix-help">
+            <h4>First convert the table into a matrix of numbers only</h4>
+            <p>The row and column headings help you understand the problem, but they are <b>not typed into the matrix</b>. Do not enter totals.</p>
+            <div class="mini-matrix" aria-label="Observed matrix layout">
+              <div></div><div>Pop</div><div>Rock</div><div>Classical</div>
+              <div>Year 10</div><div>28</div><div>19</div><div>13</div>
+              <div>Year 11</div><div>14</div><div>24</div><div>22</div>
+            </div>
+            <div class="matrix-code">observed matrix = [[28, 19, 13], [14, 24, 22]]</div>
+            <p class="small">This means row 1 is Year 10, row 2 is Year 11; column 1 is Pop, column 2 is Rock, column 3 is Classical.</p>
+          </div>
+
+          <div class="matrix-steps">
+            <div class="matrix-step"><b>1. Store the observed matrix.</b><br>On a Calculator page, create a <b>2 rows × 3 columns</b> matrix and store it as <span class="kbd">obs</span>.<br><span class="kbd">obs := [[28,19,13],[14,24,22]]</span></div>
+            <div class="matrix-step"><b>2. Open the χ² Test.</b><br>Go to <span class="kbd">Menu ▸ Statistics ▸ Stat Tests ▸ χ² Test</span>.</div>
+            <div class="matrix-step"><b>3. Fill in the fields.</b><br><b>Observed Matrix:</b> type <span class="kbd">obs</span><br><b>Expected Matrix:</b> type <span class="kbd">exp</span> if your screen asks for a name.<br>Do not type the expected values yourself. <span class="kbd">exp</span> is only a storage name.</div>
+            <div class="matrix-step"><b>4. Calculate.</b><br>Record <span class="kbd">χ²</span>, <span class="kbd">df</span>, and <span class="kbd">p</span>. Then compare p with 0.05.</div>
+            <div class="matrix-step"><b>5. Show the expected matrix.</b><br>After the test, go back to a Calculator page and type <span class="kbd">stat.ExpMatrix</span>, then press Enter. This is the built-in TI-Nspire result variable for the expected matrix. If you named the expected matrix <span class="kbd">exp</span>, typing <span class="kbd">exp</span> may also display it.</div>
+          </div>
+
+          <table class="ti-field-table">
+            <thead><tr><th>TI-Nspire field or page</th><th>What to enter</th><th>What should happen</th></tr></thead>
+            <tbody>
+              <tr><td>Calculator page first</td><td><span class="kbd">obs := [[28,19,13],[14,24,22]]</span></td><td>Stores the observed counts as a matrix called <span class="kbd">obs</span>.</td></tr>
+              <tr><td>Observed Matrix field</td><td><span class="kbd">obs</span></td><td>The test uses your actual observed counts.</td></tr>
+              <tr><td>Expected Matrix field</td><td><span class="kbd">exp</span></td><td>Optional storage name for the expected counts, if your screen asks for one.</td></tr>
+              <tr><td>Calculator page after test</td><td><span class="kbd">stat.ExpMatrix</span></td><td>Displays the expected matrix from the TI-Nspire statistics results.</td></tr>
+              <tr><td>Calculator page after test, optional</td><td><span class="kbd">exp</span></td><td>Also displays the expected matrix if it was stored under that name.</td></tr>
+            </tbody>
+          </table>
+          <div class="matrix-warning"><b>Common mistakes:</b>
+            <ul class="checklist-tight">
+              <li>If the result screen shows <span class="kbd">stat.ExpMatrix</span>, that is the calculator's expected matrix. Type <span class="kbd">stat.ExpMatrix</span> on a Calculator page to display it.</li>
+              <li>Storing the observed matrix as <span class="kbd">obs</span> first is still helpful because it makes the process clearer and easier to check.</li>
+              <li>Do not type the words Year 10, Pop, Rock, or Classical into the matrix.</li>
+              <li>Do not include row totals or column totals.</li>
+              <li>Expected values are not your input. Type only a storage name such as <span class="kbd">exp</span>.</li>
+              <li>The order of rows/columns is allowed to change, but keep a note of what each row and column means for your conclusion.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ti-student-output"><b>Before revealing:</b> write p-value and decide whether preference and year group appear related.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">To display expected values on TI-Nspire, type <span class="kbd">stat.ExpMatrix</span>.</div><div class="calc-line">Expected table ≈ [[21.0, 21.5, 17.5], [21.0, 21.5, 17.5]]</div><div class="calc-line">χ² ≈ 7.562, df = 2, p ≈ 0.0228</div><div class="decision-box">Since p &lt; 0.05, reject H₀. There is evidence of an association between year group and music preference.</div></details>
+      </div>
+
+      <div class="ti-card hl-card">
+        <h3>One-sample t-test <span class="pill hl">HL</span></h3>
+        <div class="pathline">Menu ▸ Statistics ▸ Stat Tests ▸ 1-Sample t Test</div>
+        <p><b>Question:</b> A company claims its batteries last 10 hours. Does this sample suggest the mean life is less?</p>
+        <div class="ti-data"><b>Sample data</b>9.4, 9.8, 10.2, 9.1, 9.5, 9.7, 9.6, 9.3</div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Put the battery lives in one list.</li><li>Test mean: μ₀ = 10.</li><li>Alternative: μ &lt; 10.</li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> record t, df, p-value, and the conclusion.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">x̄ = 9.575, s ≈ 0.337</div><div class="calc-line">t ≈ −3.567, df = 7, p ≈ 0.00457</div><div class="decision-box">Since p &lt; 0.05, reject H₀. There is evidence that the mean battery life is less than 10 hours.</div></details>
+      </div>
+
+      <div class="ti-card hl-card">
+        <h3>z-test for a mean <span class="pill hl">HL</span></h3>
+        <div class="pathline">Menu ▸ Statistics ▸ Stat Tests ▸ 1-Sample z Test</div>
+        <p><b>Question:</b> A machine should fill bottles with mean 500 ml. The population standard deviation is known to be 4.8 ml. A sample of 36 bottles has mean 498.7 ml. Is the machine under-filling?</p>
+        <div class="ti-data"><b>Summary data</b>σ = 4.8, n = 36, x̄ = 498.7, μ₀ = 500</div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Input: Stats.</li><li>σ = 4.8, x̄ = 498.7, n = 36.</li><li>Alternative: μ &lt; 500.</li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> decide whether this is enough evidence at 5%.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">z = (498.7 − 500)/(4.8/√36) ≈ −1.625</div><div class="calc-line">p ≈ 0.0521</div><div class="decision-box caution">Since p &gt; 0.05, do not reject H₀. It is close, but there is not enough evidence at the 5% level.</div></details>
+      </div>
+
+      <div class="ti-card hl-card">
+        <h3>Paired t-test <span class="pill hl">HL</span></h3>
+        <div class="pathline">Create differences, then run 1-Sample t Test</div>
+        <p><b>Question:</b> The same students take a test before and after revision. Did their scores improve?</p>
+        <div class="ti-data"><b>Sample data</b>
+          <table class="data-table"><thead><tr><th>Student</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead><tbody><tr><th>Before</th><td>48</td><td>52</td><td>55</td><td>50</td><td>49</td><td>57</td><td>53</td><td>51</td></tr><tr><th>After</th><td>54</td><td>56</td><td>58</td><td>55</td><td>53</td><td>61</td><td>56</td><td>55</td></tr></tbody></table>
+        </div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Create <span class="kbd">diff = after − before</span>.</li><li>Run 1-Sample t Test on <span class="kbd">diff</span>.</li><li>Test mean: 0.</li><li>Alternative: μd &gt; 0.</li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> check that you tested the differences, not the two raw lists as independent groups.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">Differences: 6, 4, 3, 5, 4, 4, 3, 4</div><div class="calc-line">d̄ = 4.125, t ≈ 11.773, df = 7, p ≈ 0.000004</div><div class="decision-box">Since p &lt; 0.05, reject H₀. There is evidence that scores improved after revision.</div></details>
+      </div>
+
+      <div class="ti-card hl-card">
+        <h3>Binomial test <span class="pill hl">HL</span></h3>
+        <div class="pathline">Calculator ▸ Probability ▸ Distributions ▸ Binomial Cdf</div>
+        <p><b>Question:</b> A goalkeeper usually saves 25% of penalties. In 20 penalties, she saves 9. Is there evidence her save probability is higher than 25%?</p>
+        <div class="ti-data"><b>Sample data</b>X = number of saves, n = 20, observed x = 9, H₀: p = 0.25, H₁: p &gt; 0.25</div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Under H₀, X ~ B(20, 0.25).</li><li>For a right-tailed test calculate P(X ≥ 9).</li><li>Use <span class="kbd">binomCdf(20, 0.25, 9, 20)</span> if your syntax uses lower and upper bounds.</li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> make sure you include 9 itself in the tail probability.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">p-value = P(X ≥ 9) ≈ 0.0409</div><div class="decision-box">Since p &lt; 0.05, reject H₀. There is evidence that the save probability is higher than 25%.</div></details>
+      </div>
+
+      <div class="ti-card hl-card">
+        <h3>Poisson test <span class="pill hl">HL</span></h3>
+        <div class="pathline">Calculator ▸ Probability ▸ Distributions ▸ Poisson Cdf</div>
+        <p><b>Question:</b> A road usually has mean 3 cars per minute. In one minute, 8 cars are observed. Is the rate higher than usual?</p>
+        <div class="ti-data"><b>Sample data</b>X = cars in one minute, observed x = 8, H₀: λ = 3, H₁: λ &gt; 3</div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Under H₀, X ~ Poisson(3).</li><li>For a right-tailed test calculate P(X ≥ 8).</li><li>Use <span class="kbd">1 − poissonCdf(3, 0, 7)</span> or <span class="kbd">poissonCdf(3, 8, 999)</span>, depending on your calculator syntax.</li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> check that the tail starts at 8, not 7.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">p-value = P(X ≥ 8) ≈ 0.0119</div><div class="decision-box">Since p &lt; 0.05, reject H₀. There is evidence that the rate is higher than 3 cars per minute.</div></details>
+      </div>
+
+      <div class="ti-card hl-card">
+        <h3>Correlation test <span class="pill hl">HL</span></h3>
+        <div class="pathline">Menu ▸ Statistics ▸ Stat Tests ▸ LinRegTTest</div>
+        <p><b>Question:</b> Is there evidence of a positive linear relationship between height and arm span?</p>
+        <div class="ti-data"><b>Sample data</b>Height: 150, 154, 158, 160, 165, 170, 172, 176<br>Arm span: 151, 153, 159, 161, 166, 168, 173, 177</div>
+        <div class="ti-enter"><b>Enter on TI-Nspire</b><ul><li>Put height in list <span class="kbd">x</span> and arm span in list <span class="kbd">y</span>.</li><li>Run LinRegTTest.</li><li>Alternative: positive relationship, so β &gt; 0 or ρ &gt; 0 depending on the menu wording.</li></ul></div>
+        <div class="ti-student-output"><b>Before revealing:</b> record r and p-value, then write the conclusion without saying “height causes arm span”.</div>
+        <details class="ti-check"><summary>Reveal calculator check</summary><div class="calc-line">r ≈ 0.992, p ≈ 0.0000015</div><div class="decision-box">Since p &lt; 0.05, reject H₀. There is strong evidence of a positive linear relationship, but this does not prove causation.</div></details>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="calculators">
+  <div class="card"><h2>Interactive calculators</h2><p class="section-intro">Use these after you know the correct test. Change the numbers, read the p-value, then write the conclusion in context.</p><div class="student-do"><b>Student task:</b> enter the values from a question, choose the alternative hypothesis, compare p with α, then write “reject” or “do not reject”.</div><div class="grid two">
+    <div class="soft sl-card"><h3>Pooled two-sample t-test <span class="pill sl">SL</span></h3><div class="grid two"><div><label>n₁</label><input id="n1" type="number" value="14" min="2" oninput="updateTTest()"><label>x̄₁</label><input id="m1" type="number" value="72.4" step="0.1" oninput="updateTTest()"><label>s₁</label><input id="s1" type="number" value="8.1" step="0.1" oninput="updateTTest()"></div><div><label>n₂</label><input id="n2" type="number" value="16" min="2" oninput="updateTTest()"><label>x̄₂</label><input id="m2" type="number" value="66.8" step="0.1" oninput="updateTTest()"><label>s₂</label><input id="s2" type="number" value="7.4" step="0.1" oninput="updateTTest()"></div></div><label>Alternative</label><select id="tAlt" onchange="updateTTest()"><option value="two">μ₁ ≠ μ₂</option><option value="right">μ₁ &gt; μ₂</option><option value="left">μ₁ &lt; μ₂</option></select><label>α</label><select id="tAlpha" onchange="updateTTest()"><option value="0.01">1%</option><option value="0.05" selected>5%</option><option value="0.10">10%</option></select><div id="tResult" class="result"></div></div>
+    <div class="soft sl-card"><h3>χ² independence <span class="pill sl">SL</span></h3><table id="obsTable"><thead><tr><th></th><th>A</th><th>B</th><th>C</th></tr></thead><tbody><tr><th>Group 1</th><td><input type="number" value="28" oninput="updateChi()"></td><td><input type="number" value="19" oninput="updateChi()"></td><td><input type="number" value="13" oninput="updateChi()"></td></tr><tr><th>Group 2</th><td><input type="number" value="14" oninput="updateChi()"></td><td><input type="number" value="24" oninput="updateChi()"></td><td><input type="number" value="22" oninput="updateChi()"></td></tr></tbody></table><label>α</label><select id="chiAlpha" onchange="updateChi()"><option value="0.01">1%</option><option value="0.05" selected>5%</option><option value="0.10">10%</option></select><div id="chiResult" class="result"></div><div id="expectedBox" class="soft" style="margin-top:12px"></div></div>
+  </div></div>
+</section>
+
+<section class="panel" id="errors">
+  <div class="card">
+    <h2>Type I error, Type II error and power <span class="pill hl">HL / AHL</span></h2>
+    <p class="section-intro">This page is about what your decision means in the real world. A hypothesis test makes a decision from sample evidence, but the real situation could be different.</p>
+    <div class="student-do"><b>Student task:</b> read the conclusion, then ask: <b>What did we decide?</b> and <b>what is actually true?</b> That tells you whether it is Type I, Type II, power, or a correct non-rejection.</div>
+
+    <div class="grid two">
+      <div class="soft">
+        <h3>The four possible outcomes</h3>
+        <p>Think of this as a decision table. The rows are what you did in the test. The columns are the real truth, which we usually do not know.</p>
+        <table>
+          <thead><tr><th>Test decision</th><th>H₀ is actually true</th><th>H₁ is actually true</th></tr></thead>
+          <tbody>
+            <tr><th>Reject H₀</th><td><b>Type I error</b><br><span class="small">False alarm</span></td><td><b>Correct detection</b><br><span class="small">This is counted by power.</span></td></tr>
+            <tr><th>Do not reject H₀</th><td><b>Correct non-rejection</b><br><span class="small">No false alarm.</span></td><td><b>Type II error</b><br><span class="small">Missed detection.</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="soft hl-card">
+        <h3>One story to remember it</h3>
+        <p><b>School example:</b> A teacher tests whether a new revision method improves scores.</p>
+        <p><b>H₀:</b> the new method does not improve mean scores.</p>
+        <p><b>H₁:</b> the new method does improve mean scores.</p>
+        <ul>
+          <li><b>Type I:</b> we say the method works, but actually it does not.</li>
+          <li><b>Type II:</b> the method really works, but our sample does not give enough evidence.</li>
+          <li><b>Power:</b> the method really works and our test successfully detects it.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid three" style="margin-top:18px">
+      <div class="soft warn-card">
+        <h3>Type I error</h3>
+        <p><b>Meaning:</b> reject H₀ when H₀ is actually true.</p>
+        <p><b>Probability:</b> α.</p>
+        <div class="formula">α = P(reject H₀ | H₀ true)</div>
+        <p><b>Numerical example:</b> If α = 0.05, then when H₀ is really true, about 5% of repeated tests would wrongly reject it.</p>
+        <p><b>Memory cue:</b> false alarm.</p>
+      </div>
+      <div class="soft warn-card">
+        <h3>Type II error</h3>
+        <p><b>Meaning:</b> do not reject H₀ when H₁ is actually true.</p>
+        <p><b>Probability:</b> β.</p>
+        <div class="formula">β = P(do not reject H₀ | H₁ true)</div>
+        <p><b>Numerical example:</b> If β = 0.20, then when there really is an effect, about 20% of repeated tests would fail to detect it.</p>
+        <p><b>Memory cue:</b> missed detection.</p>
+      </div>
+      <div class="soft hl-card">
+        <h3>Power</h3>
+        <p><b>Meaning:</b> correctly reject H₀ when H₁ is actually true.</p>
+        <p><b>Formula:</b> power = 1 − β.</p>
+        <div class="formula">power = P(reject H₀ | H₁ true)</div>
+        <p><b>Numerical example:</b> If β = 0.20, then power = 0.80. The test has an 80% chance of detecting the effect if the effect is really there.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Worked examples</h2>
+    <div class="grid two">
+      <div class="soft">
+        <h3>Example 1: fire alarm analogy</h3>
+        <table>
+          <tbody>
+            <tr><th>H₀</th><td>There is no fire.</td></tr>
+            <tr><th>Reject H₀</th><td>The alarm says there is a fire.</td></tr>
+            <tr><th>Type I error</th><td>The alarm rings, but there is no fire. This is a false alarm.</td></tr>
+            <tr><th>Type II error</th><td>There is a fire, but the alarm does not ring. This is a missed detection.</td></tr>
+            <tr><th>Power</th><td>There is a fire, and the alarm rings.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="soft">
+        <h3>Example 2: medical test</h3>
+        <table>
+          <tbody>
+            <tr><th>H₀</th><td>The patient does not have the disease.</td></tr>
+            <tr><th>H₁</th><td>The patient has the disease.</td></tr>
+            <tr><th>Type I error</th><td>The test says positive, but the patient is actually healthy.</td></tr>
+            <tr><th>Type II error</th><td>The test says not enough evidence, but the patient actually has the disease.</td></tr>
+            <tr><th>Power</th><td>The patient has the disease and the test detects it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="soft hl-card">
+        <h3>Example 3: power means “catching a real effect”</h3>
+        <p><b>Story:</b> suppose a new revision method really does improve scores. So H₁ is actually true.</p>
+        <p>The test can now do one of two things:</p>
+        <table>
+          <tbody>
+            <tr><th>Test rejects H₀</th><td><b>Good result.</b> It detected the real improvement. This is <b>power</b>.</td></tr>
+            <tr><th>Test does not reject H₀</th><td><b>Bad result.</b> It missed the real improvement. This is a <b>Type II error</b>.</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px">So, when H₁ is really true:</p>
+        <div class="formula">power + β = 1 &nbsp;&nbsp; so &nbsp;&nbsp; power = 1 − β</div>
+        <p style="margin-top:12px">This slider only shows the formula power = 1 − β. In a real test, students do not simply choose β after seeing the data. The next section shows the trade-off with α.</p>
+        <label>Move β just to see the power calculation: <span id="betaLabel" class="kbd">0.20</span></label>
+        <input id="betaSlider" type="range" min="0.01" max="0.50" value="0.20" step="0.01" oninput="updatePowerMini()">
+        <div id="powerMiniResult" class="result blue"></div>
+      </div>
+
+      <div class="soft hl-card">
+        <h3>How can power increase?</h3>
+        <p><b>Power increases when the real effect is easier to see.</b> Use this as the main idea.</p>
+        <table>
+          <thead><tr><th>Change</th><th>Why it helps</th><th>Student example</th></tr></thead>
+          <tbody>
+            <tr><td><b>Larger sample size</b></td><td>Random luck averages out.</td><td>80 students gives clearer evidence than 8 students.</td></tr>
+            <tr><td><b>Larger real effect</b></td><td>A big difference is easier to detect.</td><td>A 12-mark improvement is easier to spot than a 1-mark improvement.</td></tr>
+            <tr><td><b>Less variation</b></td><td>The data are less noisy.</td><td>If students have similar starting scores, the pattern is clearer.</td></tr>
+            <tr><td><b>Larger α</b></td><td>The rejection region becomes easier to enter.</td><td>At 10% you reject more easily than at 5%.</td></tr>
+            <tr><td><b>One-tailed test</b></td><td>All the rejection area is put on one side.</td><td>Use only if “increase” or “decrease” was predicted before seeing the data.</td></tr>
+          </tbody>
+        </table>
+        <div class="exam-box" style="margin-top:12px"><b>Important trade-off:</b> increasing α can increase power, but it also increases the chance of a Type I error. More power is good, but not every method is free.</div>
+        <div class="student-do" style="margin-top:12px"><b>Memory sentence:</b> Power is high when a real effect is unlikely to be missed.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Why not just make β very small?</h2>
+    <p><b>Because β is not normally the knob you turn.</b> In school-level hypothesis testing, you choose the significance level α first. That sets how easy it is to reject H₀. Once α, sample size, variation and the real effect size are fixed, β is then determined.</p>
+    <div class="exam-box" style="margin-bottom:16px">
+      <b>Main trade-off:</b> If you make the test reject H₀ more easily, β goes down and power goes up, but α goes up too. So you detect more real effects, but you also create more false alarms.
+    </div>
+
+    <div class="grid two">
+      <div class="soft hl-card">
+        <h3>Interactive trade-off model</h3>
+        <p>This simplified model uses a right-tailed z-test. H₀ is centred at 0. H₁ is shifted to the right. The vertical line is the rejection boundary.</p>
+        <label>Choose α, the false-alarm risk: <span id="tradeAlphaLabel" class="kbd">0.05</span></label>
+        <input id="tradeAlpha" type="range" min="0.01" max="0.20" value="0.05" step="0.01" oninput="updateAlphaBetaTrade()">
+        <label>Signal strength / sample quality: <span id="tradeEffectLabel" class="kbd">1.50</span></label>
+        <input id="tradeEffect" type="range" min="0.20" max="3.00" value="1.50" step="0.05" oninput="updateAlphaBetaTrade()">
+        <p class="small"><b>Signal strength</b> represents how easy the real effect is to see. A bigger sample, larger real effect, or less variation makes this number bigger.</p>
+        <div id="tradeResult" class="result blue"></div>
+      </div>
+
+      <div class="soft">
+        <h3>Picture of the trade-off</h3>
+        <div class="svg-box"><svg id="tradeSvg" class="diagram-svg" viewBox="0 0 820 450"></svg></div>
+        <div class="student-do" style="margin-top:12px">
+          <b>Student sentence:</b> “Lowering β is good, but if we do it by increasing α, we are choosing to accept more false alarms.”
+        </div>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:18px">
+      <div class="soft warn-card">
+        <h3>The bad way to get more power</h3>
+        <table>
+          <tbody>
+            <tr><th>Change</th><td>Increase α from 5% to 10%.</td></tr>
+            <tr><th>Effect</th><td>The rejection region gets larger, so β usually decreases and power increases.</td></tr>
+            <tr><th>Cost</th><td>You now allow about 10 false alarms in every 100 cases where H₀ is actually true, instead of about 5.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="soft sl-card">
+        <h3>The better way to get more power</h3>
+        <table>
+          <tbody>
+            <tr><th>Bigger sample</th><td>Makes the real effect easier to see without simply relaxing the standard of evidence.</td></tr>
+            <tr><th>Less noisy data</th><td>Measurements are more consistent, so the signal stands out.</td></tr>
+            <tr><th>Stronger real effect</th><td>A large improvement is easier to detect than a tiny improvement.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Quick self-check</h2>
+    <p>Choose the correct description. This helps students practise the wording without doing a full calculation.</p>
+    <div class="grid two">
+      <div class="soft">
+        <h3 id="errorQuizTitle">Scenario</h3>
+        <p id="errorQuizText"></p>
+        <div class="btn-row">
+          <button class="action ghost" onclick="loadErrorQuiz(0)">Fair coin</button>
+          <button class="action ghost" onclick="loadErrorQuiz(1)">New medicine</button>
+          <button class="action ghost" onclick="loadErrorQuiz(2)">Revision method</button>
+        </div>
+      </div>
+      <div class="soft" id="errorQuizPanel">
+        <h3>Your answer</h3>
+        <div class="choice-grid">
+          <button class="choice error-choice" onclick="checkErrorChoice('Type I error')">Type I error</button>
+          <button class="choice error-choice" onclick="checkErrorChoice('Type II error')">Type II error</button>
+          <button class="choice error-choice" onclick="checkErrorChoice('Power')">Power</button>
+          <button class="choice error-choice" onclick="checkErrorChoice('Correct non-rejection')">Correct non-rejection</button>
+        </div>
+        <div id="errorQuizFeedback" class="result blue"><b>Before checking:</b> identify whether H₀ was rejected, then identify whether H₀ or H₁ was actually true.</div>
+      </div>
+    </div>
+    <div class="exam-box" style="margin-top:16px"><b>Exam language:</b> “There is insufficient evidence to reject H₀” is not the same as “H₀ is true”. It may be a Type II error. Also, “reject H₀” does not prove H₁ is true; it means the evidence is strong enough at the chosen significance level.</div>
+  </div>
+</section>
+
+<section class="panel" id="exam">
+  <div class="card"><h2>Mixed exam trainer</h2><p>Choose the correct test. Green scenarios are SL core; purple scenarios are HL/AHL.</p><div class="grid three" id="scenarioGrid"></div><div id="scenarioDetail" class="result blue"></div></div>
+</section>
+
+<section class="panel" id="checklist">
+  <div class="card"><h2>Final checklist</h2><div class="grid two"><div><h3>Before calculating</h3><ul><li>Identify data type.</li><li>Identify parameter or relationship.</li><li>Write H₀ and H₁.</li><li>Choose one-tailed or two-tailed.</li><li>Check assumptions, especially expected frequencies for χ².</li></ul></div><div><h3>After calculating</h3><ul><li>Compare p with α, or statistic with critical value.</li><li>Reject or do not reject H₀.</li><li>Never write “accept H₀”.</li><li>Answer in context.</li><li>Mention significance level.</li></ul></div></div><div class="exam-box" style="margin-top:16px"><b>Conclusion templates:</b><br>Since p &lt; α, reject H₀. There is sufficient evidence at the 5% significance level to suggest that ...<br><br>Since p &gt; α, do not reject H₀. There is insufficient evidence at the 5% significance level to suggest that ...</div></div>
+</section>
+<p class="footer-note">This applet is designed to cover SL core fully and to introduce the main HL/AHL hypothesis-testing landscape. Use the exact syllabus and past-paper style for final exam practice.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+function goTab(id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('section.panel').forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});}document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>goTab(btn.dataset.tab)));
+function erf(x){const sign=Math.sign(x);x=Math.abs(x);const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911,t=1/(1+p*x);return sign*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}function normalCDF(x){return .5*(1+erf(x/Math.SQRT2));}function normalPDF(x){return Math.exp(-.5*x*x)/Math.sqrt(2*Math.PI);}function invNorm(p){let lo=-8,hi=8;for(let i=0;i<70;i++){const m=(lo+hi)/2;if(normalCDF(m)<p)lo=m;else hi=m;}return(lo+hi)/2;}function fmt(x,d=3){return Number.isFinite(x)?Number(x).toFixed(d):'—';}
+function gammaLn(z){const g=7,C=[.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];if(z<.5)return Math.log(Math.PI)-Math.log(Math.sin(Math.PI*z))-gammaLn(1-z);z-=1;let x=C[0];for(let i=1;i<C.length;i++)x+=C[i]/(z+i);const t=z+g+.5;return .5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x);}function betacf(x,a,b){let c=1,d=1-(a+b)*x/(a+1);if(Math.abs(d)<1e-30)d=1e-30;d=1/d;let h=d;for(let m=1;m<=100;m++){let m2=2*m,aa=m*(b-m)*x/((a-1+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;h*=d*c;aa=-(a+m)*(a+b+m)*x/((a+m2)*(a+1+m2));d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;let del=d*c;h*=del;if(Math.abs(del-1)<3e-7)break;}return h;}function betaInc(x,a,b){if(x<=0)return 0;if(x>=1)return 1;const bt=Math.exp(gammaLn(a+b)-gammaLn(a)-gammaLn(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(x,a,b)/a:1-bt*betacf(1-x,b,a)/b;}function tCDF(t,df){const x=df/(df+t*t),ib=betaInc(x,df/2,.5);return t>=0?1-.5*ib:.5*ib;}function gammaP(a,x){if(x<=0)return 0;if(x<a+1){let ap=a,del=1/a,sum=del;for(let n=1;n<=100;n++){ap++;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*1e-8)break;}return sum*Math.exp(-x+a*Math.log(x)-gammaLn(a));}let b=x+1-a,c=1e30,d=1/b,h=d;for(let i=1;i<=100;i++){let an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<1e-30)d=1e-30;c=b+an/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;let del=d*c;h*=del;if(Math.abs(del-1)<1e-8)break;}return 1-Math.exp(-x+a*Math.log(x)-gammaLn(a))*h;}function chiCDF(x,k){return gammaP(k/2,x/2);}
+function drawLogic(){const svg=$('logicSvg');svg.innerHTML='';const nodes=[[80,80,'Question','Is the claim believable?'],[330,80,'Model','Assume H₀ is true'],[580,80,'Data','Observe evidence'],[205,260,'p-value','How unusual?'],[455,260,'Decision','Reject or not'],[665,260,'Conclusion','In context']];svg.insertAdjacentHTML('beforeend','<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/></marker></defs>');[[150,100,270,100],[420,100,520,100],[565,130,260,240],[300,260,390,260],[525,260,605,260]].forEach(l=>svg.insertAdjacentHTML('beforeend',`<line x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}" stroke="#94a3b8" stroke-width="4" marker-end="url(#arrow)"/>`));const colors=['#dbeafe','#ede9fe','#dcfce7','#fef3c7','#fee2e2','#e0f2fe'];nodes.forEach((n,i)=>svg.insertAdjacentHTML('beforeend',`<rect x="${n[0]-78}" y="${n[1]-42}" width="156" height="84" rx="18" fill="${colors[i]}" stroke="#cbd5e1"/><text x="${n[0]}" y="${n[1]-5}" text-anchor="middle" font-size="18" font-weight="800">${n[2]}</text><text x="${n[0]}" y="${n[1]+24}" text-anchor="middle" font-size="13" fill="#475569">${n[3]}</text>`));}
+let activeChooserExampleIndex=null;
+function getChooserInfo(data,dir){
+  if(!data || !dir)return null;
+  let test='',level='SL core',pill='sl',h0='',h1='',note='',because='',studentSentence='';
+  if(data==='cat1'){
+    test='χ² goodness-of-fit';
+    h0='Data follows the stated distribution.';
+    h1='Data does not follow the stated distribution.';
+    note='Use observed and expected counts. Direction does not matter here.';
+    because='there is one categorical variable and observed counts are compared with expected counts';
+    studentSentence='This is a χ² goodness-of-fit test because we are checking whether observed category counts fit an expected pattern.';
+  }else if(data==='cat2'){
+    test='χ² independence';
+    h0='Variables are independent.';
+    h1='Variables are not independent.';
+    note='Use a two-way table. The question usually says related, associated, dependent, or independent.';
+    because='there are two categorical variables in a contingency table';
+    studentSentence='This is a χ² independence test because we are checking whether two categorical variables are associated.';
+  }else if(data==='twoMeans'){
+    test='Pooled two-sample t-test';
+    h0='μ₁ = μ₂';
+    h1=dir==='greater'?'μ₁ > μ₂':dir==='less'?'μ₁ < μ₂':'μ₁ ≠ μ₂';
+    note='Use when the groups are separate people/items. For SL, pooled = yes.';
+    because='there are two independent numerical samples';
+    studentSentence='This is a pooled two-sample t-test because we are comparing the means of two separate groups.';
+  }else{
+    level='HL / AHL';pill='hl';
+    if(data==='oneMeanUnknown'){
+      test='One-sample t-test';h0='μ = μ₀';h1=dir==='greater'?'μ > μ₀':dir==='less'?'μ < μ₀':'μ ≠ μ₀';
+      note='Use when there is one sample and the population variance is not known.';
+      because='one sample mean is being compared with a claimed mean';
+      studentSentence='This is a one-sample t-test because one sample mean is compared with a claimed mean.';
+    }
+    if(data==='oneMeanKnown'){
+      test='z-test for a mean';h0='μ = μ₀';h1=dir==='greater'?'μ > μ₀':dir==='less'?'μ < μ₀':'μ ≠ μ₀';
+      note='Use only when the population variance or standard deviation is known.';
+      because='one sample mean is compared with a claimed mean and σ is known';
+      studentSentence='This is a z-test for a mean because the population standard deviation is known.';
+    }
+    if(data==='paired'){
+      test='Paired t-test';h0='μd = 0';h1=dir==='greater'?'μd > 0':dir==='less'?'μd < 0':'μd ≠ 0';
+      note='First create differences, for example after − before, then test the mean difference.';
+      because='the same people/items are measured twice or matched in pairs';
+      studentSentence='This is a paired t-test because the data are before/after or matched pairs.';
+    }
+    if(data==='binomial'){
+      test='Binomial test';h0='p = p₀';h1=dir==='greater'?'p > p₀':dir==='less'?'p < p₀':'p ≠ p₀';
+      note='Use when each trial is success/failure and the number of trials is fixed.';
+      because='the outcome is success/failure across a fixed number of trials';
+      studentSentence='This is a binomial test because we are counting successes out of a fixed number of trials.';
+    }
+    if(data==='poisson'){
+      test='Poisson test';h0='λ = λ₀';h1=dir==='greater'?'λ > λ₀':dir==='less'?'λ < λ₀':'λ ≠ λ₀';
+      note='Use for counts in a fixed time, area, distance, or volume.';
+      because='the data are counts in a fixed interval';
+      studentSentence='This is a Poisson test because we are testing a count rate.';
+    }
+    if(data==='correlation'){
+      test='Correlation test';h0='ρ = 0';h1=dir==='greater'?'ρ > 0':dir==='less'?'ρ < 0':'ρ ≠ 0';
+      note='Use for a relationship between two numerical or ranked variables. Correlation does not prove causation.';
+      because='there are two variables and the claim is about a relationship';
+      studentSentence='This is a correlation test because we are checking for a relationship between two variables.';
+    }
+  }
+  return {test,level,pill,h0,h1,note,because,studentSentence,data,dir};
+}
+function renderChooserDetails(info){
+  return `<div class="legend"><span class="pill ${info.pill}">${info.level}</span></div><h3>Correct test: ${info.test}</h3><p><b>Why this test?</b> Because ${info.because}.</p><p><b>H₀:</b> ${info.h0}</p><p><b>H₁:</b> ${info.h1}</p><p><b>Exam note:</b> ${info.note}</p><div class="now-box"><b>Now write:</b> ${info.studentSentence}</div>`;
+}
+function setChooserPanelState(state){
+  const panel=$('chooserChoicePanel');
+  if(!panel)return;
+  panel.classList.remove('correct','incorrect');
+  if(state==='correct')panel.classList.add('correct');
+  if(state==='incorrect')panel.classList.add('incorrect');
+}
+function resetChooserFeedback(){
+  const r=$('chooserResult');
+  if(!r)return;
+  setChooserPanelState('reset');
+  r.className='result blue';
+  r.innerHTML='<h3>Answer hidden</h3><p>Make your choices, then press <b>Check my choice</b>. Feedback will appear here.</p>';
+}
+function resetChooserInputs(){
+  ['dataType','claimDirection','studentTest'].forEach(id=>{const el=$(id); if(el)el.value='';});
+  resetChooserFeedback();
+}
+function useOwnChooserProblem(){
+  activeChooserExampleIndex=null;
+  document.querySelectorAll('.example-btn').forEach(b=>b.classList.remove('active'));
+  $('activeExample').innerHTML='<b>Using your own problem.</b><p class="small">Choose the data type, claim direction and test yourself. The applet can check whether your chosen test matches your selected data type.</p>';
+  resetChooserInputs();
+}
+function checkChooser(){
+  const data=$('dataType').value,dir=$('claimDirection').value,chosen=$('studentTest').value;
+  const r=$('chooserResult');
+  if(!data || !dir || !chosen){
+    setChooserPanelState('incorrect');
+    r.className='result bad';
+    r.innerHTML='<h3>Not ready yet</h3><p>Choose the data type, the claim direction and the test before checking.</p>';
+    return;
+  }
+  const selectedInfo=getChooserInfo(data,dir);
+  if(activeChooserExampleIndex!==null){
+    const ex=chooserExamples[activeChooserExampleIndex];
+    const correctInfo=getChooserInfo(ex.data,ex.dir);
+    const testOK=chosen===correctInfo.test;
+    const dataOK=data===ex.data;
+    const dirOK=dir===ex.dir;
+    const allOK=testOK && dataOK && dirOK;
+    setChooserPanelState(allOK?'correct':'incorrect');
+    r.className='result '+(allOK?'good':'bad');
+    const checks=`<ul><li>${dataOK?'✅':'❌'} Data type choice</li><li>${dirOK?'✅':'❌'} Claim direction choice</li><li>${testOK?'✅':'❌'} Test choice</li></ul>`;
+    const hint=allOK?'<h3>Correct — well done</h3><p>Your choices match the example. The choice panel is green so students can clearly see they are correct.</p>':'<h3>Not quite yet</h3><p>Look carefully at whether the data are categorical counts, numerical measurements, paired measurements, success/failure trials, or counts in a fixed interval.</p>';
+    r.innerHTML=hint+checks+renderChooserDetails(correctInfo);
+  }else{
+    const testOK=chosen===selectedInfo.test;
+    setChooserPanelState(testOK?'correct':'incorrect');
+    r.className='result '+(testOK?'good':'bad');
+    r.innerHTML=`<h3>${testOK?'Your test matches your data choices':'Your test does not match your data choices'}</h3><p>${testOK?'The choice panel is green because the test is consistent with your selected data type and claim direction. For your own worded problem, still check that your data type is correct.':'Based on the data type and claim direction you selected, a different test is suggested.'}</p>`+renderChooserDetails(selectedInfo);
+  }
+}
+function updateChooser(){resetChooserFeedback();}
+function areaPath(pdf,xmin,xmax,a,b,W,left,bottom,scaleY){a=Math.max(a,xmin);b=Math.min(b,xmax);if(b<=a)return'';let d=`M ${left+(a-xmin)/(xmax-xmin)*W} ${bottom}`;for(let i=0;i<=80;i++){const x=a+(b-a)*i/80,px=left+(x-xmin)/(xmax-xmin)*W,py=bottom-pdf(x)*scaleY;d+=` L ${px.toFixed(2)} ${py.toFixed(2)}`;}return d+` L ${left+(b-xmin)/(xmax-xmin)*W} ${bottom} Z`;}function drawDistribution(svgId,opts){const svg=$(svgId);svg.innerHTML='';const{xmin,xmax,pdf,areas=[],markers=[],title=''}=opts,W=680,H=280,left=70,bottom=360;let maxY=0;for(let i=0;i<=400;i++){const x=xmin+(xmax-xmin)*i/400;maxY=Math.max(maxY,pdf(x));}const scaleY=H/(maxY*1.12);svg.insertAdjacentHTML('beforeend',`<text x="410" y="42" text-anchor="middle" font-size="22" font-weight="850">${title}</text><line x1="${left}" y1="${bottom}" x2="${left+W}" y2="${bottom}" stroke="#334155" stroke-width="2"/>`);for(let t=Math.ceil(xmin);t<=Math.floor(xmax);t++){const px=left+(t-xmin)/(xmax-xmin)*W;svg.insertAdjacentHTML('beforeend',`<line x1="${px}" y1="${bottom}" x2="${px}" y2="${bottom+6}" stroke="#64748b"/><text x="${px}" y="${bottom+24}" text-anchor="middle" font-size="13" fill="#64748b">${t}</text>`);}areas.forEach(a=>{const d=areaPath(pdf,xmin,xmax,a.a,a.b,W,left,bottom,scaleY);if(d)svg.insertAdjacentHTML('beforeend',`<path d="${d}" fill="${a.color}" opacity=".85"/>`);});let d='';for(let i=0;i<=240;i++){const x=xmin+(xmax-xmin)*i/240,px=left+(x-xmin)/(xmax-xmin)*W,py=bottom-pdf(x)*scaleY;d+=(i?'L':'M')+px.toFixed(2)+' '+py.toFixed(2)+' ';}svg.insertAdjacentHTML('beforeend',`<path d="${d}" fill="none" stroke="#0f172a" stroke-width="4"/>`);markers.forEach(m=>{const px=left+(m.x-xmin)/(xmax-xmin)*W;svg.insertAdjacentHTML('beforeend',`<line x1="${px}" y1="${bottom}" x2="${px}" y2="${bottom-250}" stroke="${m.color}" stroke-width="3" stroke-dasharray="6 6"/><text x="${px}" y="${bottom-262}" text-anchor="middle" font-size="15" font-weight="800" fill="${m.color}">${m.label}</text>`);});}
+function updateNormalLab(){const z=parseFloat($('zSlider').value),alpha=parseFloat($('alphaSlider').value),tail=$('tailType').value;$('zLabel').textContent=fmt(z,2);$('alphaLabel').textContent=(alpha*100).toFixed(0)+'%';let p,areas=[],markers=[{x:z,label:'observed',color:'#dc2626'}];if(tail==='right'){p=1-normalCDF(z);areas=[{a:z,b:4,color:'#fecaca'}];markers.push({x:invNorm(1-alpha),label:'critical',color:'#2563eb'});}else if(tail==='left'){p=normalCDF(z);areas=[{a:-4,b:z,color:'#fecaca'}];markers.push({x:invNorm(alpha),label:'critical',color:'#2563eb'});}else{p=2*(1-normalCDF(Math.abs(z)));areas=[{a:-4,b:-Math.abs(z),color:'#fecaca'},{a:Math.abs(z),b:4,color:'#fecaca'}];const c=invNorm(1-alpha/2);markers.push({x:-c,label:'critical',color:'#2563eb'},{x:c,label:'critical',color:'#2563eb'});}drawDistribution('normalSvg',{xmin:-4,xmax:4,pdf:normalPDF,areas,markers,title:'Evidence under H₀'});const reject=p<alpha;$('normalResult').className='result '+(reject?'bad':'good');$('normalResult').innerHTML=`<h3>${reject?'Reject H₀':'Do not reject H₀'}</h3><p>p ≈ ${fmt(p,4)} and α = ${fmt(alpha,2)}.</p><p>${reject?'The observed result is unusually extreme under H₀.':'The observed result is not unusual enough at this significance level.'}</p>`;}
+function updateTTest(){const n1=+$('n1').value,n2=+$('n2').value,m1=+$('m1').value,m2=+$('m2').value,s1=+$('s1').value,s2=+$('s2').value,alpha=+$('tAlpha').value,alt=$('tAlt').value,df=n1+n2-2,sp=Math.sqrt(((n1-1)*s1*s1+(n2-1)*s2*s2)/df),se=sp*Math.sqrt(1/n1+1/n2),t=(m1-m2)/se;let p=alt==='right'?1-tCDF(t,df):alt==='left'?tCDF(t,df):2*(1-tCDF(Math.abs(t),df));const reject=p<alpha;$('tResult').className='result '+(reject?'bad':'good');$('tResult').innerHTML=`<h3>${reject?'Reject H₀':'Do not reject H₀'}</h3><p>sp = ${fmt(sp,3)}, SE = ${fmt(se,3)}, t = ${fmt(t,3)}, df = ${df}</p><p>Approximate p-value = ${fmt(p,4)}</p>`;}
+function updateChi(){const rows=[...document.querySelectorAll('#obsTable tbody tr')],O=rows.map(r=>[...r.querySelectorAll('input')].map(i=>Math.max(0,+i.value||0))),r=O.length,c=O[0].length,rowT=O.map(row=>row.reduce((a,b)=>a+b,0)),colT=Array.from({length:c},(_,j)=>O.reduce((a,row)=>a+row[j],0)),grand=rowT.reduce((a,b)=>a+b,0),alpha=+$('chiAlpha').value;let chi=0,minE=Infinity,html='<h3>Expected frequencies</h3><table><tbody>';for(let i=0;i<r;i++){html+='<tr>';for(let j=0;j<c;j++){const E=grand?rowT[i]*colT[j]/grand:0;minE=Math.min(minE,E);chi+=E?Math.pow(O[i][j]-E,2)/E:0;html+=`<td>${fmt(E,2)}</td>`;}html+='</tr>';}html+='</tbody></table>';$('expectedBox').innerHTML=html;const df=(r-1)*(c-1),p=1-chiCDF(chi,df),reject=p<alpha;$('chiResult').className='result '+(reject?'bad':'good');$('chiResult').innerHTML=`<h3>${reject?'Reject H₀':'Do not reject H₀'}</h3><p>χ² = ${fmt(chi,3)}, df = ${df}, p ≈ ${fmt(p,4)}</p><p>${minE<5?'Warning: some expected frequencies are below 5.':'All expected frequencies are at least 5.'}</p>`;}
+
+let errorQuizIndex = 0;
+const errorQuizItems = [
+  {
+    title:'Fair coin',
+    text:'H₀: the coin is fair. The test rejects H₀ and says the coin is biased. In reality, the coin is fair.',
+    answer:'Type I error',
+    why:'H₀ was true, but the test rejected H₀. That is a false alarm.'
+  },
+  {
+    title:'New medicine',
+    text:'H₀: the medicine has no effect. The test does not reject H₀. In reality, the medicine does help.',
+    answer:'Type II error',
+    why:'H₁ was true, but the test failed to reject H₀. That is a missed detection.'
+  },
+  {
+    title:'Revision method',
+    text:'H₀: the revision method does not improve scores. The method really does improve scores, and the test rejects H₀.',
+    answer:'Power',
+    why:'H₁ was true and the test detected it by rejecting H₀. This is the successful event measured by power.'
+  }
+];
+function updatePowerMini(){
+  if(!$('betaSlider'))return;
+  const beta=+$('betaSlider').value;
+  const power=1-beta;
+  const miss=Math.round(beta*100);
+  const catchN=100-miss;
+  $('betaLabel').textContent=fmt(beta,2);
+  $('powerMiniResult').innerHTML=`
+    <h3>Out of 100 studies where H₁ is really true...</h3>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:10px 0">
+      <div style="background:#fee2e2;border:1px solid #fecaca;border-radius:14px;padding:12px">
+        <b>Missed detections</b><br>
+        <span style="font-size:30px;font-weight:900">${miss}</span> out of 100<br>
+        <span class="small">This is β = ${fmt(beta,2)}.</span>
+        <div style="height:12px;background:#fff;border-radius:999px;overflow:hidden;margin-top:8px;border:1px solid #fecaca"><div style="height:100%;width:${miss}%;background:#ef4444"></div></div>
+      </div>
+      <div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:14px;padding:12px">
+        <b>Successful detections</b><br>
+        <span style="font-size:30px;font-weight:900">${catchN}</span> out of 100<br>
+        <span class="small">This is power = ${fmt(power,2)}.</span>
+        <div style="height:12px;background:#fff;border-radius:999px;overflow:hidden;margin-top:8px;border:1px solid #a7f3d0"><div style="height:100%;width:${catchN}%;background:#10b981"></div></div>
+      </div>
+    </div>
+    <p><b>Student interpretation:</b> If the alternative is really true, this test has about a ${(power*100).toFixed(0)}% chance of rejecting H₀ and detecting the effect.</p>
+    <p><b>Key link:</b> lower β means fewer missed detections, so the power is higher. But β is usually a consequence of the test design, not a free setting.</p>`;
+}
+
+function drawAlphaBetaTrade(alpha,effect,beta,power,crit){
+  const svg=$('tradeSvg');
+  if(!svg)return;
+  svg.innerHTML='';
+  const xmin=-3.5,xmax=5.2,W=680,H=250,left=70,bottom=360;
+  const pdf0=x=>normalPDF(x);
+  const pdf1=x=>normalPDF(x-effect);
+  let maxY=0;
+  for(let i=0;i<=500;i++){
+    const x=xmin+(xmax-xmin)*i/500;
+    maxY=Math.max(maxY,pdf0(x),pdf1(x));
+  }
+  const scaleY=H/(maxY*1.12);
+  const xp=x=>left+(x-xmin)/(xmax-xmin)*W;
+  const yp=(pdf,x)=>bottom-pdf(x)*scaleY;
+  const makeCurve=(pdf)=>{
+    let d='';
+    for(let i=0;i<=260;i++){
+      const x=xmin+(xmax-xmin)*i/260;
+      d+=(i?'L':'M')+xp(x).toFixed(2)+' '+yp(pdf,x).toFixed(2)+' ';
+    }
+    return d;
+  };
+  const areaFor=(pdf,a,b,color,op)=>{
+    a=Math.max(a,xmin); b=Math.min(b,xmax);
+    if(b<=a)return;
+    let d=`M ${xp(a)} ${bottom}`;
+    for(let i=0;i<=100;i++){
+      const x=a+(b-a)*i/100;
+      d+=` L ${xp(x).toFixed(2)} ${yp(pdf,x).toFixed(2)}`;
+    }
+    d+=` L ${xp(b)} ${bottom} Z`;
+    svg.insertAdjacentHTML('beforeend',`<path d="${d}" fill="${color}" opacity="${op}"/>`);
+  };
+  svg.insertAdjacentHTML('beforeend',`<text x="410" y="38" text-anchor="middle" font-size="22" font-weight="850">α and β move against each other</text>`);
+  svg.insertAdjacentHTML('beforeend',`<line x1="${left}" y1="${bottom}" x2="${left+W}" y2="${bottom}" stroke="#334155" stroke-width="2"/>`);
+  areaFor(pdf0,crit,xmax,'#fee2e2',0.9);   // alpha under H0
+  areaFor(pdf1,xmin,crit,'#fef3c7',0.92);  // beta under H1
+  svg.insertAdjacentHTML('beforeend',`<path d="${makeCurve(pdf0)}" fill="none" stroke="#0f172a" stroke-width="4"/>`);
+  svg.insertAdjacentHTML('beforeend',`<path d="${makeCurve(pdf1)}" fill="none" stroke="#7c3aed" stroke-width="4"/>`);
+  svg.insertAdjacentHTML('beforeend',`<line x1="${xp(crit)}" y1="${bottom}" x2="${xp(crit)}" y2="80" stroke="#2563eb" stroke-width="4" stroke-dasharray="6 6"/>`);
+  svg.insertAdjacentHTML('beforeend',`<text x="${xp(crit)}" y="68" text-anchor="middle" font-size="16" font-weight="850" fill="#2563eb">reject H₀ boundary</text>`);
+  svg.insertAdjacentHTML('beforeend',`<text x="${xp(0)}" y="${bottom+30}" text-anchor="middle" font-size="15" font-weight="850" fill="#0f172a">H₀ true</text>`);
+  svg.insertAdjacentHTML('beforeend',`<text x="${xp(effect)}" y="${bottom+30}" text-anchor="middle" font-size="15" font-weight="850" fill="#7c3aed">H₁ true</text>`);
+  svg.insertAdjacentHTML('beforeend',`<text x="${xp(Math.min(crit+0.75,xmax-0.6))}" y="185" text-anchor="middle" font-size="15" font-weight="850" fill="#dc2626">α false alarms</text>`);
+  svg.insertAdjacentHTML('beforeend',`<text x="${xp(Math.max(crit-0.95,xmin+0.8))}" y="135" text-anchor="middle" font-size="15" font-weight="850" fill="#92400e">β missed detections</text>`);
+}
+function updateAlphaBetaTrade(){
+  if(!$('tradeAlpha'))return;
+  const alpha=+$('tradeAlpha').value;
+  const effect=+$('tradeEffect').value;
+  const crit=invNorm(1-alpha);
+  const beta=normalCDF(crit-effect);
+  const power=1-beta;
+  $('tradeAlphaLabel').textContent=fmt(alpha,2);
+  $('tradeEffectLabel').textContent=fmt(effect,2);
+  const aN=Math.round(alpha*100);
+  const bN=Math.round(beta*100);
+  const pN=Math.round(power*100);
+  $('tradeResult').innerHTML=`
+    <h3>With α = ${fmt(alpha,2)} and signal = ${fmt(effect,2)}</h3>
+    <p><b>Critical boundary:</b> z ≈ ${fmt(crit,2)}. Results to the right reject H₀.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0">
+      <div style="background:#fee2e2;border:1px solid #fecaca;border-radius:14px;padding:12px"><b>Type I risk</b><br><span style="font-size:28px;font-weight:900">${aN}</span> / 100<br><span class="small">false alarms when H₀ is true</span></div>
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:14px;padding:12px"><b>β</b><br><span style="font-size:28px;font-weight:900">${bN}</span> / 100<br><span class="small">misses when H₁ is true</span></div>
+      <div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:14px;padding:12px"><b>Power</b><br><span style="font-size:28px;font-weight:900">${pN}</span> / 100<br><span class="small">detections when H₁ is true</span></div>
+    </div>
+    <p><b>Try this:</b> increase α. β usually falls, but the false-alarm box also gets bigger. That is the trade-off.</p>`;
+  drawAlphaBetaTrade(alpha,effect,beta,power,crit);
+}
+
+function loadErrorQuiz(i){
+  errorQuizIndex=i;
+  const item=errorQuizItems[i];
+  if(!item || !$('errorQuizTitle'))return;
+  $('errorQuizTitle').textContent=item.title;
+  $('errorQuizText').textContent=item.text;
+  document.querySelectorAll('.error-choice').forEach(b=>b.classList.remove('correct','wrong'));
+  const panel=$('errorQuizPanel');
+  if(panel){panel.classList.remove('result','good','bad');}
+  $('errorQuizFeedback').className='result blue';
+  $('errorQuizFeedback').innerHTML='<b>Before checking:</b> identify whether H₀ was rejected, then identify whether H₀ or H₁ was actually true.';
+}
+function checkErrorChoice(choice){
+  const item=errorQuizItems[errorQuizIndex];
+  document.querySelectorAll('.error-choice').forEach(b=>{
+    b.classList.remove('correct','wrong');
+    if(b.textContent.trim()===choice){b.classList.add(choice===item.answer?'correct':'wrong');}
+  });
+  const panel=$('errorQuizPanel');
+  if(choice===item.answer){
+    if(panel){panel.classList.add('result','good');panel.classList.remove('bad');}
+    $('errorQuizFeedback').className='result good';
+    $('errorQuizFeedback').innerHTML=`<b>Correct.</b> ${item.why}`;
+  }else{
+    if(panel){panel.classList.add('result','bad');panel.classList.remove('good');}
+    $('errorQuizFeedback').className='result bad';
+    $('errorQuizFeedback').innerHTML=`<b>Not this time.</b> Correct answer: ${item.answer}. ${item.why}`;
+  }
+}
+
+const chooserExamples=[
+  {label:'Fair die',scenario:'A die is rolled 120 times. Do the observed counts fit the expected 20 on each face?',data:'cat1',dir:'fit',why:'One categorical variable with observed counts compared to expected counts.'},
+  {label:'Lunch × year group',scenario:'Students in different year groups choose lunch options. Is lunch choice related to year group?',data:'cat2',dir:'association',why:'Two categorical variables form a contingency table.'},
+  {label:'Two classes',scenario:'Class A and Class B use different teaching methods. Are their mean test scores different?',data:'twoMeans',dir:'different',why:'Two separate groups with numerical scores.'},
+  {label:'Battery claim',scenario:'A company claims batteries last 10 hours. A sample seems lower. Is the mean battery life less than claimed?',data:'oneMeanUnknown',dir:'less',why:'One numerical sample compared with a claimed mean; variance is not given.'},
+  {label:'Before / after revision',scenario:'The same students take a test before and after revision. Did their scores increase?',data:'paired',dir:'greater',why:'The same students are measured twice, so analyse the paired differences.'},
+  {label:'Penalty saves',scenario:'A goalkeeper saves 18 out of 40 penalties. Is the save probability greater than 30%?',data:'binomial',dir:'greater',why:'Each penalty is success/failure with a fixed number of trials.'},
+  {label:'Cars per minute',scenario:'A road usually has 8 cars per minute. In a new sample the count seems higher. Has the rate increased?',data:'poisson',dir:'greater',why:'Counts occur in a fixed time interval.'},
+  {label:'Height and arm span',scenario:'Is there a positive relationship between students’ heights and arm spans?',data:'correlation',dir:'greater',why:'Two numerical variables are being tested for a relationship.'}
+];
+function initChooserExamples(){
+  const box=$('chooserExamples');
+  if(!box)return;
+  box.innerHTML=chooserExamples.map((ex,i)=>`<button type="button" class="example-btn" onclick="loadChooserExample(${i})">${ex.label}</button>`).join('');
+}
+function loadChooserExample(i){
+  const ex=chooserExamples[i];
+  if(!ex)return;
+  activeChooserExampleIndex=i;
+  document.querySelectorAll('.example-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  resetChooserInputs();
+  $('activeExample').innerHTML=`<div class="tiny-label">Selected example</div><h3>${ex.label}</h3><p>${ex.scenario}</p><p class="small"><b>Your job:</b> choose the data type, the claim direction, and the test. The explanation is hidden until you check.</p>`;
+}
+
+const scenarios=[{t:'Favourite lunch by year group',sl:true,q:'Students in Years 10, 11 and 12 choose a lunch option. Is preference independent of year group?',a:'χ² independence',w:'Two categorical variables in a contingency table.'},{t:'Fair die',sl:true,q:'A die is rolled 120 times. Do the outcomes fit equal probabilities?',a:'χ² goodness-of-fit',w:'One categorical variable compared with expected counts.'},{t:'Two teaching methods',sl:true,q:'Two classes use different methods. Are their mean scores different?',a:'Pooled two-sample t-test',w:'Two independent numerical samples.'},{t:'Before and after revision',sl:false,q:'The same students take a test before and after revision. Did scores improve?',a:'Paired t-test',w:'Matched before/after data: test differences.'},{t:'Biased coin',sl:false,q:'A coin gives 29 heads in 40 flips. Is it biased?',a:'Binomial test',w:'Fixed success/failure trials.'},{t:'Cars per minute',sl:false,q:'A road usually has 8 cars per minute. Has the rate changed?',a:'Poisson test',w:'Counts in a fixed time interval.'},{t:'Height and arm span',sl:false,q:'Is there evidence of a positive linear relationship?',a:'Correlation test',w:'Two numerical variables and relationship.'},{t:'Claimed mean battery life',sl:false,q:'A sample of batteries is compared with claimed mean life, variance unknown.',a:'One-sample t-test',w:'One numerical sample, variance unknown.'}];function initScenarios(){const g=$('scenarioGrid');g.innerHTML='';scenarios.forEach((s,i)=>g.insertAdjacentHTML('beforeend',`<div class="scenario-card ${s.sl?'sl-card':'hl-card'}" onclick="selectScenario(${i})"><span class="pill ${s.sl?'sl':'hl'}">${s.sl?'SL':'HL'}</span><h3>${s.t}</h3><p>${s.q}</p></div>`));selectScenario(0);}function selectScenario(i){const s=scenarios[i],opts=['χ² independence','χ² goodness-of-fit','Pooled two-sample t-test','Paired t-test','Binomial test','Poisson test','Correlation test','One-sample t-test'];$('scenarioDetail').innerHTML=`<h3>${s.t}</h3><p>${s.q}</p><div class="choice-grid">${opts.map(o=>`<button class="choice" onclick="checkScenario(this,'${o}',${i})">${o}</button>`).join('')}</div><div id="scenarioFeedback"></div>`;}function checkScenario(btn,choice,i){document.querySelectorAll('.choice').forEach(b=>b.classList.remove('correct','wrong'));const s=scenarios[i];if(choice===s.a){btn.classList.add('correct');$('scenarioFeedback').innerHTML=`<div class="result good"><b>Correct.</b> ${s.w}</div>`;}else{btn.classList.add('wrong');$('scenarioFeedback').innerHTML=`<div class="result bad"><b>Not this time.</b> Better: ${s.a}. ${s.w}</div>`;}}
+function init(){drawLogic();initChooserExamples();updateChooser();updateNormalLab();updateTTest();updateChi();updatePowerMini();updateAlphaBetaTrade();loadErrorQuiz(0);initScenarios();}window.addEventListener('load',init);
+</script>
+</body>
+</html>
