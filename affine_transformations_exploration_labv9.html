@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Affine Transformations Exploration Lab</title>
+<style>
+  :root{
+    --bg:#f7f8fb;
+    --paper:#ffffff;
+    --ink:#172033;
+    --muted:#5b657a;
+    --line:#d9e0ee;
+    --accent:#2f6fed;
+    --accent2:#00a884;
+    --warn:#f59e0b;
+    --danger:#e05252;
+    --purple:#7c3aed;
+    --soft:#eef4ff;
+    --soft2:#ecfdf5;
+    --soft3:#fff7ed;
+    --shadow:0 14px 35px rgba(23,32,51,.10);
+    --radius:22px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#eef4ff 0,#f7f8fb 280px);
+    color:var(--ink);
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height:1.5;
+  }
+  header{
+    padding:38px 22px 24px;
+    max-width:1180px;
+    margin:auto;
+  }
+  h1{font-size:clamp(2rem,5vw,4.4rem);line-height:1.02;margin:0 0 14px;letter-spacing:-.05em}
+  h2{font-size:clamp(1.45rem,3vw,2.2rem);letter-spacing:-.03em;margin:0 0 12px}
+  h3{font-size:1.15rem;margin:0 0 8px}
+  p{margin:0 0 12px}
+  .subtitle{font-size:1.1rem;max-width:900px;color:var(--muted)}
+  .tagrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .tag{border:1px solid var(--line);background:rgba(255,255,255,.8);padding:6px 10px;border-radius:999px;font-size:.86rem;color:#33415f}
+  nav{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:rgba(247,248,251,.9);
+    backdrop-filter:blur(10px);
+    border-block:1px solid var(--line);
+  }
+  nav .inner{max-width:1180px;margin:auto;display:flex;gap:8px;overflow:auto;padding:10px 18px}
+  nav a{white-space:nowrap;text-decoration:none;color:#33415f;background:white;border:1px solid var(--line);padding:7px 11px;border-radius:999px;font-size:.88rem}
+  nav a:hover{border-color:var(--accent);color:var(--accent)}
+  main{max-width:1180px;margin:0 auto;padding:24px 18px 70px}
+  section{margin:26px 0}
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px;
+  }
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.canvasWrap{grid-template-columns:1fr!important}}
+  .mini{
+    border:1px solid var(--line);
+    background:#fbfcff;
+    border-radius:18px;
+    padding:14px;
+  }
+  .inquiry{border-left:6px solid var(--accent);background:var(--soft)}
+  .explain{border-left:6px solid var(--accent2);background:var(--soft2)}
+  .exam{border-left:6px solid var(--warn);background:var(--soft3)}
+  .teacher{border-left:6px solid var(--purple);background:#f5f3ff}
+  .formula{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#111827;
+    color:#f8fafc;
+    border-radius:14px;
+    padding:12px 14px;
+    overflow:auto;
+    margin:10px 0;
+    white-space:pre;
+    line-height:1.45;
+  }
+  .formula.light{
+    background:#f8fafc;
+    color:#172033;
+    border:1px solid var(--line);
+  }
+  .mathbox{
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px 16px;
+    margin:10px 0;
+    overflow-x:auto;
+  }
+  .practiceItem h3 .mjx-container{
+    font-size:105% !important;
+  }
+  button, select, input[type="number"], input[type="text"]{
+    font:inherit;
+  }
+  button{
+    border:0;
+    background:var(--accent);
+    color:white;
+    padding:9px 13px;
+    border-radius:13px;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(47,111,237,.18);
+  }
+  button.secondary{background:#33415f}
+  button.ghost{background:white;color:#33415f;border:1px solid var(--line);box-shadow:none}
+  button.good{background:var(--accent2)}
+  button.warn{background:var(--warn)}
+  button.danger{background:var(--danger)}
+  button.small{padding:6px 9px;border-radius:10px;font-size:.86rem}
+  button:disabled{opacity:.55;cursor:not-allowed}
+  .buttonrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  label{font-size:.9rem;color:#33415f;display:block;margin-bottom:4px}
+  input[type="number"], input[type="text"], select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:8px 10px;
+    background:white;
+    color:var(--ink);
+  }
+  .matrixInputs{
+    display:grid;
+    grid-template-columns:repeat(2,70px);
+    gap:8px;
+    align-items:center;
+  }
+  .matrixBlock{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin:8px 0;
+  }
+  .bracket{
+    font-size:3.1rem;
+    line-height:1;
+    color:#64748b;
+    transform:scaleX(.62);
+  }
+  .vectorInputs{display:grid;grid-template-columns:repeat(2,70px);gap:8px}
+  .canvasWrap{
+    display:grid;
+    grid-template-columns:minmax(360px,1fr) 360px;
+    gap:18px;
+    align-items:start;
+  }
+  canvas{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:white;
+    touch-action:none;
+  }
+  .readout{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    white-space:pre-wrap;
+    font-size:.92rem;
+  }
+  .readout.mathReadout{
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    white-space:normal;
+    line-height:1.55;
+  }
+  .readout.mathReadout .mjx-container{
+    overflow-x:auto;
+    overflow-y:hidden;
+    max-width:100%;
+  }
+  .mathLine{
+    margin:7px 0;
+  }
+  details{
+    border:1px solid var(--line);
+    background:white;
+    border-radius:16px;
+    padding:12px 14px;
+    margin:10px 0;
+  }
+  summary{cursor:pointer;font-weight:700}
+  .pill{
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:999px;
+    background:#e0ebff;
+    color:#1d4ed8;
+    font-weight:700;
+    font-size:.78rem;
+    margin-right:5px;
+  }
+  .ahl{background:#fef3c7;color:#92400e}
+  .hl{background:#ede9fe;color:#5b21b6}
+  .ok{color:#087f5b;font-weight:700}
+  .bad{color:#c53030;font-weight:700}
+  .muted{color:var(--muted)}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;border:1px solid var(--line);background:#fff;border-radius:6px;padding:1px 5px}
+  .practiceItem{
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:18px;
+    padding:14px;
+    margin:12px 0;
+  }
+  .ansGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  @media(max-width:700px){.ansGrid{grid-template-columns:1fr 1fr}}
+  .choice{background:#f8fafc;color:#172033;border:1px solid var(--line);box-shadow:none;text-align:left}
+  .choice.selected{border-color:var(--accent);background:#eef4ff}
+  .progressOuter{height:12px;border-radius:999px;background:#e5e7eb;overflow:hidden;margin:12px 0}
+  .progressInner{height:100%;width:0%;background:var(--accent2);transition:.3s}
+  .tiny{font-size:.83rem;color:var(--muted)}
+  .math{font-family: Georgia, "Times New Roman", serif;}
+  .table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.94rem;
+  }
+  .table th,.table td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  .table th{background:#f8fafc}
+  .twoColList{columns:2;column-gap:28px}
+  @media(max-width:800px){.twoColList{columns:1}}
+  .pixelGrid{
+    display:grid;
+    grid-template-columns:repeat(5,38px);
+    grid-auto-rows:38px;
+    gap:3px;
+    margin:8px 0;
+  }
+  .px{
+    border:1px solid #cbd5e1;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.72rem;
+    background:#f8fafc;
+  }
+  .px.on{background:#93c5fd;color:#082f49;font-weight:700}
+</style>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]']],
+      processEscapes: true
+    },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<header>
+  <h1>Affine Transformations Exploration Lab</h1>
+  <p class="subtitle">An inquiry-first, explanation-rich, exam-ready lab for matrix transformations of the plane: rotations, reflections, stretches, enlargements, translations, compositions, determinants, area scale factor and fractal iteration.</p>
+  <div class="tagrow">
+    <span class="tag">IB Mathematics AI HL</span>
+    <span class="tag">AHL 3.9</span>
+    <span class="tag">Inquiry → structure → exam practice</span>
+    <span class="tag">No external libraries</span>
+  </div>
+</header>
+
+<nav>
+  <div class="inner">
+    <a href="#map">The big map</a>
+    <a href="#basis">Basis vectors</a>
+    <a href="#lab">Live matrix lab</a>
+    <a href="#types">Transformation types</a>
+    <a href="#composition">Composition</a>
+    <a href="#affine">Affine transformations</a>
+    <a href="#area">Determinant & area</a>
+    <a href="#fractal">Fractals</a>
+    <a href="#exam">Exam practice</a>
+    <a href="#summary">Summary sheet</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="map" class="card">
+  <h2>The big idea</h2>
+  <div class="grid2">
+    <div class="mini inquiry">
+      <h3>Inquiry question</h3>
+      <p>How can one small matrix move every point in a shape in a predictable way?</p>
+      <p>Drag, stretch, rotate and reflect the triangle later. Watch what happens to the two special vectors <span class="kbd">(1,0)</span> and <span class="kbd">(0,1)</span>.</p>
+    </div>
+    <div class="mini explain">
+      <h3>The unifying model</h3>
+      <div class="mathbox">
+\[
+\text{Linear transformation:}\quad \mathbf{x}'=A\mathbf{x}
+\]
+\[
+\text{Affine transformation:}\quad \mathbf{x}'=A\mathbf{x}+\mathbf{b}
+\]
+\[
+A=\begin{pmatrix}a&b\\c&d\end{pmatrix},
+\qquad
+\mathbf{b}=\begin{pmatrix}e\\f\end{pmatrix}
+\]
+</div>
+      <p>A matrix <span class="math">\(A\)</span> handles the linear part: rotation, reflection, stretch, shear, enlargement. The vector <span class="math">\(b\)</span> handles translation.</p>
+    </div>
+  </div>
+
+  <div class="grid3" style="margin-top:16px">
+    <div class="mini">
+      <span class="pill">1</span><strong>Move points</strong>
+      <p class="muted">A point \((x,y)\) becomes a new point \((x',y')\).</p>
+    </div>
+    <div class="mini">
+      <span class="pill">2</span><strong>Move shapes</strong>
+      <p class="muted">A whole triangle is transformed by transforming each vertex.</p>
+    </div>
+    <div class="mini">
+      <span class="pill">3</span><strong>Move areas</strong>
+      <p class="muted">The determinant tells the area scale factor: image area = \(|det(A)|\) × original area.</p>
+    </div>
+  </div>
+</section>
+
+<section id="basis" class="card">
+  <h2>1. Discover the matrix from the basis vectors</h2>
+  <div class="grid2">
+    <div>
+      <div class="mini inquiry">
+        <h3>Try this first</h3>
+        <p>Imagine a transformation sends:</p>
+        <div class="mathbox">
+\[
+\begin{pmatrix}1\\0\end{pmatrix}\mapsto
+\begin{pmatrix}a\\c\end{pmatrix},
+\qquad
+\begin{pmatrix}0\\1\end{pmatrix}\mapsto
+\begin{pmatrix}b\\d\end{pmatrix}
+\]
+</div>
+        <p>What matrix must do this?</p>
+        <details>
+          <summary>Reveal the key idea</summary>
+          <p>The image of \((1,0)\) is the <strong>first column</strong> of the matrix. The image of \((0,1)\) is the <strong>second column</strong>.</p>
+          <div class="mathbox">
+\[
+A=\begin{pmatrix}a&b\\c&d\end{pmatrix}
+\]
+</div>
+        </details>
+      </div>
+
+      <div class="mini explain" style="margin-top:12px">
+        <h3>Why this works</h3>
+        <p>Every vector can be built from the basis vectors:</p>
+        <div class="mathbox">
+\[
+\begin{pmatrix}x\\y\end{pmatrix}
+=
+x\begin{pmatrix}1\\0\end{pmatrix}
++
+y\begin{pmatrix}0\\1\end{pmatrix}
+\]
+</div>
+        <p>So once we know where \((1,0)\) and \((0,1)\) go, we know where every \((x,y)\) goes.</p>
+      </div>
+    </div>
+
+    <div class="mini">
+      <h3>Basis-vector builder</h3>
+      <p class="tiny">Set where \((1,0)\) and \((0,1)\) go. The matrix updates automatically.</p>
+      <div class="grid2">
+        <div>
+          <label>Image of (1,0): x-coordinate</label>
+          <input id="b1x" type="number" value="1" step="0.5">
+        </div>
+        <div>
+          <label>Image of (1,0): y-coordinate</label>
+          <input id="b1y" type="number" value="0" step="0.5">
+        </div>
+        <div>
+          <label>Image of (0,1): x-coordinate</label>
+          <input id="b2x" type="number" value="0" step="0.5">
+        </div>
+        <div>
+          <label>Image of (0,1): y-coordinate</label>
+          <input id="b2y" type="number" value="1" step="0.5">
+        </div>
+      </div>
+      <div class="buttonrow">
+        <button class="small ghost" onclick="setBasis(0,1,-1,0)">90° anticlockwise</button>
+        <button class="small ghost" onclick="setBasis(1,0,0,-1)">Reflect x-axis</button>
+        <button class="small ghost" onclick="setBasis(-1,0,0,1)">Reflect y-axis</button>
+        <button class="small ghost" onclick="setBasis(2,0,0,1)">Horizontal stretch 2</button>
+      </div>
+      <div id="basisReadout" class="readout mathReadout"></div>
+    </div>
+  </div>
+</section>
+
+<section id="lab" class="card">
+  <h2>2. Live matrix transformation lab</h2>
+  <div class="canvasWrap">
+    <div>
+      <canvas id="mainCanvas" width="700" height="700" aria-label="Coordinate grid showing original and transformed triangle"></canvas>
+      <p class="tiny">Original triangle is blue. Transformed image is orange. Basis vectors are shown from the origin.</p>
+    </div>
+    <div class="mini">
+      <h3>Transformation controls</h3>
+
+      <label>Preset</label>
+      <select id="preset" onchange="applyPreset(this.value)">
+        <option value="identity">Identity</option>
+        <option value="rot90">Rotation 90° anticlockwise</option>
+        <option value="rot-90">Rotation 90° clockwise</option>
+        <option value="rot45">Rotation 45° anticlockwise</option>
+        <option value="reflectx">Reflection in x-axis</option>
+        <option value="reflecty">Reflection in y-axis</option>
+        <option value="reflectyx">Reflection in y = x</option>
+        <option value="reflectynx">Reflection in y = -x</option>
+        <option value="stretchx2">Horizontal stretch factor 2</option>
+        <option value="stretchy2">Vertical stretch factor 2</option>
+        <option value="enlarge2">Enlargement scale factor 2, centre O</option>
+        <option value="shearx">Shear parallel to x-axis</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <div class="matrixBlock">
+        <span class="bracket">[</span>
+        <div class="matrixInputs">
+          <input id="a" type="number" step="0.01" value="1">
+          <input id="b" type="number" step="0.01" value="0">
+          <input id="c" type="number" step="0.01" value="0">
+          <input id="d" type="number" step="0.01" value="1">
+        </div>
+        <span class="bracket">]</span>
+      </div>
+
+      <p class="tiny">Translation vector \(b\):</p>
+      <div class="matrixBlock">
+        <span class="bracket">[</span>
+        <div class="vectorInputs">
+          <input id="tx" type="number" step="0.5" value="0">
+          <input id="ty" type="number" step="0.5" value="0">
+        </div>
+        <span class="bracket">]</span>
+      </div>
+
+      <div class="buttonrow">
+        <button onclick="randomMatrix()">Random matrix</button>
+        <button class="ghost" onclick="resetTriangle()">Reset triangle</button>
+        <button class="ghost" onclick="toggleGrid()">Toggle grid detail</button>
+      </div>
+
+      <div id="mainReadout" class="readout mathReadout"></div>
+
+      <details>
+        <summary>Guided questions</summary>
+        <ol>
+          <li>What happens to the image if \(det(A)\) is negative?</li>
+          <li>What happens if \(det(A)=0\)?</li>
+          <li>What is special about rotation and reflection matrices?</li>
+          <li>Can you predict the image of the triangle from the image of the basis vectors?</li>
+        </ol>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="types" class="card">
+  <h2>3. Transformation types: recognise the structure</h2>
+  <div class="grid3">
+    <div class="mini">
+      <h3>Rotations about O</h3>
+      <div class="mathbox">
+\[
+\begin{pmatrix}
+\cos\theta&-\sin\theta\\
+\sin\theta&\cos\theta
+\end{pmatrix}
+\]
+</div>
+      <p>Area is unchanged because \(det(A)=1\). Orientation is preserved.</p>
+    </div>
+    <div class="mini">
+      <h3>Reflections</h3>
+      <div class="mathbox">
+\[
+\text{x-axis: }\begin{pmatrix}1&0\\0&-1\end{pmatrix}
+\qquad
+\text{y-axis: }\begin{pmatrix}-1&0\\0&1\end{pmatrix}
+\]
+\[
+\text{line }y=x:\quad
+\begin{pmatrix}0&1\\1&0\end{pmatrix}
+\]
+</div>
+      <p>Area is unchanged because \(|det(A)|=1\), but orientation reverses.</p>
+    </div>
+    <div class="mini">
+      <h3>Stretches and enlargements</h3>
+      <div class="mathbox">
+\[
+\text{Horizontal stretch factor }k:
+\begin{pmatrix}k&0\\0&1\end{pmatrix}
+\]
+\[
+\text{Vertical stretch factor }k:
+\begin{pmatrix}1&0\\0&k\end{pmatrix}
+\]
+\[
+\text{Enlargement scale factor }k:
+\begin{pmatrix}k&0\\0&k\end{pmatrix}
+\]
+</div>
+      <p>The determinant gives the area scale factor.</p>
+    </div>
+  </div>
+
+  <div class="mini exam" style="margin-top:14px">
+    <h3>Exam recognition shortcut</h3>
+    <p>In a \(2 \times 2\) matrix, the columns tell you the images of the basis vectors. This makes many questions faster:</p>
+    <div class="mathbox">
+\[
+A=\begin{pmatrix}0&-1\\1&0\end{pmatrix}
+\]
+\[
+\begin{pmatrix}1\\0\end{pmatrix}\mapsto
+\begin{pmatrix}0\\1\end{pmatrix},
+\qquad
+\begin{pmatrix}0\\1\end{pmatrix}\mapsto
+\begin{pmatrix}-1\\0\end{pmatrix}
+\]
+<p>So this is a 90° anticlockwise rotation.</p>
+</div>
+  </div>
+</section>
+
+<section id="composition" class="card">
+  <h2>4. Composition: order matters</h2>
+  <div class="grid2">
+    <div class="mini inquiry">
+      <h3>Inquiry</h3>
+      <p>Does a rotation followed by a stretch give the same result as a stretch followed by a rotation?</p>
+      <p>Use the controls below. The app calculates both \(BA\) and \(AB\).</p>
+    </div>
+    <div class="mini explain">
+      <h3>Key rule</h3>
+      <p>If transformation \(A\) is followed by transformation \(B\), the combined matrix is:</p>
+      <div class="mathbox">
+\[
+BA
+\]
+</div>
+      <p>The right-hand matrix acts first.</p>
+    </div>
+  </div>
+
+  <div class="canvasWrap" style="margin-top:14px">
+    <div><canvas id="compCanvas" width="700" height="700"></canvas></div>
+    <div class="mini">
+      <label>First transformation A</label>
+      <select id="compA" onchange="updateComposition()">
+        <option value="rot90">Rotation 90° anticlockwise</option>
+        <option value="reflectx">Reflection in x-axis</option>
+        <option value="stretchx2">Horizontal stretch 2</option>
+        <option value="stretchy2">Vertical stretch 2</option>
+        <option value="shearx">Shear x</option>
+      </select>
+      <label>Second transformation B</label>
+      <select id="compB" onchange="updateComposition()">
+        <option value="stretchx2">Horizontal stretch 2</option>
+        <option value="rot90">Rotation 90° anticlockwise</option>
+        <option value="reflectx">Reflection in x-axis</option>
+        <option value="stretchy2">Vertical stretch 2</option>
+        <option value="shearx">Shear x</option>
+      </select>
+      <div class="buttonrow">
+        <button class="ghost" onclick="swapComposition()">Swap order</button>
+      </div>
+      <div id="compReadout" class="readout mathReadout"></div>
+    </div>
+  </div>
+</section>
+
+<section id="affine" class="card">
+  <h2>5. Affine transformations: add translation</h2>
+  <div class="grid2">
+    <div class="mini explain">
+      <h3>Linear vs affine</h3>
+      <p>A linear transformation keeps the origin fixed. A translation does not, so translations cannot be represented by a \(2 \times 2\) matrix alone.</p>
+      <div class="mathbox">
+\[
+\mathbf{x}'=A\mathbf{x}+\mathbf{b}
+\]
+</div>
+      <p>The matrix changes shape, size, orientation or angle. The vector \(b\) moves everything afterwards.</p>
+    </div>
+    <div class="mini inquiry">
+      <h3>Test it</h3>
+      <p>In the live lab, set \(A\) to the identity and change the translation vector. What happens to the triangle?</p>
+      <p>Then set \(A\) to a rotation and add a translation. Does it still rotate about the origin?</p>
+    </div>
+  </div>
+
+  <div class="mini teacher" style="margin-top:14px">
+    <h3>Useful classroom explanation</h3>
+    <p>Think of an affine transformation as <strong>transform, then slide</strong>. First the matrix changes the object relative to the origin. Then the vector moves the finished image.</p>
+  </div>
+</section>
+
+<section id="area" class="card">
+  <h2>6. Determinant and area scale factor</h2>
+  <div class="canvasWrap">
+    <div><canvas id="areaCanvas" width="700" height="700"></canvas></div>
+    <div class="mini">
+      <h3>Area experiment</h3>
+      <p>The original triangle has area calculated from its vertices. The transformed triangle area is compared with \(|det(A)|\).</p>
+      <div class="buttonrow">
+        <button class="small ghost" onclick="setAreaMatrix(2,0,0,1)">Stretch x by 2</button>
+        <button class="small ghost" onclick="setAreaMatrix(0,-1,1,0)">Rotate 90°</button>
+        <button class="small ghost" onclick="setAreaMatrix(1,1,0,1)">Shear</button>
+        <button class="small ghost" onclick="setAreaMatrix(1,2,2,4)">Singular</button>
+        <button class="small ghost" onclick="setAreaMatrix(-1,0,0,1)">Reflect y-axis</button>
+      </div>
+      <div class="matrixBlock">
+        <span class="bracket">[</span>
+        <div class="matrixInputs">
+          <input id="aa" type="number" step="0.01" value="2">
+          <input id="ab" type="number" step="0.01" value="0">
+          <input id="ac" type="number" step="0.01" value="0">
+          <input id="ad" type="number" step="0.01" value="1">
+        </div>
+        <span class="bracket">]</span>
+      </div>
+      <div id="areaReadout" class="readout mathReadout"></div>
+      <details>
+        <summary>Why absolute value?</summary>
+        <p>A negative determinant means the orientation has flipped, such as in a reflection. Area cannot be negative, so the area scale factor is \(|det(A)|\).</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="fractal" class="card">
+  <h2>7. Iterating affine transformations: fractal generator</h2>
+  <div class="grid2">
+    <div class="mini inquiry">
+      <h3>Inquiry</h3>
+      <p>What happens if we repeatedly apply several shrinking affine transformations to many points?</p>
+      <p>This is the idea behind simple fractal generation: each point is repeatedly transformed by one of several rules.</p>
+    </div>
+    <div class="mini explain">
+      <h3>Affine rule</h3>
+      <div class="mathbox">
+\[
+\begin{pmatrix}x'\\y'\end{pmatrix}
+=
+\begin{pmatrix}a&b\\c&d\end{pmatrix}
+\begin{pmatrix}x\\y\end{pmatrix}
++
+\begin{pmatrix}e\\f\end{pmatrix}
+\]
+</div>
+      <p>Choose a rule, transform the point, draw it, and repeat thousands of times.</p>
+    </div>
+  </div>
+
+  <div class="canvasWrap" style="margin-top:14px">
+    <div><canvas id="fractalCanvas" width="700" height="700"></canvas></div>
+    <div class="mini">
+      <label>Fractal preset</label>
+      <select id="fractalPreset" onchange="drawFractal()">
+        <option value="sierpinski">Sierpiński triangle</option>
+        <option value="fern">Barnsley fern</option>
+        <option value="kochish">Koch-like dust</option>
+      </select>
+      <label>Iterations</label>
+      <input id="fractalN" type="number" value="25000" min="1000" max="120000" step="1000">
+      <div class="buttonrow">
+        <button onclick="drawFractal()">Generate</button>
+        <button class="ghost" onclick="clearCanvas(fractalCanvas)">Clear</button>
+      </div>
+      <div id="fractalReadout" class="readout mathReadout"></div>
+      <details>
+        <summary>Exam connection</summary>
+        <p>You may be asked to identify or apply repeated affine transformations, especially where matrices create self-similar images. The key is to read each rule as \(x'=Ax+b\).</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="image" class="card">
+  <h2>8. Digital image processing mini-lab</h2>
+  <div class="grid2">
+    <div class="mini">
+      <h3>Pixel idea</h3>
+      <p>A digital image can be treated as a set of coordinates. A transformation sends each pixel position to a new position.</p>
+      <div class="pixelGrid" id="pixelGrid"></div>
+      <div class="buttonrow">
+        <button class="small ghost" onclick="pixelTransform('rot90')">Rotate 90°</button>
+        <button class="small ghost" onclick="pixelTransform('reflectx')">Reflect x-axis</button>
+        <button class="small ghost" onclick="pixelTransform('reflecty')">Reflect y-axis</button>
+        <button class="small ghost" onclick="pixelReset()">Reset</button>
+      </div>
+    </div>
+    <div class="mini explain">
+      <h3>Why this matters</h3>
+      <p>Rotating a photo, flipping an image, resizing a graphic, mapping textures in games, and transforming medical scan images all use this coordinate idea.</p>
+      <p>The mathematics is the same: move every point according to a rule.</p>
+    </div>
+  </div>
+</section>
+
+<section id="exam" class="card">
+  <h2>9. Exam practice generator</h2>
+  <div class="mini exam">
+    <h3>How to use this section</h3>
+    <p>Generate questions, answer them, then reveal worked solutions. The questions mix recognition, calculation, composition, determinant-area, and affine transformations.</p>
+    <div class="buttonrow">
+      <button onclick="generatePractice()">Generate new set</button>
+      <button class="good" onclick="checkPractice()">Check answers</button>
+      <button class="ghost" onclick="revealAllSolutions()">Reveal solutions</button>
+    </div>
+    <div class="progressOuter"><div id="practiceProgress" class="progressInner"></div></div>
+    <div id="scoreBox" class="readout">Generate a set to begin.</div>
+  </div>
+  <div id="practiceBox"></div>
+</section>
+
+<section id="summary" class="card">
+  <h2>10. One-page summary sheet</h2>
+  <div class="grid2">
+    <div class="mini">
+      <h3>Core transformations</h3>
+      <table class="table">
+        <tr><th>Transformation</th><th>Matrix</th><th>Determinant</th></tr>
+        <tr><td>Identity</td><td>\(\begin{pmatrix}1&0\\0&1\end{pmatrix}\)</td><td>1</td></tr>
+        <tr><td>Rotation θ anticlockwise</td><td>\(\begin{pmatrix}\cos\theta&-\sin\theta\\\sin\theta&\cos\theta\end{pmatrix}\)</td><td>1</td></tr>
+        <tr><td>Reflection in x-axis</td><td>\(\begin{pmatrix}1&0\\0&-1\end{pmatrix}\)</td><td>−1</td></tr>
+        <tr><td>Reflection in y-axis</td><td>\(\begin{pmatrix}-1&0\\0&1\end{pmatrix}\)</td><td>−1</td></tr>
+        <tr><td>Reflection in y = x</td><td>\(\begin{pmatrix}0&1\\1&0\end{pmatrix}\)</td><td>−1</td></tr>
+        <tr><td>Horizontal stretch k</td><td>\(\begin{pmatrix}k&0\\0&1\end{pmatrix}\)</td><td>k</td></tr>
+        <tr><td>Vertical stretch k</td><td>\(\begin{pmatrix}1&0\\0&k\end{pmatrix}\)</td><td>k</td></tr>
+        <tr><td>Enlargement scale k</td><td>\(\begin{pmatrix}k&0\\0&k\end{pmatrix}\)</td><td>k²</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <h3>Exam method checklist</h3>
+      <ol>
+        <li>Write the point as a column vector.</li>
+        <li>Apply the matrix: \(x'=Ax\).</li>
+        <li>If affine, add the translation vector: \(x'=Ax+b\).</li>
+        <li>For a shape, transform every vertex.</li>
+        <li>For composition, remember: second after first means \(BA\).</li>
+        <li>For area, use: image area \(= |det(A)| \times\) original area.</li>
+        <li>If \(det(A)=0\), the image is collapsed onto a line or point.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const triangle0 = [[1,1],[4,1],[2,3]];
+let triangle = triangle0.map(p=>p.slice());
+let detailedGrid = true;
+
+const presets = {
+  identity: {M:[[1,0],[0,1]], t:[0,0], name:"Identity"},
+  rot90: {M:[[0,-1],[1,0]], t:[0,0], name:"Rotation 90° anticlockwise"},
+  "rot-90": {M:[[0,1],[-1,0]], t:[0,0], name:"Rotation 90° clockwise"},
+  rot45: {M:[[Math.SQRT1_2,-Math.SQRT1_2],[Math.SQRT1_2,Math.SQRT1_2]], t:[0,0], name:"Rotation 45° anticlockwise"},
+  reflectx: {M:[[1,0],[0,-1]], t:[0,0], name:"Reflection in x-axis"},
+  reflecty: {M:[[-1,0],[0,1]], t:[0,0], name:"Reflection in y-axis"},
+  reflectyx: {M:[[0,1],[1,0]], t:[0,0], name:"Reflection in y = x"},
+  reflectynx: {M:[[0,-1],[-1,0]], t:[0,0], name:"Reflection in y = -x"},
+  stretchx2: {M:[[2,0],[0,1]], t:[0,0], name:"Horizontal stretch factor 2"},
+  stretchy2: {M:[[1,0],[0,2]], t:[0,0], name:"Vertical stretch factor 2"},
+  enlarge2: {M:[[2,0],[0,2]], t:[0,0], name:"Enlargement scale factor 2"},
+  shearx: {M:[[1,1],[0,1]], t:[0,0], name:"Shear parallel to x-axis"}
+};
+
+function fmt(x){
+  if(Math.abs(x) < 1e-9) return "0";
+  if(Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+  return Number(x).toFixed(3).replace(/0+$/,'').replace(/\.$/,'');
+}
+function matStr(M){ return `[ ${fmt(M[0][0])}  ${fmt(M[0][1])} ]\n[ ${fmt(M[1][0])}  ${fmt(M[1][1])} ]`; }
+function vecStr(v){ return `(${fmt(v[0])}, ${fmt(v[1])})`; }
+function det(M){ return M[0][0]*M[1][1] - M[0][1]*M[1][0]; }
+function mulMat(A,B){
+  return [
+    [A[0][0]*B[0][0]+A[0][1]*B[1][0], A[0][0]*B[0][1]+A[0][1]*B[1][1]],
+    [A[1][0]*B[0][0]+A[1][1]*B[1][0], A[1][0]*B[0][1]+A[1][1]*B[1][1]]
+  ];
+}
+function apply(M,p,t=[0,0]){ return [M[0][0]*p[0]+M[0][1]*p[1]+t[0], M[1][0]*p[0]+M[1][1]*p[1]+t[1]]; }
+function area(poly){
+  let s=0;
+  for(let i=0;i<poly.length;i++){
+    let [x1,y1]=poly[i], [x2,y2]=poly[(i+1)%poly.length];
+    s += x1*y2 - x2*y1;
+  }
+  return Math.abs(s)/2;
+}
+function signedArea(poly){
+  let s=0;
+  for(let i=0;i<poly.length;i++){
+    let [x1,y1]=poly[i], [x2,y2]=poly[(i+1)%poly.length];
+    s += x1*y2 - x2*y1;
+  }
+  return s/2;
+}
+
+function setupCanvas(canvas, range=8){
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const scale = W/(2*range);
+  const ox = W/2, oy = H/2;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,H);
+
+  const step = detailedGrid ? 1 : 2;
+  ctx.lineWidth=1;
+  for(let x=-range;x<=range;x+=step){
+    ctx.strokeStyle = x===0 ? "#6b7280" : "#e5e7eb";
+    ctx.beginPath(); ctx.moveTo(ox+x*scale,0); ctx.lineTo(ox+x*scale,H); ctx.stroke();
+  }
+  for(let y=-range;y<=range;y+=step){
+    ctx.strokeStyle = y===0 ? "#6b7280" : "#e5e7eb";
+    ctx.beginPath(); ctx.moveTo(0,oy-y*scale); ctx.lineTo(W,oy-y*scale); ctx.stroke();
+  }
+  ctx.fillStyle="#64748b";
+  ctx.font="13px ui-sans-serif, system-ui";
+  for(let x=-range;x<=range;x+=2){
+    if(x!==0) ctx.fillText(x, ox+x*scale-5, oy+16);
+  }
+  for(let y=-range;y<=range;y+=2){
+    if(y!==0) ctx.fillText(y, ox+6, oy-y*scale+4);
+  }
+  // axis arrows
+  ctx.strokeStyle="#334155"; ctx.fillStyle="#334155"; ctx.lineWidth=2;
+  arrow(ctx, ox-range*scale+8, oy, ox+range*scale-8, oy);
+  arrow(ctx, ox, oy+range*scale-8, ox, oy-range*scale+8);
+  ctx.fillText("x", ox+range*scale-20, oy-8);
+  ctx.fillText("y", ox+8, oy-range*scale+22);
+
+  return {
+    ctx, W,H,scale,ox,oy,range,
+    X:x=>ox+x*scale,
+    Y:y=>oy-y*scale
+  };
+}
+function arrow(ctx,x1,y1,x2,y2,color){
+  if(color){ctx.strokeStyle=color;ctx.fillStyle=color}
+  const ang=Math.atan2(y2-y1,x2-x1), head=10;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-head*Math.cos(ang-Math.PI/6), y2-head*Math.sin(ang-Math.PI/6));
+  ctx.lineTo(x2-head*Math.cos(ang+Math.PI/6), y2-head*Math.sin(ang+Math.PI/6));
+  ctx.closePath(); ctx.fill();
+}
+function drawPoly(sys, pts, fill, stroke, labelPrefix){
+  const {ctx,X,Y}=sys;
+  ctx.beginPath();
+  pts.forEach((p,i)=>{ if(i===0) ctx.moveTo(X(p[0]),Y(p[1])); else ctx.lineTo(X(p[0]),Y(p[1])); });
+  ctx.closePath();
+  ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=3; ctx.fill(); ctx.stroke();
+  ctx.fillStyle=stroke; ctx.font="bold 15px ui-sans-serif, system-ui";
+  pts.forEach((p,i)=>ctx.fillText(`${labelPrefix}${String.fromCharCode(65+i)}`, X(p[0])+6, Y(p[1])-6));
+}
+function drawVector(sys,v,color,label){
+  const {ctx,X,Y}=sys;
+  arrow(ctx,X(0),Y(0),X(v[0]),Y(v[1]),color);
+  ctx.fillStyle=color; ctx.font="bold 14px ui-sans-serif, system-ui";
+  ctx.fillText(label, X(v[0])+5, Y(v[1])-5);
+}
+
+function readMainMatrix(){
+  return [[+$("a").value,+$("b").value],[+$("c").value,+$("d").value]];
+}
+function readMainT(){ return [+$("tx").value,+$("ty").value]; }
+function setMainMatrix(M,t=[0,0]){
+  $("a").value=fmt(M[0][0]); $("b").value=fmt(M[0][1]);
+  $("c").value=fmt(M[1][0]); $("d").value=fmt(M[1][1]);
+  $("tx").value=fmt(t[0]); $("ty").value=fmt(t[1]);
+  updateMain();
+}
+function applyPreset(name){
+  if(name==="custom") return;
+  const p=presets[name];
+  setMainMatrix(p.M,p.t);
+}
+function randomMatrix(){
+  const vals=[-2,-1,-0.5,0,0.5,1,1.5,2];
+  const M=[[vals[Math.floor(Math.random()*vals.length)], vals[Math.floor(Math.random()*vals.length)]],
+           [vals[Math.floor(Math.random()*vals.length)], vals[Math.floor(Math.random()*vals.length)]]];
+  setMainMatrix(M,[0,0]);
+  $("preset").value="custom";
+}
+function resetTriangle(){ triangle=triangle0.map(p=>p.slice()); updateMain(); updateComposition(); updateArea(); }
+function toggleGrid(){ detailedGrid=!detailedGrid; updateMain(); updateComposition(); updateArea(); }
+
+function updateMain(){
+  const M=readMainMatrix(), t=readMainT();
+  const img=triangle.map(p=>apply(M,p,t));
+  const sys=setupCanvas($("mainCanvas"),8);
+  drawPoly(sys, triangle, "rgba(47,111,237,.24)", "#2f6fed", "");
+  drawPoly(sys, img, "rgba(245,158,11,.28)", "#f59e0b", "'");
+  drawVector(sys, apply(M,[1,0],[0,0]), "#00a884", "A(1,0)");
+  drawVector(sys, apply(M,[0,1],[0,0]), "#7c3aed", "A(0,1)");
+  if(t[0]!==0 || t[1]!==0) drawVector(sys,t,"#e05252","translation");
+
+  const determinant=det(M);
+  const originalArea=area(triangle);
+  const imageArea=area(img);
+  const orientation = determinant>0 ? "preserved" : determinant<0 ? "reversed" : "collapsed";
+  $("mainReadout").innerHTML =
+`\\[
+A=${texBareMatrix(M)},\\qquad
+\\mathbf{b}=\\begin{pmatrix}${texNum(t[0])}\\\\${texNum(t[1])}\\end{pmatrix}
+\\]
+\\[
+\\det(A)=${texNum(determinant)},\\qquad
+\\text{area scale factor}=|\\det(A)|=${texNum(Math.abs(determinant))}
+\\]
+\\[
+\\text{original area}=${texNum(originalArea)},\\qquad
+\\text{image area}=${texNum(imageArea)}
+\\]
+<p><strong>Orientation:</strong> ${orientation}</p>
+\\[
+A${texBareVector(triangle[0])}+\\mathbf{b}=A'${texBareVector(img[0])}
+\\]
+\\[
+A${texBareVector(triangle[1])}+\\mathbf{b}=B'${texBareVector(img[1])}
+\\]
+\\[
+A${texBareVector(triangle[2])}+\\mathbf{b}=C'${texBareVector(img[2])}
+\\]`;
+  typesetMath();
+}
+
+["a","b","c","d","tx","ty"].forEach(id=>$(id).addEventListener("input",()=>{$("preset").value="custom"; updateMain();}));
+
+function updateBasis(){
+  const a=+$("b1x").value, c=+$("b1y").value, b=+$("b2x").value, d=+$("b2y").value;
+  const M=[[a,b],[c,d]];
+  const example=apply(M,[3,2]);
+  $("basisReadout").innerHTML =
+`<p>Since</p>
+\\[
+\\begin{pmatrix}1\\\\0\\end{pmatrix}\\mapsto\\begin{pmatrix}${texNum(a)}\\\\${texNum(c)}\\end{pmatrix},
+\\qquad
+\\begin{pmatrix}0\\\\1\\end{pmatrix}\\mapsto\\begin{pmatrix}${texNum(b)}\\\\${texNum(d)}\\end{pmatrix}
+\\]
+<p>the matrix is</p>
+\\[
+A=${texBareMatrix(M)}
+\\]
+<p>because the images of the basis vectors become the columns.</p>
+<p>For example:</p>
+\\[
+A\\begin{pmatrix}3\\\\2\\end{pmatrix}
+=
+3A\\begin{pmatrix}1\\\\0\\end{pmatrix}
++
+2A\\begin{pmatrix}0\\\\1\\end{pmatrix}
+=
+\\begin{pmatrix}${texNum(example[0])}\\\\${texNum(example[1])}\\end{pmatrix}.
+\\]`;
+  typesetMath();
+}
+function setBasis(a,c,b,d){
+  $("b1x").value=a; $("b1y").value=c; $("b2x").value=b; $("b2y").value=d; updateBasis();
+}
+["b1x","b1y","b2x","b2y"].forEach(id=>$(id).addEventListener("input",updateBasis));
+
+function presetM(name){ return presets[name].M; }
+function updateComposition(){
+  const A=presetM($("compA").value), B=presetM($("compB").value);
+  const BA=mulMat(B,A), AB=mulMat(A,B);
+  const imgBA=triangle.map(p=>apply(BA,p));
+  const imgAB=triangle.map(p=>apply(AB,p));
+  const sys=setupCanvas($("compCanvas"),8);
+  drawPoly(sys, triangle, "rgba(47,111,237,.18)", "#2f6fed", "");
+  drawPoly(sys, imgBA, "rgba(0,168,132,.24)", "#00a884", "BA");
+  drawPoly(sys, imgAB, "rgba(224,82,82,.20)", "#e05252", "AB");
+  const same = JSON.stringify(BA.map(r=>r.map(x=>fmt(x)))) === JSON.stringify(AB.map(r=>r.map(x=>fmt(x))));
+  $("compReadout").innerHTML =
+`<p><strong>A:</strong> ${presets[$("compA").value].name}</p>
+\\[
+A=${texBareMatrix(A)}
+\\]
+<p><strong>B:</strong> ${presets[$("compB").value].name}</p>
+\\[
+B=${texBareMatrix(B)}
+\\]
+<p><strong>A followed by B:</strong></p>
+\\[
+BA=${texBareMatrix(B)}${texBareMatrix(A)}
+=${texBareMatrix(BA)}
+\\]
+<p><strong>B followed by A:</strong></p>
+\\[
+AB=${texBareMatrix(A)}${texBareMatrix(B)}
+=${texBareMatrix(AB)}
+\\]
+<p><strong>Are they the same?</strong> ${same ? "Yes" : "No"}</p>
+<p>Green shows \\(BA\\). Red shows \\(AB\\).</p>`;
+  typesetMath();
+}
+
+function swapComposition(){
+  const a=$("compA").value; $("compA").value=$("compB").value; $("compB").value=a; updateComposition();
+}
+
+function readAreaMatrix(){
+  return [[+$("aa").value,+$("ab").value],[+$("ac").value,+$("ad").value]];
+}
+function setAreaMatrix(a,b,c,d){
+  $("aa").value=a; $("ab").value=b; $("ac").value=c; $("ad").value=d; updateArea();
+}
+function updateArea(){
+  const M=readAreaMatrix();
+  const img=triangle.map(p=>apply(M,p));
+  const sys=setupCanvas($("areaCanvas"),8);
+  drawPoly(sys, triangle, "rgba(47,111,237,.22)", "#2f6fed", "");
+  drawPoly(sys, img, "rgba(245,158,11,.30)", "#f59e0b", "'");
+  const dM=det(M), a0=area(triangle), a1=area(img);
+  $("areaReadout").innerHTML =
+`\\[
+A=${texBareMatrix(M)}
+\\]
+\\[
+\\det(A)=(${texNum(M[0][0])})(${texNum(M[1][1])})-(${texNum(M[0][1])})(${texNum(M[1][0])})
+=${texNum(dM)}
+\\]
+\\[
+|\\det(A)|=${texNum(Math.abs(dM))}
+\\]
+\\[
+\\text{original area}=${texNum(a0)},\\qquad
+\\text{image area}=${texNum(a1)}
+\\]
+<p><strong>Prediction:</strong></p>
+\\[
+|\\det(A)|\\times\\text{original area}
+=
+${texNum(Math.abs(dM))}\\times${texNum(a0)}
+=
+${texNum(Math.abs(dM)*a0)}
+\\]
+<p>${Math.abs(a1 - Math.abs(dM)*a0)<1e-8 ? "Confirmed." : "Check calculation."}</p>
+<p>If \\(\\det(A)=0\\), the shape collapses and the area becomes \\(0\\).</p>`;
+  typesetMath();
+}
+
+["aa","ab","ac","ad"].forEach(id=>$(id).addEventListener("input",updateArea));
+
+function clearCanvas(canvas){
+  const ctx=canvas.getContext("2d");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+function drawFractal(){
+  const canvas=$("fractalCanvas"), ctx=canvas.getContext("2d");
+  clearCanvas(canvas);
+  ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  const preset=$("fractalPreset").value;
+  const N=Math.max(1000, Math.min(120000, +$("fractalN").value || 25000));
+  let rules, bounds, start=[0,0], info="";
+  if(preset==="sierpinski"){
+    rules=[
+      {M:[[0.5,0],[0,0.5]], t:[0,0], p:1/3},
+      {M:[[0.5,0],[0,0.5]], t:[3,0], p:1/3},
+      {M:[[0.5,0],[0,0.5]], t:[1.5,2.598], p:1/3}
+    ];
+    bounds={xmin:-.5,xmax:3.5,ymin:-.4,ymax:3.0};
+    start=[1,1];
+    info="Three shrinking transformations send a large triangle into three smaller copies.";
+  } else if(preset==="fern"){
+    rules=[
+      {M:[[0,0],[0,0.16]], t:[0,0], p:0.01},
+      {M:[[0.85,0.04],[-0.04,0.85]], t:[0,1.6], p:0.85},
+      {M:[[0.2,-0.26],[0.23,0.22]], t:[0,1.6], p:0.07},
+      {M:[[-0.15,0.28],[0.26,0.24]], t:[0,0.44], p:0.07}
+    ];
+    bounds={xmin:-3,xmax:3,ymin:0,ymax:10};
+    start=[0,0];
+    info="The fern uses four affine transformations with different probabilities.";
+  } else {
+    rules=[
+      {M:[[1/3,0],[0,1/3]], t:[0,0], p:0.25},
+      {M:[[1/3,0],[0,1/3]], t:[2,0], p:0.25},
+      {M:[[1/6,-0.288675],[0.288675,1/6]], t:[1,0], p:0.25},
+      {M:[[1/6,0.288675],[-0.288675,1/6]], t:[1.5,0.866], p:0.25}
+    ];
+    bounds={xmin:-.2,xmax:2.4,ymin:-.5,ymax:1.4};
+    start=[0.5,0.2];
+    info="Several shrunken copies build a Koch-like self-similar set.";
+  }
+  function chooseRule(){
+    const r=Math.random();
+    let s=0;
+    for(const rule of rules){ s+=rule.p; if(r<=s) return rule; }
+    return rules[rules.length-1];
+  }
+  let p=start.slice();
+  ctx.fillStyle="#1d4ed8";
+  for(let i=0;i<N;i++){
+    const rule=chooseRule();
+    p=apply(rule.M,p,rule.t);
+    if(i>20){
+      const x=(p[0]-bounds.xmin)/(bounds.xmax-bounds.xmin)*canvas.width;
+      const y=canvas.height-(p[1]-bounds.ymin)/(bounds.ymax-bounds.ymin)*canvas.height;
+      ctx.fillRect(x,y,1,1);
+    }
+  }
+  $("fractalReadout").innerHTML =
+`<p>${info}</p>
+<p><strong>Iterations:</strong> ${N}</p>
+<p>Each step uses an affine transformation:</p>
+\\[
+\\mathbf{x}'=A\\mathbf{x}+\\mathbf{b}
+\\]
+<p>This links matrix transformations, translations, and repeated processes.</p>`;
+  typesetMath();
+}
+
+let pixelOn0 = new Set(["0,2","1,2","2,2","2,1","2,0","3,0","4,0"]);
+let pixelState = new Set(pixelOn0);
+function pixelDraw(){
+  const grid=$("pixelGrid");
+  grid.innerHTML="";
+  for(let y=4;y>=0;y--){
+    for(let x=0;x<5;x++){
+      const div=document.createElement("div");
+      div.className="px"+(pixelState.has(`${x},${y}`)?" on":"");
+      div.textContent=pixelState.has(`${x},${y}`)?`${x},${y}`:"";
+      grid.appendChild(div);
+    }
+  }
+}
+function pixelReset(){ pixelState=new Set(pixelOn0); pixelDraw(); }
+function pixelTransform(type){
+  let next=new Set();
+  for(const s of pixelState){
+    let [x,y]=s.split(",").map(Number);
+    // Use centre (2,2) as origin for display transformation.
+    let u=x-2, v=y-2, r;
+    if(type==="rot90") r=[-v,u];
+    if(type==="reflectx") r=[u,-v];
+    if(type==="reflecty") r=[-u,v];
+    const nx=r[0]+2, ny=r[1]+2;
+    if(nx>=0&&nx<5&&ny>=0&&ny<5) next.add(`${nx},${ny}`);
+  }
+  pixelState=next; pixelDraw();
+}
+
+let practiceData=[];
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function sameMatrix(A,B){ return Math.abs(A[0][0]-B[0][0])<1e-9&&Math.abs(A[0][1]-B[0][1])<1e-9&&Math.abs(A[1][0]-B[1][0])<1e-9&&Math.abs(A[1][1]-B[1][1])<1e-9; }
+function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+
+function texNum(x){
+  if(Math.abs(x) < 1e-9) return "0";
+  if(Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+  return Number(x).toFixed(3).replace(/0+$/,'').replace(/\.$/,'');
+}
+function texMatrix(M){
+  return `\\(\\begin{pmatrix}${texNum(M[0][0])}&${texNum(M[0][1])}\\\\${texNum(M[1][0])}&${texNum(M[1][1])}\\end{pmatrix}\\)`;
+}
+function texBareMatrix(M){
+  return `\\begin{pmatrix}${texNum(M[0][0])}&${texNum(M[0][1])}\\\\${texNum(M[1][0])}&${texNum(M[1][1])}\\end{pmatrix}`;
+}
+function texBareVector(v){
+  return `\\begin{pmatrix}${texNum(v[0])}\\\\${texNum(v[1])}\\end{pmatrix}`;
+}
+function texVector(v){
+  return `\\(\\begin{pmatrix}${texNum(v[0])}\\\\${texNum(v[1])}\\end{pmatrix}\\)`;
+}
+function texPoint(name,p){
+  return `\\(${name}(${texNum(p[0])},${texNum(p[1])})\\)`;
+}
+function texInlinePoint(p){
+  return `\\((${texNum(p[0])},${texNum(p[1])})\\)`;
+}
+function typesetMath(){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise();
+  }
+}
+
+function generatePractice(){
+  practiceData=[];
+  const box=$("practiceBox"); box.innerHTML="";
+  const qs=[];
+
+  // Q1 point transform
+  {
+    const M=[[randInt(-2,2),randInt(-2,2)],[randInt(-2,2),randInt(-2,2)]];
+    const p=[randInt(-3,3),randInt(-3,3)];
+    const ans=apply(M,p);
+    qs.push({
+      type:"text",
+      question:`1. Calculate the image of point ${texPoint("P",p)} under \\(A=${texMatrix(M).slice(2,-2)}\\).`,
+      answer:`${fmt(ans[0])},${fmt(ans[1])}`,
+      solution:`\\[
+A\\begin{pmatrix}${texNum(p[0])}\\\\${texNum(p[1])}\\end{pmatrix}
+=
+${texMatrix(M).slice(2,-2)}
+\\begin{pmatrix}${texNum(p[0])}\\\\${texNum(p[1])}\\end{pmatrix}
+=
+\\begin{pmatrix}${texNum(ans[0])}\\\\${texNum(ans[1])}\\end{pmatrix}.
+\\]
+So the image is ${texInlinePoint(ans)}.`
+    });
+  }
+
+  // Q2 recognise
+  {
+    const pool=[
+      ["Reflection in the x-axis", [[1,0],[0,-1]]],
+      ["Reflection in the y-axis", [[-1,0],[0,1]]],
+      ["Rotation 90° anticlockwise", [[0,-1],[1,0]]],
+      ["Rotation 90° clockwise", [[0,1],[-1,0]]],
+      ["Reflection in \\(y=x\\)", [[0,1],[1,0]]],
+      ["Enlargement scale factor 2", [[2,0],[0,2]]]
+    ];
+    const item=pool[randInt(0,pool.length-1)];
+    qs.push({
+      type:"choice",
+      question:`2. Identify the transformation represented by \\(A=${texMatrix(item[1]).slice(2,-2)}\\).`,
+      choices:shuffle(pool.map(x=>x[0])),
+      answer:item[0],
+      solution:`The columns show where the basis vectors go:
+\\[
+\\begin{pmatrix}1\\\\0\\end{pmatrix}\\mapsto
+\\begin{pmatrix}${texNum(item[1][0][0])}\\\\${texNum(item[1][1][0])}\\end{pmatrix},
+\\qquad
+\\begin{pmatrix}0\\\\1\\end{pmatrix}\\mapsto
+\\begin{pmatrix}${texNum(item[1][0][1])}\\\\${texNum(item[1][1][1])}\\end{pmatrix}.
+\\]
+This is ${item[0]}.`
+    });
+  }
+
+  // Q3 determinant area
+  {
+    const M=[[randInt(-2,3),randInt(-2,3)],[randInt(-2,3),randInt(-2,3)]];
+    const ar=randInt(3,12);
+    const val=Math.abs(det(M))*ar;
+    qs.push({
+      type:"text",
+      question:`3. A shape has area \\(${ar}\\). It is transformed by \\(A=${texMatrix(M).slice(2,-2)}\\). Find the image area.`,
+      answer:`${fmt(val)}`,
+      solution:`\\[
+\\det(A)=(${texNum(M[0][0])})(${texNum(M[1][1])})-(${texNum(M[0][1])})(${texNum(M[1][0])})=${texNum(det(M))}.
+\\]
+The area scale factor is \\(|\\det(A)|=${texNum(Math.abs(det(M)))}\\). Therefore
+\\[
+\\text{image area}=${texNum(Math.abs(det(M)))}\\times ${ar}=${texNum(val)}.
+\\]`
+    });
+  }
+
+  // Q4 composition
+  {
+    const A=presets.rot90.M, B=presets.stretchx2.M, BA=mulMat(B,A);
+    qs.push({
+      type:"text",
+      question:`4. A rotation \\(90^\\circ\\) anticlockwise is followed by a horizontal stretch factor \\(2\\). Find the combined matrix.`,
+      answer:matrixAnswer(BA),
+      solution:`The rotation matrix is
+\\[
+A=${texMatrix(A).slice(2,-2)}
+\\]
+and the stretch matrix is
+\\[
+B=${texMatrix(B).slice(2,-2)}.
+\\]
+Because \\(A\\) is followed by \\(B\\), the combined matrix is
+\\[
+BA=${texMatrix(B).slice(2,-2)}${texMatrix(A).slice(2,-2)}
+=${texMatrix(BA).slice(2,-2)}.
+\\]
+Enter as ${matrixAnswer(BA)}.`
+    });
+  }
+
+  // Q5 affine
+  {
+    const M=[[1,0],[0,-1]], t=[2,-1], p=[randInt(-3,3),randInt(-3,3)], ans=apply(M,p,t);
+    qs.push({
+      type:"text",
+      question:`5. Use \\(\\mathbf{x}'=A\\mathbf{x}+\\mathbf{b}\\), where \\(A=\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}\\) and \\(\\mathbf{b}=\\begin{pmatrix}2\\\\-1\\end{pmatrix}\\). Find the image of ${texInlinePoint(p)}.`,
+      answer:`${fmt(ans[0])},${fmt(ans[1])}`,
+      solution:`\\[
+A\\begin{pmatrix}${texNum(p[0])}\\\\${texNum(p[1])}\\end{pmatrix}
+=
+\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}
+\\begin{pmatrix}${texNum(p[0])}\\\\${texNum(p[1])}\\end{pmatrix}
+=
+\\begin{pmatrix}${texNum(apply(M,p)[0])}\\\\${texNum(apply(M,p)[1])}\\end{pmatrix}.
+\\]
+Now add the translation vector:
+\\[
+\\begin{pmatrix}${texNum(apply(M,p)[0])}\\\\${texNum(apply(M,p)[1])}\\end{pmatrix}
++
+\\begin{pmatrix}2\\\\-1\\end{pmatrix}
+=
+\\begin{pmatrix}${texNum(ans[0])}\\\\${texNum(ans[1])}\\end{pmatrix}.
+\\]`
+    });
+  }
+
+  // Q6 basis columns
+  {
+    const v1=[randInt(-2,3),randInt(-2,3)], v2=[randInt(-2,3),randInt(-2,3)];
+    const M=[[v1[0],v2[0]],[v1[1],v2[1]]];
+    qs.push({
+      type:"text",
+      question:`6. A linear transformation maps \\(\\begin{pmatrix}1\\\\0\\end{pmatrix}\\mapsto${texVector(v1)}\\) and \\(\\begin{pmatrix}0\\\\1\\end{pmatrix}\\mapsto${texVector(v2)}\\). Write the matrix.`,
+      answer:matrixAnswer(M),
+      solution:`The image of \\(\\begin{pmatrix}1\\\\0\\end{pmatrix}\\) becomes the first column. The image of \\(\\begin{pmatrix}0\\\\1\\end{pmatrix}\\) becomes the second column:
+\\[
+A=${texMatrix(M).slice(2,-2)}.
+\\]
+Enter as ${matrixAnswer(M)}.`
+    });
+  }
+
+  practiceData=qs;
+  qs.forEach((q,i)=>{
+    const div=document.createElement("div");
+    div.className="practiceItem";
+    div.innerHTML=`<h3>${q.question}</h3>`;
+    if(q.type==="choice"){
+      const choices=document.createElement("div"); choices.className="ansGrid";
+      q.choices.forEach(ch=>{
+        const btn=document.createElement("button");
+        btn.className="choice";
+        btn.innerHTML=ch;
+        btn.onclick=()=>{ [...choices.children].forEach(x=>x.classList.remove("selected")); btn.classList.add("selected"); q.user=ch; updatePracticeProgress(); };
+        choices.appendChild(btn);
+      });
+      div.appendChild(choices);
+    } else {
+      const inp=document.createElement("input");
+      inp.type="text"; inp.placeholder=q.answer.includes(";") ? "Example: 0,-2;1,0" : "Example: 3,-2";
+      inp.oninput=()=>{q.user=inp.value.trim(); updatePracticeProgress();};
+      div.appendChild(inp);
+    }
+    const sol=document.createElement("details");
+    sol.className="solution";
+    sol.innerHTML=`<summary>Worked solution</summary><div class="mathbox">${q.solution}</div>`;
+    div.appendChild(sol);
+    const feedback=document.createElement("div");
+    feedback.className="tiny"; feedback.id=`fb${i}`;
+    div.appendChild(feedback);
+    box.appendChild(div);
+  });
+  $("scoreBox").textContent="Answer the questions, then check your score.";
+  updatePracticeProgress();
+  typesetMath();
+}
+
+function matrixAnswer(M){ return `${fmt(M[0][0])},${fmt(M[0][1])};${fmt(M[1][0])},${fmt(M[1][1])}`; }
+function normaliseAns(s){ return String(s).toLowerCase().replace(/\s+/g,"").replace(/[()]/g,""); }
+function isCorrect(q){
+  if(!q.user) return false;
+  return normaliseAns(q.user)===normaliseAns(q.answer);
+}
+function checkPractice(){
+  let score=0;
+  practiceData.forEach((q,i)=>{
+    const correct=isCorrect(q);
+    if(correct) score++;
+    const fb=$(`fb${i}`);
+    fb.innerHTML=correct ? `<span class="ok">Correct.</span>` : `<span class="bad">Not quite.</span> Expected answer format: <span class="kbd">${q.answer}</span>`;
+  });
+  typesetMath();
+  $("scoreBox").textContent=`Score: ${score}/${practiceData.length}. ${score===practiceData.length?"Excellent.":"Open the worked solutions for any errors."}`;
+}
+function revealAllSolutions(){
+  document.querySelectorAll("#practiceBox details").forEach(d=>d.open=true);
+  typesetMath();
+}
+function updatePracticeProgress(){
+  const done=practiceData.filter(q=>q.user && q.user.length>0).length;
+  const pct=practiceData.length ? 100*done/practiceData.length : 0;
+  $("practiceProgress").style.width=pct+"%";
+}
+
+// init
+updateBasis();
+updateMain();
+updateComposition();
+updateArea();
+drawFractal();
+pixelDraw();
+generatePractice();
+setTimeout(typesetMath, 500);
+</script>
+</body>
+</html>
