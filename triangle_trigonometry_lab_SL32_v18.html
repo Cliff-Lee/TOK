@@ -1,0 +1,2373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Triangle Trigonometry Lab — SL 3.2</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#f7f9fc;
+      --panel:#ffffff;
+      --ink:#172033;
+      --muted:#5c6780;
+      --line:#d8deea;
+      --accent:#2563eb;
+      --accent2:#7c3aed;
+      --good:#0f9f6e;
+      --bad:#d64545;
+      --warn:#d97706;
+      --soft:#eef4ff;
+      --soft2:#f5efff;
+      --shadow:0 10px 30px rgba(22,31,51,.08);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:linear-gradient(180deg,#f4f7ff 0%,#fbfcff 36%,#f7f9fc 100%);
+      color:var(--ink);
+    }
+    header{
+      padding:28px 20px 20px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.84);
+      backdrop-filter: blur(8px);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .wrap{max-width:1280px;margin:0 auto}
+    .titleRow{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:18px;
+    }
+    h1{
+      margin:0;
+      font-size:clamp(1.45rem, 2.6vw, 2.25rem);
+      letter-spacing:-.04em;
+      line-height:1.05;
+    }
+    .subtitle{
+      margin:.55rem 0 0;
+      color:var(--muted);
+      font-size:.98rem;
+      max-width:850px;
+      line-height:1.5;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid #cbd7ff;
+      background:#eef4ff;
+      color:#1d4ed8;
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:700;
+      white-space:nowrap;
+      font-size:.9rem;
+    }
+    nav{
+      margin-top:18px;
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding-bottom:2px;
+    }
+    .tab{
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--ink);
+      border-radius:999px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:700;
+      white-space:nowrap;
+      transition:.15s ease;
+    }
+    .tab:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+    .tab.active{background:var(--ink);color:white;border-color:var(--ink)}
+    main{padding:22px 20px 52px}
+    section.screen{display:none}
+    section.screen.active{display:block}
+    .grid{
+      display:grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap:18px;
+      align-items:start;
+    }
+    .grid.three{
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      overflow:hidden;
+    }
+    .card h2, .card h3{
+      margin:0 0 10px;
+      letter-spacing:-.02em;
+    }
+    .card h2{font-size:1.35rem}
+    .card h3{font-size:1.08rem}
+    .lead{
+      color:var(--muted);
+      line-height:1.55;
+      margin:0 0 14px;
+    }
+    .mini{
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.45;
+    }
+    .svgBox{
+      background:linear-gradient(180deg,#ffffff,#f7faff);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:8px;
+      min-height:350px;
+    }
+    .svgBox > svg{
+      width:100%;
+      height:auto;
+      display:block;
+      overflow:visible;
+    }
+    .MathJax svg{
+      display:inline-block;
+    }
+    .controlGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    label.ctrl{
+      display:grid;
+      gap:6px;
+      font-weight:700;
+    }
+    input[type=range]{
+      width:100%;
+      accent-color:var(--accent);
+    }
+    input[type=number], select, input[type=text]{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font:inherit;
+      background:#fff;
+    }
+    .readout{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .metric{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+      background:#fbfcff;
+    }
+    .metric strong{display:block; font-size:.85rem; color:var(--muted); margin-bottom:4px}
+    .metric span{font-weight:800; font-size:1.05rem}
+    .btnRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+    .selectorGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:10px;
+      margin:12px 0;
+    }
+    .selectorBtn{
+      background:#fff;
+      color:var(--ink);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:13px 14px;
+      text-align:left;
+      min-height:72px;
+      box-shadow:none;
+    }
+    .selectorBtn:hover{
+      background:#f8fbff;
+      border-color:#b9c7e6;
+    }
+    .selectorBtn.active{
+      background:var(--ink);
+      color:white;
+      border-color:var(--ink);
+    }
+    .selectorBtn small{
+      display:block;
+      margin-top:4px;
+      font-weight:600;
+      color:inherit;
+      opacity:.78;
+      line-height:1.25;
+    }
+    .highlightGrid{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .highlightGrid .selectorBtn{
+      min-height:64px;
+      border-width:2px;
+    }
+    .highlightGrid .selectorBtn.active{
+      background:#eff6ff;
+      color:#0f172a;
+      border-color:#2563eb;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+    .highlightGrid .selectorBtn.active::before{
+      content:"✓ ";
+      color:#2563eb;
+      font-weight:900;
+    }
+
+    button{
+      border:0;
+      background:var(--accent);
+      color:white;
+      border-radius:12px;
+      padding:10px 13px;
+      font-weight:800;
+      cursor:pointer;
+      font-family:inherit;
+      transition:.15s ease;
+    }
+    button:hover{filter:brightness(.96); transform:translateY(-1px)}
+    button.secondary{
+      background:#eef2ff;
+      color:#293660;
+      border:1px solid #d7ddfb;
+    }
+    button.ghost{
+      background:white;
+      color:var(--ink);
+      border:1px solid var(--line);
+    }
+    button.good{background:var(--good)}
+    button.bad{background:var(--bad)}
+    .formula{
+      border:1px solid #dbe5ff;
+      background:#f2f6ff;
+      border-radius:14px;
+      padding:12px 14px;
+      margin:12px 0;
+      font-size:1.03rem;
+    }
+    .sohBox{
+      display:grid;
+      gap:10px;
+    }
+    .sohIntro{
+      font-weight:900;
+      color:#1d4ed8;
+      letter-spacing:.02em;
+      margin-bottom:2px;
+    }
+    .sohLine{
+      display:grid;
+      grid-template-columns: 76px 1fr;
+      gap:10px;
+      align-items:center;
+      background:#fff;
+      border:1px solid #dbe5ff;
+      border-radius:12px;
+      padding:9px 10px;
+    }
+    .sohBadge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:6px 10px;
+      font-weight:900;
+      font-size:.92rem;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+    }
+    .proofSelector{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+      margin:12px 0 14px;
+    }
+    .proofBtn{
+      background:#fff;
+      color:var(--ink);
+      border:2px solid var(--line);
+      border-radius:16px;
+      padding:12px 13px;
+      text-align:left;
+      min-height:64px;
+    }
+    .proofBtn:hover{background:#f8fbff;border-color:#b9c7e6}
+    .proofBtn.active{
+      background:#eff6ff;
+      border-color:#2563eb;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+    .proofBtn.active::before{
+      content:"✓ ";
+      color:#2563eb;
+      font-weight:900;
+    }
+    .proofBtn small{
+      display:block;
+      margin-top:4px;
+      color:var(--muted);
+      font-weight:650;
+      line-height:1.25;
+    }
+    .proofActionBar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:14px 0;
+    }
+    .proofStage{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fbfcff;
+      padding:14px;
+      min-height:240px;
+    }
+    .proofStage h3{
+      margin:0 0 8px;
+      font-size:1.1rem;
+    }
+    .proofHint, .proofStep, .proofFull{
+      border-radius:14px;
+      padding:12px 14px;
+      margin:10px 0;
+      line-height:1.45;
+    }
+    .proofHint{
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      color:#7c2d12;
+    }
+    .proofStep{
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1e3a8a;
+    }
+    .proofFull{
+      background:#ecfdf5;
+      border:1px solid #a7f3d0;
+      color:#064e3b;
+    }
+    .proofPrompt{
+      border:1px dashed #cbd5e1;
+      background:#fff;
+      border-radius:14px;
+      padding:12px 14px;
+      color:#475569;
+      line-height:1.45;
+      margin:10px 0;
+    }
+    .proofCounter{
+      font-weight:800;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+    .ambigControls{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:12px;
+      margin:14px 0;
+    }
+    .ambigCalcGrid{
+      display:grid;
+      gap:12px;
+    }
+    .caseCards{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:12px;
+      margin-top:18px;
+    }
+    .caseCard{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:16px;
+      padding:14px;
+    }
+    .caseCard h3{
+      margin:0 0 8px;
+      font-size:1rem;
+    }
+    .caseCard p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.4;
+      font-size:.92rem;
+    }
+    .ambigBadge{
+      display:inline-flex;
+      border-radius:999px;
+      padding:6px 10px;
+      font-weight:900;
+      border:1px solid #fed7aa;
+      color:#c2410c;
+      background:#fff7ed;
+      margin-bottom:8px;
+    }
+    .diagramKey{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .keyItem{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:5px 9px;
+      font-weight:800;
+      font-size:.82rem;
+      background:#fff;
+    }
+    .keySwatch{
+      width:18px;
+      height:6px;
+      border-radius:999px;
+      display:inline-block;
+    }
+    details{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      padding:10px 12px;
+      margin-top:12px;
+    }
+    summary{
+      font-weight:800;
+      cursor:pointer;
+    }
+    .note{
+      border-left:5px solid var(--accent);
+      background:#f3f7ff;
+      padding:12px 14px;
+      border-radius:12px;
+      color:#25324a;
+      line-height:1.5;
+      margin:12px 0;
+    }
+    .warning{border-left-color:var(--warn); background:#fff7ed}
+    .success{border-left-color:var(--good); background:#ecfdf5}
+    .danger{border-left-color:var(--bad); background:#fff1f2}
+    .stepList{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .step{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fbfcff;
+    }
+    .step b{color:#111827}
+    .decisionFlow{
+      display:grid;
+      gap:12px;
+      margin-top:10px;
+    }
+    .decisionCard{
+      display:grid;
+      grid-template-columns: 52px 136px 1fr;
+      gap:14px;
+      align-items:center;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      background:linear-gradient(180deg,#fbfcff,#f7faff);
+    }
+    .decisionNum{
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:1.05rem;
+      background:var(--ink);
+      color:#fff;
+      margin:auto;
+    }
+    .decisionMini{
+      border:1px solid #dbe4f3;
+      border-radius:14px;
+      background:#fff;
+      padding:6px;
+    }
+    .decisionMini svg{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .decisionText h3{
+      margin:0 0 6px;
+      font-size:1.03rem;
+      line-height:1.2;
+    }
+    .decisionText p{
+      margin:0;
+      color:#334155;
+      line-height:1.45;
+    }
+    .methodTags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+    .methodTag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:5px 9px;
+      font-size:.82rem;
+      font-weight:800;
+      border:1px solid #d6def0;
+      background:#fff;
+      color:#22304d;
+    }
+    .methodTag.blue{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .methodTag.purple{background:#f5f3ff;border-color:#ddd6fe;color:#6d28d9}
+    .methodTag.green{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+    .methodTag.orange{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+    .decisionArrow{
+      text-align:center;
+      font-size:1.3rem;
+      color:#94a3b8;
+      line-height:1;
+      user-select:none;
+    }
+    .decisionLegend{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .decisionLegend .badge{
+      margin:0;
+    }
+
+    .choiceLayout{
+      display:grid;
+      gap:18px;
+    }
+    .decisionTop{
+      padding-bottom:16px;
+    }
+    .decisionHeaderRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .decisionScroller{
+      display:flex;
+      gap:12px;
+      overflow-x:auto;
+      padding:8px 4px 14px;
+      scroll-snap-type:x mandatory;
+      scrollbar-color:#cbd5e1 transparent;
+    }
+    .decisionStep{
+      flex:0 0 255px;
+      scroll-snap-align:start;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+      padding:12px;
+      display:grid;
+      gap:10px;
+      min-height:330px;
+      position:relative;
+    }
+    .decisionStep .decisionNum{
+      position:absolute;
+      top:10px;
+      left:10px;
+      width:34px;
+      height:34px;
+      font-size:.95rem;
+      box-shadow:0 6px 16px rgba(23,32,51,.12);
+    }
+    .decisionSketch{
+      height:165px;
+      border:1px solid #dbe4f3;
+      border-radius:16px;
+      background:#ffffff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px;
+    }
+    .decisionSketch svg{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+    .decisionStep h3{
+      margin:0;
+      font-size:1rem;
+      line-height:1.16;
+      letter-spacing:-.02em;
+    }
+    .decisionStep p{
+      margin:0;
+      color:#334155;
+      line-height:1.38;
+      font-size:.92rem;
+    }
+    .flowArrow{
+      flex:0 0 28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#94a3b8;
+      font-size:1.7rem;
+      font-weight:900;
+      padding-bottom:70px;
+    }
+    .decisionPrompt{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:10px;
+      margin-top:6px;
+    }
+    .choicePracticeCard{
+      max-width:1120px;
+      margin:0 auto;
+      width:100%;
+    }
+    .choiceWorkArea{
+      display:grid;
+      grid-template-columns: minmax(0,1.3fr) minmax(300px,.9fr);
+      gap:18px;
+      align-items:start;
+      margin-top:12px;
+    }
+    .choiceDiagramBox .svgBox{
+      min-height:220px !important;
+      padding:10px 12px;
+    }
+    .choiceOptionsPanel{
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+    .choiceOptionsPanel .choiceGrid{
+      grid-template-columns:1fr;
+      margin-top:0;
+    }
+    .choiceOptionsPanel .feedback{
+      margin-top:0;
+    }
+    .choiceOptionsPanel .btnRow{
+      margin-top:4px;
+    }
+    .scrollCue{
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.4;
+      margin-top:8px;
+    }
+    .choiceGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .choice{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+      min-height:70px;
+      text-align:left;
+    }
+    .choice.correct{
+      border-color:rgba(15,159,110,.45);
+      background:#ecfdf5;
+      color:#065f46;
+    }
+    .choice.incorrect{
+      border-color:rgba(214,69,69,.45);
+      background:#fff1f2;
+      color:#991b1b;
+    }
+    .feedback{
+      min-height:46px;
+      margin-top:12px;
+      border-radius:14px;
+      border:1px dashed var(--line);
+      padding:12px;
+      color:var(--muted);
+      line-height:1.45;
+      background:#fff;
+    }
+    .feedback.good{
+      color:#065f46;
+      background:#ecfdf5;
+      border-color:#a7f3d0;
+    }
+    .feedback.bad{
+      color:#991b1b;
+      background:#fff1f2;
+      border-color:#fecdd3;
+    }
+    .progress{
+      height:10px;
+      background:#e9eef8;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .progress span{
+      display:block;
+      height:100%;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      width:0%;
+      border-radius:999px;
+      transition:.3s;
+    }
+    .badgeRow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+    .badge{
+      background:#f3f4f6;
+      border:1px solid #e5e7eb;
+      border-radius:999px;
+      padding:6px 9px;
+      font-weight:800;
+      font-size:.82rem;
+      color:#4b5563;
+    }
+    .badge.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+    .badge.purple{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+    .badge.green{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+    .badge.orange{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+    .twoCol{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    .problemBox{
+      border:1px solid var(--line);
+      background:#fbfcff;
+      border-radius:16px;
+      padding:14px;
+      margin-top:12px;
+    }
+    .answerLine{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-top:10px;
+    }
+    .answerLine input{max-width:160px}
+    .tableWrap{overflow:auto}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:.94rem;
+    }
+    th,td{
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      padding:10px 8px;
+      vertical-align:top;
+    }
+    th{background:#f8fafc;color:#374151}
+    .printOnly{display:none}
+    .smallLink{
+      color:var(--accent);
+      cursor:pointer;
+      font-weight:800;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+    .dragHint{
+      font-size:.88rem;
+      color:var(--muted);
+      margin-top:8px;
+    }
+    .kbd{
+      font-family:var(--mono);
+      background:#f3f4f6;
+      border:1px solid #d1d5db;
+      border-radius:6px;
+      padding:1px 5px;
+      font-size:.85em;
+    }
+    @media (max-width: 860px){
+      .grid, .grid.three, .twoCol{grid-template-columns:1fr}
+      header{position:relative}
+      .readout{grid-template-columns:1fr 1fr}
+      .choiceWorkArea{grid-template-columns:1fr}
+      .ambigControls{grid-template-columns:1fr}
+      .caseCards{grid-template-columns:1fr}
+      .choiceOptionsPanel .choiceGrid{grid-template-columns:1fr}
+      .choiceGrid{grid-template-columns:1fr}
+      .highlightGrid{grid-template-columns:1fr}
+      .proofSelector{grid-template-columns:1fr}
+      .decisionCard{grid-template-columns:1fr; text-align:left}
+      .decisionNum{margin:0}
+      .decisionMini{max-width:220px}
+    }
+    @media print{
+      header, nav, .btnRow, button, input, select, .smallLink {display:none !important}
+      body{background:white}
+      .screen{display:block !important; break-after:page}
+      .card{box-shadow:none; border:1px solid #ccc}
+      .printOnly{display:block}
+    }
+    .svg-label{font: 700 15px var(--sans); fill:#172033}
+    .svg-small{font: 12px var(--sans); fill:#5c6780}
+    .svg-formula{font: 700 14px var(--sans); fill:#1d4ed8}
+    .handle{cursor:grab}
+    .handle:active{cursor:grabbing}
+    .gridline{stroke:#eef2f7;stroke-width:1}
+    .axis{stroke:#9aa4b2;stroke-width:1.4}
+    .sideKnown{stroke:#2563eb;stroke-width:9;stroke-linecap:round;filter:drop-shadow(0 0 5px rgba(37,99,235,.32))}
+    .sideUnknown{stroke:#7c3aed;stroke-width:9;stroke-linecap:round;stroke-dasharray:10 7;filter:drop-shadow(0 0 5px rgba(124,58,237,.34))}
+    .thin{stroke:#2a3344;stroke-width:2;fill:none}
+    .dash{stroke-dasharray:6 6}
+    .angleArc{fill:none;stroke:#f59e0b;stroke-width:7;stroke-linecap:round;filter:drop-shadow(0 0 4px rgba(245,158,11,.45))}
+    .angleFill{fill:rgba(245,158,11,.18)}
+    .svg-callout{font: 800 13px var(--sans); fill:#0f172a}
+    .svg-callout-small{font: 700 11px var(--sans); fill:#475569}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="titleRow">
+      <div>
+        <h1>Triangle Trigonometry Lab</h1>
+        <p class="subtitle">Explore visually → derive from right triangles → practise formula choice → apply to real measurement problems → exam-style mixed practice.</p>
+      </div>
+      <div class="pill">SL 3.2 toolkit</div>
+    </div>
+    <nav id="tabs">
+      <button class="tab active" data-screen="screen-visual">1. Visual explore</button>
+      <button class="tab" data-screen="screen-derive">2. Derive</button>
+      <button class="tab" data-screen="screen-choice">3. Choose the rule</button>
+      <button class="tab" data-screen="screen-ambiguous">HL: Ambiguous case</button>
+      <button class="tab" data-screen="screen-real">4. Real measurement</button>
+      <button class="tab" data-screen="screen-exam">5. Exam practice</button>
+      <button class="tab" data-screen="screen-teacher">Teacher notes</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="screen active" id="screen-visual">
+    <div class="grid">
+      <div class="card">
+        <h2>Visual exploration: what does each rule see?</h2>
+        <p class="lead">Move the sliders. The diagram updates and the applet recommends the most natural rule. The aim is not to memorise formulas first, but to notice which triangle information makes each formula useful.</p>
+        <div class="svgBox">
+          <svg id="triExplore" viewBox="0 0 720 460" aria-label="interactive triangle exploration">
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#5c6780"></path>
+              </marker>
+            </defs>
+            <rect x="0" y="0" width="720" height="460" fill="transparent"></rect>
+            <g id="gridExplore"></g>
+            <g id="triangleExplore"></g>
+            <g id="labelsExplore"></g>
+          </svg>
+        </div>
+        <p class="dragHint">Tip: Use the sliders first. On larger screens, drag point C in the diagram.</p>
+      </div>
+      <div class="card">
+        <h2>Controls</h2>
+        <div class="controlGrid">
+          <label class="ctrl">Base \(AB\): <span id="baseVal">10.0</span>
+            <input id="baseSlider" type="range" min="5" max="16" value="10" step="0.1">
+          </label>
+          <label class="ctrl">Point C horizontal position: <span id="cxVal">5.5</span>
+            <input id="cxSlider" type="range" min="1" max="15" value="5.5" step="0.1">
+          </label>
+          <label class="ctrl">Point C height: <span id="cyVal">6.0</span>
+            <input id="cySlider" type="range" min="1" max="10" value="6" step="0.1">
+          </label>
+          <div>
+            <h3 style="margin:0 0 8px">Highlight a situation</h3>
+            <div class="selectorGrid highlightGrid" id="highlightButtons">
+              <button class="selectorBtn active" data-mode="right">Right triangle<small>SOH-CAH-TOA / Pythagoras</small></button>
+              <button class="selectorBtn" data-mode="asa">Opposite pair<small>Sine rule</small></button>
+              <button class="selectorBtn" data-mode="sas">Included angle<small>Cosine rule</small></button>
+              <button class="selectorBtn" data-mode="sss">Three sides<small>Cosine rule for an angle</small></button>
+              <button class="selectorBtn" data-mode="area">Area case<small>\(\frac12 ab\sin C\)</small></button>
+            </div>
+          </div>
+        </div>
+        <div class="readout">
+          <div class="metric"><strong>\(AB=c\)</strong><span id="readC">10.00</span></div>
+          <div class="metric"><strong>\(AC=b\)</strong><span id="readB">8.14</span></div>
+          <div class="metric"><strong>\(BC=a\)</strong><span id="readA">7.43</span></div>
+          <div class="metric"><strong>\(A\)</strong><span id="readAngA">47.5°</span></div>
+          <div class="metric"><strong>\(B\)</strong><span id="readAngB">53.9°</span></div>
+          <div class="metric"><strong>\(C\)</strong><span id="readAngC">78.6°</span></div>
+        </div>
+        <div class="formula note" id="ruleHint">Choose a situation to see the rule.</div>
+        <details>
+          <summary>Student question prompt</summary>
+          <p>Without calculating yet, decide: Which information is being shown? Which rule is naturally suggested? Explain using the diagram labels.</p>
+        </details>
+      </div>
+    </div>
+
+    <div class="grid three" style="margin-top:18px">
+      <div class="card">
+        <h3>Right-trig idea</h3>
+        <p class="lead">When there is a right angle, use side ratios relative to a chosen angle.</p>
+        <div class="formula sohBox">
+          <div class="sohIntro">SOHCAHTOA</div>
+          <div class="sohLine"><span class="sohBadge">SOH</span><span>\(\sin\theta=\frac{\text{opposite}}{\text{hypotenuse}}\)</span></div>
+          <div class="sohLine"><span class="sohBadge">CAH</span><span>\(\cos\theta=\frac{\text{adjacent}}{\text{hypotenuse}}\)</span></div>
+          <div class="sohLine"><span class="sohBadge">TOA</span><span>\(\tan\theta=\frac{\text{opposite}}{\text{adjacent}}\)</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Non-right triangle idea</h3>
+        <p class="lead">When there is no right angle, you often create one by dropping a perpendicular height.</p>
+        <div class="formula">\(\frac{a}{\sin A}=\frac{b}{\sin B}=\frac{c}{\sin C}\)</div>
+      </div>
+      <div class="card">
+        <h3>Correction idea</h3>
+        <p class="lead">The cosine rule is Pythagoras with an angle correction.</p>
+        <div class="formula">\(a^2=b^2+c^2-2bc\cos A\)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-derive">
+    <div class="grid">
+      <div class="card">
+        <h2>Derive from right triangles</h2>
+        <p class="lead">Use the slider to drop a height from C. This is the bridge between right-trig and non-right-trig.</p>
+        <div class="svgBox">
+          <svg id="deriveSvg" viewBox="0 0 720 460">
+            <rect width="720" height="460" fill="transparent"></rect>
+            <g id="deriveG"></g>
+          </svg>
+        </div>
+        <label class="ctrl" style="margin-top:12px">Triangle shape: <span id="deriveVal">5.8</span>
+          <input id="deriveSlider" type="range" min="1.5" max="13.5" value="5.8" step="0.1">
+        </label>
+      </div>
+      <div class="card">
+        <h2>Proof guide</h2>
+        <p class="lead">Choose a proof. Use hints first, then reveal guided steps. Only show the full proof when you are ready.</p>
+
+        <div class="proofSelector" id="proofButtons">
+          <button class="proofBtn active" data-proof="area">Area formula<small>from \(\frac12\times\text{base}\times\text{height}\)</small></button>
+          <button class="proofBtn" data-proof="sine">Sine rule<small>same height, two right triangles</small></button>
+          <button class="proofBtn" data-proof="cosine">Cosine rule<small>coordinate / Pythagoras proof</small></button>
+          <button class="proofBtn" data-proof="pythagoras">Special case<small>cosine rule becomes Pythagoras</small></button>
+        </div>
+
+        <div class="proofActionBar">
+          <button id="proofHintBtn" class="secondary">Add a hint</button>
+          <button id="proofStepBtn">Show next guide step</button>
+          <button id="proofRevealBtn" class="good">Reveal full proof</button>
+          <button id="proofResetBtn" class="ghost">Reset</button>
+        </div>
+
+        <div class="proofStage" id="proofStage">
+          <h3 id="proofTitle">Area formula</h3>
+          <div class="proofPrompt" id="proofPrompt">Start by identifying the base and the perpendicular height.</div>
+          <div class="proofCounter" id="proofCounter">Hints: 0 shown · Steps: 0 shown</div>
+          <div id="proofHints"></div>
+          <div id="proofSteps"></div>
+          <div id="proofFull"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-choice">
+    <div class="choiceLayout">
+
+      <div class="card decisionTop">
+        <div class="decisionHeaderRow">
+          <div>
+            <h2>Visual decision tree</h2>
+            <p class="lead">Scan left to right first. Match the <b>shape of the information</b> in your question before calculating.</p>
+          </div>
+          <a class="smallLink" href="#choicePracticeArea">Jump to practice ↓</a>
+        </div>
+
+        <div class="decisionScroller" aria-label="horizontal visual decision tree">
+          <div class="decisionStep">
+            <div class="decisionNum">1</div>
+            <div class="decisionSketch">
+              <svg viewBox="0 0 220 165" aria-label="right triangle decision diagram">
+                <polygon points="28,130 178,130 178,40" fill="rgba(37,99,235,.08)" stroke="#172033" stroke-width="3"/>
+                <path d="M178 130 l0 -22 l-22 0 l0 22" fill="none" stroke="#64748b" stroke-width="3"/>
+
+                <path d="M28 130 L52 130 A24 24 0 0 0 48.6 117.7 Z" fill="rgba(217,119,6,.85)" stroke="#d97706" stroke-width="2"/>
+                <text x="59" y="117" font-size="16" font-weight="900" fill="#d97706">θ</text>
+
+                <line x1="36" y1="144" x2="150" y2="144" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+                <text x="92" y="158" font-size="12" font-weight="800" fill="#2563eb" text-anchor="middle">adjacent</text>
+
+                <line x1="165" y1="120" x2="165" y2="48" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/>
+                <text x="151" y="88" font-size="12" font-weight="800" fill="#7c3aed">opposite</text>
+
+                <line x1="30" y1="128" x2="176" y2="42" stroke="#172033" stroke-width="3"/>
+                <text x="112" y="60" font-size="12" font-weight="800" fill="#c2410c" text-anchor="middle" transform="rotate(-30 112 60)">hypotenuse</text>
+              </svg>
+            </div>
+            <h3>Is there a right angle?</h3>
+            <p>Use the right-triangle toolkit. Choose a ratio relative to the marked angle, or use Pythagoras if only sides are involved.</p>
+            <div class="methodTags">
+              <span class="methodTag blue">SOH-CAH-TOA</span>
+              <span class="methodTag green">Pythagoras</span>
+            </div>
+          </div>
+
+          <div class="flowArrow">→</div>
+
+          <div class="decisionStep">
+            <div class="decisionNum">2</div>
+            <div class="decisionSketch">
+              <svg viewBox="0 0 220 165" aria-label="sine rule opposite pair diagram">
+                <rect x="58" y="12" width="104" height="22" rx="11" fill="#f5f3ff" stroke="#ddd6fe"/>
+                <text x="110" y="27" font-size="12" font-weight="900" fill="#6d28d9" text-anchor="middle">opposite pair</text>
+
+                <polygon points="38,132 184,132 114,48" fill="rgba(124,58,237,.07)" stroke="#172033" stroke-width="3"/>
+                <line x1="184" y1="132" x2="114" y2="48" stroke="#2563eb" stroke-width="7" stroke-linecap="round"/>
+
+                <path d="M38 132 L62 132 A24 24 0 0 0 54.1 114.2 Z" fill="rgba(217,119,6,.85)" stroke="#d97706" stroke-width="2"/>
+                <text x="83" y="116" font-size="17" font-weight="900" fill="#d97706">A</text>
+
+                <line x1="85" y1="101" x2="150" y2="84" stroke="#d97706" stroke-width="2.5" stroke-dasharray="5 5"/>
+                <circle cx="85" cy="101" r="3.5" fill="#d97706"/>
+                <circle cx="150" cy="84" r="3.5" fill="#d97706"/>
+
+                <text x="153" y="90" font-size="18" font-weight="900" fill="#2563eb">a</text>
+                <text x="56" y="148" font-size="11" font-weight="800" fill="#64748b">known angle</text>
+                <text x="139" y="109" font-size="11" font-weight="800" fill="#64748b">opposite side</text>
+              </svg>
+            </div>
+            <h3>Do you have a side-angle opposite pair?</h3>
+            <p>A side and its opposite angle unlock the sine rule. Then use another angle-side pair to find the target.</p>
+            <div class="methodTags">
+              <span class="methodTag purple">Sine rule</span>
+            </div>
+          </div>
+
+          <div class="flowArrow">→</div>
+
+          <div class="decisionStep">
+            <div class="decisionNum">3</div>
+            <div class="decisionSketch">
+              <svg viewBox="0 0 220 165" aria-label="cosine rule included angle diagram">
+                <polygon points="32,132 188,132 92,38" fill="rgba(37,99,235,.07)" stroke="#172033" stroke-width="3"/>
+                <line x1="32" y1="132" x2="188" y2="132" stroke="#2563eb" stroke-width="7" stroke-linecap="round"/>
+                <line x1="32" y1="132" x2="92" y2="38" stroke="#2563eb" stroke-width="7" stroke-linecap="round"/>
+                <line x1="188" y1="132" x2="92" y2="38" stroke="#7c3aed" stroke-width="6" stroke-dasharray="8 6" stroke-linecap="round"/>
+
+                <path d="M32 132 L58 132 A26 26 0 0 0 46.0 110.1 Z" fill="rgba(217,119,6,.85)" stroke="#d97706" stroke-width="2"/>
+
+                <text x="44" y="152" font-size="12" font-weight="800" fill="#2563eb">known side</text>
+                <text x="38" y="82" font-size="12" font-weight="800" fill="#2563eb" transform="rotate(-58 38 82)">known side</text>
+                <text x="132" y="72" font-size="12" font-weight="800" fill="#7c3aed" transform="rotate(40 132 72)">missing side</text>
+
+                <text x="88" y="106" font-size="11" font-weight="900" fill="#c2410c" text-anchor="middle">included</text>
+                <text x="88" y="119" font-size="11" font-weight="900" fill="#c2410c" text-anchor="middle">angle</text>
+              </svg>
+            </div>
+            <h3>Two sides with the angle between them?</h3>
+            <p>The included angle sits between the two known sides. Use cosine rule for a missing side, or area if the question asks for area.</p>
+            <div class="methodTags">
+              <span class="methodTag blue">Cosine rule</span>
+              <span class="methodTag orange">Area \(\frac12 ab\sin C\)</span>
+            </div>
+          </div>
+
+          <div class="flowArrow">→</div>
+
+          <div class="decisionStep">
+            <div class="decisionNum">4</div>
+            <div class="decisionSketch">
+              <svg viewBox="0 0 220 165" aria-label="three sides known diagram">
+                <polygon points="34,132 186,132 110,36" fill="rgba(16,185,129,.09)" stroke="#172033" stroke-width="3"/>
+                <line x1="34" y1="132" x2="186" y2="132" stroke="#10b981" stroke-width="7" stroke-linecap="round"/>
+                <line x1="34" y1="132" x2="110" y2="36" stroke="#10b981" stroke-width="7" stroke-linecap="round"/>
+                <line x1="186" y1="132" x2="110" y2="36" stroke="#10b981" stroke-width="7" stroke-linecap="round"/>
+
+                <text x="73" y="90" font-size="14" font-weight="900" fill="#10b981">b</text>
+                <text x="142" y="90" font-size="14" font-weight="900" fill="#10b981">a</text>
+                <text x="108" y="122" font-size="14" font-weight="900" fill="#10b981">c</text>
+
+                <path d="M110 36 L124.9 54.8 A24 24 0 0 0 95.1 54.8 Z" fill="rgba(124,58,237,.82)" stroke="#7c3aed" stroke-width="2"/>
+                <text x="126" y="60" font-size="20" font-weight="900" fill="#7c3aed">?</text>
+
+                <rect x="58" y="139" width="104" height="18" rx="9" fill="#ecfdf5" stroke="#a7f3d0"/>
+                <text x="110" y="151" font-size="11" font-weight="900" fill="#047857" text-anchor="middle">all 3 sides known</text>
+              </svg>
+            </div>
+            <h3>Do you know all three sides?</h3>
+            <p>With three lengths and no angle, rearrange the cosine rule to find the required angle.</p>
+            <div class="methodTags">
+              <span class="methodTag blue">Cosine rule</span>
+            </div>
+          </div>
+
+          <div class="flowArrow">→</div>
+
+          <div class="decisionStep">
+            <div class="decisionNum">5</div>
+            <div class="decisionSketch">
+              <svg viewBox="0 0 220 165" aria-label="ambiguous sine rule case, two possible triangles">
+                <line x1="30" y1="132" x2="190" y2="132" stroke="#94a3b8" stroke-width="3"/>
+                <text x="27" y="147" font-size="12" font-weight="800" fill="#475569">A</text>
+                <text x="191" y="147" font-size="12" font-weight="800" fill="#475569">B</text>
+
+                <path d="M30 132 L54 132 A24 24 0 0 0 51.5 121.4 Z" fill="rgba(217,119,6,.85)" stroke="#d97706" stroke-width="2"/>
+                <line x1="30" y1="132" x2="150" y2="73" stroke="#d97706" stroke-width="4" stroke-linecap="round"/>
+                <text x="54" y="108" font-size="14" font-weight="900" fill="#d97706">A</text>
+
+                <path d="M89 101 A 98 98 0 0 1 128 48" fill="none" stroke="#6d28d9" stroke-width="4" stroke-dasharray="6 5"/>
+                <circle cx="98" cy="98" r="4.5" fill="#6d28d9"/>
+                <circle cx="124" cy="51" r="4.5" fill="#6d28d9"/>
+
+                <line x1="190" y1="132" x2="98" y2="98" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+                <line x1="190" y1="132" x2="124" y2="51" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+
+                <text x="103" y="92" font-size="12" font-weight="900" fill="#6d28d9">C₁</text>
+                <text x="129" y="46" font-size="12" font-weight="900" fill="#6d28d9">C₂</text>
+
+                <rect x="50" y="139" width="120" height="18" rx="9" fill="#f5f3ff" stroke="#ddd6fe"/>
+                <text x="110" y="151" font-size="11" font-weight="900" fill="#6d28d9" text-anchor="middle">two possible triangles</text>
+              </svg>
+            </div>
+            <h3>Ambiguous sine-rule case (HL only)</h3>
+            <p>The same SSA data can produce two different triangles. This is HL only, and the ambiguous case is not examined at SL.</p>
+            <div class="methodTags">
+              <span class="methodTag orange">HL only</span>
+              <span class="methodTag">Not examined at SL</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="decisionPrompt">
+          <span class="badge blue">blue = known side(s)</span>
+          <span class="badge orange">orange = known angle</span>
+          <span class="badge purple">purple = target / warning</span>
+          <span class="badge green">green = all sides known</span>
+        </div>
+        <p class="scrollCue">After using the visual checklist, scroll down to answer the formula-choice question.</p>
+      </div>
+
+      <div class="card choicePracticeCard" id="choicePracticeArea">
+        <h2>Practise formula choice</h2>
+        <p class="lead">Choose the most appropriate method. The feedback focuses on the structure, not just the answer.</p>
+        <div class="badgeRow">
+          <span class="badge blue" id="choiceLevel">Question 1</span>
+          <span class="badge green" id="scoreBadge">Score 0 / 0</span>
+        </div>
+        <div id="choicePrompt" class="problemBox"></div>
+
+        <div class="choiceWorkArea">
+          <div class="choiceDiagramBox">
+            <div class="svgBox">
+              <svg id="choiceSvg" viewBox="0 0 720 360"></svg>
+            </div>
+          </div>
+
+          <div class="choiceOptionsPanel">
+            <div class="choiceGrid" id="choiceButtons"></div>
+            <div class="feedback" id="choiceFeedback">Choose a method to begin.</div>
+            <div class="progress"><span id="choiceProgress"></span></div>
+            <div class="btnRow">
+              <button id="newChoiceQ">Next question</button>
+              <button class="secondary" id="resetChoice">Reset score</button>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Why students often choose the wrong rule</summary>
+          <p>They look for numbers rather than relationships. A better habit is to circle any side-angle opposite pair and mark whether an angle is included between two known sides.</p>
+        </details>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="screen" id="screen-ambiguous">
+    <div class="grid">
+      <div class="card">
+        <h2>HL extension: ambiguous case of the sine rule</h2>
+        <p class="lead">This is the <b>SSA</b> situation: two sides and a non-included angle. It can make zero, one, or two possible triangles.</p>
+        <div class="note warning"><b>HL only:</b> the ambiguous case of the sine rule is not examined at SL. The core SL 3.2 syllabus excludes it.</div>
+
+        <div class="ambigControls">
+          <label class="ctrl">Given angle \(A\): <span id="ambigAVal">35°</span>
+            <input id="ambigASlider" type="range" min="15" max="70" value="35" step="1">
+          </label>
+          <label class="ctrl">Opposite side \(a=BC\): <span id="ambigA_sideVal">7.0</span>
+            <input id="ambigSideASlider" type="range" min="3" max="16" value="7" step="0.1">
+          </label>
+          <label class="ctrl">Known side \(b=AC\): <span id="ambigB_sideVal">10.0</span>
+            <input id="ambigSideBSlider" type="range" min="4" max="16" value="10" step="0.1">
+          </label>
+        </div>
+
+        <div class="svgBox">
+          <svg id="ambigSvg" viewBox="0 0 720 430" aria-label="ambiguous sine rule diagram">
+            <rect width="720" height="430" fill="transparent"></rect>
+            <g id="ambigG"></g>
+          </svg>
+        </div>
+
+        <div class="diagramKey">
+          <span class="keyItem"><span class="keySwatch" style="background:#2563eb"></span> fixed side \(b=AC\)</span>
+          <span class="keyItem"><span class="keySwatch" style="background:#7c3aed"></span> fixed length \(a=BC\)</span>
+          <span class="keyItem"><span class="keySwatch" style="background:#d97706"></span> given angle \(A\)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>HL calculation guide</h2>
+        <p class="lead">The calculator gives one inverse-sine angle, but sine has the same value for two angles in \(0^\circ\) to \(180^\circ\).</p>
+
+        <div id="ambigStatus" class="note"></div>
+
+        <div class="formula">
+          \[
+          \frac{a}{\sin A}=\frac{b}{\sin B}
+          \quad\Rightarrow\quad
+          \sin B=\frac{b\sin A}{a}.
+          \]
+        </div>
+
+        <div id="ambigCalc" class="ambigCalcGrid"></div>
+      </div>
+    </div>
+
+    <div class="caseCards">
+      <div class="caseCard">
+        <span class="ambigBadge">No triangle</span>
+        <h3>\(a&lt;h\)</h3>
+        <p>The side \(a\) is too short to reach the baseline. The circle misses the line.</p>
+      </div>
+      <div class="caseCard">
+        <span class="ambigBadge">One triangle</span>
+        <h3>\(a=h\)</h3>
+        <p>The side \(a\) just touches the baseline. This gives one right triangle.</p>
+      </div>
+      <div class="caseCard">
+        <span class="ambigBadge">Two triangles</span>
+        <h3>\(h&lt;a&lt;b\)</h3>
+        <p>The circle cuts the baseline twice, giving two valid positions for \(B\).</p>
+      </div>
+      <div class="caseCard">
+        <span class="ambigBadge">One triangle</span>
+        <h3>\(a\ge b\)</h3>
+        <p>The second possible angle would make the triangle angle sum exceed \(180^\circ\).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-real">
+    <div class="grid">
+      <div class="card">
+        <h2>Real measurement problems</h2>
+        <p class="lead">Each situation has a diagram, realistic wording, and a guided solution. Estimate first, then calculate.</p>
+        <h3>Choose a problem</h3>
+        <div class="selectorGrid" id="realProblemButtons">
+          <button class="selectorBtn active" data-real="building">Building height<small>Right-trig angle of elevation</small></button>
+          <button class="selectorBtn" data-real="river">River width<small>Sine rule from two sight lines</small></button>
+          <button class="selectorBtn" data-real="ramp">Ramp design<small>Right-trig design constraint</small></button>
+          <button class="selectorBtn" data-real="drone">Drone distance<small>Sine rule survey problem</small></button>
+        </div>
+        <div id="realProblemText" class="problemBox"></div>
+        <div class="svgBox">
+          <svg id="realSvg" viewBox="0 0 720 430"></svg>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Try it</h2>
+        <div id="realTry"></div>
+        <div class="answerLine">
+          <input id="realAnswer" type="number" step="0.01" placeholder="answer">
+          <span id="realUnit" class="mini">m</span>
+          <button id="checkReal">Check</button>
+        </div>
+        <div class="feedback" id="realFeedback">Enter an answer rounded as requested.</div>
+        <details>
+          <summary>Show guided solution</summary>
+          <div id="realSolution"></div>
+        </details>
+        <details>
+          <summary>Measurement discussion</summary>
+          <p>Real trigonometry includes uncertainty. Ask: How accurate is the angle measurement? Is the ground level? Did you measure to eye level or base level? Which length is directly measured and which is calculated?</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-exam">
+    <div class="grid">
+      <div class="card">
+        <h2>Exam-style mixed practice</h2>
+        <p class="lead">A short mixed set with diagrams. Use the “hint ladder” before opening the full solution.</p>
+        <label class="ctrl">Question
+          <select id="examSelect"></select>
+        </label>
+        <div id="examPrompt" class="problemBox"></div>
+        <div class="svgBox">
+          <svg id="examSvg" viewBox="0 0 720 420"></svg>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Answer area</h2>
+        <div id="examInputs"></div>
+        <div class="btnRow">
+          <button id="checkExam">Check</button>
+          <button class="secondary" id="hintExam">Hint</button>
+          <button class="ghost" id="newExamNumbers">New numbers</button>
+        </div>
+        <div class="feedback" id="examFeedback">Choose a question and try it.</div>
+        <div class="note" id="hintBox" style="display:none"></div>
+        <details>
+          <summary>Show full worked solution</summary>
+          <div id="examSolution"></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-teacher">
+    <div class="card">
+      <h2>Teacher notes: suggested lesson flow</h2>
+      <div class="tableWrap">
+        <table>
+          <thead><tr><th>Phase</th><th>Applet tab</th><th>Teacher move</th><th>Student product</th></tr></thead>
+          <tbody>
+            <tr><td>Explore visually</td><td>Visual explore</td><td>Ask students to vary one thing at a time and describe what information each rule needs.</td><td>Annotated screenshot or notebook sketch.</td></tr>
+            <tr><td>Derive</td><td>Derive</td><td>Use the dropped height as the common idea behind area, sine rule and cosine rule.</td><td>One-page proof map.</td></tr>
+            <tr><td>Practise formula choice</td><td>Choose the rule</td><td>Ban calculation for the first five minutes. Students must justify the method only.</td><td>Decision tree with examples.</td></tr>
+            <tr><td>Apply</td><td>Real measurement</td><td>Let groups choose a context and write a mini-method: what to measure, what to calculate, what could go wrong.</td><td>Poster, video, or slide explanation.</td></tr>
+            <tr><td>Consolidate</td><td>Exam practice</td><td>Mixed practice under timed conditions, then reveal solutions for self-correction.</td><td>Corrected exam-style response.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 style="margin-top:18px">Design principles used</h3>
+      <div class="badgeRow">
+        <span class="badge blue">visual first</span>
+        <span class="badge purple">proof optional</span>
+        <span class="badge green">feedback after choice</span>
+        <span class="badge orange">diagram-driven</span>
+      </div>
+      <p class="lead">This applet intentionally separates <b>method choice</b> from <b>calculation</b>. Students often know formulas but fail to recognise when to use them. The key repeated question is: “What information do we have, and what relationship does the diagram show?”</p>
+      <details>
+        <summary>How to use on a website</summary>
+        <p>Save this file as <span class="kbd">index.html</span> and upload it to Netlify, Vercel, or any static web host. It is a single-file applet. Math typesetting uses MathJax from a CDN, so an internet connection is needed for the best formula rendering.</p>
+      </details>
+      <details>
+        <summary>Quick classroom task</summary>
+        <ol>
+          <li>Students answer five “Choose the rule” questions without calculators.</li>
+          <li>Students open one proof and write the missing algebra step.</li>
+          <li>Students solve one real measurement problem and list two possible measurement errors.</li>
+          <li>Students complete one exam-style problem and mark their own work with the shown solution.</li>
+        </ol>
+      </details>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const rad=d=>d*Math.PI/180;
+  const deg=r=>r*180/Math.PI;
+  const fmt=(x,dp=2)=>Number(x).toFixed(dp);
+  const nearly=(x,y,tol)=>Math.abs(x-y)<=tol;
+  const hypot=(x,y)=>Math.hypot(x,y);
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  const pick=(arr)=>arr[Math.floor(Math.random()*arr.length)];
+
+  function typeset(){
+    if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+  }
+
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      btn.classList.add('active');
+      $(btn.dataset.screen).classList.add('active');
+      typeset();
+      updateAll();
+    });
+  });
+
+  function line(x1,y1,x2,y2,cls='', extra=''){
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}" ${extra}/>`;
+  }
+  function circle(x,y,r,fill='#fff',stroke='#172033',cls=''){
+    return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2" class="${cls}"/>`;
+  }
+  function text(x,y,t,cls='svg-label',anchor='middle'){
+    return `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}">${t}</text>`;
+  }
+  function path(d,cls='',extra=''){
+    return `<path d="${d}" class="${cls}" ${extra}/>`;
+  }
+  function angleArc(cx,cy,r,startDeg,endDeg,cls='angleArc'){
+    const a1=rad(startDeg), a2=rad(endDeg);
+    const x1=cx+r*Math.cos(a1), y1=cy-r*Math.sin(a1);
+    const x2=cx+r*Math.cos(a2), y2=cy-r*Math.sin(a2);
+    const large=Math.abs(endDeg-startDeg)>180?1:0;
+    const sweep=endDeg>startDeg?0:1;
+    return `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} ${sweep} ${x2} ${y2}" class="${cls}"/>`;
+  }
+  function triAngles(A,B,C){
+    const a=hypot(B.x-C.x,B.y-C.y);
+    const b=hypot(A.x-C.x,A.y-C.y);
+    const c=hypot(A.x-B.x,A.y-B.y);
+    const angA=deg(Math.acos(clamp((b*b+c*c-a*a)/(2*b*c),-1,1)));
+    const angB=deg(Math.acos(clamp((a*a+c*c-b*b)/(2*a*c),-1,1)));
+    const angC=180-angA-angB;
+    return {a,b,c,angA,angB,angC};
+  }
+
+  // Visual explore
+  const state={base:10,cx:5.5,cy:6};
+  let currentHighlightMode='right';
+  ['baseSlider','cxSlider','cySlider'].forEach(id=>$(id).addEventListener('input',()=>{updateExplore(); typeset();}));
+  document.querySelectorAll('#highlightButtons .selectorBtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      currentHighlightMode=btn.dataset.mode;
+      document.querySelectorAll('#highlightButtons .selectorBtn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      updateExplore();
+      typeset();
+    });
+  });
+
+  let dragging=false;
+  $('triExplore').addEventListener('pointerdown', e=>{
+    const target=e.target;
+    if(target && target.classList.contains('handleC')){
+      dragging=true;
+      $('triExplore').setPointerCapture(e.pointerId);
+    }
+  });
+  $('triExplore').addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const svg=$('triExplore');
+    const pt=svg.createSVGPoint();
+    pt.x=e.clientX; pt.y=e.clientY;
+    const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+    const margin=90, scale=34;
+    const localX=clamp((p.x-margin)/scale, 1, Number($('baseSlider').value)-.5);
+    const localY=clamp((360-p.y)/scale, 1, 10);
+    $('cxSlider').value=localX.toFixed(1);
+    $('cySlider').value=localY.toFixed(1);
+    updateExplore();
+  });
+  $('triExplore').addEventListener('pointerup', e=>{dragging=false;});
+
+  function gridSvg(){
+    let g='';
+    for(let x=90;x<=650;x+=34) g+=line(x,55,x,380,'gridline');
+    for(let y=70;y<=360;y+=34) g+=line(70,y,650,y,'gridline');
+    g+=line(70,360,660,360,'axis');
+    g+=line(90,385,90,55,'axis');
+    return g;
+  }
+
+  function updateExplore(){
+    state.base=Number($('baseSlider').value);
+    state.cx=Number($('cxSlider').value);
+    state.cy=Number($('cySlider').value);
+    if(state.cx>state.base-.5){state.cx=state.base-.5; $('cxSlider').value=state.cx;}
+    $('baseVal').textContent=fmt(state.base,1);
+    $('cxVal').textContent=fmt(state.cx,1);
+    $('cyVal').textContent=fmt(state.cy,1);
+
+    const s=34, ox=90, oy=360;
+    const A={x:ox,y:oy}, B={x:ox+state.base*s,y:oy}, C={x:ox+state.cx*s,y:oy-state.cy*s};
+    const m=triAngles(A,B,C);
+    const mode=currentHighlightMode;
+    $('readA').textContent=fmt(m.a/s,2);
+    $('readB').textContent=fmt(m.b/s,2);
+    $('readC').textContent=fmt(m.c/s,2);
+    $('readAngA').textContent=fmt(m.angA,1)+'°';
+    $('readAngB').textContent=fmt(m.angB,1)+'°';
+    $('readAngC').textContent=fmt(m.angC,1)+'°';
+
+    $('gridExplore').innerHTML=gridSvg();
+    let tri='';
+    const foot={x:C.x,y:oy};
+
+    function svgTag(x,y,w,label,sub,accent='#2563eb'){
+      return `<g>
+        <rect x="${x}" y="${y}" width="${w}" height="${sub?48:30}" rx="12" fill="white" stroke="${accent}" stroke-width="2.5" opacity=".96"/>
+        <text x="${x+12}" y="${y+20}" class="svg-callout">${label}</text>
+        ${sub?`<text x="${x+12}" y="${y+38}" class="svg-callout-small">${sub}</text>`:''}
+      </g>`;
+    }
+    function targetRing(P, colour='#2563eb'){
+      return `<circle cx="${P.x}" cy="${P.y}" r="18" fill="none" stroke="${colour}" stroke-width="3" stroke-dasharray="5 4" opacity=".85"/>`;
+    }
+
+    // base triangle first, then the highlighted information on top
+    tri+=`<polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" fill="rgba(37,99,235,.06)" stroke="#172033" stroke-width="2.5"/>`;
+    tri+=line(C.x,C.y,foot.x,foot.y,'thin dash');
+    tri+=`<path d="M ${foot.x} ${foot.y} l 0 -18 l 18 0 l 0 18" fill="none" stroke="#5c6780" stroke-width="1.8"/>`;
+
+    let angleLabels=[];
+    let hint='';
+    if(mode==='right'){
+      tri+=svgTag(420,52,210,'RIGHT TRIANGLE','use the dropped height','#2563eb');
+      tri+=line(A.x,A.y,C.x,C.y,'sideKnown');
+      tri+=line(A.x,A.y,foot.x,foot.y,'sideKnown');
+      tri+=line(C.x,C.y,foot.x,foot.y,'sideUnknown');
+      tri+=angleArc(A.x,A.y,46,0,m.angA);
+      tri+=targetRing(foot,'#7c3aed');
+      tri+=text((A.x+foot.x)/2,A.y-18,'adjacent','svg-formula');
+      tri+=text(foot.x+32,(foot.y+C.y)/2,'opposite','svg-formula','start');
+      tri+=text((A.x+C.x)/2-18,(A.y+C.y)/2-22,'hypotenuse','svg-formula');
+      hint='Highlighted: a right triangle has been created. Choose SOH-CAH-TOA after identifying opposite, adjacent and hypotenuse relative to the marked angle.';
+      angleLabels.push(text(A.x+48,A.y-18,'θ','svg-formula'));
+    } else if(mode==='asa'){
+      tri+=svgTag(410,52,235,'SINE RULE PATTERN','known side + opposite angle','#7c3aed');
+      tri+=line(A.x,A.y,B.x,B.y,'sideKnown');
+      tri+=angleArc(A.x,A.y,46,0,m.angA);
+      tri+=angleArc(B.x,B.y,46,180-m.angB,180);
+      tri+=line(B.x,B.y,C.x,C.y,'sideUnknown');
+      tri+=`<line x1="${A.x+36}" y1="${A.y-20}" x2="${(B.x+C.x)/2}" y2="${(B.y+C.y)/2-8}" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+      tri+=text((A.x+B.x)/2,A.y+48,'known side','svg-formula');
+      tri+=text(A.x+60,A.y-30,'known angle','svg-formula');
+      tri+=text(B.x-92,B.y-30,'known angle','svg-formula');
+      tri+=text((B.x+C.x)/2+34,(B.y+C.y)/2,'target side','svg-formula','start');
+      hint='Highlighted: two angles and one side. The known side-angle opposite relationship suggests the sine rule.';
+    } else if(mode==='sas'){
+      tri+=svgTag(405,52,235,'COSINE RULE PATTERN','two sides with included angle','#2563eb');
+      tri+=line(A.x,A.y,B.x,B.y,'sideKnown');
+      tri+=line(A.x,A.y,C.x,C.y,'sideKnown');
+      tri+=angleArc(A.x,A.y,52,0,m.angA);
+      tri+=line(B.x,B.y,C.x,C.y,'sideUnknown');
+      tri+=text((A.x+B.x)/2,A.y+48,'known side','svg-formula');
+      tri+=text((A.x+C.x)/2-24,(A.y+C.y)/2-28,'known side','svg-formula');
+      tri+=text(A.x+58,A.y-34,'included angle','svg-formula');
+      tri+=text((B.x+C.x)/2+34,(B.y+C.y)/2,'missing side','svg-formula','start');
+      hint='Highlighted: two known sides and the included angle. Use the cosine rule for the missing opposite side.';
+    } else if(mode==='sss'){
+      tri+=svgTag(420,52,205,'THREE SIDES','find an angle','#10b981');
+      tri+=line(A.x,A.y,B.x,B.y,'sideKnown');
+      tri+=line(A.x,A.y,C.x,C.y,'sideKnown');
+      tri+=line(B.x,B.y,C.x,C.y,'sideKnown');
+      tri+=angleArc(C.x,C.y,48,230,310);
+      tri+=text((A.x+B.x)/2,A.y+48,'known','svg-formula');
+      tri+=text((A.x+C.x)/2-24,(A.y+C.y)/2-28,'known','svg-formula');
+      tri+=text((B.x+C.x)/2+34,(B.y+C.y)/2,'known','svg-formula','start');
+      tri+=text(C.x,C.y+56,'angle?','svg-formula');
+      hint='Highlighted: all three sides are known. Use the cosine rule rearranged to find an angle.';
+    } else if(mode==='area'){
+      tri+=svgTag(405,52,235,'AREA PATTERN','two sides + included angle','#f59e0b');
+      tri+=line(A.x,A.y,C.x,C.y,'sideKnown');
+      tri+=line(A.x,A.y,B.x,B.y,'sideKnown');
+      tri+=angleArc(A.x,A.y,52,0,m.angA);
+      tri+=`<polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" fill="rgba(245,158,11,.16)" stroke="none"/>`;
+      tri+=text((A.x+B.x)/2,A.y+48,'side 1','svg-formula');
+      tri+=text((A.x+C.x)/2-24,(A.y+C.y)/2-28,'side 2','svg-formula');
+      tri+=text(A.x+58,A.y-34,'included angle','svg-formula');
+      tri+=text((A.x+B.x+C.x)/3,(A.y+B.y+C.y)/3,'AREA','svg-formula');
+      hint='Highlighted: two sides and the included angle. Use the area formula 1/2 ab sin C.';
+    }
+    $('ruleHint').innerHTML=hint;
+
+    tri+=circle(A.x,A.y,7,'#fff','#172033');
+    tri+=circle(B.x,B.y,7,'#fff','#172033');
+    tri+=circle(C.x,C.y,9,'#fff','#2563eb','handle handleC');
+    tri+=text(A.x-18,A.y+26,'A');
+    tri+=text(B.x+18,B.y+26,'B');
+    tri+=text(C.x,C.y-16,'C');
+    tri+=text((A.x+B.x)/2,A.y+30,`c = ${fmt(m.c/s,1)}`,'svg-small');
+    tri+=text((A.x+C.x)/2-18,(A.y+C.y)/2-8,`b = ${fmt(m.b/s,1)}`,'svg-small');
+    tri+=text((B.x+C.x)/2+18,(B.y+C.y)/2-8,`a = ${fmt(m.a/s,1)}`,'svg-small');
+    tri+=text(foot.x+28,(foot.y+C.y)/2,`h`,'svg-small');
+    tri+=angleLabels.join('');
+    $('triangleExplore').innerHTML=tri;
+  }
+
+  // Derive SVG
+  $('deriveSlider').addEventListener('input',()=>{updateDerive(); typeset();});
+  function updateDerive(){
+    const cx=Number($('deriveSlider').value);
+    $('deriveVal').textContent=fmt(cx,1);
+    const s=35, ox=100, oy=360;
+    const A={x:ox,y:oy}, B={x:ox+12*s,y:oy}, C={x:ox+cx*s,y:oy-7*s}, D={x:C.x,y:oy};
+    const m=triAngles(A,B,C);
+    let g='';
+    g+=line(75,oy,650,oy,'axis');
+    g+=`<polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" fill="rgba(124,58,237,.07)" stroke="#172033" stroke-width="2.5"/>`;
+    g+=line(C.x,C.y,D.x,D.y,'sideKnown');
+    g+=`<path d="M ${D.x} ${D.y} l 0 -18 l 18 0 l 0 18" fill="none" stroke="#5c6780" stroke-width="1.8"/>`;
+    g+=angleArc(A.x,A.y,44,0,m.angA);
+    g+=angleArc(B.x,B.y,44,180-m.angB,180);
+    g+=text(A.x-18,A.y+28,'A');
+    g+=text(B.x+18,B.y+28,'B');
+    g+=text(C.x,C.y-18,'C');
+    g+=text(D.x,D.y+28,'D','svg-small');
+    g+=text(C.x+28,(C.y+D.y)/2,'h','svg-formula');
+    g+=text((A.x+C.x)/2-22,(A.y+C.y)/2-8,'b','svg-formula');
+    g+=text((B.x+C.x)/2+22,(B.y+C.y)/2-8,'a','svg-formula');
+    g+=text((A.x+B.x)/2,A.y+30,'c','svg-formula');
+    g+=text(A.x+52,A.y-16,'A','svg-formula');
+    g+=text(B.x-52,B.y-16,'B','svg-formula');
+    g+=text(85,44,'Drop a height h. The non-right triangle now contains two right triangles.','svg-small','start');
+    g+=text(85,72,'Left right triangle: h = b sin A','svg-formula','start');
+    g+=text(85,98,'Right right triangle: h = a sin B','svg-formula','start');
+    $('deriveG').innerHTML=g;
+  }
+
+  // Choice quiz
+  const choiceQuestions=[
+    {type:'right', prompt:'A ladder makes a right triangle with the wall. You know the angle at the ground and the ladder length. Which method finds the height reached?', correct:'SOH-CAH-TOA', feedback:'Right angle + one angle + hypotenuse. Use sine because height is opposite the ground angle.'},
+    {type:'sine', prompt:'In triangle ABC, \\(A=42^\\circ\\), \\(B=71^\\circ\\), and side \\(a=8.4\\) cm. Find side \\(b\\).', correct:'Sine rule', feedback:'You have an opposite pair \\(A\\) and \\(a\\), and you need another side opposite a known angle.'},
+    {type:'cosineSide', prompt:'In triangle ABC, \\(b=9.2\\) cm, \\(c=7.5\\) cm, and included angle \\(A=63^\\circ\\). Find \\(a\\).', correct:'Cosine rule', feedback:'Two sides and the included angle. The unknown side is opposite the included angle.'},
+    {type:'cosineAngle', prompt:'In triangle ABC, \\(a=6.1\\), \\(b=8.4\\), \\(c=10.2\\). Find angle \\(C\\).', correct:'Cosine rule', feedback:'Three sides and no angle. Rearrange the cosine rule to find an angle.'},
+    {type:'area', prompt:'A triangular garden has sides 12 m and 9 m with included angle \\(58^\\circ\\). Find its area.', correct:'Area formula', feedback:'Two sides and the included angle are exactly what \\(\frac12 ab\sin C\\) needs.'},
+    {type:'pythag', prompt:'A right triangle has legs 5 cm and 12 cm. Find the hypotenuse.', correct:'Pythagoras', feedback:'Right angle + two sides, no angle needed. Use Pythagoras before trig.'}
+  ];
+  const methodOptions=['SOH-CAH-TOA','Pythagoras','Sine rule','Cosine rule','Area formula'];
+  let choiceIndex=0, choiceScore=0, choiceAttempts=0, currentChoice=null;
+  $('newChoiceQ').addEventListener('click',()=>newChoice());
+  $('resetChoice').addEventListener('click',()=>{choiceScore=0;choiceAttempts=0;choiceIndex=0;newChoice(true);});
+  function newChoice(reset=false){
+    currentChoice=choiceQuestions[choiceIndex%choiceQuestions.length];
+    choiceIndex++;
+    $('choiceLevel').textContent='Question '+choiceIndex;
+    $('choicePrompt').innerHTML=currentChoice.prompt;
+    $('choiceFeedback').className='feedback';
+    $('choiceFeedback').textContent='Choose a method. Look for: right angle, opposite pair, included angle, or three sides.';
+    const shuffled=[...methodOptions].sort(()=>Math.random()-.5);
+    $('choiceButtons').innerHTML=shuffled.map(opt=>`<button class="choice" data-opt="${opt}"><b>${opt}</b></button>`).join('');
+    document.querySelectorAll('#choiceButtons .choice').forEach(btn=>btn.addEventListener('click',()=>answerChoice(btn)));
+    drawChoiceDiagram(currentChoice.type);
+    updateChoiceScore();
+    typeset();
+  }
+  function answerChoice(btn){
+    const opt=btn.dataset.opt;
+    const ok=opt===currentChoice.correct;
+    choiceAttempts++;
+    if(ok){
+      choiceScore++;
+      btn.classList.add('correct');
+      $('choiceFeedback').className='feedback good';
+      $('choiceFeedback').innerHTML='Correct. '+currentChoice.feedback;
+    }else{
+      btn.classList.add('incorrect');
+      $('choiceFeedback').className='feedback bad';
+      $('choiceFeedback').innerHTML='Not quite. Re-read the diagram information: '+currentChoice.feedback;
+      document.querySelectorAll('#choiceButtons .choice').forEach(b=>{
+        if(b.dataset.opt===currentChoice.correct) b.classList.add('correct');
+      });
+    }
+    document.querySelectorAll('#choiceButtons .choice').forEach(b=>b.disabled=true);
+    updateChoiceScore();
+    typeset();
+  }
+  function updateChoiceScore(){
+    $('scoreBadge').textContent=`Score ${choiceScore} / ${choiceAttempts}`;
+    $('choiceProgress').style.width = choiceAttempts? `${Math.min(100,choiceScore/choiceAttempts*100)}%`:'0%';
+  }
+  function drawChoiceDiagram(type){
+    let g='';
+    const A={x:120,y:300}, B={x:560,y:300}, C={x:330,y:75};
+    if(type==='right'){
+      const P={x:145,y:300}, Q={x:495,y:300}, R={x:495,y:110};
+      g+=`<polygon points="${P.x},${P.y} ${Q.x},${Q.y} ${R.x},${R.y}" fill="rgba(37,99,235,.06)" stroke="#172033" stroke-width="2.5"/>`;
+      g+=`<path d="M ${Q.x} ${Q.y} l 0 -22 l -22 0 l 0 22" fill="none" stroke="#5c6780" stroke-width="2"/>`;
+      g+=angleArc(P.x,P.y,42,0,29);
+      g+=text(P.x+52,P.y-12,'38°','svg-formula');
+      g+=text((P.x+R.x)/2-8,(P.y+R.y)/2-8,'15 m ladder','svg-small');
+      g+=text(Q.x+34,(Q.y+R.y)/2,'height?','svg-formula','start');
+    } else {
+      g+=`<polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" fill="rgba(124,58,237,.07)" stroke="#172033" stroke-width="2.5"/>`;
+      g+=text(A.x-18,A.y+25,'A'); g+=text(B.x+18,B.y+25,'B'); g+=text(C.x,C.y-18,'C');
+      if(type==='sine'){
+        g+=angleArc(A.x,A.y,42,0,47); g+=angleArc(B.x,B.y,42,133,180);
+        g+=text(A.x+55,A.y-18,'42°','svg-formula'); g+=text(B.x-55,B.y-18,'71°','svg-formula');
+        g+=text((B.x+C.x)/2+28,(B.y+C.y)/2,'a = 8.4','svg-formula');
+        g+=text((A.x+C.x)/2-28,(A.y+C.y)/2,'b ?','svg-formula');
+      } else if(type==='cosineSide'){
+        g+=line(A.x,A.y,B.x,B.y,'sideKnown'); g+=line(A.x,A.y,C.x,C.y,'sideKnown'); g+=line(B.x,B.y,C.x,C.y,'sideUnknown');
+        g+=angleArc(A.x,A.y,46,0,47); g+=text(A.x+58,A.y-18,'63°','svg-formula');
+        g+=text((A.x+B.x)/2,A.y+28,'c = 7.5','svg-formula');
+        g+=text((A.x+C.x)/2-32,(A.y+C.y)/2,'b = 9.2','svg-formula');
+        g+=text((B.x+C.x)/2+34,(B.y+C.y)/2,'a ?','svg-formula');
+      } else if(type==='cosineAngle'){
+        g+=text((B.x+C.x)/2+28,(B.y+C.y)/2,'a = 6.1','svg-formula');
+        g+=text((A.x+C.x)/2-28,(A.y+C.y)/2,'b = 8.4','svg-formula');
+        g+=text((A.x+B.x)/2,A.y+28,'c = 10.2','svg-formula');
+        g+=angleArc(C.x,C.y,42,230,310); g+=text(C.x,C.y+55,'C ?','svg-formula');
+      } else if(type==='area'){
+        g+=line(A.x,A.y,B.x,B.y,'sideKnown'); g+=line(A.x,A.y,C.x,C.y,'sideKnown');
+        g+=angleArc(A.x,A.y,46,0,47);
+        g+=text((A.x+B.x)/2,A.y+28,'12 m','svg-formula');
+        g+=text((A.x+C.x)/2-28,(A.y+C.y)/2,'9 m','svg-formula');
+        g+=text(A.x+58,A.y-18,'58°','svg-formula');
+        g+=text(365,210,'Area?','svg-formula');
+      } else if(type==='pythag'){
+        const P={x:150,y:300}, Q={x:510,y:300}, R={x:510,y:120};
+        g=`<polygon points="${P.x},${P.y} ${Q.x},${Q.y} ${R.x},${R.y}" fill="rgba(37,99,235,.06)" stroke="#172033" stroke-width="2.5"/>`;
+        g+=`<path d="M ${Q.x} ${Q.y} l 0 -22 l -22 0 l 0 22" fill="none" stroke="#5c6780" stroke-width="2"/>`;
+        g+=text((P.x+Q.x)/2,P.y+28,'12 cm','svg-formula');
+        g+=text(Q.x+32,(Q.y+R.y)/2,'5 cm','svg-formula','start');
+        g+=text((P.x+R.x)/2-20,(P.y+R.y)/2,'?','svg-formula');
+      }
+    }
+    $('choiceSvg').innerHTML=g;
+  }
+
+  // Real measurement problems
+  const realProblems={
+    building:{
+      unit:'m',
+      answer:30.36,
+      tol:.12,
+      prompt:'You stand 42 m from the base of a building. Your eye level is 1.6 m above the ground. The angle of elevation to the top is \(34^\\circ\). Find the height of the building to 1 decimal place.',
+      try:'Estimate first: should the height be less than, about equal to, or greater than 42 m? Then calculate the vertical rise above eye level.',
+      solution:'\\[\\tan 34^\\circ=\\frac{h-1.6}{42}\\] \\[h=42\\tan 34^\\circ+1.6=30.36\\text{ m}\\] So the building is about \\(30.4\\) m tall.'
+    },
+    river:{
+      unit:'m',
+      answer:36.4,
+      tol:.25,
+      prompt:'Two points A and B are 50 m apart along one river bank. A tree T is across the river. The angles \(\\angle TAB=38^\\circ\) and \(\\angle ABT=74^\\circ\). Find the perpendicular width of the river to 1 decimal place.',
+      try:'First find angle T. Then use the sine rule to find \(AT\), and finally use \(AT\\sin 38^\\circ\) for the width.',
+      solution:'\\[T=180^\\circ-38^\\circ-74^\\circ=68^\\circ\\] \\[\\frac{AT}{\\sin 74^\\circ}=\\frac{50}{\\sin 68^\\circ}\\] \\[AT=\\frac{50\\sin74^\\circ}{\\sin68^\\circ}=51.84\\] Width \\(=AT\\sin38^\\circ=31.9\\text{ m}\\).'
+    },
+    ramp:{
+      unit:'m',
+      answer:9.19,
+      tol:.08,
+      prompt:'A ramp rises 0.8 m and must make an angle no greater than \(5^\\circ\) with the horizontal. Find the minimum ramp length to 2 decimal places.',
+      try:'Draw the right triangle. The rise is opposite the angle. The ramp length is the hypotenuse.',
+      solution:'\\[\\sin5^\\circ=\\frac{0.8}{L}\\] \\[L=\\frac{0.8}{\\sin5^\\circ}=9.18\\text{ m}\\] The minimum ramp length is about \\(9.18\\) m.'
+    },
+    drone:{
+      unit:'m',
+      answer:86.7,
+      tol:.3,
+      prompt:'Two surveyors A and B are 120 m apart. A drone D is seen from A at \(44^\\circ\) from line AB and from B at \(52^\\circ\) from line BA. Find distance AD to 1 decimal place.',
+      try:'This is a non-right triangle with two angles and one side. Find the third angle, then use the sine rule.',
+      solution:'\\[D=180^\\circ-44^\\circ-52^\\circ=84^\\circ\\] \\[\\frac{AD}{\\sin52^\\circ}=\\frac{120}{\\sin84^\\circ}\\] \\[AD=\\frac{120\\sin52^\\circ}{\\sin84^\\circ}=95.1\\text{ m}\\]'
+    }
+  };
+  // Correct values correction after formulas above
+  realProblems.river.answer = 31.9;
+  realProblems.drone.answer = 95.1;
+
+  let currentRealProblem = 'building';
+  document.querySelectorAll('#realProblemButtons .selectorBtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      currentRealProblem = btn.dataset.real;
+      document.querySelectorAll('#realProblemButtons .selectorBtn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      updateReal();
+      typeset();
+    });
+  });
+  $('checkReal').addEventListener('click',checkReal);
+  function updateReal(){
+    const key=currentRealProblem, p=realProblems[key];
+    $('realProblemText').innerHTML=p.prompt;
+    $('realTry').innerHTML='<p class="lead">'+p.try+'</p>';
+    $('realUnit').textContent=p.unit;
+    $('realAnswer').value='';
+    $('realFeedback').className='feedback';
+    $('realFeedback').textContent='Enter an answer rounded as requested.';
+    $('realSolution').innerHTML=p.solution;
+    drawReal(key);
+    typeset();
+  }
+  function checkReal(){
+    const key=currentRealProblem, p=realProblems[key];
+    const val=Number($('realAnswer').value);
+    if(!Number.isFinite(val)){
+      $('realFeedback').className='feedback bad';
+      $('realFeedback').textContent='Enter a numerical answer first.';
+      return;
+    }
+    if(Math.abs(val-p.answer)<=p.tol){
+      $('realFeedback').className='feedback good';
+      $('realFeedback').textContent=`Correct. Expected about ${p.answer} ${p.unit}.`;
+    }else{
+      $('realFeedback').className='feedback bad';
+      $('realFeedback').textContent=`Not quite. Check the diagram and whether you added/subtracted eye level when needed.`;
+    }
+  }
+  function drawReal(key){
+    let g='';
+    if(key==='building'){
+      g+=line(80,350,650,350,'axis');
+      g+=`<rect x="520" y="80" width="70" height="270" fill="#e0e7ff" stroke="#172033" stroke-width="2"/>`;
+      g+=line(170,350,520,350,'sideKnown');
+      g+=line(170,335,520,80,'sideUnknown');
+      g+=line(170,350,170,335,'thin');
+      g+=angleArc(170,335,52,0,34);
+      g+=text(300,375,'42 m','svg-formula');
+      g+=text(205,320,'34°','svg-formula');
+      g+=text(598,215,'height?','svg-formula','start');
+      g+=text(170,330,'eye 1.6 m','svg-small','middle');
+      g+=circle(170,335,6,'#fff','#172033');
+    }else if(key==='river'){
+      const A={x:140,y:325}, B={x:560,y:325}, T={x:350,y:155}, P={x:350,y:325};
+
+      // water and river banks
+      g+=`<rect x="70" y="165" width="600" height="135" rx="18" fill="#dbeafe" stroke="#bfdbfe"/>`;
+      g+=line(95,165,610,165,'axis');
+      g+=line(95,325,610,325,'axis');
+      g+=text(150,153,'opposite bank','svg-small','start');
+      g+=text(150,345,'near bank','svg-small','start');
+
+      // triangle sight lines
+      g+=line(A.x,A.y,T.x,T.y,'thin');
+      g+=line(B.x,B.y,T.x,T.y,'thin');
+      g+=line(T.x,T.y,P.x,P.y,'sideUnknown');
+
+      // right-angle marker for width
+      g+=`<path d="M ${P.x} ${P.y} l 0 -20 l 20 0 l 0 20" fill="none" stroke="#5c6780" stroke-width="2"/>`;
+
+      // angle markers
+      g+=angleArc(A.x,A.y,44,0,38);
+      g+=angleArc(B.x,B.y,44,180-74,180);
+
+      // points
+      g+=circle(A.x,A.y,6,'#fff','#172033');
+      g+=circle(B.x,B.y,6,'#fff','#172033');
+      g+=circle(T.x,T.y,6,'#fff','#172033');
+      g+=circle(P.x,P.y,5,'#fff','#7c3aed');
+
+      // labels
+      g+=text(A.x-18,A.y+25,'A');
+      g+=text(B.x+18,B.y+25,'B');
+      g+=text(T.x+22,T.y-12,'T','svg-label','start');
+      g+=text(P.x+18,P.y+24,'P','svg-small','start');
+      g+=text((A.x+B.x)/2,A.y+38,'AB = 50 m','svg-formula');
+      g+=text(A.x+56,A.y-18,'38°','svg-formula');
+      g+=text(B.x-56,B.y-18,'74°','svg-formula');
+      g+=text(T.x+18,(T.y+P.y)/2,'width = TP ?','svg-formula','start');
+
+      // tree on the far bank
+      g+=line(T.x,T.y,T.x,T.y-20,'thin');
+      g+=`<path d="M ${T.x-24} ${T.y-26}
+                 c -18 -18 -8 -38 12 -36
+                 c -4 -22 22 -33 38 -18
+                 c 7 -20 36 -19 41 2
+                 c 22 -7 34 16 19 31
+                 c 16 16 -4 34 -24 28
+                 c -10 17 -35 18 -47 4
+                 c -17 10 -39 -1 -39 -19 z"
+              fill="#8ddf9b" stroke="#166534" stroke-width="1.8"/>`;
+      g+=text(T.x+36,T.y-40,'tree','svg-small','start');
+    }else if(key==='ramp'){
+      const A={x:120,y:330}, B={x:610,y:330}, C={x:610,y:215};
+      g+=line(70,330,650,330,'axis');
+      g+=`<polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" fill="rgba(37,99,235,.06)" stroke="#172033" stroke-width="2.5"/>`;
+      g+=`<path d="M ${B.x} ${B.y} l 0 -22 l -22 0 l 0 22" fill="none" stroke="#5c6780" stroke-width="2"/>`;
+      g+=angleArc(A.x,A.y,56,0,13);
+      g+=text(A.x+70,A.y-10,'5°','svg-formula');
+      g+=text(B.x+28,(B.y+C.y)/2,'0.8 m','svg-formula','start');
+      g+=text((A.x+C.x)/2-18,(A.y+C.y)/2-6,'ramp length?','svg-formula');
+    }else if(key==='drone'){
+      const A={x:120,y:330}, B={x:600,y:330}, D={x:335,y:85};
+      g+=line(A.x,A.y,B.x,B.y,'sideKnown');
+      g+=line(A.x,A.y,D.x,D.y,'sideUnknown');
+      g+=line(B.x,B.y,D.x,D.y,'thin');
+      g+=angleArc(A.x,A.y,48,0,44);
+      g+=angleArc(B.x,B.y,48,180-52,180);
+      g+=text(360,358,'120 m','svg-formula');
+      g+=text(A.x+62,A.y-18,'44°','svg-formula');
+      g+=text(B.x-62,B.y-18,'52°','svg-formula');
+      g+=text((A.x+D.x)/2-30,(A.y+D.y)/2,'AD?','svg-formula');
+      g+=circle(D.x,D.y,10,'#fff','#2563eb');
+      g+=text(D.x,D.y-20,'Drone D','svg-label');
+    }
+    $('realSvg').innerHTML=g;
+  }
+
+  // Exam practice
+  let examSeed=0;
+  const examQs=[
+    {id:'q1', name:'Right-trig height'},
+    {id:'q2', name:'Sine rule side'},
+    {id:'q3', name:'Cosine rule angle'},
+    {id:'q4', name:'Area then unknown height'}
+  ];
+  examQs.forEach((q,i)=>$('examSelect').innerHTML+=`<option value="${q.id}">${i+1}. ${q.name}</option>`);
+  $('examSelect').addEventListener('change',()=>{renderExam(); typeset();});
+  $('checkExam').addEventListener('click',checkExam);
+  $('hintExam').addEventListener('click',showHint);
+  $('newExamNumbers').addEventListener('click',()=>{examSeed++; renderExam(); typeset();});
+  let currentExam=null, hintStage=0;
+  function renderExam(){
+    hintStage=0; $('hintBox').style.display='none';
+    const id=$('examSelect').value;
+    currentExam=makeExam(id, examSeed);
+    $('examPrompt').innerHTML=currentExam.prompt;
+    $('examInputs').innerHTML=currentExam.inputs.map((inp,i)=>`
+      <label class="ctrl">${inp.label}
+        <input type="number" step="0.01" data-idx="${i}" placeholder="${inp.placeholder||''}">
+      </label>`).join('');
+    $('examFeedback').className='feedback';
+    $('examFeedback').textContent='Try the question. Round as requested.';
+    $('examSolution').innerHTML=currentExam.solution;
+    $('examSvg').innerHTML=currentExam.svg;
+    typeset();
+  }
+  function makeExam(id,seed){
+    const n=seed%4;
+    if(id==='q1'){
+      const d=[36,42,48,55][n], angle=[31,34,37,29][n], eye=1.5;
+      const ans=d*Math.tan(rad(angle))+eye;
+      return {
+        prompt:`A student stands ${d} m from a vertical building. Their eye level is ${eye} m. The angle of elevation to the top is \\(${angle}^\\circ\\). Find the building height to 1 decimal place.`,
+        inputs:[{label:'Height of building / m', ans:ans, tol:.08}],
+        hint:['Draw a right triangle from eye level to the top.','Use tangent: opposite over adjacent.','Do not forget to add eye level.'],
+        solution:`\\[\\tan ${angle}^\\circ=\\frac{h-${eye}}{${d}}\\] \\[h=${d}\\tan ${angle}^\\circ+${eye}=${fmt(ans,2)}\\] Height \\(\\approx ${fmt(ans,1)}\\) m.`,
+        svg:examSvgRight(d,angle,eye)
+      };
+    }
+    if(id==='q2'){
+      const A=[46,52,41,58][n], B=[67,61,74,49][n], a=[9.2,12.5,8.8,10.4][n];
+      const b=a*Math.sin(rad(B))/Math.sin(rad(A));
+      return {
+        prompt:`In triangle ABC, \\(A=${A}^\\circ\\), \\(B=${B}^\\circ\\), and \\(a=${a}\\) cm. Find \\(b\\) to 2 decimal places.`,
+        inputs:[{label:'b / cm', ans:b, tol:.015}],
+        hint:['There is an opposite pair: A and a.','Use the sine rule.','Set \\(b/\\sin B=a/\\sin A\\).'],
+        solution:`\\[\\frac{b}{\\sin ${B}^\\circ}=\\frac{${a}}{\\sin ${A}^\\circ}\\] \\[b=\\frac{${a}\\sin${B}^\\circ}{\\sin${A}^\\circ}=${fmt(b,2)}\\text{ cm}\\]`,
+        svg:examSvgTriangle('sine', {A,B,a,b})
+      };
+    }
+    if(id==='q3'){
+      const a=[7.1,9.5,8.2,6.8][n], b=[8.6,7.4,10.1,9.2][n], c=[11.2,12.1,13.0,10.4][n];
+      const C=deg(Math.acos(clamp((a*a+b*b-c*c)/(2*a*b),-1,1)));
+      return {
+        prompt:`In triangle ABC, \\(a=${a}\\), \\(b=${b}\\), and \\(c=${c}\\). Find angle \\(C\\) to 1 decimal place.`,
+        inputs:[{label:'Angle C / degrees', ans:C, tol:.08}],
+        hint:['You have all three sides.','Use the cosine rule rearranged.','For angle C, side c is opposite angle C.'],
+        solution:`\\[c^2=a^2+b^2-2ab\\cos C\\] \\[\\cos C=\\frac{a^2+b^2-c^2}{2ab}\\] \\[C=\\cos^{-1}\\left(\\frac{${a}^2+${b}^2-${c}^2}{2(${a})(${b})}\\right)=${fmt(C,1)}^\\circ\\]`,
+        svg:examSvgTriangle('sss', {a,b,c,C})
+      };
+    }
+    const x=[13,15,18,20][n], y=[8,11,10,12][n], C=[64,52,71,47][n];
+    const area=.5*x*y*Math.sin(rad(C));
+    return {
+      prompt:`A triangular field has two sides ${x} m and ${y} m with included angle \\(${C}^\\circ\\). Find its area to 1 decimal place.`,
+      inputs:[{label:'Area / m²', ans:area, tol:.08}],
+      hint:['Area uses two sides and included angle.','Use \\(\\frac12 ab\\sin C\\).','Substitute the two sides next to the given angle.'],
+      solution:`\\[\\text{Area}=\\frac12(${x})(${y})\\sin${C}^\\circ=${fmt(area,1)}\\text{ m}^2\\]`,
+      svg:examSvgTriangle('area', {x,y,C})
+    };
+  }
+  function examSvgRight(d,angle,eye){
+    const A={x:130,y:330}, B={x:580,y:330}, T={x:580,y:110};
+    let g=line(80,330,650,330,'axis');
+    g+=`<rect x="560" y="110" width="45" height="220" fill="#e0e7ff" stroke="#172033" stroke-width="2"/>`;
+    g+=line(A.x,A.y-15,B.x,B.y-15,'sideKnown');
+    g+=line(A.x,A.y-15,T.x,T.y,'sideUnknown');
+    g+=angleArc(A.x,A.y-15,52,0,angle);
+    g+=text(350,345,`${d} m`,'svg-formula');
+    g+=text(A.x+60,A.y-33,`${angle}°`,'svg-formula');
+    g+=text(610,220,'h?','svg-formula','start');
+    return g;
+  }
+  function examSvgTriangle(type,o){
+    const A={x:120,y:310}, B={x:590,y:310}, C={x:320,y:85};
+    let g=`<polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" fill="rgba(124,58,237,.07)" stroke="#172033" stroke-width="2.5"/>`;
+    g+=text(A.x-18,A.y+25,'A'); g+=text(B.x+18,B.y+25,'B'); g+=text(C.x,C.y-18,'C');
+    if(type==='sine'){
+      g+=angleArc(A.x,A.y,42,0,o.A); g+=angleArc(B.x,B.y,42,180-o.B,180);
+      g+=text(A.x+57,A.y-18,`${o.A}°`,'svg-formula');
+      g+=text(B.x-57,B.y-18,`${o.B}°`,'svg-formula');
+      g+=text((B.x+C.x)/2+28,(B.y+C.y)/2,`a=${o.a}`,'svg-formula');
+      g+=text((A.x+C.x)/2-28,(A.y+C.y)/2,`b?`,'svg-formula');
+    }else if(type==='sss'){
+      g+=text((B.x+C.x)/2+28,(B.y+C.y)/2,`a=${o.a}`,'svg-formula');
+      g+=text((A.x+C.x)/2-28,(A.y+C.y)/2,`b=${o.b}`,'svg-formula');
+      g+=text((A.x+B.x)/2,A.y+28,`c=${o.c}`,'svg-formula');
+      g+=angleArc(C.x,C.y,42,230,310); g+=text(C.x,C.y+55,'C?','svg-formula');
+    }else{
+      g+=angleArc(A.x,A.y,46,0,o.C);
+      g+=text(A.x+58,A.y-18,`${o.C}°`,'svg-formula');
+      g+=text((A.x+B.x)/2,A.y+28,`${o.x} m`,'svg-formula');
+      g+=text((A.x+C.x)/2-28,(A.y+C.y)/2,`${o.y} m`,'svg-formula');
+      g+=text(370,220,'Area?','svg-formula');
+    }
+    return g;
+  }
+  function checkExam(){
+    if(!currentExam) return;
+    const inputs=[...document.querySelectorAll('#examInputs input')];
+    let all=true, msgs=[];
+    inputs.forEach((inp,i)=>{
+      const spec=currentExam.inputs[i];
+      const val=Number(inp.value);
+      if(!Number.isFinite(val)){all=false; msgs.push('Enter a number.'); return;}
+      if(Math.abs(val-spec.ans)<=spec.tol){
+        msgs.push(`Correct: ${spec.label}.`);
+      }else{
+        all=false;
+        msgs.push(`Check ${spec.label}.`);
+      }
+    });
+    $('examFeedback').className='feedback '+(all?'good':'bad');
+    $('examFeedback').textContent=msgs.join(' ');
+  }
+  function showHint(){
+    if(!currentExam) return;
+    const hints=currentExam.hint;
+    $('hintBox').style.display='block';
+    $('hintBox').innerHTML='<b>Hint '+Math.min(hintStage+1,hints.length)+':</b> '+hints[Math.min(hintStage,hints.length-1)];
+    hintStage=Math.min(hintStage+1,hints.length-1);
+    typeset();
+  }
+
+
+  // Guided proof panel
+  const proofGuides = {
+    area: {
+      title: 'Area formula',
+      prompt: 'Goal: prove the non-right triangle area formula using a hidden right triangle.',
+      hints: [
+        'Use the ordinary area formula first: base × perpendicular height ÷ 2.',
+        'The only missing piece is the height \\(h\\). Find it using right-triangle trigonometry.',
+        'Choose a side next to the included angle, then express the height using sine.'
+      ],
+      steps: [
+        'Choose base \\(c=AB\\). Drop the perpendicular height \\(h\\) from \\(C\\) to \\(AB\\).',
+        'In the left right triangle, \\(\\sin A=\\frac{h}{b}\\), so \\(h=b\\sin A\\).',
+        'Substitute into \\(\\text{Area}=\\frac12\\times c\\times h\\).',
+        'So \\(\\text{Area}=\\frac12 cb\\sin A\\). Renaming the included angle gives \\(\\frac12 ab\\sin C\\).'
+      ],
+      full: '\\[\\text{Area}=\\frac12\\times\\text{base}\\times\\text{height}\\] Using base \\(c\\), drop height \\(h\\). Since \\(\\sin A=\\frac{h}{b}\\), we have \\(h=b\\sin A\\). Therefore \\[\\text{Area}=\\frac12 c(b\\sin A)=\\frac12 cb\\sin A.\\] In general, for two sides with included angle, \\[\\boxed{\\text{Area}=\\frac12 ab\\sin C}.\\]'
+    },
+    sine: {
+      title: 'Sine rule',
+      prompt: 'Goal: prove that opposite side / sine of opposite angle is constant.',
+      hints: [
+        'Drop one height. The same height belongs to two different right triangles.',
+        'Write \\(h\\) in two ways: one using angle \\(A\\), one using angle \\(B\\).',
+        'If both expressions equal the same \\(h\\), set them equal.'
+      ],
+      steps: [
+        'Drop height \\(h\\) from \\(C\\) to \\(AB\\).',
+        'From the left right triangle: \\(h=b\\sin A\\).',
+        'From the right right triangle: \\(h=a\\sin B\\).',
+        'Equate: \\(b\\sin A=a\\sin B\\). Rearrange to get \\(\\frac{a}{\\sin A}=\\frac{b}{\\sin B}\\).'
+      ],
+      full: 'Drop a height \\(h\\) from \\(C\\) to \\(AB\\). Then \\[h=b\\sin A\\] and \\[h=a\\sin B.\\] Since both equal the same height, \\[b\\sin A=a\\sin B.\\] Dividing by \\(\\sin A\\sin B\\) gives \\[\\boxed{\\frac{a}{\\sin A}=\\frac{b}{\\sin B}}.\\] Repeating with another height gives \\[\\boxed{\\frac{a}{\\sin A}=\\frac{b}{\\sin B}=\\frac{c}{\\sin C}}.\\]'
+    },
+    cosine: {
+      title: 'Cosine rule',
+      prompt: 'Goal: prove the cosine rule by placing the triangle on coordinate axes.',
+      hints: [
+        'Put one vertex at the origin and one side along the x-axis.',
+        'Use the coordinates of a point at distance \\(b\\) making angle \\(A\\).',
+        'Now use Pythagoras / distance formula to calculate the opposite side.'
+      ],
+      steps: [
+        'Place \\(A=(0,0)\\) and \\(B=(c,0)\\).',
+        'Since \\(AC=b\\) and angle at \\(A\\) is \\(A\\), point \\(C=(b\\cos A,b\\sin A)\\).',
+        'Use the distance formula for \\(BC=a\\): \\(a^2=(c-b\\cos A)^2+(0-b\\sin A)^2\\).',
+        'Expand and simplify with \\(\\sin^2 A+\\cos^2 A=1\\).'
+      ],
+      full: 'Let \\(A=(0,0)\\), \\(B=(c,0)\\), and \\(C=(b\\cos A,b\\sin A)\\). Then \\[a^2=(c-b\\cos A)^2+(0-b\\sin A)^2.\\] Expanding, \\[a^2=c^2-2bc\\cos A+b^2\\cos^2 A+b^2\\sin^2 A.\\] Since \\(\\sin^2 A+\\cos^2 A=1\\), \\[\\boxed{a^2=b^2+c^2-2bc\\cos A}.\\]'
+    },
+    pythagoras: {
+      title: 'Cosine rule as Pythagoras',
+      prompt: 'Goal: see why Pythagoras is a special case of the cosine rule.',
+      hints: [
+        'Start with the cosine rule.',
+        'Ask what happens when the included angle is \\(90^\\circ\\).',
+        'Remember \\(\\cos 90^\\circ=0\\).'
+      ],
+      steps: [
+        'Write the cosine rule: \\(a^2=b^2+c^2-2bc\\cos A\\).',
+        'For a right triangle, let \\(A=90^\\circ\\).',
+        'Then \\(\\cos 90^\\circ=0\\), so the correction term \\(-2bc\\cos A\\) vanishes.',
+        'The result is \\(a^2=b^2+c^2\\).'
+      ],
+      full: 'The cosine rule is \\[a^2=b^2+c^2-2bc\\cos A.\\] If \\(A=90^\\circ\\), then \\(\\cos 90^\\circ=0\\). Hence \\[a^2=b^2+c^2-2bc(0)=b^2+c^2.\\] So \\[\\boxed{a^2=b^2+c^2}\\], which is Pythagoras.'
+    }
+  };
+  let currentProof='area';
+  let proofHintIndex=0;
+  let proofStepIndex=0;
+  let proofRevealed=false;
+
+  function renderProofGuide(){
+    const guide=proofGuides[currentProof];
+    if(!$('proofTitle')) return;
+    $('proofTitle').textContent=guide.title;
+    $('proofPrompt').innerHTML=guide.prompt;
+    $('proofCounter').textContent=`Hints: ${proofHintIndex} shown · Steps: ${proofStepIndex} shown`;
+    $('proofHints').innerHTML=guide.hints.slice(0,proofHintIndex).map((h,i)=>`<div class="proofHint"><b>Hint ${i+1}:</b> ${h}</div>`).join('');
+    $('proofSteps').innerHTML=guide.steps.slice(0,proofStepIndex).map((s,i)=>`<div class="proofStep"><b>Guide step ${i+1}:</b> ${s}</div>`).join('');
+    $('proofFull').innerHTML=proofRevealed ? `<div class="proofFull"><b>Full proof:</b> ${guide.full}</div>` : '';
+    $('proofHintBtn').disabled = proofHintIndex >= guide.hints.length;
+    $('proofStepBtn').disabled = proofStepIndex >= guide.steps.length;
+    $('proofRevealBtn').disabled = proofRevealed;
+    typeset();
+  }
+
+  document.querySelectorAll('#proofButtons .proofBtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      currentProof=btn.dataset.proof;
+      proofHintIndex=0;
+      proofStepIndex=0;
+      proofRevealed=false;
+      document.querySelectorAll('#proofButtons .proofBtn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProofGuide();
+    });
+  });
+  $('proofHintBtn')?.addEventListener('click',()=>{
+    const guide=proofGuides[currentProof];
+    proofHintIndex=Math.min(guide.hints.length,proofHintIndex+1);
+    renderProofGuide();
+  });
+  $('proofStepBtn')?.addEventListener('click',()=>{
+    const guide=proofGuides[currentProof];
+    proofStepIndex=Math.min(guide.steps.length,proofStepIndex+1);
+    renderProofGuide();
+  });
+  $('proofRevealBtn')?.addEventListener('click',()=>{
+    proofRevealed=true;
+    renderProofGuide();
+  });
+  $('proofResetBtn')?.addEventListener('click',()=>{
+    proofHintIndex=0;
+    proofStepIndex=0;
+    proofRevealed=false;
+    renderProofGuide();
+  });
+
+
+
+  // HL ambiguous sine rule extension
+  ['ambigASlider','ambigSideASlider','ambigSideBSlider'].forEach(id=>{
+    const el=$(id);
+    if(el) el.addEventListener('input',()=>{ updateAmbiguous(); typeset(); });
+  });
+
+  function angleSectorPath(cx,cy,r,startDeg,endDeg){
+    const a1=rad(startDeg), a2=rad(endDeg);
+    const x1=cx+r*Math.cos(a1), y1=cy-r*Math.sin(a1);
+    const x2=cx+r*Math.cos(a2), y2=cy-r*Math.sin(a2);
+    const large=Math.abs(endDeg-startDeg)>180?1:0;
+    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 0 ${x2} ${y2} Z`;
+  }
+
+  function updateAmbiguous(){
+    if(!$('ambigASlider')) return;
+
+    const Adeg=Number($('ambigASlider').value);
+    const aSide=Number($('ambigSideASlider').value);
+    const bSide=Number($('ambigSideBSlider').value);
+    $('ambigAVal').textContent=Adeg+'°';
+    $('ambigA_sideVal').textContent=fmt(aSide,1);
+    $('ambigB_sideVal').textContent=fmt(bSide,1);
+
+    const A=rad(Adeg);
+    const h=bSide*Math.sin(A);
+    const sinB=bSide*Math.sin(A)/aSide;
+    const eps=1e-6;
+
+    const scale=Math.min(36, 500/(bSide+aSide+2), 260/(bSide*Math.sin(A)+aSide+2));
+    const P={x:95,y:335};
+    const C={x:P.x+bSide*scale*Math.cos(A), y:P.y-bSide*scale*Math.sin(A)};
+    const radius=aSide*scale;
+    const dy=P.y-C.y;
+    const baseY=P.y;
+
+    let g='';
+    g+=line(55,baseY,665,baseY,'axis');
+    g+=text(P.x-18,P.y+28,'A','svg-label');
+    g+=line(P.x,P.y,C.x,C.y,'sideKnown');
+    g+=circle(C.x,C.y,7,'#fff','#172033');
+    g+=text(C.x+14,C.y-12,'C','svg-label','start');
+    g+=`<path d="${angleSectorPath(P.x,P.y,34,0,Adeg)}" fill="rgba(217,119,6,.82)" stroke="#d97706" stroke-width="2"/>`;
+    g+=text(P.x+44,P.y-16,`A = ${Adeg}°`,'svg-formula','start');
+    g+=text((P.x+C.x)/2-10,(P.y+C.y)/2-16,`b = AC = ${fmt(bSide,1)}`,'svg-formula');
+    g+=`<circle cx="${C.x}" cy="${C.y}" r="${radius}" fill="rgba(124,58,237,.06)" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="8 7"/>`;
+    g+=text(C.x+18,C.y+radius+18,`circle radius a = BC = ${fmt(aSide,1)}`,'svg-small','start');
+
+    // Height line h
+    const H={x:C.x,y:baseY};
+    g+=line(C.x,C.y,H.x,H.y,'thin dash');
+    g+=`<path d="M ${H.x} ${H.y} l 0 -18 l 18 0 l 0 18" fill="none" stroke="#64748b" stroke-width="2"/>`;
+    g+=text(H.x+22,(H.y+C.y)/2,`h = b sin A = ${fmt(h,2)}`,'svg-small','start');
+
+    let candidates=[];
+    if(radius + eps >= Math.abs(dy)){
+      const dx=Math.sqrt(Math.max(0,radius*radius-dy*dy));
+      const xs=[C.x-dx,C.x+dx];
+      xs.forEach((x,i)=>{
+        if(x>P.x+8){
+          candidates.push({x,y:baseY,label:i===0?'B₂':'B₁'});
+        }
+      });
+    }
+    candidates.sort((u,v)=>u.x-v.x);
+
+    if(candidates.length===0){
+      g+=`<text x="360" y="80" class="svg-label" text-anchor="middle" fill="#dc2626">No valid triangle: the circle does not meet the baseline to the right of A.</text>`;
+    } else {
+      candidates.forEach((Bpt,i)=>{
+        const colour=i===0?'#7c3aed':'#2563eb';
+        const fill=i===0?'rgba(124,58,237,.10)':'rgba(37,99,235,.08)';
+        g+=`<polygon points="${P.x},${P.y} ${Bpt.x},${Bpt.y} ${C.x},${C.y}" fill="${fill}" stroke="${colour}" stroke-width="3" ${i===0?'stroke-dasharray="8 6"':''}/>`;
+        g+=line(Bpt.x,Bpt.y,C.x,C.y,'',`stroke="${colour}" stroke-width="5" stroke-linecap="round" ${i===0?'stroke-dasharray="8 6"':''}`);
+        g+=circle(Bpt.x,Bpt.y,6,'#fff',colour);
+        g+=text(Bpt.x,Bpt.y+28,Bpt.label,'svg-label');
+      });
+    }
+
+    $('ambigG').innerHTML=g;
+
+    // Calculation panel
+    let statusClass='note';
+    let status='';
+    if(sinB>1+eps){
+      statusClass='note danger';
+      status=`<b>No triangle.</b> Since \\(\\sin B=${fmt(sinB,3)}&gt;1\\), there is no possible angle \\(B\\). Geometrically, \\(a&lt;h\\).`;
+    } else {
+      let poss=[];
+      const Bsmall=deg(Math.asin(clamp(sinB,-1,1)));
+      const options=[Bsmall];
+      if(Math.abs(sinB-1)>1e-4) options.push(180-Bsmall);
+      options.forEach(Bdeg=>{
+        const Cdeg=180-Adeg-Bdeg;
+        if(Cdeg>0.0001){
+          const cSide=aSide*Math.sin(rad(Cdeg))/Math.sin(A);
+          poss.push({B:Bdeg,C:Cdeg,c:cSide});
+        }
+      });
+      if(poss.length===2){
+        statusClass='note warning';
+        status=`<b>Two possible triangles.</b> This is the ambiguous sine-rule case: \\(h&lt;a&lt;b\\).`;
+      } else if(poss.length===1){
+        statusClass='note success';
+        status=`<b>One possible triangle.</b> The second inverse-sine possibility is not valid for the triangle angle sum.`;
+      } else {
+        statusClass='note danger';
+        status=`<b>No valid triangle.</b> The angle sum condition fails.`;
+      }
+    }
+    $('ambigStatus').className=statusClass;
+    $('ambigStatus').innerHTML=status;
+
+    let calcHTML=String.raw`
+      <div class="formula">
+      \[
+      h=b\sin A=${fmt(bSide,1)}\sin(${Adeg}^\circ)=${fmt(h,2)}.
+      \]
+      \[
+      \sin B=\frac{b\sin A}{a}
+      =\frac{${fmt(bSide,1)}\sin(${Adeg}^\circ)}{${fmt(aSide,1)}}
+      =${fmt(sinB,3)}.
+      \]
+      </div>`;
+
+    if(sinB<=1+eps && sinB>=-eps){
+      const Bsmall=deg(Math.asin(clamp(sinB,-1,1)));
+      const rawOptions=[Bsmall];
+      if(Math.abs(sinB-1)>1e-4) rawOptions.push(180-Bsmall);
+      calcHTML += `<div class="problemBox"><b>Inverse sine gives:</b><br>\\(B=${fmt(Bsmall,1)}^\\circ\\).`;
+      if(rawOptions.length>1) calcHTML += `<br>But sine is also positive in quadrant II, so the second possible angle is \\(180^\\circ-${fmt(Bsmall,1)}^\\circ=${fmt(180-Bsmall,1)}^\\circ\\).`;
+      calcHTML += `</div>`;
+
+      rawOptions.forEach((Bdeg,idx)=>{
+        const Cdeg=180-Adeg-Bdeg;
+        if(Cdeg>0){
+          const cSide=aSide*Math.sin(rad(Cdeg))/Math.sin(A);
+          calcHTML += String.raw`
+            <div class="formula">
+            <b>Triangle ${idx+1}:</b>
+            \[
+            B=${fmt(Bdeg,1)}^\circ,\qquad
+            C=180^\circ-${Adeg}^\circ-${fmt(Bdeg,1)}^\circ=${fmt(Cdeg,1)}^\circ.
+            \]
+            \[
+            c=\frac{a\sin C}{\sin A}
+            =\frac{${fmt(aSide,1)}\sin(${fmt(Cdeg,1)}^\circ)}{\sin(${Adeg}^\circ)}
+            =${fmt(cSide,2)}.
+            \]
+            </div>`;
+        } else {
+          calcHTML += `<div class="note danger"><b>Reject:</b> \\(B=${fmt(Bdeg,1)}^\\circ\\) gives \\(C=${fmt(Cdeg,1)}^\\circ\\), so the triangle angle sum is impossible.</div>`;
+        }
+      });
+    }
+
+    $('ambigCalc').innerHTML=calcHTML;
+    typeset();
+  }
+
+
+  function updateAll(){
+    updateExplore();
+    updateDerive();
+    renderProofGuide();
+    updateAmbiguous();
+  }
+
+  updateExplore();
+  updateDerive();
+  renderProofGuide();
+  updateAmbiguous();
+  newChoice(true);
+  updateReal();
+  renderExam();
+  typeset();
+})();
+</script>
+</body>
+</html>
