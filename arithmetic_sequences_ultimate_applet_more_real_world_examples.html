@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SL 1.2 Arithmetic Sequences & Series — Ultimate Exploration Lab</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --ink:#172033;
+      --muted:#5a6478;
+      --line:#dfe5ef;
+      --accent:#275efe;
+      --accent2:#00a884;
+      --warn:#f29f05;
+      --bad:#d9342b;
+      --soft:#eef3ff;
+      --soft2:#eafaf5;
+      --shadow:0 10px 30px rgba(23,32,51,.08);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(39,94,254,.12), transparent 33rem),
+        radial-gradient(circle at 90% 15%, rgba(0,168,132,.12), transparent 30rem),
+        var(--bg);
+      line-height:1.45;
+    }
+    header{
+      padding:28px 18px 18px;
+      max-width:1220px;
+      margin:0 auto;
+    }
+    .hero{
+      background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:24px;
+      align-items:center;
+      overflow:hidden;
+      position:relative;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:360px;height:360px;border-radius:50%;
+      background:radial-gradient(circle, rgba(39,94,254,.14), transparent 70%);
+      right:-120px;top:-160px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 12px;
+      border-radius:999px;
+      background:var(--soft);
+      color:#193fb6;
+      font-weight:700;
+      font-size:.85rem;
+      letter-spacing:.02em;
+    }
+    h1{font-size:clamp(2rem,4vw,4rem);line-height:1.03;margin:16px 0 12px;letter-spacing:-.04em}
+    h2{font-size:clamp(1.35rem,2.4vw,2.1rem);line-height:1.12;margin:0 0 12px;letter-spacing:-.025em}
+    h3{font-size:1.15rem;margin:0 0 10px;letter-spacing:-.015em}
+    p{margin:0 0 12px;color:var(--muted)}
+    .hero p{font-size:1.05rem;max-width:70ch}
+    .formula-strip{
+      background:#111827;
+      color:white;
+      border-radius:22px;
+      padding:18px;
+      position:relative;
+      z-index:1;
+      box-shadow:0 16px 30px rgba(0,0,0,.16);
+    }
+    .formula-strip .small{color:#cfd6e4;font-size:.88rem;margin-bottom:8px}
+    .formula-grid{display:grid;gap:10px}
+    .formula-pill{
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:14px;
+      padding:12px;
+      font-size:1rem;
+    }
+    nav{
+      max-width:1220px;
+      margin:10px auto 0;
+      padding:0 18px 8px;
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:blur(16px);
+    }
+    .tabbar{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding:10px;
+      background:rgba(255,255,255,.78);
+      border:1px solid rgba(255,255,255,.85);
+      border-radius:999px;
+      box-shadow:0 8px 24px rgba(23,32,51,.07);
+    }
+    button, input, select, textarea{font:inherit}
+    .tabbtn, .btn{
+      border:0;
+      cursor:pointer;
+      border-radius:999px;
+      padding:10px 14px;
+      color:var(--ink);
+      background:transparent;
+      white-space:nowrap;
+      transition:transform .08s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+      font-weight:700;
+    }
+    .tabbtn:hover,.btn:hover{transform:translateY(-1px)}
+    .tabbtn.active{
+      background:var(--accent);
+      color:white;
+      box-shadow:0 10px 20px rgba(39,94,254,.22);
+    }
+    main{max-width:1220px;margin:0 auto;padding:14px 18px 50px}
+    .tab{display:none;animation:fade .22s ease}
+    .tab.active{display:block}
+    @keyframes fade{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .grid{display:grid;gap:16px}
+    .two{grid-template-columns:1fr 1fr}
+    .three{grid-template-columns:repeat(3,1fr)}
+    .four{grid-template-columns:repeat(4,1fr)}
+    .wide-right{grid-template-columns:.8fr 1.2fr}
+    .wide-left{grid-template-columns:1.2fr .8fr}
+    .card{
+      background:var(--card);
+      border:1px solid rgba(223,229,239,.9);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .mini-card{
+      background:linear-gradient(180deg,#fff,#f9fbff);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+    }
+    .callout{
+      border-radius:18px;
+      padding:14px 16px;
+      border:1px solid #cfdcff;
+      background:var(--soft);
+      color:#1e3269;
+    }
+    .success{background:var(--soft2);border-color:#bfecd9;color:#064e3b}
+    .warning{background:#fff7e8;border-color:#ffe0a3;color:#744a00}
+    .danger{background:#fff0ef;border-color:#ffc8c4;color:#7d1d16}
+    .controls{display:grid;gap:12px}
+    label{display:grid;gap:6px;font-weight:700;color:#27324a}
+    label span{font-size:.88rem;color:var(--muted);font-weight:650}
+    input[type="number"], input[type="text"], textarea, select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      background:white;
+      color:var(--ink);
+      outline:none;
+    }
+    input[type="range"]{width:100%}
+    textarea{min-height:150px;font-family:var(--mono);font-size:.92rem;resize:vertical}
+    .btn{
+      background:#eef2ff;
+      color:#1e3a8a;
+      border:1px solid #dbe4ff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .btn.primary{background:var(--accent);color:white;border-color:var(--accent);box-shadow:0 10px 18px rgba(39,94,254,.22)}
+    .btn.good{background:var(--accent2);color:white;border-color:var(--accent2)}
+    .btn.warn{background:#fff3d4;color:#744a00;border-color:#ffd57c}
+    .button-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .output{
+      background:#0f172a;
+      color:#e5edff;
+      border-radius:16px;
+      padding:14px;
+      font-family:var(--mono);
+      white-space:pre-wrap;
+      overflow:auto;
+    }
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+    .stat{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .stat .k{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800}
+    .stat .v{font-size:1.25rem;font-weight:900;letter-spacing:-.02em}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:white}
+    table{border-collapse:collapse;width:100%;font-size:.94rem}
+    th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right}
+    th:first-child,td:first-child{text-align:left}
+    th{background:#f3f6fb;color:#39445c;font-weight:900;position:sticky;top:0}
+    tr:last-child td{border-bottom:0}
+    .svgbox{width:100%;min-height:330px;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}
+    .svgbox svg{display:block;width:100%;height:330px}
+    .term-cards{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .term-card{
+      min-width:72px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      text-align:center;
+    }
+    .term-card strong{display:block;color:var(--accent);font-size:.82rem}
+    .term-card span{font-weight:900;font-size:1.05rem}
+    .pair-row{
+      display:grid;
+      grid-template-columns:1fr auto 1fr auto;
+      gap:8px;
+      align-items:center;
+      padding:8px 0;
+      border-bottom:1px solid var(--line);
+    }
+    .pair-row:last-child{border-bottom:0}
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:5px 9px;
+      border-radius:999px;
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+      color:#334155;
+      font-size:.85rem;
+      font-weight:800;
+    }
+
+    .reveal-card{
+      position:relative;
+      cursor:pointer;
+      text-align:left;
+      width:100%;
+      min-height:150px;
+      transition:transform .12s ease, border-color .18s ease, background .18s ease;
+    }
+    .reveal-card:hover{transform:translateY(-2px);border-color:#c7d7ff;background:linear-gradient(180deg,#fff,#f4f7ff)}
+    .reveal-card h3{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .reveal-card h3::after{
+      content:"Click to reveal";
+      font-size:.7rem;
+      font-weight:900;
+      color:#1e3a8a;
+      background:#eef3ff;
+      border:1px solid #dbe4ff;
+      border-radius:999px;
+      padding:4px 8px;
+      white-space:nowrap;
+    }
+    .reveal-card.revealed{border-color:#bfecd9;background:linear-gradient(180deg,#fff,#f1fff9)}
+    .reveal-card.revealed h3::after{content:"Revealed";color:#064e3b;background:#eafaf5;border-color:#bfecd9}
+    .reveal-content{display:none;margin-top:10px}
+    .reveal-card.revealed .reveal-content{display:block}
+    .locked-panel{display:none}
+    .quiz-question{font-size:1.1rem;color:var(--ink);font-weight:800;margin-bottom:14px}
+    .feedback{margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--line);display:none}
+    .feedback.show{display:block}
+    .progress-dots{display:flex;gap:6px;flex-wrap:wrap}
+    .dot{width:11px;height:11px;border-radius:50%;background:#dbe2ee}
+    .dot.ok{background:var(--accent2)}
+    .dot.no{background:var(--bad)}
+    details{border:1px solid var(--line);border-radius:16px;background:white;padding:12px 14px}
+    details+details{margin-top:10px}
+    summary{cursor:pointer;font-weight:900;color:#26334d}
+    .footer-note{margin-top:24px;color:var(--muted);font-size:.9rem;text-align:center}
+    .mobile-only{display:none}
+    @media (max-width:900px){
+      .hero,.two,.three,.four,.wide-right,.wide-left{grid-template-columns:1fr}
+      .stat-row{grid-template-columns:1fr 1fr}
+      .tabbar{border-radius:18px}
+      nav{position:static}
+    }
+    @media (max-width:560px){
+      header{padding:12px}
+      main,nav{padding-left:12px;padding-right:12px}
+      .hero{padding:18px;border-radius:22px}
+      .stat-row{grid-template-columns:1fr}
+      .pair-row{grid-template-columns:1fr;gap:4px}
+      .mobile-only{display:inline}
+    }
+    @media print{
+      nav,.button-row,.controls input[type="range"]{display:none!important}
+      body{background:white}
+      .tab{display:block!important;break-before:page}
+      .card{box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <section class="hero">
+      <div>
+        <span class="badge">IB DP AI SL 1.2 • Arithmetic sequences and series</span>
+        <h1>From patterns to formulas to models.</h1>
+        <p>This lab starts visually, connects arithmetic sequences to linear functions, builds the sum formula, practises sigma notation, applies simple interest, and finishes with imperfect real-life arithmetic models.</p>
+        <div class="button-row" style="margin-top:16px">
+          <button class="btn primary" data-jump="explore">Start exploration</button>
+          <button class="btn" data-jump="practice">Random practice</button>
+          <button class="btn" data-jump="teacher">Teacher notes</button>
+        </div>
+      </div>
+      <aside class="formula-strip">
+        <div class="small">Core ideas</div>
+        <div class="formula-grid">
+          <div class="formula-pill">Arithmetic means constant difference: \(u_{n+1}-u_n=d\)</div>
+          <div class="formula-pill">Nth term: \(u_n=u_1+(n-1)d\)</div>
+          <div class="formula-pill">Series: \(S_n=\frac n2(2u_1+(n-1)d)=\frac n2(u_1+u_n)\)</div>
+          <div class="formula-pill">Sigma: \(\sum_{r=p}^{q} f(r)\) has \(q-p+1\) terms</div>
+        </div>
+      </aside>
+    </section>
+  </header>
+
+  <nav aria-label="Applet sections">
+    <div class="tabbar" id="tabbar">
+      <button class="tabbtn active" data-tab="explore">1 Explore</button>
+      <button class="tabbtn" data-tab="formula">2 Formula</button>
+      <button class="tabbtn" data-tab="missing">3 Missing terms</button>
+      <button class="tabbtn" data-tab="series">4 Series</button>
+      <button class="tabbtn" data-tab="sumproof">5 Prove sum</button>
+      <button class="tabbtn" data-tab="sigma">6 Sigma</button>
+      <button class="tabbtn" data-tab="interest">7 Simple interest</button>
+      <button class="tabbtn" data-tab="model">8 Real data</button>
+      <button class="tabbtn" data-tab="practice">9 Practice</button>
+      <button class="tabbtn" data-tab="teacher">Teacher</button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="tab active" id="explore">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>1. Explore an arithmetic sequence</h2>
+          <p>Change the first term, common difference, and number of terms. Watch the table and graph update. The graph is a line because each step in \(n\) adds the same amount.</p>
+          <div class="grid three controls">
+            <label>First term \(u_1\)<input id="seqU1" type="number" step="0.5" value="4"></label>
+            <label>Common difference \(d\)<input id="seqD" type="number" step="0.5" value="3"></label>
+            <label>Number of terms \(N\)<input id="seqN" type="number" min="2" max="40" step="1" value="12"></label>
+          </div>
+          <div class="grid two controls" style="margin-top:12px">
+            <label>Find term number \(n\)<input id="seqFindN" type="number" min="1" max="1000" step="1" value="20"></label>
+            <label>Check if value is a term<input id="seqCheckVal" type="number" step="0.5" value="61"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="seqUpdate">Update</button>
+            <button class="btn" id="seqRandom">Random sequence</button>
+          </div>
+          <div id="seqSummary" class="callout" style="margin-top:14px"></div>
+          <div id="seqCards" class="term-cards"></div>
+        </div>
+        <div class="card">
+          <h3>Table and graph</h3>
+          <div class="stat-row" id="seqStats"></div>
+          <div class="svgbox" id="seqGraph"></div>
+          <div class="table-wrap" id="seqTable" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="formula">
+      <div class="grid wide-right">
+        <div class="card">
+          <h2>2. Build the nth-term formula</h2>
+          <p>The key move is to count how many jumps from the first term to the nth term. To reach \(u_n\), you make \(n-1\) jumps.</p>
+          <div class="controls">
+            <label>Choose \(n\): <span id="formulaNLabel">7</span><input id="formulaN" type="range" min="1" max="15" value="7"></label>
+            <label>First term \(u_1\)<input id="formulaU1" type="number" step="1" value="5"></label>
+            <label>Common difference \(d\)<input id="formulaD" type="number" step="1" value="4"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="formulaUpdate">Show steps</button>
+            <button class="btn" id="formulaCopyToExplore">Send to exploration</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Why \(n-1\)?</h3>
+          <div id="formulaSteps" class="callout"></div>
+          <div id="formulaCards" class="term-cards"></div>
+          <div class="svgbox" id="formulaGraph" style="margin-top:14px"></div>
+          <div class="callout success" style="margin-top:14px">
+            <strong>Function link:</strong> an arithmetic sequence is a linear function restricted to integer inputs: \(u(n)=u_1+d(n-1)\). The common difference is the gradient.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="missing">
+      <div class="grid two">
+        <div class="card">
+          <h2>3. Recover the hidden sequence</h2>
+          <p>Given two terms, solve for \(d\) first by comparing how many jumps separate them, then work back to \(u_1\).</p>
+          <div class="callout" id="missingProblem"></div>
+          <div class="grid three controls" style="margin-top:12px">
+            <label>Your \(d\)<input id="missingD" type="number" step="0.01"></label>
+            <label>Your \(u_1\)<input id="missingU1" type="number" step="0.01"></label>
+            <label>Find \(u_k\)<input id="missingTerm" type="number" min="1" step="1" value="20"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="missingCheck">Check</button>
+            <button class="btn" id="missingHint">Hint</button>
+            <button class="btn" id="missingNew">New problem</button>
+          </div>
+          <div id="missingFeedback" class="feedback"></div>
+        </div>
+        <div class="card">
+          <h3>Structure</h3>
+          <div class="mini-card">
+            <p>Suppose you know \(u_a\) and \(u_b\).</p>
+            <p>Number of jumps: \(b-a\)</p>
+            <p>Change in value: \(u_b-u_a\)</p>
+            <p>So \(d=\dfrac{u_b-u_a}{b-a}\)</p>
+            <p>Then \(u_1=u_a-(a-1)d\)</p>
+          </div>
+          <div id="missingGraph" class="svgbox" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="series">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>4. Add the sequence: arithmetic series</h2>
+          <p>Pair the first and last terms. Each pair has the same total. This is the Gauss idea behind the sum formula.</p>
+          <div class="grid three controls">
+            <label>First term \(u_1\)<input id="serU1" type="number" step="0.5" value="3"></label>
+            <label>Common difference \(d\)<input id="serD" type="number" step="0.5" value="2"></label>
+            <label>Number of terms \(n\)<input id="serN" type="number" min="1" max="100" step="1" value="10"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="serUpdate">Update sum</button>
+            <button class="btn" id="serOdd">Odd number of terms</button>
+            <button class="btn" id="serNegative">Negative difference</button>
+          </div>
+          <div id="serSummary" class="callout" style="margin-top:14px"></div>
+          <div id="serCards" class="term-cards"></div>
+        </div>
+        <div class="card">
+          <h3>Pairing visual</h3>
+          <div class="stat-row" id="serStats"></div>
+          <div id="serPairs" class="mini-card"></div>
+          <div class="svgbox" id="serGraph" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </section>
+
+    
+    <section class="tab" id="sumproof">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>5. Prove the sum formula</h2>
+          <p>Start with a famous number trick, then generalise the same pairing idea to any arithmetic sequence.</p>
+
+          <div class="mini-card">
+            <h3>Warm-up: add the integers from 1 to 100</h3>
+            <p>A well-known story says that the young Carl Friedrich Gauss was asked to add \(1+2+\cdots+100\). Instead of adding one by one, he paired the first and last terms.</p>
+            <div class="grid three controls">
+              <label>Last integer \(N\)<input id="proofGaussN" type="number" min="2" max="200" step="1" value="100"></label>
+              <div class="button-row" style="align-self:end">
+                <button class="btn primary" id="proofGaussUpdate">Show trick</button>
+                <button class="btn" id="proofGauss100">Use 1–100</button>
+              </div>
+            </div>
+            <div id="proofGaussOut" class="callout" style="margin-top:12px"></div>
+            <div id="proofGaussPairs" class="term-cards"></div>
+          </div>
+
+          <div style="height:14px"></div>
+
+          <h3>Now generalise: \(u_1,u_2,\ldots,u_n\)</h3>
+          <p>Choose an arithmetic sequence. The aim is to prove the formula, not just calculate one answer.</p>
+          <div class="grid three controls">
+            <label>First term \(u_1\)<input id="proofU1" type="number" step="0.5" value="3"></label>
+            <label>Common difference \(d\)<input id="proofD" type="number" step="0.5" value="2"></label>
+            <label>Number of terms \(n\)<input id="proofN" type="number" min="2" max="40" step="1" value="10"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="proofUpdate">Build proof</button>
+            <button class="btn" id="proofRandom">Random sequence</button>
+            <button class="btn" id="proofOdd">Odd \(n\)</button>
+          </div>
+          <div id="proofSummary" class="callout" style="margin-top:14px"></div>
+        </div>
+
+        <div class="card">
+          <h3>Pairing the sequence with itself</h3>
+          <p>Write the same sum forwards and backwards. Then add vertically.</p>
+          <div class="stat-row" id="proofStats"></div>
+          <div id="proofPairPrompt" class="callout warning" style="margin-top:12px">Click proof step 3 to reveal the column-pairing table.</div>
+          <div id="proofPairTable" class="table-wrap locked-panel"></div>
+          <div id="proofFormulaPrompt" class="callout warning" style="margin-top:14px">Click proof step 4 to reveal the algebraic conclusion.</div>
+          <div id="proofFormula" class="output locked-panel" style="margin-top:14px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Student proof scaffold</h3>
+        <p>Students reveal one idea at a time. Encourage them to predict the next step before clicking.</p>
+        <div class="grid four">
+          <button type="button" class="mini-card reveal-card" data-proof-step="1">
+            <h3>1. Define the sum</h3>
+            <div class="reveal-content" id="proofStep1">
+              <p>Start by naming the object we want to find:</p>
+              <p>\(S_n=u_1+u_2+\cdots+u_n\)</p>
+            </div>
+          </button>
+          <button type="button" class="mini-card reveal-card" data-proof-step="2">
+            <h3>2. Reverse it</h3>
+            <div class="reveal-content" id="proofStep2">
+              <p>Write the same sum in the opposite order:</p>
+              <p>\(S_n=u_n+u_{n-1}+\cdots+u_1\)</p>
+            </div>
+          </button>
+          <button type="button" class="mini-card reveal-card" data-proof-step="3">
+            <h3>3. Add columns</h3>
+            <div class="reveal-content" id="proofStep3">
+              <p>Each column adds to \(u_1+u_n\), and there are \(n\) columns.</p>
+              <p>So \(2S_n=n(u_1+u_n)\).</p>
+            </div>
+          </button>
+          <button type="button" class="mini-card reveal-card" data-proof-step="4">
+            <h3>4. Divide by 2</h3>
+            <div class="reveal-content" id="proofStep4">
+              <p>Divide both sides by 2:</p>
+              <p>\(S_n=\frac{n}{2}(u_1+u_n)\).</p>
+            </div>
+          </button>
+        </div>
+        <div class="callout success locked-panel" id="proofFinalFormula" style="margin-top:14px">
+          Because \(u_n=u_1+(n-1)d\), the same formula can also be written as
+          \[
+            S_n=\frac{n}{2}\bigl(2u_1+(n-1)d\bigr).
+          \]
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="sigma">
+      <div class="grid wide-right">
+        <div class="card">
+          <h2>6. Sigma notation without miscounting</h2>
+          <p>Use a linear expression inside sigma. The terms form an arithmetic sequence. The dangerous part is the number of terms: from \(r=p\) to \(r=q\) there are \(q-p+1\) terms, not always \(q\).</p>
+          <div class="grid two controls">
+            <label>Lower limit \(p\)<input id="sigP" type="number" step="1" value="3"></label>
+            <label>Upper limit \(q\)<input id="sigQ" type="number" step="1" value="12"></label>
+            <label>Coefficient \(a\) in \(ar+b\)<input id="sigA" type="number" step="0.5" value="4"></label>
+            <label>Constant \(b\) in \(ar+b\)<input id="sigB" type="number" step="0.5" value="1"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="sigUpdate">Evaluate</button>
+            <button class="btn" id="sigTrick">Load lower limit trap</button>
+            <button class="btn" id="sigRandom">Random sigma</button>
+          </div>
+          <div id="sigSummary" class="callout" style="margin-top:14px"></div>
+        </div>
+        <div class="card">
+          <h3>Expanded terms</h3>
+          <div class="stat-row" id="sigStats"></div>
+          <div class="table-wrap" id="sigTable"></div>
+          <div class="output" id="sigWorking" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="interest">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>7. Simple interest as an arithmetic model</h2>
+          <p>Simple interest adds the same amount each year, so the account balance is arithmetic/linear: \(A=P(1+rt)\).</p>
+          <div class="grid three controls">
+            <label>Principal \(P\)<input id="intP" type="number" min="0" step="100" value="5000"></label>
+            <label>Annual rate \(r\)%<input id="intR" type="number" min="0" step="0.1" value="3"></label>
+            <label>Years \(t\)<input id="intT" type="number" min="0" max="80" step="1" value="12"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="intUpdate">Update</button>
+            <button class="btn" id="intDouble">Find doubling time</button>
+            <button class="btn warn" id="intCompoundToggle">Show compound comparison</button>
+          </div>
+          <div id="intSummary" class="callout" style="margin-top:14px"></div>
+          <div class="callout warning" id="compoundNote" style="display:none;margin-top:12px">
+            Compound interest is not arithmetic because the difference between years changes. It is shown only as an extension/comparison.
+          </div>
+        </div>
+        <div class="card">
+          <h3>Balance table</h3>
+          <div class="stat-row" id="intStats"></div>
+          <div class="svgbox" id="intGraph"></div>
+          <div class="table-wrap" id="intTable" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="model">
+      <div class="grid wide-right">
+        <div class="card">
+          <h2>8. When real life is only approximately arithmetic</h2>
+          <p>Enter slightly noisy real-world data, inspect consecutive differences, fit the closest arithmetic model, and use it for prediction. This mirrors the syllabus requirement to analyse, interpret, and predict when the model is not perfectly arithmetic.</p>
+          <div class="button-row" style="margin-bottom:10px">
+            <button class="btn" id="modelSalary">Salary growth</button>
+            <button class="btn" id="modelTree">Tree growth</button>
+            <button class="btn" id="modelSwim">Swimming laps</button>
+            <button class="btn" id="modelSubscribers">Subscribers</button>
+            <button class="btn" id="modelReps">Training reps</button>
+            <button class="btn" id="modelSavings">Savings decline</button>
+            <button class="btn" id="modelBattery">Phone battery</button>
+            <button class="btn" id="modelTank">Water tank drain</button>
+            <button class="btn" id="modelCandle">Candle burning</button>
+            <button class="btn" id="modelNoisy">Random noisy data</button>
+          </div>
+          <p style="font-size:.95rem;margin-top:-2px">Use the buttons to compare approximate arithmetic <strong>growth</strong> and <strong>decline</strong>. Then inspect whether the differences are close enough to model.</p>
+          <label>Data as <span>n,value on each line</span><textarea id="modelData">1,39000
+2,39950
+3,40780
+4,41860
+5,42620</textarea></label>
+          <div class="grid two controls" style="margin-top:12px">
+            <label>Predict term \(n\)<input id="modelPredictN" type="number" min="1" step="1" value="10"></label>
+            <label>Approximation tolerance for differences<input id="modelTol" type="number" min="0" step="0.1" value="100"></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn primary" id="modelUpdate">Analyse model</button>
+          </div>
+          <div id="modelSummary" class="callout" style="margin-top:14px"></div>
+        </div>
+        <div class="card">
+          <h3>Differences, model and prediction</h3>
+          <div class="stat-row" id="modelStats"></div>
+          <div class="svgbox" id="modelGraph"></div>
+          <div class="table-wrap" id="modelTable" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="practice">
+      <div class="grid wide-left">
+        <div class="card">
+          <h2>9. Random practice — answer first, then check</h2>
+          <p>The answer is hidden until you check. Correct answers turn green; incorrect answers give a nudge. Use this as a starter, plenary, or self-check station.</p>
+          <div class="button-row" style="margin-bottom:14px">
+            <button class="btn primary" id="quizNew">New question</button>
+            <button class="btn" id="quizHint">Hint</button>
+            <button class="btn warn" id="quizSolution">Show solution</button>
+          </div>
+          <div id="quizQuestion" class="quiz-question"></div>
+          <div class="grid two controls">
+            <label>Your answer<input id="quizAnswer" type="text" autocomplete="off"></label>
+            <label>Question type<select id="quizType">
+              <option value="mixed">Mixed</option>
+              <option value="nth">Nth term</option>
+              <option value="twoTerms">From two terms</option>
+              <option value="numTerms">Number of terms</option>
+              <option value="sum">Series sum</option>
+              <option value="sigma">Sigma</option>
+              <option value="interest">Simple interest</option>
+              <option value="model">Approximate model</option>
+            </select></label>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button class="btn good" id="quizCheck">Check answer</button>
+          </div>
+          <div id="quizFeedback" class="feedback"></div>
+        </div>
+        <div class="card">
+          <h3>Progress</h3>
+          <div class="stat-row">
+            <div class="stat"><div class="k">Attempted</div><div class="v" id="quizAttempted">0</div></div>
+            <div class="stat"><div class="k">Correct</div><div class="v" id="quizCorrect">0</div></div>
+            <div class="stat"><div class="k">Streak</div><div class="v" id="quizStreak">0</div></div>
+            <div class="stat"><div class="k">Accuracy</div><div class="v" id="quizAccuracy">–</div></div>
+          </div>
+          <div class="progress-dots" id="quizDots"></div>
+          <div class="callout" style="margin-top:14px">
+            <strong>Teacher tip:</strong> project the question, students answer on mini-whiteboards, then reveal feedback. For exam-style fluency, switch the type from Mixed to one skill at a time.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="teacher">
+      <div class="grid two">
+        <div class="card">
+          <h2>Teacher route through the applet</h2>
+          <details open>
+            <summary>Recommended lesson sequence</summary>
+            <ol>
+              <li><strong>Explore:</strong> start with a salary pattern or growing pattern. Students describe the rule in words before formulas.</li>
+              <li><strong>Formula:</strong> build \(u_n=u_1+(n-1)d\) by counting jumps.</li>
+              <li><strong>Missing terms:</strong> use two known terms to solve for \(d\), then \(u_1\).</li>
+              <li><strong>Series:</strong> use pairing to derive \(S_n\), not just memorise it.</li>
+              <li><strong>Proof tab:</strong> start with the 1–100 number trick, then generalise by writing the sum forwards and backwards.</li>
+              <li><strong>Sigma:</strong> practise expanding and counting terms, especially when the lower limit is not 1.</li>
+              <li><strong>Interest/model:</strong> apply to finance and imperfect real data.</li>
+              <li><strong>Practice:</strong> mixed questions for retrieval and exam readiness.</li>
+            </ol>
+          </details>
+          <details>
+            <summary>Assessment objectives covered</summary>
+            <p>Recognising arithmetic sequences, using nth-term and sum formulas, interpreting sigma notation, solving for unknown parameters, using technology-style tables/graphs, applying simple interest, and judging whether a real model is approximately arithmetic.</p>
+          </details>
+          <details>
+            <summary>Common misconceptions to target</summary>
+            <ul>
+              <li>Using \(nd\) instead of \((n-1)d\).</li>
+              <li>Thinking the upper sigma limit is always the number of terms.</li>
+              <li>Confusing a sequence term \(u_n\) with a series sum \(S_n\).</li>
+              <li>Using compound interest for a simple-interest question.</li>
+              <li>Assuming all real data must have exactly equal differences.</li>
+            </ul>
+          </details>
+        </div>
+        <div class="card">
+          <h2>Design notes</h2>
+          <div class="callout success">
+            <strong>Pedagogical synthesis:</strong> inquiry first, then linear-function connection, then algebraic fluency, then exam-style sums/sigma, then real modelling.
+          </div>
+          <div class="grid two" style="margin-top:14px">
+            <div class="mini-card"><h3>Inquiry-first</h3><p>Start from a context, table, graph, and pattern recognition.</p></div>
+            <div class="mini-card"><h3>Function connection</h3><p>Use sequences as functions on integer inputs and connect \(d\) to gradient.</p></div>
+            <div class="mini-card"><h3>Algebra fluency</h3><p>Build strong algebraic practice with many variations.</p></div>
+            <div class="mini-card"><h3>Exam/syllabus coverage</h3><p>Make syllabus coverage explicit: sums, sigma, GDC thinking, simple interest.</p></div>
+          </div>
+          <div class="button-row" style="margin-top:16px">
+            <button class="btn" onclick="window.print()">Print / save as PDF</button>
+            <button class="btn" id="resetAll">Reset all activities</button>
+          </div>
+        </div>
+      </div>
+      <p class="footer-note">Single-file HTML. No student data is stored or sent anywhere.</p>
+    </section>
+  </main>
+
+  <script>
+    'use strict';
+
+    const $ = (id) => document.getElementById(id);
+    const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+    const num = (id, fallback=0) => {
+      const v = Number($(id).value);
+      return Number.isFinite(v) ? v : fallback;
+    };
+    const fmt = (x, dp=3) => {
+      if (!Number.isFinite(x)) return '–';
+      if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+      return Number(x.toFixed(dp)).toString();
+    };
+    const money = (x) => new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(x);
+    const randInt = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+    const choice = (arr) => arr[randInt(0, arr.length-1)];
+    const approx = (a,b,tol=1e-6) => Math.abs(Number(a)-Number(b)) <= tol;
+    const texRefresh = () => {
+      if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise().catch(()=>{});
+    };
+
+    function setTab(name){
+      document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+      document.querySelectorAll('.tab').forEach(s => s.classList.toggle('active', s.id === name));
+      history.replaceState(null, '', '#' + name);
+      texRefresh();
+    }
+
+    document.querySelectorAll('.tabbtn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
+    document.querySelectorAll('[data-jump]').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.jump)));
+
+    function makeStats(items){
+      return items.map(([k,v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+    }
+
+    function tableHTML(headers, rows){
+      return `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    }
+
+    function plotSVG(points, opts={}){
+      const width = 680, height = 330, m = {l:54,r:20,t:24,b:44};
+      let xs = points.map(p=>p.x), ys = points.map(p=>p.y);
+      if (opts.linePoints) { xs = xs.concat(opts.linePoints.map(p=>p.x)); ys = ys.concat(opts.linePoints.map(p=>p.y)); }
+      let minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+      if (minX === maxX) { minX -= 1; maxX += 1; }
+      if (minY === maxY) { minY -= 1; maxY += 1; }
+      const padY = (maxY-minY)*0.12 || 1;
+      const padX = (maxX-minX)*0.06 || 1;
+      minY -= padY; maxY += padY; minX -= padX; maxX += padX;
+      if (opts.forceZeroY){ minY = Math.min(minY,0); maxY = Math.max(maxY,0); }
+      const sx = x => m.l + (x-minX)/(maxX-minX)*(width-m.l-m.r);
+      const sy = y => height-m.b - (y-minY)/(maxY-minY)*(height-m.t-m.b);
+      const yTicks = 5, xTicks = Math.min(8, Math.max(2, Math.round(maxX-minX)+1));
+      let grid = '';
+      for (let i=0;i<=yTicks;i++){
+        const yv = minY + i*(maxY-minY)/yTicks;
+        const y = sy(yv);
+        grid += `<line x1="${m.l}" y1="${y}" x2="${width-m.r}" y2="${y}" stroke="#e8edf5"/>`;
+        grid += `<text x="${m.l-8}" y="${y+4}" text-anchor="end" font-size="11" fill="#657085">${fmt(yv,1)}</text>`;
+      }
+      for (let i=0;i<=xTicks;i++){
+        const xv = minX + i*(maxX-minX)/xTicks;
+        const x = sx(xv);
+        grid += `<line x1="${x}" y1="${m.t}" x2="${x}" y2="${height-m.b}" stroke="#f0f3f8"/>`;
+        grid += `<text x="${x}" y="${height-18}" text-anchor="middle" font-size="11" fill="#657085">${fmt(xv,1)}</text>`;
+      }
+      const poly = points.map(p => `${sx(p.x)},${sy(p.y)}`).join(' ');
+      let line = '';
+      if (opts.linePoints){
+        const lp = opts.linePoints.map(p => `${sx(p.x)},${sy(p.y)}`).join(' ');
+        line = `<polyline points="${lp}" fill="none" stroke="#00a884" stroke-width="3" stroke-dasharray="7 5"/>`;
+      }
+      const pointEls = points.map((p,i)=>`<g><circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="5" fill="#275efe"/><title>${opts.pointLabel ? opts.pointLabel(p,i) : `(${fmt(p.x)}, ${fmt(p.y)})`}</title></g>`).join('');
+      const labels = `<text x="${width/2}" y="${height-4}" text-anchor="middle" font-size="12" fill="#455166">${opts.xLabel || 'n'}</text><text x="18" y="${height/2}" transform="rotate(-90 18 ${height/2})" text-anchor="middle" font-size="12" fill="#455166">${opts.yLabel || 'value'}</text>`;
+      return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${opts.title || 'sequence graph'}">${grid}<line x1="${m.l}" y1="${height-m.b}" x2="${width-m.r}" y2="${height-m.b}" stroke="#93a1b8"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${height-m.b}" stroke="#93a1b8"/>${line}<polyline points="${poly}" fill="none" stroke="#275efe" stroke-width="3"/>${pointEls}${labels}</svg>`;
+    }
+
+    function sequenceTerms(u1,d,N){
+      return Array.from({length:N}, (_,i) => ({n:i+1, u:u1+i*d}));
+    }
+
+    function updateSequence(){
+      const u1 = num('seqU1',4), d = num('seqD',3), N = clamp(Math.round(num('seqN',12)),2,40);
+      $('seqN').value = N;
+      const findN = Math.max(1, Math.round(num('seqFindN',20)));
+      $('seqFindN').value = findN;
+      const checkVal = num('seqCheckVal',0);
+      const terms = sequenceTerms(u1,d,N);
+      const unFind = u1 + (findN-1)*d;
+      let checkText = '';
+      if (Math.abs(d) < 1e-12) {
+        checkText = approx(checkVal,u1) ? `${fmt(checkVal)} is every term of this constant sequence.` : `${fmt(checkVal)} is not a term.`;
+      } else {
+        const nVal = (checkVal - u1)/d + 1;
+        checkText = (nVal >= 1 && Math.abs(nVal - Math.round(nVal)) < 1e-9) ? `${fmt(checkVal)} is term number ${Math.round(nVal)}.` : `${fmt(checkVal)} is not a whole-number term.`;
+      }
+      $('seqSummary').innerHTML = `
+        <strong>Recursive:</strong> \\(u_{n+1}=u_n+${fmt(d)}\\), with \\(u_1=${fmt(u1)}\\).<br>
+        <strong>Explicit:</strong> \\(u_n=${fmt(u1)}+(n-1)(${fmt(d)})\\), so \\(u_{${findN}}=${fmt(unFind)}\\).<br>
+        <strong>Membership check:</strong> ${checkText}`;
+      $('seqCards').innerHTML = terms.slice(0,12).map(t=>`<div class="term-card"><strong>u<sub>${t.n}</sub></strong><span>${fmt(t.u)}</span></div>`).join('') + (N>12?`<span class="chip">… ${N-12} more</span>`:'');
+      $('seqStats').innerHTML = makeStats([
+        ['u<sub>1</sub>', fmt(u1)], ['d', fmt(d)], [`u<sub>${N}</sub>`, fmt(terms[N-1].u)], [`u<sub>${findN}</sub>`, fmt(unFind)]
+      ]);
+      $('seqGraph').innerHTML = plotSVG(terms.map(t=>({x:t.n,y:t.u})), {title:'Arithmetic sequence', xLabel:'term number n', yLabel:'uₙ'});
+      $('seqTable').innerHTML = tableHTML(['n','uₙ','Difference from previous'], terms.map((t,i)=>[t.n,fmt(t.u), i===0?'–':fmt(d)]));
+      texRefresh();
+    }
+
+    function randomSequence(){
+      $('seqU1').value = randInt(-8,12);
+      let d = randInt(-6,8); if (d===0) d=3;
+      $('seqD').value = d;
+      $('seqN').value = randInt(8,16);
+      $('seqFindN').value = randInt(10,30);
+      updateSequence();
+    }
+
+    function loadSalarySequence(){
+      $('seqU1').value = 39000;
+      $('seqD').value = 900;
+      $('seqN').value = 8;
+      $('seqFindN').value = 10;
+      $('seqCheckVal').value = 45300;
+      updateSequence();
+    }
+
+    function updateFormula(){
+      const n = Math.round(num('formulaN',7));
+      const u1 = num('formulaU1',5), d = num('formulaD',4);
+      $('formulaNLabel').textContent = n;
+      const terms = sequenceTerms(u1,d,Math.max(1,n));
+      const jumps = Math.max(0,n-1);
+      const un = u1 + jumps*d;
+      $('formulaSteps').innerHTML = `
+        To get from \\(u_1\\) to \\(u_{${n}}\\), count the jumps: \\(${n}-1=${jumps}\\).<br>
+        Each jump changes the term by \\(d=${fmt(d)}\\).<br>
+        Therefore \\(u_{${n}}=u_1+(${n}-1)d=${fmt(u1)}+${jumps}(${fmt(d)})=${fmt(un)}\\).`;
+      $('formulaCards').innerHTML = terms.map((t,i)=>`<div class="term-card"><strong>${i===0?'start':'+'+fmt(d)}</strong><span>u<sub>${t.n}</sub> = ${fmt(t.u)}</span></div>`).join('');
+      $('formulaGraph').innerHTML = plotSVG(terms.map(t=>({x:t.n,y:t.u})), {xLabel:'n', yLabel:'uₙ', title:'nth term formula'});
+      texRefresh();
+    }
+
+    function copyFormulaToExplore(){
+      $('seqU1').value = $('formulaU1').value;
+      $('seqD').value = $('formulaD').value;
+      $('seqN').value = Math.max(2, Number($('formulaN').value));
+      setTab('explore');
+      updateSequence();
+    }
+
+    let missing = {};
+    function newMissing(){
+      let u1 = randInt(-12,15), d = choice([-6,-5,-4,-3,-2,2,3,4,5,6,7]);
+      let a = randInt(2,8), b = randInt(a+3,16);
+      const ua = u1 + (a-1)*d, ub = u1 + (b-1)*d;
+      missing = {u1,d,a,b,ua,ub};
+      $('missingProblem').innerHTML = `An arithmetic sequence has \\(u_{${a}}=${fmt(ua)}\\) and \\(u_{${b}}=${fmt(ub)}\\). Find \\(d\\), \\(u_1\\), and then use your formula to find the requested term.`;
+      $('missingD').value = '';
+      $('missingU1').value = '';
+      $('missingTerm').value = randInt(12,30);
+      $('missingFeedback').className = 'feedback';
+      $('missingFeedback').innerHTML = '';
+      const pts = sequenceTerms(u1,d,Math.max(b,12)).map(t=>({x:t.n,y:t.u}));
+      $('missingGraph').innerHTML = plotSVG(pts, {xLabel:'n', yLabel:'uₙ', title:'hidden sequence'});
+      texRefresh();
+    }
+    function checkMissing(){
+      const dGuess = num('missingD',NaN), u1Guess = num('missingU1',NaN), k = Math.max(1, Math.round(num('missingTerm',20)));
+      const uK = missing.u1 + (k-1)*missing.d;
+      const okD = approx(dGuess, missing.d, 0.01);
+      const okU1 = approx(u1Guess, missing.u1, 0.01);
+      const fb = $('missingFeedback');
+      fb.className = 'feedback show ' + (okD && okU1 ? 'success' : 'danger');
+      if (okD && okU1) {
+        fb.innerHTML = `<strong>Correct.</strong> \\(d=${fmt(missing.d)}\\), \\(u_1=${fmt(missing.u1)}\\). Therefore \\(u_{${k}}=${fmt(uK)}\\).`;
+      } else {
+        fb.innerHTML = `<strong>Not quite.</strong> Compare the change in term values with the number of jumps. You have ${fmt(missing.b-missing.a)} jumps from \\(u_{${missing.a}}\\) to \\(u_{${missing.b}}\\).`;
+      }
+      texRefresh();
+    }
+    function hintMissing(){
+      const fb = $('missingFeedback');
+      fb.className = 'feedback show warning';
+      fb.innerHTML = `Hint: \\(d=\\dfrac{u_{${missing.b}}-u_{${missing.a}}}{${missing.b}-${missing.a}}=\\dfrac{${fmt(missing.ub)}-${fmt(missing.ua)}}{${missing.b-missing.a}}\\).`;
+      texRefresh();
+    }
+
+    function updateSeries(){
+      const u1 = num('serU1',3), d = num('serD',2), n = clamp(Math.round(num('serN',10)),1,100);
+      $('serN').value = n;
+      const terms = sequenceTerms(u1,d,n);
+      const un = terms[n-1].u;
+      const sum = n/2*(u1+un);
+      const sum2 = n/2*(2*u1+(n-1)*d);
+      $('serSummary').innerHTML = `
+        Last term: \\(u_{${n}}=${fmt(un)}\\).<br>
+        \\(S_{${n}}=\\frac{${n}}{2}(${fmt(u1)}+${fmt(un)})=${fmt(sum)}\\).<br>
+        Also \\(S_{${n}}=\\frac{${n}}{2}(2(${fmt(u1)})+(${n}-1)(${fmt(d)}))=${fmt(sum2)}\\).`;
+      $('serCards').innerHTML = terms.slice(0,14).map(t=>`<div class="term-card"><strong>u<sub>${t.n}</sub></strong><span>${fmt(t.u)}</span></div>`).join('') + (n>14?`<span class="chip">…</span>`:'');
+      $('serStats').innerHTML = makeStats([['n',n], ['u<sub>1</sub>',fmt(u1)], [`u<sub>${n}</sub>`,fmt(un)], [`S<sub>${n}</sub>`,fmt(sum)]]);
+      const pairs = [];
+      const pairCount = Math.ceil(n/2);
+      for(let i=0;i<pairCount && i<8;i++){
+        const left = terms[i];
+        const right = terms[n-1-i];
+        if (left.n === right.n) pairs.push(`<div class="pair-row"><span class="chip">middle</span><strong>u<sub>${left.n}</sub> = ${fmt(left.u)}</strong><span></span><strong>${fmt(left.u)}</strong></div>`);
+        else pairs.push(`<div class="pair-row"><span>u<sub>${left.n}</sub> = ${fmt(left.u)}</span><span>+</span><span>u<sub>${right.n}</sub> = ${fmt(right.u)}</span><strong>${fmt(left.u+right.u)}</strong></div>`);
+      }
+      $('serPairs').innerHTML = pairs.join('') + (pairCount>8?`<div class="chip">Only first 8 pairs shown</div>`:'');
+      $('serGraph').innerHTML = plotSVG(terms.map(t=>({x:t.n,y:t.u})), {xLabel:'n', yLabel:'uₙ', title:'series terms'});
+      texRefresh();
+    }
+
+
+    let proofGaussRevealed = false;
+    let proofRevealSteps = [false, false, false, false];
+
+    function updateProofReveals(){
+      document.querySelectorAll('[data-proof-step]').forEach(card => {
+        const idx = Number(card.dataset.proofStep) - 1;
+        card.classList.toggle('revealed', !!proofRevealSteps[idx]);
+      });
+      const showPairTable = !!proofRevealSteps[2];
+      const showFormula = !!proofRevealSteps[3];
+      $('proofPairTable').style.display = showPairTable ? '' : 'none';
+      $('proofPairPrompt').style.display = showPairTable ? 'none' : '';
+      $('proofFormula').style.display = showFormula ? '' : 'none';
+      $('proofFormulaPrompt').style.display = showFormula ? 'none' : '';
+      $('proofFinalFormula').style.display = showFormula ? '' : 'none';
+      texRefresh();
+    }
+
+    function resetProofRevealSteps(){
+      proofRevealSteps = [false, false, false, false];
+      updateProofReveals();
+    }
+
+    function updateSumProof(){
+      let gaussN = clamp(Math.round(num('proofGaussN',100)),2,200);
+      $('proofGaussN').value = gaussN;
+      const gaussSum = gaussN*(gaussN+1)/2;
+      const gaussPairs = Math.floor(gaussN/2);
+      const gaussMiddle = gaussN % 2 === 1 ? (gaussN+1)/2 : null;
+      $('proofGaussOut').innerHTML = `
+        Pair first and last: \\(1+${gaussN}=${gaussN+1}\\), \\(2+${gaussN-1}=${gaussN+1}\\), and so on.<br>
+        There are ${gaussPairs} full pairs${gaussMiddle ? ` and a middle term ${gaussMiddle}` : ''}.<br>
+        Therefore \\(1+2+\\cdots+${gaussN}=\\frac{${gaussN}(${gaussN}+1)}{2}=${fmt(gaussSum)}\\).`;
+      const pairExamples = [];
+      const shown = Math.min(5, gaussPairs);
+      for(let i=1;i<=shown;i++){
+        pairExamples.push(`<div class="term-card"><strong>${i}+${gaussN+1-i}</strong><span>${gaussN+1}</span></div>`);
+      }
+      if(gaussPairs>shown) pairExamples.push(`<span class="chip">… ${gaussPairs-shown} more pair${gaussPairs-shown===1?'':'s'}</span>`);
+      if(gaussMiddle) pairExamples.push(`<div class="term-card"><strong>middle</strong><span>${gaussMiddle}</span></div>`);
+      $('proofGaussPairs').innerHTML = pairExamples.join('');
+
+      const u1 = num('proofU1',3), d = num('proofD',2), n = clamp(Math.round(num('proofN',10)),2,40);
+      $('proofN').value = n;
+      const terms = sequenceTerms(u1,d,n);
+      const un = terms[n-1].u;
+      const sum = n/2*(u1+un);
+      const sumD = n/2*(2*u1+(n-1)*d);
+
+      $('proofSummary').innerHTML = `
+        For this sequence, \\(u_1=${fmt(u1)}\\), \\(d=${fmt(d)}\\), and \\(u_{${n}}=${fmt(un)}\\).<br>
+        The sum is \\(S_{${n}}=${fmt(sum)}\\), but the important part is why the formula works.`;
+
+      $('proofStats').innerHTML = makeStats([
+        ['first', fmt(u1)],
+        ['last', fmt(un)],
+        ['columns', n],
+        ['each column', fmt(u1+un)]
+      ]);
+
+      const columnsToShow = Math.min(n,10);
+      const top = [];
+      const bottom = [];
+      const vertical = [];
+      for(let j=0;j<columnsToShow;j++){
+        const topTerm = terms[j];
+        const bottomTerm = terms[n-1-j];
+        top.push(`u<sub>${topTerm.n}</sub> = ${fmt(topTerm.u)}`);
+        bottom.push(`u<sub>${bottomTerm.n}</sub> = ${fmt(bottomTerm.u)}`);
+        vertical.push(fmt(topTerm.u+bottomTerm.u));
+      }
+      if(n>columnsToShow){
+        top.push('...');
+        bottom.push('...');
+        vertical.push('...');
+      }
+      $('proofPairTable').innerHTML = tableHTML(
+        top.map((_,i)=>i<n ? `column ${i+1}` : '...'),
+        [top,bottom,vertical]
+      );
+
+      $('proofFormula').textContent =
+`Forward:  S_n = u_1 + u_2 + ... + u_n
+Backward: S_n = u_n + u_(n-1) + ... + u_1
+
+Adding the two lines:
+2S_n = (u_1 + u_n) + (u_2 + u_(n-1)) + ... + (u_n + u_1)
+2S_n = n(u_1 + u_n)
+
+So:
+S_n = n/2(u_1 + u_n)
+    = ${n}/2(${fmt(u1)} + ${fmt(un)})
+    = ${fmt(sum)}
+
+Since u_n = u_1 + (n-1)d:
+S_n = n/2(2u_1 + (n-1)d)
+    = ${n}/2(2(${fmt(u1)}) + (${n}-1)(${fmt(d)}))
+    = ${fmt(sumD)}`;
+      updateProofReveals();
+      texRefresh();
+    }
+
+    function updateSigma(){
+      let p = Math.round(num('sigP',3)), q = Math.round(num('sigQ',12));
+      if (q < p) [p,q] = [q,p];
+      $('sigP').value = p; $('sigQ').value = q;
+      const a = num('sigA',4), b = num('sigB',1);
+      const terms = [];
+      for(let i=p;i<=q;i++) terms.push({i, val:a*i+b});
+      const count = terms.length;
+      const first = terms[0].val, last = terms[count-1].val;
+      const sum = terms.reduce((s,t)=>s+t.val,0);
+      const formulaSum = count/2*(first+last);
+      $('sigSummary').innerHTML = `
+        \\[\\sum_{r=${p}}^{${q}} (${fmt(a)}r+${fmt(b)})\\]
+        First term is at \\(r=${p}\\), not necessarily \\(r=1\\): \\(${fmt(a)}(${p})+${fmt(b)}=${fmt(first)}\\).<br>
+        There are \\(${q}-${p}+1=${count}\\) terms. The common difference is \\(${fmt(a)}\\).`;
+      $('sigStats').innerHTML = makeStats([['terms',count], ['first',fmt(first)], ['last',fmt(last)], ['sum',fmt(sum)]]);
+      $('sigTable').innerHTML = tableHTML(['r',`f(r)=${fmt(a)}r+${fmt(b)}`,'running total'], terms.map((t,idx)=>[t.i,fmt(t.val),fmt(terms.slice(0,idx+1).reduce((s,x)=>s+x.val,0))]));
+      $('sigWorking').textContent = `Arithmetic-series method:\nS = n/2(first + last)\n  = ${count}/2(${fmt(first)} + ${fmt(last)})\n  = ${fmt(formulaSum)}\n\nDirect expansion:\n${terms.slice(0,10).map(t=>fmt(t.val)).join(' + ')}${count>10?' + ...':''} = ${fmt(sum)}`;
+      texRefresh();
+    }
+
+    function updateInterest(){
+      const P = Math.max(0,num('intP',5000)), rPct = Math.max(0,num('intR',3)), t = clamp(Math.round(num('intT',12)),0,80);
+      $('intT').value = t;
+      const r = rPct/100;
+      const yearly = P*r;
+      const rows = [];
+      for(let year=0; year<=t; year++){
+        const simple = P + yearly*year;
+        const compound = P*Math.pow(1+r,year);
+        rows.push({year,simple,compound});
+      }
+      const final = rows[rows.length-1].simple;
+      $('intSummary').innerHTML = `
+        Yearly interest is constant: \\(Pr=${money(P)}\\times ${fmt(rPct)}\\%=${money(yearly)}\\).<br>
+        Balance after \\(${t}\\) years: \\(A=P(1+rt)=${money(P)}(1+${fmt(r)}\\times ${t})=${money(final)}\\).`;
+      $('intStats').innerHTML = makeStats([['P',money(P)], ['yearly +',money(yearly)], ['years',t], ['balance',money(final)]]);
+      const showCompound = $('compoundNote').style.display !== 'none';
+      const pts = rows.map(rw=>({x:rw.year,y:rw.simple}));
+      const opts = {xLabel:'years', yLabel:'balance', title:'simple interest', forceZeroY:true};
+      if(showCompound) opts.linePoints = rows.map(rw=>({x:rw.year,y:rw.compound}));
+      $('intGraph').innerHTML = plotSVG(pts, opts);
+      $('intTable').innerHTML = tableHTML(showCompound?['year','simple balance','compound comparison','simple difference']:['year','simple balance','difference'], rows.map((rw,i)=> showCompound ? [rw.year,money(rw.simple),money(rw.compound),i===0?'–':money(yearly)] : [rw.year,money(rw.simple),i===0?'–':money(yearly)]));
+      texRefresh();
+    }
+
+    function doubleTime(){
+      const rPct = Math.max(0,num('intR',3));
+      const fb = $('intSummary');
+      if (rPct <= 0){
+        fb.innerHTML += `<br><strong>Doubling time:</strong> impossible at 0% simple interest.`;
+      } else {
+        const years = 100/rPct;
+        fb.innerHTML += `<br><strong>Doubling time:</strong> solve \\(2P=P(1+rt)\\), so \\(t=1/r=${fmt(years,2)}\\) years.`;
+      }
+      texRefresh();
+    }
+
+    function parseData(text){
+      return text.split(/\n+/).map(line => line.trim()).filter(Boolean).map(line => {
+        const parts = line.split(/[\s,;]+/).map(Number).filter(Number.isFinite);
+        return parts.length >= 2 ? {x:parts[0], y:parts[1]} : null;
+      }).filter(Boolean).sort((a,b)=>a.x-b.x);
+    }
+    function regressionArithmetic(data){
+      const n = data.length;
+      const xs = data.map(p=>p.x-1), ys = data.map(p=>p.y);
+      const mx = xs.reduce((a,b)=>a+b,0)/n, my = ys.reduce((a,b)=>a+b,0)/n;
+      let sxx=0, sxy=0;
+      for(let i=0;i<n;i++){ sxx += (xs[i]-mx)**2; sxy += (xs[i]-mx)*(ys[i]-my); }
+      const d = sxx === 0 ? 0 : sxy/sxx;
+      const u1 = my - d*mx;
+      return {u1,d};
+    }
+    function updateModel(){
+      const data = parseData($('modelData').value);
+      if (data.length < 2){
+        $('modelSummary').className = 'callout danger';
+        $('modelSummary').textContent = 'Enter at least two data points.';
+        return;
+      }
+      $('modelSummary').className = 'callout';
+      const diffs = [];
+      for(let i=1;i<data.length;i++) diffs.push({from:data[i-1].x,to:data[i].x,diff:(data[i].y-data[i-1].y)/(data[i].x-data[i-1].x)});
+      const avgDiff = diffs.reduce((s,d)=>s+d.diff,0)/diffs.length;
+      const tol = Math.max(0,num('modelTol',100));
+      const approxArithmetic = diffs.every(d => Math.abs(d.diff-avgDiff) <= tol);
+      const model = regressionArithmetic(data);
+      const predictN = Math.max(1,Math.round(num('modelPredictN',10)));
+      const pred = model.u1 + (predictN-1)*model.d;
+      const fitted = data.map(p=>({x:p.x,y:model.u1+(p.x-1)*model.d}));
+      const residuals = data.map((p,i)=>p.y-fitted[i].y);
+      const maxResidual = Math.max(...residuals.map(Math.abs));
+      $('modelSummary').innerHTML = `
+        Consecutive differences are ${approxArithmetic ? '<strong>approximately constant</strong>' : '<strong>not very constant</strong>'} using tolerance ${fmt(tol)}.<br>
+        Best arithmetic model: \\(u_n\\approx ${fmt(model.u1,2)}+(n-1)(${fmt(model.d,2)})\\).<br>
+        Prediction: \\(u_{${predictN}}\\approx ${fmt(pred,2)}\\). Maximum residual on entered data: ${fmt(maxResidual,2)}.`;
+      $('modelStats').innerHTML = makeStats([['avg diff',fmt(avgDiff,2)], ['model d',fmt(model.d,2)], ['u<sub>1</sub> model',fmt(model.u1,2)], [`u<sub>${predictN}</sub>`,fmt(pred,2)]]);
+      $('modelGraph').innerHTML = plotSVG(data.map(p=>({x:p.x,y:p.y})), {
+        xLabel:'n', yLabel:'value', title:'real data model',
+        linePoints:[{x:Math.min(...data.map(p=>p.x)), y:model.u1+(Math.min(...data.map(p=>p.x))-1)*model.d},{x:Math.max(predictN,Math.max(...data.map(p=>p.x))), y:model.u1+(Math.max(predictN,Math.max(...data.map(p=>p.x)))-1)*model.d}]
+      });
+      const rows = data.map((p,i)=>[p.x, fmt(p.y,2), i===0?'–':fmt(diffs[i-1].diff,2), fmt(fitted[i].y,2), fmt(residuals[i],2)]);
+      $('modelTable').innerHTML = tableHTML(['n','actual','difference per step','model','residual'], rows);
+      texRefresh();
+    }
+    function setModelData(kind){
+      let data = '';
+      let predict = 10;
+      let tolerance = 100;
+
+      if(kind==='salary'){
+        data = '1,39000\n2,39950\n3,40780\n4,41860\n5,42620\n6,43690';
+        predict = 10; tolerance = 150;
+      }
+      if(kind==='tree'){
+        data = '1,2.60\n2,3.74\n3,4.76\n4,5.98\n5,7.04\n6,8.22';
+        predict = 10; tolerance = 0.18;
+      }
+      if(kind==='swim'){
+        data = '1,1.10\n2,1.93\n3,2.66\n4,3.54\n5,4.26\n8,6.78\n12,9.84';
+        predict = 15; tolerance = 0.18;
+      }
+      if(kind==='subscribers'){
+        data = '1,1240\n2,1315\n3,1398\n4,1470\n5,1549\n6,1622\n7,1708';
+        predict = 12; tolerance = 12;
+      }
+      if(kind==='reps'){
+        data = '1,12\n2,15\n3,17\n4,20\n5,22\n6,25\n7,27';
+        predict = 10; tolerance = 1.2;
+      }
+      if(kind==='savings'){
+        data = '1,5200\n2,4885\n3,4590\n4,4295\n5,3970\n6,3685\n7,3380';
+        predict = 12; tolerance = 35;
+      }
+      if(kind==='battery'){
+        data = '1,97\n2,86\n3,75\n4,67\n5,56\n6,47\n7,39\n8,28';
+        predict = 10; tolerance = 3;
+      }
+      if(kind==='tank'){
+        data = '1,120\n2,106\n3,91\n4,78\n5,65\n6,49\n7,37';
+        predict = 9; tolerance = 3;
+      }
+      if(kind==='candle'){
+        data = '1,18.0\n2,16.4\n3,14.9\n4,13.1\n5,11.6\n6,10.0\n7,8.5';
+        predict = 10; tolerance = 0.35;
+      }
+      if(kind==='noisy'){
+        const u1 = randInt(10,80), d = choice([-14,-10,-7,5,8,12,16]);
+        const noiseScale = Math.max(2, Math.round(Math.abs(d)*0.35));
+        const rows=[];
+        for(let n=1;n<=8;n++) rows.push(`${n},${fmt(u1+(n-1)*d+randInt(-noiseScale,noiseScale),1)}`);
+        data = rows.join('\n');
+        predict = 11; tolerance = noiseScale + 1;
+      }
+
+      $('modelData').value = data;
+      $('modelPredictN').value = predict;
+      $('modelTol').value = tolerance;
+      updateModel();
+    }
+
+    let quiz = {attempted:0,correct:0,streak:0,dots:[],current:null,tries:0};
+    function makeQuiz(){
+      const typeSel = $('quizType').value;
+      const types = ['nth','twoTerms','numTerms','sum','sigma','interest','model'];
+      const type = typeSel === 'mixed' ? choice(types) : typeSel;
+      let q = {};
+      if(type==='nth'){
+        const u1=randInt(-8,15), d=choice([-5,-4,-3,-2,2,3,4,5,6]), n=randInt(8,30);
+        const ans = u1+(n-1)*d;
+        q = {type, answer:ans, tol:0.001, question:`Given \\(u_1=${u1}\\) and \\(d=${d}\\), find \\(u_{${n}}\\).`, hint:`Use \\(u_n=u_1+(n-1)d\\). There are ${n-1} jumps.`, solution:`\\(u_{${n}}=${u1}+(${n}-1)(${d})=${ans}\\).`};
+      }
+      if(type==='twoTerms'){
+        const u1=randInt(-10,12), d=choice([-6,-4,-3,2,3,5,7]), a=randInt(2,6), b=randInt(9,16);
+        const ua=u1+(a-1)*d, ub=u1+(b-1)*d;
+        q = {type, answer:d, tol:0.001, question:`An arithmetic sequence has \\(u_{${a}}=${ua}\\) and \\(u_{${b}}=${ub}\\). Find the common difference \\(d\\).`, hint:`Divide the change in term values by the number of jumps.`, solution:`\\(d=(${ub}-${ua})/(${b}-${a})=${d}\\). Then \\(u_1=${u1}\\).`};
+      }
+      if(type==='numTerms'){
+        const u1=randInt(1,12), d=randInt(2,7), n=randInt(12,35), last=u1+(n-1)*d;
+        q = {type, answer:n, tol:0.001, question:`How many terms are in the arithmetic sequence ${u1}, ${u1+d}, ${u1+2*d}, ..., ${last}?`, hint:`Set \\(u_n=${last}\\) and solve for \\(n\\).`, solution:`${u1}+(${d})(n-1)=${last}, so \\(n-1=${(last-u1)/d}\\), hence \\(n=${n}\\).`};
+      }
+      if(type==='sum'){
+        const u1=randInt(-5,12), d=choice([-3,-2,2,3,4,5]), n=randInt(8,25), un=u1+(n-1)*d, ans=n/2*(u1+un);
+        q = {type, answer:ans, tol:0.001, question:`Find \\(S_{${n}}\\) for the arithmetic sequence with \\(u_1=${u1}\\) and \\(d=${d}\\).`, hint:`First find \\(u_{${n}}\\), then use \\(S_n=\\frac n2(u_1+u_n)\\).`, solution:`\\(u_{${n}}=${un}\\), so \\(S_{${n}}=\\frac{${n}}2(${u1}+${un})=${ans}\\).`};
+      }
+      if(type==='sigma'){
+        const p=randInt(2,6), qlim=randInt(10,18), a=choice([2,3,4,5,-2]), b=randInt(-5,8);
+        let ans=0; for(let i=p;i<=qlim;i++) ans += a*i+b;
+        q = {type, answer:ans, tol:0.001, question:`Evaluate \\(\\sum_{r=${p}}^{${qlim}} (${a}r+${b})\\).`, hint:`There are \\(${qlim}-${p}+1=${qlim-p+1}\\) terms.`, solution:`First term ${a*p+b}, last term ${a*qlim+b}, number of terms ${qlim-p+1}; sum = \\(\\frac{${qlim-p+1}}2(${a*p+b}+${a*qlim+b})=${ans}\\).`};
+      }
+      if(type==='interest'){
+        const P=choice([1000,1500,2500,4000,5000,8000]), r=choice([2,2.5,3,4,5,7.5]), t=randInt(3,12);
+        const ans=P*(1+r/100*t);
+        q = {type, answer:ans, tol:0.01, question:`A principal of ${money(P)} earns simple interest at ${r}% per year. Find the balance after ${t} years.`, hint:`Use \\(A=P(1+rt)\\), with \\(r\\) as a decimal.`, solution:`\\(A=${P}(1+${r/100}\\times ${t})=${money(ans)}\\).`};
+      }
+      if(type==='model'){
+        const u1=randInt(20,50), d=randInt(4,12), data=[u1,u1+d+1,u1+2*d-1,u1+3*d+2,u1+4*d-1];
+        const approxD=(data[data.length-1]-data[0])/(data.length-1);
+        q = {type, answer:approxD, tol:0.51, question:`The data values are ${data.join(', ')}. Estimate the common difference for an approximately arithmetic model.`, hint:`Use average change: \\((last-first)/(number\\ of\\ gaps)\\).`, solution:`Approximate \\(d=(${data[data.length-1]}-${data[0]})/4=${fmt(approxD,2)}\\).`};
+      }
+      quiz.current = q; quiz.tries = 0;
+      $('quizQuestion').innerHTML = q.question;
+      $('quizAnswer').value = '';
+      $('quizFeedback').className = 'feedback';
+      $('quizFeedback').innerHTML = '';
+      texRefresh();
+    }
+    function parseAnswerText(text){
+      const cleaned = String(text).replace(/,/g,'').match(/-?\d+(\.\d+)?/);
+      return cleaned ? Number(cleaned[0]) : NaN;
+    }
+    function checkQuiz(){
+      if(!quiz.current) makeQuiz();
+      quiz.tries++;
+      const val = parseAnswerText($('quizAnswer').value);
+      const ok = Number.isFinite(val) && approx(val, quiz.current.answer, quiz.current.tol);
+      if(quiz.tries===1){
+        quiz.attempted++;
+        if(ok){ quiz.correct++; quiz.streak++; quiz.dots.push(true); }
+        else { quiz.streak=0; quiz.dots.push(false); }
+        quiz.dots = quiz.dots.slice(-40);
+      } else if(ok && quiz.dots[quiz.dots.length-1]===false){
+        quiz.streak = 1;
+      }
+      const fb = $('quizFeedback');
+      fb.className = 'feedback show ' + (ok ? 'success' : 'danger');
+      fb.innerHTML = ok ? `<strong>Correct.</strong> Nice.` : `<strong>Not yet.</strong> ${quiz.current.hint}`;
+      updateQuizStats();
+      texRefresh();
+    }
+    function showQuizHint(){
+      if(!quiz.current) makeQuiz();
+      const fb = $('quizFeedback');
+      fb.className = 'feedback show warning';
+      fb.innerHTML = quiz.current.hint;
+      texRefresh();
+    }
+    function showQuizSolution(){
+      if(!quiz.current) makeQuiz();
+      const fb = $('quizFeedback');
+      fb.className = 'feedback show';
+      fb.innerHTML = quiz.current.solution;
+      texRefresh();
+    }
+    function updateQuizStats(){
+      $('quizAttempted').textContent = quiz.attempted;
+      $('quizCorrect').textContent = quiz.correct;
+      $('quizStreak').textContent = quiz.streak;
+      $('quizAccuracy').textContent = quiz.attempted ? Math.round(quiz.correct/quiz.attempted*100)+'%' : '–';
+      $('quizDots').innerHTML = quiz.dots.map(d=>`<span class="dot ${d?'ok':'no'}"></span>`).join('');
+    }
+
+    function resetAll(){
+      $('seqU1').value=4; $('seqD').value=3; $('seqN').value=12; $('seqFindN').value=20; $('seqCheckVal').value=61;
+      $('formulaN').value=7; $('formulaU1').value=5; $('formulaD').value=4;
+      $('serU1').value=3; $('serD').value=2; $('serN').value=10;
+      $('proofGaussN').value=100; $('proofU1').value=3; $('proofD').value=2; $('proofN').value=10; proofGaussRevealed=false; proofRevealSteps=[false,false,false,false];
+      $('sigP').value=3; $('sigQ').value=12; $('sigA').value=4; $('sigB').value=1;
+      $('intP').value=5000; $('intR').value=3; $('intT').value=12; $('compoundNote').style.display='none';
+      setModelData('salary');
+      quiz={attempted:0,correct:0,streak:0,dots:[],current:null,tries:0}; updateQuizStats(); makeQuiz();
+      updateSequence(); updateFormula(); newMissing(); updateSeries(); updateSumProof(); updateSigma(); updateInterest(); updateModel();
+    }
+
+    // Event wiring
+    $('seqUpdate').addEventListener('click', updateSequence);
+    ['seqU1','seqD','seqN','seqFindN','seqCheckVal'].forEach(id => $(id).addEventListener('input', updateSequence));
+    $('seqRandom').addEventListener('click', randomSequence);
+
+    $('formulaUpdate').addEventListener('click', updateFormula);
+    ['formulaN','formulaU1','formulaD'].forEach(id => $(id).addEventListener('input', updateFormula));
+    $('formulaCopyToExplore').addEventListener('click', copyFormulaToExplore);
+
+    $('missingNew').addEventListener('click', newMissing);
+    $('missingCheck').addEventListener('click', checkMissing);
+    $('missingHint').addEventListener('click', hintMissing);
+
+    $('serUpdate').addEventListener('click', updateSeries);
+    ['serU1','serD','serN'].forEach(id => $(id).addEventListener('input', updateSeries));
+    $('serOdd').addEventListener('click', () => { $('serN').value = 9; updateSeries(); });
+    $('serNegative').addEventListener('click', () => { $('serU1').value = 30; $('serD').value = -3; $('serN').value = 12; updateSeries(); });
+
+    $('proofUpdate').addEventListener('click', () => { resetProofRevealSteps(); updateSumProof(); });
+    $('proofGaussUpdate').addEventListener('click', () => { proofGaussRevealed = true; updateSumProof(); });
+    $('proofGaussN').addEventListener('input', () => { proofGaussRevealed = false; updateSumProof(); });
+    ['proofU1','proofD','proofN'].forEach(id => $(id).addEventListener('input', () => { resetProofRevealSteps(); updateSumProof(); }));
+    $('proofGauss100').addEventListener('click', () => { $('proofGaussN').value=100; proofGaussRevealed = false; updateSumProof(); });
+    $('proofRandom').addEventListener('click', () => { $('proofU1').value=randInt(-8,12); $('proofD').value=choice([-5,-4,-3,-2,2,3,4,5,6]); $('proofN').value=randInt(6,16); resetProofRevealSteps(); updateSumProof(); });
+    $('proofOdd').addEventListener('click', () => { $('proofU1').value=5; $('proofD').value=3; $('proofN').value=9; resetProofRevealSteps(); updateSumProof(); });
+    document.querySelectorAll('[data-proof-step]').forEach(card => card.addEventListener('click', () => {
+      const idx = Number(card.dataset.proofStep) - 1;
+      proofRevealSteps[idx] = true;
+      updateProofReveals();
+    }));
+
+    $('sigUpdate').addEventListener('click', updateSigma);
+    ['sigP','sigQ','sigA','sigB'].forEach(id => $(id).addEventListener('input', updateSigma));
+    $('sigTrick').addEventListener('click', () => { $('sigP').value=4; $('sigQ').value=15; $('sigA').value=3; $('sigB').value=-2; updateSigma(); });
+    $('sigRandom').addEventListener('click', () => { const p=randInt(2,7); $('sigP').value=p; $('sigQ').value=randInt(p+4,p+15); $('sigA').value=choice([-3,-2,2,3,4,5]); $('sigB').value=randInt(-8,8); updateSigma(); });
+
+    $('intUpdate').addEventListener('click', updateInterest);
+    ['intP','intR','intT'].forEach(id => $(id).addEventListener('input', updateInterest));
+    $('intDouble').addEventListener('click', doubleTime);
+    $('intCompoundToggle').addEventListener('click', () => { $('compoundNote').style.display = $('compoundNote').style.display === 'none' ? 'block' : 'none'; updateInterest(); });
+
+    $('modelUpdate').addEventListener('click', updateModel);
+    $('modelData').addEventListener('input', updateModel);
+    ['modelPredictN','modelTol'].forEach(id => $(id).addEventListener('input', updateModel));
+    $('modelSalary').addEventListener('click', () => setModelData('salary'));
+    $('modelTree').addEventListener('click', () => setModelData('tree'));
+    $('modelSwim').addEventListener('click', () => setModelData('swim'));
+    $('modelSubscribers').addEventListener('click', () => setModelData('subscribers'));
+    $('modelReps').addEventListener('click', () => setModelData('reps'));
+    $('modelSavings').addEventListener('click', () => setModelData('savings'));
+    $('modelBattery').addEventListener('click', () => setModelData('battery'));
+    $('modelTank').addEventListener('click', () => setModelData('tank'));
+    $('modelCandle').addEventListener('click', () => setModelData('candle'));
+    $('modelNoisy').addEventListener('click', () => setModelData('noisy'));
+
+    $('quizNew').addEventListener('click', makeQuiz);
+    $('quizCheck').addEventListener('click', checkQuiz);
+    $('quizHint').addEventListener('click', showQuizHint);
+    $('quizSolution').addEventListener('click', showQuizSolution);
+    $('quizType').addEventListener('change', makeQuiz);
+    $('quizAnswer').addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkQuiz(); });
+    $('resetAll').addEventListener('click', resetAll);
+
+    // Initial render
+    const initialHash = location.hash ? location.hash.slice(1) : 'explore';
+    updateSequence();
+    updateFormula();
+    newMissing();
+    updateSeries();
+    updateSumProof();
+    updateSigma();
+    updateInterest();
+    updateModel();
+    makeQuiz();
+    updateQuizStats();
+    if ($(initialHash)) setTab(initialHash);
+  </script>
+</body>
+</html>
