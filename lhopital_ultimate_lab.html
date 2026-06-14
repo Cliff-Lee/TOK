@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L’Hôpital’s Rule — Ultimate Interactive Laboratory</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#f7f8fb;
+      --panel:#ffffff;
+      --ink:#13212e;
+      --muted:#5c6b7a;
+      --brand:#2854a3;
+      --brand2:#6c5ce7;
+      --good:#137a4b;
+      --warn:#a15c00;
+      --bad:#a83232;
+      --line:#d8dee9;
+      --soft:#edf2ff;
+      --soft2:#f0f9f4;
+      --soft3:#fff7e7;
+      --shadow:0 12px 30px rgba(20, 31, 50, .08);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:radial-gradient(circle at top left, #e9f2ff 0, transparent 34rem), var(--bg);
+      line-height:1.55;
+    }
+    .hero{
+      padding:48px 22px 24px;
+      max-width:1180px;
+      margin:auto;
+    }
+    .hero-card{
+      background:linear-gradient(135deg,#112a55,#375ccb 55%,#7458d4);
+      color:white;
+      border-radius:30px;
+      padding:38px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-card:after{
+      content:"";
+      position:absolute;
+      width:340px;height:340px;
+      right:-90px;top:-80px;
+      border-radius:50%;
+      background:rgba(255,255,255,.12);
+    }
+    .kicker{font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.85;font-size:.8rem}
+    h1{font-size:clamp(2.1rem,5vw,4.6rem);line-height:1;margin:.25em 0 .2em;font-weight:900;letter-spacing:-.06em}
+    h2{font-size:clamp(1.6rem,3vw,2.5rem);line-height:1.1;margin:0 0 16px;letter-spacing:-.035em}
+    h3{font-size:1.25rem;margin:0 0 10px}
+    p{margin:0 0 12px}
+    .lead{font-size:1.18rem;max-width:850px;color:rgba(255,255,255,.9)}
+    .hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px;position:relative;z-index:1}
+    .hero-pill{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:14px;font-weight:700}
+    .hero-pill span{display:block;font-size:.82rem;opacity:.75;font-weight:600}
+    .navwrap{position:sticky;top:0;z-index:20;background:rgba(247,248,251,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+    .nav{max-width:1180px;margin:auto;padding:10px 18px;display:flex;gap:8px;overflow-x:auto}
+    button,.btn{
+      appearance:none;border:0;background:var(--panel);color:var(--ink);border-radius:999px;padding:10px 15px;
+      font-weight:800;cursor:pointer;border:1px solid var(--line);box-shadow:0 2px 8px rgba(15,25,45,.04);white-space:nowrap;
+      transition:.15s transform,.15s background,.15s border-color;
+    }
+    button:hover,.btn:hover{transform:translateY(-1px);border-color:#aab7ca}
+    button.primary,.btn.primary{background:var(--brand);color:white;border-color:var(--brand)}
+    button.good{background:#e7f6ee;color:#0f6a3d;border-color:#bde2cc}
+    button.warn{background:#fff3d8;color:#8a5200;border-color:#f2d18e}
+    button.bad{background:#fff0f0;color:#9b2525;border-color:#efb6b6}
+    .container{max-width:1180px;margin:auto;padding:22px}
+    section.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:28px;margin:22px 0;box-shadow:var(--shadow)}
+    .split{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start}
+    .three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .two{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .mini-card{border:1px solid var(--line);background:#fff;border-radius:18px;padding:18px;min-height:100%}
+    .soft{background:var(--soft);border-color:#d9e5ff}
+    .soft2{background:var(--soft2);border-color:#cdebd8}
+    .soft3{background:var(--soft3);border-color:#f2deb3}
+    .muted{color:var(--muted)}
+    .mathbox{background:#fbfcff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0;overflow-x:auto}
+    .bigmath{font-size:1.1rem;text-align:center}
+    .notice{border-left:6px solid var(--brand);background:#f4f7ff;border-radius:14px;padding:16px;margin:14px 0}
+    .warning{border-left-color:var(--warn);background:#fff7e9}
+    .danger{border-left-color:var(--bad);background:#fff1f1}
+    .success{border-left-color:var(--good);background:#eefaf4}
+    .tag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#f1f4f9;border:1px solid var(--line);padding:5px 10px;font-weight:800;font-size:.82rem;margin:3px}
+    .tabbar,.button-bank{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+    .tabbar button.active,.button-bank button.active{background:var(--brand);color:white;border-color:var(--brand)}
+    canvas{width:100%;height:360px;border:1px solid var(--line);border-radius:18px;background:white;display:block}
+    .slider-row{display:grid;grid-template-columns:110px 1fr 150px;gap:10px;align-items:center;margin:10px 0}
+    input[type="range"]{width:100%}
+    .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:white;margin:12px 0}
+    table{border-collapse:collapse;width:100%;font-size:.95rem}
+    th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
+    th{background:#f5f7fb;font-weight:900}
+    tr:last-child td{border-bottom:0}
+    .answer{display:none;background:#f8fbff;border:1px dashed #b9c6dc;border-radius:14px;padding:14px;margin-top:12px}
+    .answer.show{display:block}
+    details{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:#fff;margin:10px 0}
+    summary{cursor:pointer;font-weight:900}
+    .step{display:flex;gap:12px;align-items:flex-start;margin:12px 0}
+    .num{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:white;font-weight:900;flex:0 0 auto}
+    .formula-card{font-size:1.05rem;background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid #dce5f5;border-radius:18px;padding:18px}
+    .checklist li{margin:.5rem 0}
+    .pill-list{display:flex;gap:8px;flex-wrap:wrap}
+    .pill-list span{background:#eef2f8;border:1px solid #d9e0ec;padding:7px 11px;border-radius:999px;font-weight:800}
+    .problem-card{border:1px solid var(--line);border-radius:20px;padding:20px;background:#fff}
+    .choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+    .choice-grid button{text-align:left;border-radius:14px;white-space:normal;font-weight:750}
+    .feedback{margin-top:14px;padding:14px;border-radius:14px;display:none}
+    .feedback.show{display:block}
+    .feedback.correct{background:#edf9f2;border:1px solid #b8e2c7;color:#0b6538}
+    .feedback.wrong{background:#fff0f0;border:1px solid #edb5b5;color:#972525}
+    .progressbar{height:10px;background:#e9edf4;border-radius:999px;overflow:hidden}
+    .progressbar div{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0%}
+    .teacher{display:none}
+    body.teacher-on .teacher{display:block}
+    .small{font-size:.9rem}
+    .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:16px}
+    .flow .mini-card{text-align:center;padding:14px}
+    .arrow{font-size:1.6rem;color:#789;text-align:center;align-self:center}
+    .print-only{display:none}
+    @media (max-width:900px){.split,.three,.two,.flow{grid-template-columns:1fr}.hero-grid{grid-template-columns:1fr 1fr}.choice-grid{grid-template-columns:1fr}.slider-row{grid-template-columns:1fr}.hero-card{padding:26px}}
+    @media print{
+      .navwrap,.no-print,button{display:none!important}
+      body{background:white}
+      section.card{box-shadow:none;break-inside:avoid}
+      .answer{display:block!important}
+      .teacher{display:block!important}
+      .print-only{display:block}
+      canvas{height:260px}
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-card">
+      <div class="kicker">Interactive AHL calculus laboratory</div>
+      <h1>L’Hôpital’s Rule</h1>
+      <p class="lead">A sensible sequence from discovery to proof to exam fluency: graph first, classify the form, understand the local-rate idea, then practise applying the rule without turning it into a blind trick.</p>
+      <div class="hero-grid">
+        <div class="hero-pill">1. Discover<span>Why substitution fails</span></div>
+        <div class="hero-pill">2. Classify<span>When the rule is allowed</span></div>
+        <div class="hero-pill">3. Prove<span>First-principles link</span></div>
+        <div class="hero-pill">4. Practise<span>Transform, repeat, avoid traps</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="navwrap no-print">
+    <nav class="nav">
+      <a class="btn" href="#discover">Discovery</a>
+      <a class="btn" href="#forms">Indeterminate forms</a>
+      <a class="btn" href="#rule">The rule</a>
+      <a class="btn" href="#proof">Proof lab</a>
+      <a class="btn" href="#examples">Worked examples</a>
+      <a class="btn" href="#mistakes">Mistakes</a>
+      <a class="btn" href="#practice">Practice engine</a>
+      <button id="teacherToggle" class="warn">Teacher notes</button>
+      <button onclick="window.print()">Print / PDF</button>
+    </nav>
+  </div>
+
+  <main class="container">
+    <section id="discover" class="card">
+      <div class="split">
+        <div>
+          <div class="kicker" style="color:var(--brand)">Part 1</div>
+          <h2>Start with a mystery: why does substitution fail?</h2>
+          <p>Try direct substitution first. When both numerator and denominator go to zero, the expression has not told us the answer; it has only told us that the obvious method has failed.</p>
+          <div class="mathbox bigmath">\[\lim_{x\to 0}\frac{\sin x}{x}\quad \text{gives}\quad \frac{0}{0}\]</div>
+          <p>The key idea is local behaviour. Near the point, the numerator and denominator are both changing. Which one changes faster?</p>
+          <div class="button-bank" id="graphButtons"></div>
+          <div class="slider-row">
+            <strong>Zoom</strong>
+            <input id="zoomSlider" type="range" min="1" max="100" value="35" />
+            <span id="zoomLabel" class="tag">window ±1.50</span>
+          </div>
+        </div>
+        <div class="mini-card soft">
+          <h3>Inquiry prompts</h3>
+          <ol>
+            <li>What happens if you substitute directly?</li>
+            <li>Graph the quotient and describe what it seems to approach.</li>
+            <li>Graph the derivative quotient and compare.</li>
+            <li>When do the two graphs seem to agree near the limiting point?</li>
+          </ol>
+          <div class="notice success"><strong>Big idea:</strong> L’Hôpital’s rule compares the local rates of change of the two functions, not the derivatives of a quotient.</div>
+        </div>
+      </div>
+      <canvas id="graphCanvas" width="980" height="420" aria-label="Graph of quotient and derivative quotient"></canvas>
+      <div class="tablewrap">
+        <table id="valueTable">
+          <thead><tr><th>Input near the limiting value</th><th>Original quotient</th><th>Derivative quotient</th><th>What to notice</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="forms" class="card">
+      <div class="kicker" style="color:var(--brand)">Part 2</div>
+      <h2>Classify before you calculate</h2>
+      <p>L’Hôpital’s rule is powerful because it has boundaries. The first classroom habit should be: <strong>substitute or reason about the top and bottom separately</strong>, then classify the form.</p>
+      <div class="three">
+        <div class="mini-card soft2">
+          <h3>Allowed immediately</h3>
+          <div class="mathbox">\[\frac{0}{0}\qquad \frac{\infty}{\infty}\qquad \frac{-\infty}{\infty}\]</div>
+          <p>These quotient forms are the main gateway to the rule.</p>
+        </div>
+        <div class="mini-card soft3">
+          <h3>Transform first</h3>
+          <div class="mathbox">\[0\cdot\infty,\quad \infty-\infty,\quad 1^\infty,\quad 0^0,\quad \infty^0\]</div>
+          <p>Rewrite as a quotient, or use logarithms for power forms.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Not indeterminate</h3>
+          <div class="mathbox">\[\frac{1}{0},\quad \frac{5}{\infty},\quad \frac{\infty}{2}\]</div>
+          <p>Do not use the rule automatically. The limit may be infinite, zero, one-sided, or not exist.</p>
+        </div>
+      </div>
+      <h3 style="margin-top:22px">Quick classifier</h3>
+      <p>Choose the form. The goal is speed and accuracy before doing any differentiation.</p>
+      <div id="classifyCards" class="three"></div>
+    </section>
+
+    <section id="rule" class="card">
+      <div class="split">
+        <div>
+          <div class="kicker" style="color:var(--brand)">Part 3</div>
+          <h2>The rule, stated carefully</h2>
+          <div class="formula-card">
+            <p><strong>L’Hôpital’s rule:</strong> Suppose \(f\) and \(g\) are differentiable near \(a\), and \(g'(x)\neq 0\) near \(a\). If the original quotient has the form \(0/0\) or \(\pm\infty/\pm\infty\), then</p>
+            <div class="mathbox bigmath">\[\lim_{x\to a}\frac{f(x)}{g(x)}=\lim_{x\to a}\frac{f'(x)}{g'(x)}\]</div>
+            <p>provided the limit on the right exists, including the possibility that it is infinite.</p>
+          </div>
+          <div class="notice warning"><strong>Do not say:</strong> “Differentiate the fraction.” Say: “Differentiate the numerator and denominator separately.”</div>
+        </div>
+        <div class="mini-card soft">
+          <h3>The six-step exam routine</h3>
+          <ol class="checklist">
+            <li><strong>Substitute / reason</strong> about numerator and denominator separately.</li>
+            <li><strong>Check the form</strong>: only use the rule for \(0/0\) or \(\infty/\infty\).</li>
+            <li><strong>Differentiate separately</strong>: \(f'\) over \(g'\), not the quotient rule.</li>
+            <li><strong>Simplify</strong> before substituting again.</li>
+            <li><strong>Repeat</strong> only if the new quotient is still indeterminate.</li>
+            <li><strong>Interpret</strong>: finite answer, infinite limit, one-sided issue, or no limit.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="flow no-print">
+        <div class="mini-card">Substitute</div>
+        <div class="mini-card">Classify</div>
+        <div class="mini-card">Transform?</div>
+        <div class="mini-card">Apply rule</div>
+        <div class="mini-card">Simplify/repeat</div>
+        <div class="mini-card">Conclude</div>
+      </div>
+    </section>
+
+    <section id="proof" class="card">
+      <div class="kicker" style="color:var(--brand)">Part 4</div>
+      <h2>Proof lab: why the rule makes sense</h2>
+      <p>This proof is for the \(0/0\) case and uses the derivative-from-first-principles idea. Reveal each step only after predicting what comes next.</p>
+      <div class="two">
+        <div>
+          <details open>
+            <summary>Step 1 — Start with the failed quotient</summary>
+            <div class="mathbox">\[\lim_{x\to a}\frac{f(x)}{g(x)},\quad f(a)=0,\quad g(a)=0\]</div>
+            <p>Because both functions approach zero, direct substitution gives \(0/0\).</p>
+          </details>
+          <details>
+            <summary>Step 2 — Insert the zero values</summary>
+            <div class="mathbox">\[\frac{f(x)}{g(x)}=\frac{f(x)-f(a)}{g(x)-g(a)}\]</div>
+            <p>This is legal because \(f(a)=g(a)=0\).</p>
+          </details>
+          <details>
+            <summary>Step 3 — Create difference quotients</summary>
+            <div class="mathbox">\[\frac{f(x)-f(a)}{g(x)-g(a)}=\frac{\frac{f(x)-f(a)}{x-a}}{\frac{g(x)-g(a)}{x-a}}\]</div>
+            <p>Dividing top and bottom by \(x-a\) reveals the derivative structure.</p>
+          </details>
+        </div>
+        <div>
+          <details>
+            <summary>Step 4 — Take the limit</summary>
+            <div class="mathbox">\[\lim_{x\to a}\frac{\frac{f(x)-f(a)}{x-a}}{\frac{g(x)-g(a)}{x-a}}=\frac{f'(a)}{g'(a)}\]</div>
+            <p>The top tends to \(f'(a)\) and the bottom tends to \(g'(a)\), provided \(g'(a)\neq0\).</p>
+          </details>
+          <details>
+            <summary>Step 5 — Generalise the idea</summary>
+            <div class="mathbox">\[\lim_{x\to a}\frac{f(x)}{g(x)}=\lim_{x\to a}\frac{f'(x)}{g'(x)}\]</div>
+            <p>The more rigorous theorem handles cases where the derivative quotient has its own limit near \(a\), not just exactly at \(a\).</p>
+          </details>
+          <details>
+            <summary>Important rigour note</summary>
+            <p>This classroom proof captures the intuition. A fully rigorous proof uses stronger results about limits, differentiability, and usually Cauchy’s mean value theorem.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="examples" class="card">
+      <div class="kicker" style="color:var(--brand)">Part 5</div>
+      <h2>Worked examples: from basic to subtle</h2>
+      <p>Use the buttons to move through a sensible sequence. Each example includes the form check, method, and final conclusion.</p>
+      <div class="tabbar" id="exampleTabs"></div>
+      <div id="examplePanel" class="problem-card"></div>
+    </section>
+
+    <section id="mistakes" class="card">
+      <div class="kicker" style="color:var(--brand)">Part 6</div>
+      <h2>Spot the mistake</h2>
+      <p>These are deliberately tempting errors. They are useful because most wrong solutions to this topic are not algebra errors; they are decision errors.</p>
+      <div class="three" id="mistakeCards"></div>
+    </section>
+
+    <section id="practice" class="card">
+      <div class="split">
+        <div>
+          <div class="kicker" style="color:var(--brand)">Part 7</div>
+          <h2>Practice engine</h2>
+          <p>Generate a question, choose an answer, then reveal the worked solution. Some questions require transforming before using the rule; one question is a trap where the rule should not be used.</p>
+        </div>
+        <div class="mini-card soft2">
+          <h3>Progress</h3>
+          <p><span id="scoreText">0 correct out of 0 attempted</span></p>
+          <div class="progressbar"><div id="scoreBar"></div></div>
+        </div>
+      </div>
+      <div id="quizCard" class="problem-card"></div>
+      <div class="button-bank no-print">
+        <button class="primary" id="newQuestion">New question</button>
+        <button id="showHint">Show hint</button>
+        <button id="showSolution">Show full solution</button>
+        <button id="resetScore">Reset score</button>
+      </div>
+      <div id="hintBox" class="answer"></div>
+      <div id="solutionBox" class="answer"></div>
+    </section>
+
+    <section id="teacher" class="card teacher">
+      <div class="kicker" style="color:var(--brand)">Teacher notes</div>
+      <h2>Suggested teaching sequence</h2>
+      <div class="two">
+        <div class="mini-card soft">
+          <h3>Lesson 1: discovery to rule</h3>
+          <ol>
+            <li>Start with \(\sin x/x\) and table/graph behaviour.</li>
+            <li>Ask students to compare \(f/g\) with \(f'/g'\).</li>
+            <li>Name indeterminate forms and non-examples.</li>
+            <li>State the rule only after students have seen the need for it.</li>
+          </ol>
+        </div>
+        <div class="mini-card soft3">
+          <h3>Lesson 2: fluency and judgement</h3>
+          <ol>
+            <li>Use the proof lab as a structured explanation.</li>
+            <li>Practise \(0/0\), \(\infty/\infty\), repeated use, and transformations.</li>
+            <li>Use the mistake cards for mini-whiteboard diagnosis.</li>
+            <li>Finish with exam-style mixed problems.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="notice success"><strong>Assessment language:</strong> Encourage students to write “This is of the form \(0/0\), so L’Hôpital’s rule may be used” before differentiating.</div>
+    </section>
+  </main>
+
+  <script>
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    function typeset(){ if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise(); } }
+    function safeNum(v){ return Number.isFinite(v) ? v : NaN; }
+    function fmt(v){
+      if(v === Infinity) return "∞";
+      if(v === -Infinity) return "−∞";
+      if(Number.isNaN(v)) return "undefined";
+      if(Math.abs(v) > 9999 || (Math.abs(v) < .0001 && v !== 0)) return v.toExponential(3);
+      return (Math.round(v*1000000)/1000000).toString();
+    }
+
+    const graphExamples = [
+      {
+        id:'sinx_x', label:'sin x / x near 0', a:0, mode:'finite', baseWindow:1.5,
+        title:'Discovery example: \\(\\sin x/x\\)',
+        q:x => Math.abs(x)<1e-10 ? NaN : Math.sin(x)/x,
+        dq:x => Math.cos(x),
+        points: z => [-z, -z/2, -z/10, z/10, z/2, z],
+        note:'Both quotients approach 1. The derivative quotient is easier to evaluate.'
+      },
+      {
+        id:'cos_x2', label:'(1 − cos x) / x²', a:0, mode:'finite', baseWindow:1.5,
+        title:'Repeated-rule preview: \\((1-\\cos x)/x^2\\)',
+        q:x => Math.abs(x)<1e-10 ? NaN : (1-Math.cos(x))/(x*x),
+        dq:x => Math.abs(x)<1e-10 ? NaN : Math.sin(x)/(2*x),
+        points: z => [-z, -z/2, -z/10, z/10, z/2, z],
+        note:'The derivative quotient still has 0/0 at x=0, but its nearby values suggest 1/2.'
+      },
+      {
+        id:'x_ex', label:'x / eˣ as x → ∞', a:Infinity, mode:'infty', baseWindow:6,
+        title:'Infinity example: \\(x/e^x\\)',
+        q:x => x/Math.exp(x),
+        dq:x => 1/Math.exp(x),
+        points: z => [1,2,3,5,8,12],
+        note:'Both original and derivative quotients head toward 0. Exponential growth dominates linear growth.'
+      },
+      {
+        id:'lnx_inv', label:'x ln x as x → 0⁺', a:0, mode:'positive', baseWindow:1,
+        title:'Transformation example: \\(x\\ln x\\)',
+        q:x => x>0 ? x*Math.log(x) : NaN,
+        dq:x => x>0 ? -x : NaN,
+        points: z => [z, z/2, z/5, z/10, z/25, z/50],
+        note:'The product 0·∞ is rewritten as ln x divided by 1/x; the derivative quotient is −x.'
+      },
+      {
+        id:'invalid', label:'cos x / x near 0', a:0, mode:'finite', baseWindow:1.5,
+        title:'Non-example: \\(\\cos x/x\\)',
+        q:x => Math.abs(x)<1e-10 ? NaN : Math.cos(x)/x,
+        dq:x => -Math.sin(x),
+        points: z => [-z, -z/2, -z/10, z/10, z/2, z],
+        note:'This is not 0/0 or ∞/∞ at x=0. The rule is not allowed.'
+      }
+    ];
+    let currentGraph = graphExamples[0];
+
+    function buildGraphButtons(){
+      const wrap = $('#graphButtons');
+      wrap.innerHTML = '';
+      graphExamples.forEach((ex,i)=>{
+        const b=document.createElement('button');
+        b.textContent=ex.label;
+        b.className=i===0?'active':'';
+        b.onclick=()=>{ currentGraph=ex; $$('#graphButtons button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); drawGraph(); updateValueTable(); typeset(); };
+        wrap.appendChild(b);
+      });
+    }
+
+    function drawGraph(){
+      const canvas = $('#graphCanvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='#d8dee9'; ctx.lineWidth=1;
+      for(let i=0;i<=10;i++){
+        const x=i*W/10; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+        const y=i*H/10; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+      }
+      const zoom = Number($('#zoomSlider').value);
+      let win = currentGraph.baseWindow * (101-zoom)/44;
+      if(currentGraph.mode==='infty') win = currentGraph.baseWindow;
+      if(currentGraph.mode==='positive') win = Math.max(.08, currentGraph.baseWindow * (101-zoom)/60);
+      $('#zoomLabel').textContent = currentGraph.mode==='infty' ? 'x from 0 to 12' : (currentGraph.mode==='positive' ? `x from 0 to ${win.toFixed(2)}` : `window ±${win.toFixed(2)}`);
+
+      let xmin, xmax;
+      if(currentGraph.mode==='infty'){ xmin=0; xmax=12; }
+      else if(currentGraph.mode==='positive'){ xmin=0.001; xmax=win; }
+      else { xmin=-win; xmax=win; }
+      const xs=[];
+      for(let i=0;i<720;i++){ xs.push(xmin + (xmax-xmin)*i/719); }
+      let vals=[];
+      xs.forEach(x=>{ vals.push(currentGraph.q(x)); vals.push(currentGraph.dq(x)); });
+      vals=vals.filter(v=>Number.isFinite(v) && Math.abs(v)<50);
+      let ymin=Math.min(...vals), ymax=Math.max(...vals);
+      if(!Number.isFinite(ymin)||!Number.isFinite(ymax)||ymin===ymax){ ymin=-2; ymax=2; }
+      const pad=(ymax-ymin)*.18+.05; ymin-=pad; ymax+=pad;
+      if(currentGraph.id==='cos_x2'){ ymin=-.2; ymax=1.2; }
+      if(currentGraph.id==='sinx_x'){ ymin=-.4; ymax=1.3; }
+      if(currentGraph.id==='x_ex'){ ymin=-.04; ymax=.42; }
+      if(currentGraph.id==='lnx_inv'){ ymin=-.4; ymax=.1; }
+      if(currentGraph.id==='invalid'){ ymin=-10; ymax=10; }
+      const X=x=> (x-xmin)/(xmax-xmin)*W;
+      const Y=y=> H - (y-ymin)/(ymax-ymin)*H;
+
+      // axes
+      ctx.strokeStyle='#8a96a8'; ctx.lineWidth=1.5;
+      if(xmin<0 && xmax>0){ ctx.beginPath(); ctx.moveTo(X(0),0); ctx.lineTo(X(0),H); ctx.stroke(); }
+      if(ymin<0 && ymax>0){ ctx.beginPath(); ctx.moveTo(0,Y(0)); ctx.lineTo(W,Y(0)); ctx.stroke(); }
+
+      function plot(fn, color, dash=false){
+        ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=3; if(dash) ctx.setLineDash([8,6]);
+        let started=false, lastY=null;
+        xs.forEach(x=>{
+          const y=fn(x);
+          if(!Number.isFinite(y) || Math.abs(y)>50){ started=false; return; }
+          const px=X(x), py=Y(y);
+          if(!started || Math.abs(py-lastY)>H/2){ ctx.beginPath(); ctx.moveTo(px,py); started=true; }
+          else ctx.lineTo(px,py);
+          lastY=py;
+        });
+        ctx.stroke(); ctx.restore();
+      }
+      plot(currentGraph.q, '#2854a3', false);
+      plot(currentGraph.dq, '#c0397a', true);
+
+      ctx.fillStyle='#13212e'; ctx.font='700 18px Inter, sans-serif';
+      ctx.fillText(currentGraph.title.replaceAll('\\',''), 18, 30);
+      ctx.font='14px Inter, sans-serif';
+      ctx.fillStyle='#2854a3'; ctx.fillRect(18,45,22,4); ctx.fillText('original quotient f(x)/g(x)', 48,52);
+      ctx.strokeStyle='#c0397a'; ctx.lineWidth=3; ctx.setLineDash([8,6]); ctx.beginPath(); ctx.moveTo(18,72); ctx.lineTo(40,72); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#c0397a'; ctx.fillText("derivative quotient f'(x)/g'(x)", 48,77);
+    }
+
+    function updateValueTable(){
+      const tbody = $('#valueTable tbody'); tbody.innerHTML='';
+      const zoom = Number($('#zoomSlider').value);
+      let z = currentGraph.mode==='infty' ? 1 : Math.max(.02, currentGraph.baseWindow * (101-zoom)/44);
+      if(currentGraph.mode==='positive') z=Math.max(.02, currentGraph.baseWindow * (101-zoom)/60);
+      const pts = currentGraph.points(z);
+      pts.forEach(x=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${fmt(x)}</td><td>${fmt(currentGraph.q(x))}</td><td>${fmt(currentGraph.dq(x))}</td><td>${currentGraph.note}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    $('#zoomSlider').addEventListener('input',()=>{ drawGraph(); updateValueTable(); });
+
+    const classifyItems = [
+      {expr:'\\(\\lim_{x\\to0}\\frac{\\sin x}{x}\\)', form:'0/0', ok:true, why:'Top → 0 and bottom → 0, so the rule is allowed.'},
+      {expr:'\\(\\lim_{x\\to0}\\frac{\\cos x}{x}\\)', form:'1/0', ok:false, why:'Top → 1 and bottom → 0. This is not indeterminate; do not use the rule.'},
+      {expr:'\\(\\lim_{x\\to\\infty}\\frac{x^2}{e^x}\\)', form:'∞/∞', ok:true, why:'Both top and bottom grow without bound; the rule may be used, perhaps more than once.'},
+      {expr:'\\(\\lim_{x\\to0^+}x\\ln x\\)', form:'0·∞', ok:'transform', why:'Transform first: write it as \\(\\ln x/(1/x)\\), then use the rule.'},
+      {expr:'\\(\\lim_{x\\to\\infty}\\frac{5}{x}\\)', form:'5/∞', ok:false, why:'This tends to 0 directly. L’Hôpital is unnecessary and not justified by an indeterminate form.'},
+      {expr:'\\(\\lim_{x\\to0}\\frac{e^x-1-x}{x^2}\\)', form:'0/0', ok:true, why:'Allowed; after one use it is still 0/0, so use the rule again.'}
+    ];
+
+    function buildClassifier(){
+      const wrap=$('#classifyCards'); wrap.innerHTML='';
+      classifyItems.forEach((it,idx)=>{
+        const div=document.createElement('div'); div.className='mini-card';
+        div.innerHTML=`<h3>${it.expr}</h3><div class="button-bank">
+          <button>0/0</button><button>∞/∞</button><button>Transform first</button><button>Not allowed</button>
+        </div><div class="answer" id="classAns${idx}"><strong>Form:</strong> ${it.form}<br>${it.why}</div>`;
+        const buttons=div.querySelectorAll('button');
+        buttons.forEach(b=>b.onclick=()=>{ div.querySelector('.answer').classList.add('show'); buttons.forEach(x=>x.classList.remove('active')); b.classList.add('active'); typeset(); });
+        wrap.appendChild(div);
+      });
+      typeset();
+    }
+
+    const examples = [
+      {
+        label:'1. Basic 0/0',
+        title:'Basic form: \\(\\lim_{x\\to0}\\frac{\\sin x}{x}\\)',
+        html:`<p><strong>Check:</strong> \\(\\sin 0=0\\) and \\(0=0\\), so this is \\(0/0\\).</p>
+        <div class="mathbox">\\[\\lim_{x\\to0}\\frac{\\sin x}{x}=\\lim_{x\\to0}\\frac{\\cos x}{1}=1\\]</div>
+        <p><strong>Conclusion:</strong> The limit is \\(1\\). This also confirms the small-angle approximation \\(\\sin x\\approx x\\) near zero.</p>`
+      },
+      {
+        label:'2. Infinity form',
+        title:'Infinity form: \\(\\lim_{x\\to\\infty}\\frac{x}{e^x}\\)',
+        html:`<p><strong>Check:</strong> top \\(\\to\\infty\\), bottom \\(\\to\\infty\\), so this is \\(\\infty/\\infty\\).</p>
+        <div class="mathbox">\\[\\lim_{x\\to\\infty}\\frac{x}{e^x}=\\lim_{x\\to\\infty}\\frac{1}{e^x}=0\\]</div>
+        <p><strong>Conclusion:</strong> The limit is \\(0\\). Exponentials eventually dominate polynomials.</p>`
+      },
+      {
+        label:'3. Transform first',
+        title:'Product form: \\(\\lim_{x\\to0^+}x\\ln x\\)',
+        html:`<p><strong>Check:</strong> \\(x\\to0^+\\), while \\(\\ln x\\to-\\infty\\), so the product is \\(0\\cdot(-\\infty)\\). Transform first.</p>
+        <div class="mathbox">\\[x\\ln x=\\frac{\\ln x}{1/x}\\]</div>
+        <p>Now the quotient has the form \\((-\\infty)/(\\infty)\\), so the rule may be used.</p>
+        <div class="mathbox">\\[\\lim_{x\\to0^+}\\frac{\\ln x}{1/x}=\\lim_{x\\to0^+}\\frac{1/x}{-1/x^2}=\\lim_{x\\to0^+}(-x)=0\\]</div>
+        <p><strong>Conclusion:</strong> The limit is \\(0\\), approached from below.</p>`
+      },
+      {
+        label:'4. Repeat the rule',
+        title:'Repeated use: \\(\\lim_{x\\to0}\\frac{1-\\cos x}{x^2}\\)',
+        html:`<p><strong>Check:</strong> direct substitution gives \\(0/0\\).</p>
+        <div class="mathbox">\\[\\lim_{x\\to0}\\frac{1-\\cos x}{x^2}=\\lim_{x\\to0}\\frac{\\sin x}{2x}\\]</div>
+        <p>This is still \\(0/0\\), so apply the rule again.</p>
+        <div class="mathbox">\\[\\lim_{x\\to0}\\frac{\\sin x}{2x}=\\lim_{x\\to0}\\frac{\\cos x}{2}=\\frac12\\]</div>
+        <p><strong>Conclusion:</strong> The limit is \\(\\frac12\\).</p>`
+      },
+      {
+        label:'5. Not allowed',
+        title:'Non-example: \\(\\lim_{x\\to0}\\frac{\\cos x}{x}\\)',
+        html:`<p><strong>Check:</strong> the top tends to \\(1\\), and the bottom tends to \\(0\\). This is not \\(0/0\\).</p>
+        <div class="notice danger"><strong>Do not use L’Hôpital’s rule.</strong> The two-sided limit does not exist: the expression tends to \\(+\\infty\\) from the right and \\(-\\infty\\) from the left.</div>`
+      },
+      {
+        label:'6. Power form',
+        title:'Power form: \\(\\lim_{x\\to0^+}(1+x)^{1/x}\\)',
+        html:`<p><strong>Check:</strong> this has the form \\(1^\\infty\\), so use logarithms.</p>
+        <div class="mathbox">\\[y=(1+x)^{1/x}\\quad\\Rightarrow\\quad \\ln y=\\frac{\\ln(1+x)}{x}\\]</div>
+        <p>Now apply L’Hôpital’s rule to the logarithm:</p>
+        <div class="mathbox">\\[\\lim_{x\\to0^+}\\frac{\\ln(1+x)}{x}=\\lim_{x\\to0^+}\\frac{1/(1+x)}{1}=1\\]</div>
+        <p>So \\(\\ln y\\to1\\), hence \\(y\\to e\\).</p>`
+      }
+    ];
+
+    function buildExamples(){
+      const tabs=$('#exampleTabs'); tabs.innerHTML='';
+      examples.forEach((ex,i)=>{
+        const b=document.createElement('button'); b.textContent=ex.label; b.className=i===0?'active':'';
+        b.onclick=()=>showExample(i,b); tabs.appendChild(b);
+      });
+      showExample(0, tabs.querySelector('button'));
+    }
+    function showExample(i,b){
+      $$('#exampleTabs button').forEach(x=>x.classList.remove('active'));
+      if(b) b.classList.add('active');
+      $('#examplePanel').innerHTML=`<h3>${examples[i].title}</h3>${examples[i].html}`;
+      typeset();
+    }
+
+    const mistakes = [
+      {
+        title:'Mistake A: using the quotient rule',
+        work:'\\[\\frac{d}{dx}\\left(\\frac{f}{g}\\right)=\\frac{g f\'-f g\'}{g^2}\\]',
+        fix:'L’Hôpital’s rule does not differentiate the whole quotient. It replaces \\(f/g\\) by \\(f\'/g\'\\), after checking the form.'
+      },
+      {
+        title:'Mistake B: using it when the form is not indeterminate',
+        work:'\\[\\lim_{x\\to0}\\frac{\\cos x}{x}=\\lim_{x\\to0}\\frac{-\\sin x}{1}=0\\]',
+        fix:'Invalid. The original form is \\(1/0\\), not \\(0/0\\). The two-sided limit does not exist.'
+      },
+      {
+        title:'Mistake C: stopping too early',
+        work:'\\[\\frac{1-\\cos x}{x^2}\\to\\frac{\\sin x}{2x}=\\frac{0}{0}\\]',
+        fix:'After one use, the expression is still indeterminate. Use the rule again or use a known limit.'
+      }
+    ];
+    function buildMistakes(){
+      const wrap=$('#mistakeCards'); wrap.innerHTML='';
+      mistakes.forEach((m,i)=>{
+        const div=document.createElement('div'); div.className='mini-card';
+        div.innerHTML=`<h3>${m.title}</h3><div class="mathbox">${m.work}</div><button class="bad">Reveal diagnosis</button><div class="answer"><strong>Fix:</strong> ${m.fix}</div>`;
+        div.querySelector('button').onclick=()=>{ div.querySelector('.answer').classList.add('show'); typeset(); };
+        wrap.appendChild(div);
+      });
+      typeset();
+    }
+
+    const questions = [
+      {q:'\\(\\displaystyle\\lim_{x\\to0}\\frac{\\sin x}{x}\\)', choices:['\\(0\\)','\\(1\\)','\\(\\infty\\)','Does not exist'], ans:1, hint:'Check the form first: it is \\(0/0\\).', sol:'\\[\\lim_{x\\to0}\\frac{\\sin x}{x}=\\lim_{x\\to0}\\frac{\\cos x}{1}=1\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to0}\\frac{1-\\cos x}{x^2}\\)', choices:['\\(0\\)','\\(1\\)','\\(\\frac12\\)','\\(2\\)'], ans:2, hint:'Apply the rule twice.', sol:'\\[\\frac{1-\\cos x}{x^2}\\to\\frac{\\sin x}{2x}\\to\\frac{\\cos x}{2}=\\frac12\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to\\infty}\\frac{x}{e^x}\\)', choices:['\\(0\\)','\\(1\\)','\\(\\infty\\)','Does not exist'], ans:0, hint:'This is \\(\\infty/\\infty\\).', sol:'\\[\\lim_{x\\to\\infty}\\frac{x}{e^x}=\\lim_{x\\to\\infty}\\frac1{e^x}=0\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to\\infty}\\frac{\\ln x}{x}\\)', choices:['\\(0\\)','\\(1\\)','\\(\\infty\\)','\\(-\\infty\\)'], ans:0, hint:'Differentiate top and bottom once.', sol:'\\[\\lim_{x\\to\\infty}\\frac{\\ln x}{x}=\\lim_{x\\to\\infty}\\frac{1/x}{1}=0\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to0^+}x\\ln x\\)', choices:['\\(0\\)','\\(1\\)','\\(-1\\)','\\(-\\infty\\)'], ans:0, hint:'Transform \\(x\\ln x\\) into \\(\\ln x/(1/x)\\).', sol:'\\[x\\ln x=\\frac{\\ln x}{1/x},\\quad \\lim_{x\\to0^+}\\frac{1/x}{-1/x^2}=\\lim_{x\\to0^+}(-x)=0\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to0}\\frac{e^x-1-x}{x^2}\\)', choices:['\\(0\\)','\\(\\frac12\\)','\\(1\\)','\\(2\\)'], ans:1, hint:'This requires two uses of the rule.', sol:'\\[\\frac{e^x-1-x}{x^2}\\to\\frac{e^x-1}{2x}\\to\\frac{e^x}{2}=\\frac12\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to0}\\frac{\\tan x}{x}\\)', choices:['\\(0\\)','\\(1\\)','\\(\\frac12\\)','Does not exist'], ans:1, hint:'Differentiate \\(\\tan x\\).', sol:'\\[\\lim_{x\\to0}\\frac{\\tan x}{x}=\\lim_{x\\to0}\\frac{\\sec^2 x}{1}=1\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to0}\\frac{x-\\sin x}{x^3}\\)', choices:['\\(0\\)','\\(\\frac16\\)','\\(\\frac12\\)','\\(1\\)'], ans:1, hint:'This is a repeated-rule question.', sol:'\\[\\frac{x-\\sin x}{x^3}\\to\\frac{1-\\cos x}{3x^2}\\to\\frac{\\sin x}{6x}\\to\\frac{\\cos x}{6}=\\frac16\\]'},
+      {q:'\\(\\displaystyle\\lim_{x\\to0}\\frac{\\cos x}{x}\\)', choices:['\\(0\\)','\\(1\\)','Use L’Hôpital to get 0','The two-sided limit does not exist'], ans:3, hint:'The original form is not \\(0/0\\).', sol:'The numerator tends to 1 while the denominator tends to 0. From the right the quotient tends to \\(+\\infty\\), and from the left to \\(-\\infty\\), so the two-sided limit does not exist.'}
+    ];
+    let currentQ=0, attempted=0, correct=0, answered=false;
+    function newQuestion(){
+      currentQ=Math.floor(Math.random()*questions.length); answered=false;
+      const it=questions[currentQ];
+      $('#hintBox').classList.remove('show'); $('#solutionBox').classList.remove('show');
+      $('#hintBox').innerHTML=`<strong>Hint:</strong> ${it.hint}`;
+      $('#solutionBox').innerHTML=`<strong>Solution:</strong> ${it.sol}`;
+      let html=`<h3>Find ${it.q}</h3><div class="choice-grid">`;
+      it.choices.forEach((c,i)=> html+=`<button data-choice="${i}">${c}</button>`);
+      html+=`</div><div id="quizFeedback" class="feedback"></div>`;
+      $('#quizCard').innerHTML=html;
+      $$('#quizCard button').forEach(btn=>btn.onclick=()=>checkAnswer(Number(btn.dataset.choice)));
+      typeset();
+    }
+    function checkAnswer(i){
+      const it=questions[currentQ];
+      const fb=$('#quizFeedback');
+      if(!answered){ attempted++; if(i===it.ans) correct++; answered=true; }
+      fb.className='feedback show '+(i===it.ans?'correct':'wrong');
+      fb.innerHTML=i===it.ans ? '<strong>Correct.</strong> Now reveal the full solution to check the reasoning.' : '<strong>Not quite.</strong> Check the form before applying the rule.';
+      updateScore();
+    }
+    function updateScore(){
+      $('#scoreText').textContent=`${correct} correct out of ${attempted} attempted`;
+      $('#scoreBar').style.width=attempted? `${100*correct/attempted}%`:'0%';
+    }
+    $('#newQuestion').onclick=newQuestion;
+    $('#showHint').onclick=()=>{ $('#hintBox').classList.add('show'); typeset(); };
+    $('#showSolution').onclick=()=>{ $('#solutionBox').classList.add('show'); typeset(); };
+    $('#resetScore').onclick=()=>{ attempted=0; correct=0; updateScore(); };
+    $('#teacherToggle').onclick=()=>document.body.classList.toggle('teacher-on');
+
+    buildGraphButtons(); drawGraph(); updateValueTable();
+    buildClassifier(); buildExamples(); buildMistakes(); newQuestion(); updateScore();
+  </script>
+</body>
+</html>
