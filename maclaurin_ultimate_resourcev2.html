@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maclaurin Series Laboratory | Explore → Learn → Exam Practice</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --ink:#172033;
+      --muted:#5f6b7a;
+      --accent:#4d63ff;
+      --accent2:#00a98f;
+      --warm:#ffb000;
+      --danger:#d94b59;
+      --line:#dbe1ea;
+      --soft:#eef2ff;
+      --soft2:#ecfbf7;
+      --soft3:#fff7e2;
+      --shadow: 0 12px 32px rgba(20, 35, 80, .10);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(77,99,255,.18), transparent 35rem),
+        radial-gradient(circle at bottom right, rgba(0,169,143,.16), transparent 35rem),
+        var(--bg);
+      line-height:1.48;
+    }
+    header{
+      padding:34px 24px 22px;
+      max-width:1220px;
+      margin:auto;
+    }
+    .hero{
+      background:rgba(255,255,255,.82);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,.8);
+      box-shadow:var(--shadow);
+      border-radius:26px;
+      padding:28px;
+      display:grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap:22px;
+      align-items:center;
+    }
+    h1{font-size:clamp(2rem,5vw,4.6rem);line-height:.96;margin:.1rem 0 1rem;letter-spacing:-.055em}
+    h2{font-size:clamp(1.55rem,3vw,2.4rem);line-height:1.08;margin:0 0 1rem;letter-spacing:-.035em}
+    h3{font-size:1.2rem;margin:1.1rem 0 .55rem}
+    h4{font-size:1rem;margin:.8rem 0 .35rem}
+    p{margin:.55rem 0;color:var(--muted)}
+    .tagline{font-size:1.12rem;max-width:860px;color:#3b4657}
+    .hero-card{
+      background:linear-gradient(135deg,var(--soft),#fff);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:20px;
+    }
+    .hero-card strong{display:block;margin-bottom:8px}
+    .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+    .pill{font-size:.82rem;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:#364157}
+    main{max-width:1220px;margin:auto;padding:0 24px 42px}
+    .tabs{
+      position:sticky;top:0;z-index:10;
+      background:rgba(246,247,251,.86);
+      backdrop-filter:blur(12px);
+      padding:10px 0;
+      display:flex;flex-wrap:wrap;gap:8px;
+      border-bottom:1px solid rgba(219,225,234,.55);
+    }
+    button, .button{
+      font:inherit;
+      border:0;
+      border-radius:999px;
+      padding:10px 14px;
+      background:#fff;
+      color:#263248;
+      border:1px solid var(--line);
+      cursor:pointer;
+      transition:.16s transform,.16s background,.16s border-color,.16s box-shadow;
+    }
+    button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(20,35,80,.08)}
+    button.active,.primary{background:var(--accent);color:white;border-color:var(--accent)}
+    .secondary{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+    .warm{background:var(--warm);color:#241900;border-color:var(--warm)}
+    .ghost{background:transparent}
+    .tab-panel{display:none;padding-top:24px}
+    .tab-panel.active{display:block}
+    .grid{display:grid;gap:18px}
+    .two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:20px;
+      overflow:hidden;
+    }
+    .mini-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+    }
+    .soft{background:var(--soft)}
+    .soft2{background:var(--soft2)}
+    .soft3{background:var(--soft3)}
+    .callout{
+      border-left:5px solid var(--accent);
+      background:#fff;
+      padding:13px 14px;
+      border-radius:12px;
+      margin:12px 0;
+      color:#344057;
+    }
+    .callout.good{border-color:var(--accent2);background:#f4fffb}
+    .callout.warn{border-color:var(--warm);background:#fffaf0}
+    .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:.7rem 0 1rem}
+    .exam-controls{align-items:flex-start}
+    .type-picker-wrap{display:flex;flex-direction:column;gap:8px;min-width:min(100%,720px)}
+    .control-label{font-weight:650;color:#2f3a4f;font-size:.94rem}
+    .type-picker{display:flex;flex-wrap:wrap;gap:8px}
+    .type-btn{border-radius:14px;padding:10px 14px;line-height:1.2}
+    label{font-weight:650;color:#2f3a4f;font-size:.94rem}
+    input[type="range"]{width:180px;accent-color:var(--accent)}
+    input[type="number"], select, textarea{
+      font:inherit;border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:#fff;color:var(--ink);
+    }
+    textarea{width:100%;min-height:76px;resize:vertical}
+    canvas{width:100%;height:430px;background:white;border:1px solid var(--line);border-radius:16px;display:block}
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+    .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;min-height:76px}
+    .kpi small{display:block;color:var(--muted);font-weight:650;text-transform:uppercase;font-size:.7rem;letter-spacing:.04em}
+    .kpi strong{display:block;font-size:1.15rem;margin-top:5px;word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin:10px 0;background:#fff;border-radius:14px;overflow:hidden}
+    th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
+    th{background:#f1f4fb;color:#354159;font-size:.88rem}
+    tr:last-child td{border-bottom:0}
+    .hidden{display:none!important}
+    .flow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}
+    .step{
+      flex:1 1 170px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px;min-height:95px;position:relative;
+    }
+    .step::before{
+      content:attr(data-step);position:absolute;top:-11px;left:12px;background:var(--accent);color:#fff;border-radius:999px;padding:2px 8px;font-size:.75rem;font-weight:800;
+    }
+    .progress-wrap{height:10px;background:#e7ebf4;border-radius:999px;overflow:hidden;margin:8px 0 14px}
+    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.2s}
+    .formula-box{
+      background:#fbfcff;border:1px dashed #b9c4d8;border-radius:14px;padding:14px;margin:10px 0;color:#1b2639;
+    }
+    .series-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+    .small{font-size:.88rem;color:var(--muted)}
+    .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;background:#edf2ff;color:#3347ba;font-weight:750;font-size:.78rem;margin:2px}
+    .badge.green{background:#e8fbf5;color:#007b6b}.badge.orange{background:#fff5db;color:#8a5a00}.badge.red{background:#fff0f1;color:#b33240}
+    .question-card{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff;box-shadow:0 8px 18px rgba(20,35,80,.06)}
+    .mark{display:inline-block;background:#172033;color:#fff;border-radius:999px;padding:3px 8px;font-size:.8rem;font-weight:800;margin-left:6px}
+    .accordion{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:10px 0;background:#fff}
+    .accordion button{border-radius:0;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:#f7f9fd;display:flex;justify-content:space-between;align-items:center}
+    .accordion-content{padding:14px;display:none}
+    .accordion.open .accordion-content{display:block}
+    .footer-note{color:#6b7688;font-size:.88rem;margin-top:26px;text-align:center}
+    @media(max-width:900px){.hero,.two,.three{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{position:static}canvas{height:330px}}
+    @media(max-width:560px){.kpi-grid{grid-template-columns:1fr}header,main{padding-left:14px;padding-right:14px}.hero{padding:19px}}
+    @media print{.tabs,button,.controls,.hero-card{display:none!important}body{background:white}.card{box-shadow:none;break-inside:avoid}.tab-panel{display:block!important}}
+  </style>
+</head>
+<body>
+  <header>
+    <section class="hero">
+      <div>
+        <div class="badge">IB DP Mathematics AHL</div>
+        <h1>Maclaurin Series Laboratory</h1>
+        <p class="tagline">An interactive resource that moves students through discovery, meaning, procedures, accuracy, limits, differential equations and exam-style practice.</p>
+        <div class="pill-row">
+          <span class="pill">Explore first</span>
+          <span class="pill">Build the formula</span>
+          <span class="pill">Graph approximation error</span>
+          <span class="pill">Manipulate series</span>
+          <span class="pill">Limits and L’Hôpital</span>
+          <span class="pill">Series from differential equations</span>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <strong>Learning journey</strong>
+        <p>Students start with the question: <em>how can a polynomial behave like a curved function near one point?</em></p>
+        <div class="flow">
+          <div class="step" data-step="1">Discover by matching values and derivatives.</div>
+          <div class="step" data-step="2">Learn standard expansions and operations.</div>
+          <div class="step" data-step="3">Practise exam methods with mark-scheme reveals.</div>
+        </div>
+      </aside>
+    </section>
+  </header>
+
+  <main>
+    <nav class="tabs" aria-label="Main sections">
+      <button class="tab-button active" data-tab="overview">Overview</button>
+      <button class="tab-button" data-tab="discover">Discover</button>
+      <button class="tab-button" data-tab="graphlab">Graph Lab</button>
+      <button class="tab-button" data-tab="learn">Learn</button>
+      <button class="tab-button" data-tab="operations">Operations Lab</button>
+      <button class="tab-button" data-tab="limits">Limits</button>
+      <button class="tab-button" data-tab="de">Differential Equations</button>
+      <button class="tab-button" data-tab="exam">Exam Practice</button>
+    </nav>
+
+    <section id="overview" class="tab-panel active">
+      <div class="grid two">
+        <article class="card">
+          <h2>What this resource is trying to do</h2>
+          <p>Maclaurin series can become a memorised list very quickly. This laboratory treats them first as <strong>local polynomial models</strong>: a polynomial is forced to match a function at \(x=0\), then match its slope, curvature, and higher derivative behaviour.</p>
+          <div class="callout good"><strong>Core idea:</strong> more matching derivative information usually gives a better local approximation, but not necessarily a globally good one.</div>
+          <div class="flow">
+            <div class="step" data-step="A">Local linear approximation</div>
+            <div class="step" data-step="B">Construct a polynomial from derivative data</div>
+            <div class="step" data-step="C">Compare function and polynomial graphically</div>
+            <div class="step" data-step="D">Use series as a tool for limits, approximations and differential equations</div>
+          </div>
+        </article>
+        <article class="card soft3">
+          <h2>Syllabus checklist</h2>
+          <p>Use this as a student self-check or lesson sequence tracker.</p>
+          <div id="checklist"></div>
+          <div class="progress-wrap"><div id="checkProgress" class="progress"></div></div>
+          <p id="checkText" class="small">0 of 9 checked.</p>
+        </article>
+      </div>
+
+      <div class="card">
+        <h2>Recommended teaching sequence</h2>
+        <table>
+          <thead><tr><th>Stage</th><th>Student question</th><th>Interactive section</th><th>Outcome</th></tr></thead>
+          <tbody>
+            <tr><td>1. Need</td><td>Why replace a function by a polynomial?</td><td>Discover</td><td>Students see tangent/quadratic/cubic approximations as progressively stronger local models.</td></tr>
+            <tr><td>2. Formula</td><td>Where do \(\frac{f^{(n)}(0)}{n!}\) coefficients come from?</td><td>Discover</td><td>Students match derivatives at zero and derive the coefficient rule.</td></tr>
+            <tr><td>3. Accuracy</td><td>How many terms are enough?</td><td>Graph Lab</td><td>Students vary the number of terms and inspect absolute/percentage error.</td></tr>
+            <tr><td>4. Fluency</td><td>How do I get new series from known ones?</td><td>Learn + Operations Lab</td><td>Students use substitution, products, differentiation and integration.</td></tr>
+            <tr><td>5. Applications</td><td>Why are series useful in exams?</td><td>Limits + Differential Equations</td><td>Students solve indeterminate limits and approximate solutions to DEs.</td></tr>
+            <tr><td>6. Exam readiness</td><td>What does a complete answer look like?</td><td>Exam Practice</td><td>Students practise with hints, mark schemes and common traps.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="discover" class="tab-panel">
+      <div class="grid two">
+        <article class="card">
+          <h2>Discovery 1: build a polynomial from clues</h2>
+          <p>Suppose \(P(x)=a_0+a_1x+a_2x^2+a_3x^3+\cdots\). If \(P\) is going to imitate \(f\) near \(0\), we make its derivatives match at \(0\).</p>
+          <div class="series-buttons">
+            <button class="discover-fn active" data-fn="exp">\(e^x\)</button>
+            <button class="discover-fn" data-fn="cos">\(\cos x\)</button>
+            <button class="discover-fn" data-fn="ln">\(\ln(1+x)\)</button>
+            <button class="discover-fn" data-fn="atan">\(\arctan x\)</button>
+          </div>
+          <div class="formula-box" id="discoverIntro"></div>
+          <div class="controls">
+            <button id="revealNextDerivative" class="primary">Reveal next derivative</button>
+            <button id="resetDerivativeTable">Reset</button>
+          </div>
+          <div id="derivativeTable"></div>
+        </article>
+
+        <article class="card soft2">
+          <h2>Discovery 2: the coefficient rule</h2>
+          <p>Differentiate \(P(x)=a_0+a_1x+a_2x^2+a_3x^3+\cdots\), then substitute \(x=0\).</p>
+          <div class="formula-box">
+            \[
+              P(0)=a_0,\quad P'(0)=a_1,\quad P''(0)=2!a_2,\quad P^{(3)}(0)=3!a_3
+            \]
+            \[
+              \Rightarrow \quad a_n=\frac{f^{(n)}(0)}{n!}
+            \]
+          </div>
+          <div class="callout"><strong>Key sentence for students:</strong> the factorial appears because differentiating \(x^n\) exactly \(n\) times produces \(n!\).</div>
+          <h3>Checkpoint</h3>
+          <p>Without using the formula booklet, predict the coefficient of \(x^4\) in the Maclaurin series of \(\cos x\).</p>
+          <button class="reveal" data-target="cosCheckpoint">Reveal answer</button>
+          <div id="cosCheckpoint" class="formula-box hidden">For \(\cos x\), \(f^{(4)}(0)=1\), so the coefficient is \(\frac{1}{4!}=\frac1{24}\).</div>
+        </article>
+      </div>
+
+      <div class="card">
+        <h2>Discovery 3: finite polynomial, infinite ambition</h2>
+        <p>A finite Maclaurin polynomial is not “the same as” the original function. It is a local approximation. The infinite series may represent the function only on a certain interval.</p>
+        <div class="grid three">
+          <div class="mini-card"><strong>Near \(0\)</strong><p>Adding terms often improves the approximation quickly.</p></div>
+          <div class="mini-card"><strong>Far from \(0\)</strong><p>A polynomial may become poor, even if the early terms look convincing.</p></div>
+          <div class="mini-card"><strong>Convergence</strong><p>Some series work for all \(x\); others require conditions such as \(|x|<1\).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="graphlab" class="tab-panel">
+      <div class="card">
+        <h2>Graph Lab: function versus Maclaurin polynomial</h2>
+        <p>Choose a function, move the sliders, and watch how the polynomial approximation behaves. The table of terms is hidden at first so students can investigate before seeing the algebra.</p>
+        <div class="series-buttons" id="functionButtons"></div>
+        <div class="controls">
+          <label>Non-zero terms <input type="range" id="termSlider" min="1" max="12" value="4"></label>
+          <strong id="termLabel">4</strong>
+          <label>Evaluate at \(x=\) <input type="range" id="xSlider" min="-3" max="3" step="0.01" value="1"></label>
+          <strong id="xLabel">1.00</strong>
+          <span id="binomialControl" class="hidden"><label>\(p=\) <input type="number" id="pInput" value="0.5" step="0.25" min="-4" max="6"></label></span>
+          <button id="toggleTerms" class="warm">Reveal coefficient table</button>
+        </div>
+        <canvas id="seriesCanvas" width="1200" height="520" aria-label="Graph of function and Maclaurin polynomial"></canvas>
+        <div class="kpi-grid">
+          <div class="kpi"><small>Function</small><strong id="kpiFunction">-</strong></div>
+          <div class="kpi"><small>True value</small><strong id="kpiTrue">-</strong></div>
+          <div class="kpi"><small>Series estimate</small><strong id="kpiApprox">-</strong></div>
+          <div class="kpi"><small>Error</small><strong id="kpiError">-</strong></div>
+        </div>
+        <div class="formula-box" id="seriesFormula"></div>
+        <div id="convergenceNote" class="callout warn"></div>
+        <div id="termTableWrap" class="hidden"></div>
+      </div>
+    </section>
+
+    <section id="learn" class="tab-panel">
+      <div class="grid two">
+        <article class="card">
+          <h2>Standard series library</h2>
+          <p>These are the core expansions students should recognise and deploy quickly.</p>
+          <table>
+            <thead><tr><th>Function</th><th>Maclaurin series</th><th>Useful note</th></tr></thead>
+            <tbody>
+              <tr><td>\(e^x\)</td><td>\(1+x+\frac{x^2}{2!}+\frac{x^3}{3!}+\cdots\)</td><td>Converges for all real \(x\).</td></tr>
+              <tr><td>\(\sin x\)</td><td>\(x-\frac{x^3}{3!}+\frac{x^5}{5!}-\cdots\)</td><td>Odd powers only.</td></tr>
+              <tr><td>\(\cos x\)</td><td>\(1-\frac{x^2}{2!}+\frac{x^4}{4!}-\cdots\)</td><td>Even powers only.</td></tr>
+              <tr><td>\(\arctan x\)</td><td>\(x-\frac{x^3}{3}+\frac{x^5}{5}-\cdots\)</td><td>Can be derived by integrating \(\frac{1}{1+x^2}\).</td></tr>
+              <tr><td>\(\ln(1+x)\)</td><td>\(x-\frac{x^2}{2}+\frac{x^3}{3}-\frac{x^4}{4}+\cdots\)</td><td>Typically used for \(|x|<1\), with endpoint care.</td></tr>
+              <tr><td>\((1+x)^p\)</td><td>\(1+px+\frac{p(p-1)}{2!}x^2+\frac{p(p-1)(p-2)}{3!}x^3+\cdots\)</td><td>For general real \(p\), use \(|x|<1\).</td></tr>
+            </tbody>
+          </table>
+        </article>
+        <article class="card soft">
+          <h2>Method map</h2>
+          <div class="accordion open">
+            <button>1. Direct differentiation <span>+</span></button>
+            <div class="accordion-content">Use \(a_n=\frac{f^{(n)}(0)}{n!}\). Best for functions whose derivatives repeat simply, such as \(e^x,\sin x,\cos x\).</div>
+          </div>
+          <div class="accordion">
+            <button>2. Substitution <span>+</span></button>
+            <div class="accordion-content">Replace \(x\) by a new expression, for example use \(e^u=1+u+\frac{u^2}{2!}+\cdots\), then set \(u=2x^2\).</div>
+          </div>
+          <div class="accordion">
+            <button>3. Products and quotients <span>+</span></button>
+            <div class="accordion-content">Multiply only the terms that can contribute to the required order. For quotients, rewrite as multiplication using binomial series where possible.</div>
+          </div>
+          <div class="accordion">
+            <button>4. Differentiation and integration <span>+</span></button>
+            <div class="accordion-content">Differentiate or integrate term by term inside the interval of convergence. Use a value such as \(f(0)\) to find the constant after integration.</div>
+          </div>
+          <div class="accordion">
+            <button>5. Differential equations <span>+</span></button>
+            <div class="accordion-content">Assume \(y=a_0+a_1x+a_2x^2+\cdots\), substitute into the differential equation, then equate coefficients to form a recurrence.</div>
+          </div>
+        </article>
+      </div>
+
+      <div class="card">
+        <h2>Accuracy versus simplicity</h2>
+        <p>Series are a trade-off: more terms usually increase accuracy but also increase work. This is a useful TOK-style discussion point for mathematical modelling.</p>
+        <div class="grid three">
+          <div class="mini-card"><strong>Simplicity</strong><p>One or two terms can reveal the behaviour near zero and make a difficult limit easy.</p></div>
+          <div class="mini-card"><strong>Accuracy</strong><p>Additional terms are useful when numerical estimates are needed.</p></div>
+          <div class="mini-card"><strong>Domain</strong><p>A simple-looking series can be misleading outside its interval of convergence.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="operations" class="tab-panel">
+      <div class="card">
+        <h2>Operations Lab: create new series from old ones</h2>
+        <p>Choose a card. Students should attempt the expansion first, then reveal hints and solutions.</p>
+        <div class="series-buttons" id="opButtons"></div>
+        <div id="opContent" class="question-card"></div>
+      </div>
+    </section>
+
+    <section id="limits" class="tab-panel">
+      <div class="grid two">
+        <article class="card">
+          <h2>Limits: Maclaurin versus L’Hôpital</h2>
+          <p>The syllabus includes indeterminate forms such as \(\frac00\) and \(\frac{\infty}{\infty}\). Maclaurin series are especially powerful when the numerator and denominator both vanish at \(x=0\).</p>
+          <div class="series-buttons" id="limitButtons"></div>
+          <div id="limitContent" class="question-card"></div>
+        </article>
+        <article class="card soft3">
+          <h2>Choosing a method</h2>
+          <table>
+            <thead><tr><th>Situation</th><th>Likely best method</th></tr></thead>
+            <tbody>
+              <tr><td>Expression contains \(\sin x,\cos x,e^x,\ln(1+x)\) near zero</td><td>Maclaurin often gives the structure immediately.</td></tr>
+              <tr><td>Only need a simple limit and derivatives are easy</td><td>L’Hôpital may be fastest.</td></tr>
+              <tr><td>Several terms cancel</td><td>Maclaurin is often clearer because you can see the first surviving term.</td></tr>
+              <tr><td>Repeated L’Hôpital becomes long</td><td>Try a series expansion.</td></tr>
+            </tbody>
+          </table>
+          <div class="callout"><strong>Exam phrase:</strong> “Using the Maclaurin expansion up to the first non-zero term after cancellation…”</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="de" class="tab-panel">
+      <div class="grid two">
+        <article class="card">
+          <h2>Differential Equations Lab</h2>
+          <p>Assume \(y=a_0+a_1x+a_2x^2+\cdots\), differentiate the series, substitute into the equation, and equate coefficients.</p>
+          <div class="series-buttons" id="deButtons"></div>
+          <div id="deContent" class="question-card"></div>
+        </article>
+        <article class="card soft2">
+          <h2>General recipe</h2>
+          <div class="flow">
+            <div class="step" data-step="1">Write \(y=\sum_{n=0}^{\infty}a_nx^n\)</div>
+            <div class="step" data-step="2">Find \(y'\), \(y''\), etc.</div>
+            <div class="step" data-step="3">Substitute into the differential equation</div>
+            <div class="step" data-step="4">Equate coefficients of like powers of \(x\)</div>
+            <div class="step" data-step="5">Use initial conditions to find \(a_0,a_1,\dots\)</div>
+          </div>
+          <div class="callout warn">This method is powerful when exact elementary solutions are not obvious, or when the exam specifically asks for a Maclaurin series solution.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="exam" class="tab-panel">
+      <div class="card">
+        <h2>Exam Practice Generator</h2>
+        <p>Generate a question, try it without help, then reveal a hint or full solution. The mark scheme focuses on the method marks students often lose.</p>
+        <div class="controls exam-controls">
+          <div class="type-picker-wrap">
+            <span class="control-label">Type</span>
+            <div class="type-picker" id="examTypeButtons" role="group" aria-label="Choose exam question type">
+              <button class="type-btn active" data-type="all">Mixed</button>
+              <button class="type-btn" data-type="standard">Standard series</button>
+              <button class="type-btn" data-type="operation">Substitution / product / integration</button>
+              <button class="type-btn" data-type="limit">Limits</button>
+              <button class="type-btn" data-type="de">Differential equations</button>
+              <button class="type-btn" data-type="approx">Approximation and error</button>
+            </div>
+          </div>
+          <button id="newQuestion" class="primary">New question</button>
+          <button id="showHint">Reveal hint</button>
+          <button id="showSolution" class="secondary">Reveal solution</button>
+        </div>
+        <div id="examQuestion" class="question-card"></div>
+      </div>
+
+      <div class="card">
+        <h2>Exam answer checklist</h2>
+        <div class="grid three">
+          <div class="mini-card"><strong>State the known series</strong><p>Do not jump straight to the final answer if substitution or multiplication is involved.</p></div>
+          <div class="mini-card"><strong>Show order control</strong><p>Write “up to \(x^4\)” or “terms beyond \(x^5\) are not required.”</p></div>
+          <div class="mini-card"><strong>Handle constants</strong><p>After integration, use \(f(0)\) to find the constant.</p></div>
+          <div class="mini-card"><strong>Show cancellation</strong><p>For limits, make the first surviving term obvious.</p></div>
+          <div class="mini-card"><strong>Use initial conditions</strong><p>For DEs, identify \(a_0=y(0)\), \(a_1=y'(0)\), etc.</p></div>
+          <div class="mini-card"><strong>State interval where needed</strong><p>Especially for \(\ln(1+x)\), \(\arctan x\), and \((1+x)^p\).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note">Standalone classroom resource. Print mode shows all sections; interactive controls are hidden.</p>
+  </main>
+
+<script>
+(function(){
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => [...document.querySelectorAll(sel)];
+  const fact = n => n <= 1 ? 1 : Array.from({length:n},(_,i)=>i+1).reduce((a,b)=>a*b,1);
+  const fmt = (x, dp=8) => {
+    if (!Number.isFinite(x)) return 'undefined';
+    if (Math.abs(x) < 1e-12) return '0';
+    const s = Number(x.toFixed(dp)).toString();
+    return s;
+  };
+  const sign = n => n % 2 === 0 ? 1 : -1;
+  const mathRender = () => { if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise(); };
+
+  // Tabs
+  $$('.tab-button').forEach(btn => btn.addEventListener('click', () => {
+    $$('.tab-button').forEach(b=>b.classList.remove('active'));
+    $$('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $('#' + btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab === 'graphlab') drawGraphLab();
+    mathRender();
+  }));
+
+  // Checklist
+  const checklistItems = [
+    'Evaluate limits of the form \\(\\frac{f(x)}{g(x)}\\) using Maclaurin series or L’Hôpital’s rule.',
+    'Recognise indeterminate forms \\(\\frac00\\) and \\(\\frac{\\infty}{\\infty}\\).',
+    'Use repeated L’Hôpital’s rule where necessary.',
+    'Know Maclaurin series for \\(e^x\\), \\(\\sin x\\), \\(\\cos x\\), \\(\\arctan x\\), \\(\\ln(1+x)\\), and \\((1+x)^p\\).',
+    'Use substitution to obtain new expansions.',
+    'Use products of series to obtain new expansions.',
+    'Use differentiation and integration of series to obtain new expansions.',
+    'Develop Maclaurin series from differential equations.',
+    'Discuss accuracy versus simplicity in mathematical approximation.'
+  ];
+  $('#checklist').innerHTML = checklistItems.map((it,i)=>`<label class="mini-card" style="display:block;margin:7px 0;font-weight:550"><input type="checkbox" class="check" data-i="${i}"> ${it}</label>`).join('');
+  $$('.check').forEach(c=>c.addEventListener('change', updateCheck));
+  function updateCheck(){
+    const done = $$('.check').filter(c=>c.checked).length;
+    $('#checkProgress').style.width = `${100*done/checklistItems.length}%`;
+    $('#checkText').textContent = `${done} of ${checklistItems.length} checked.`;
+  }
+
+  // Discovery table
+  const discoverData = {
+    exp: {title:'\\(f(x)=e^x\\)', note:'Every derivative is \\(e^x\\), so every derivative value at zero is 1.', values:[1,1,1,1,1,1,1], coeff:['1','1','\\frac{1}{2!}','\\frac{1}{3!}','\\frac{1}{4!}','\\frac{1}{5!}','\\frac{1}{6!}']},
+    cos: {title:'\\(f(x)=\\cos x\\)', note:'The derivatives cycle: \\(\\cos x,-\\sin x,-\\cos x,\\sin x,\\ldots\\)', values:[1,0,-1,0,1,0,-1], coeff:['1','0','-\\frac{1}{2!}','0','\\frac{1}{4!}','0','-\\frac{1}{6!}']},
+    ln: {title:'\\(f(x)=\\ln(1+x)\\)', note:'The derivatives at zero alternate and grow factorially.', values:[0,1,-1,2,-6,24,-120], coeff:['0','1','-\\frac12','\\frac13','-\\frac14','\\frac15','-\\frac16']},
+    atan: {title:'\\(f(x)=\\arctan x\\)', note:'Only odd powers survive: \\(x-\\frac{x^3}{3}+\\frac{x^5}{5}-\\cdots\\).', values:[0,1,0,-2,0,24,0], coeff:['0','1','0','-\\frac13','0','\\frac15','0']}
+  };
+  let discoverFn='exp', revealRows=0;
+  function updateDiscovery(){
+    const d = discoverData[discoverFn];
+    $('#discoverIntro').innerHTML = `${d.title}<br><span class="small">${d.note}</span>`;
+    let rows = '';
+    for(let n=0;n<=6;n++){
+      const shown = n < revealRows;
+      rows += `<tr><td>\\(${n}\\)</td><td>${shown ? `\\(f^{(${n})}(0)=${d.values[n]}\\)` : '<span class="small">Predict first…</span>'}</td><td>${shown ? `\\(a_${n}=\\frac{f^{(${n})}(0)}{${n}!}=${d.coeff[n]}\\)` : '—'}</td></tr>`;
+    }
+    $('#derivativeTable').innerHTML = `<table><thead><tr><th>n</th><th>Derivative value at 0</th><th>Coefficient of \\(x^n\\)</th></tr></thead><tbody>${rows}</tbody></table>`;
+    mathRender();
+  }
+  $$('.discover-fn').forEach(b=>b.addEventListener('click',()=>{
+    $$('.discover-fn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); discoverFn=b.dataset.fn; revealRows=0; updateDiscovery();
+  }));
+  $('#revealNextDerivative').addEventListener('click',()=>{revealRows=Math.min(7,revealRows+1); updateDiscovery();});
+  $('#resetDerivativeTable').addEventListener('click',()=>{revealRows=0; updateDiscovery();});
+  updateDiscovery();
+
+  $$('.reveal').forEach(b=>b.addEventListener('click',()=>{ $('#' + b.dataset.target).classList.toggle('hidden'); mathRender(); }));
+
+  // Series graph lab
+  const funcs = {
+    exp:{label:'\\(e^x\\)', plain:'e^x', f:x=>Math.exp(x), xMin:-4, xMax:4, conv:'Converges for all real \\(x\\).', terms:N=>Array.from({length:N},(_,k)=>({coef:1/fact(k),power:k,latex:k===0?'1':k===1?'x':`\\frac{x^{${k}}}{${k}!}`}))},
+    sin:{label:'\\(\\sin x\\)', plain:'sin x', f:x=>Math.sin(x), xMin:-8, xMax:8, conv:'Converges for all real \\(x\\). Odd powers only.', terms:N=>Array.from({length:N},(_,j)=>{const p=2*j+1;return {coef:sign(j)/fact(p),power:p,latex:j===0?'x':`${j%2?'-':'+'}\\frac{x^{${p}}}{${p}!}`};})},
+    cos:{label:'\\(\\cos x\\)', plain:'cos x', f:x=>Math.cos(x), xMin:-8, xMax:8, conv:'Converges for all real \\(x\\). Even powers only.', terms:N=>Array.from({length:N},(_,j)=>{const p=2*j;return {coef:sign(j)/fact(p),power:p,latex:j===0?'1':`${j%2?'-':'+'}\\frac{x^{${p}}}{${p}!}`};})},
+    ln:{label:'\\(\\ln(1+x)\\)', plain:'ln(1+x)', f:x=>x>-1?Math.log(1+x):NaN, xMin:-0.95, xMax:3, conv:'Converges for \\(-1<x\\leq 1\\). The graph deliberately lets you explore what happens beyond the safest local region.', terms:N=>Array.from({length:N},(_,j)=>{const k=j+1;return {coef:sign(k+1)/k,power:k,latex:`${j===0?'':(k%2===0?'-':'+')}\\frac{x^{${k}}}{${k}}`};})},
+    atan:{label:'\\(\\arctan x\\)', plain:'arctan x', f:x=>Math.atan(x), xMin:-4, xMax:4, conv:'Converges for \\(|x|\\leq 1\\), with endpoint care. Outside this, the polynomial may behave badly.', terms:N=>Array.from({length:N},(_,j)=>{const p=2*j+1;return {coef:sign(j)/p,power:p,latex:j===0?'x':`${j%2?'-':'+'}\\frac{x^{${p}}}{${p}}`};})},
+    binom:{label:'\\((1+x)^p\\)', plain:'(1+x)^p', f:x=>{const p=Number($('#pInput')?.value ?? 0.5); return x>-1?Math.pow(1+x,p):NaN}, xMin:-0.95, xMax:2, conv:'For general real \\(p\\), the binomial series is used for \\(|x|<1\\). If \\(p\\) is a non-negative integer, the expansion terminates.', terms:N=>{const p=Number($('#pInput')?.value ?? 0.5); let c=1; const arr=[]; for(let k=0;k<N;k++){ if(k===0)c=1; else c=c*(p-(k-1))/k; arr.push({coef:c,power:k,latex:k===0?'1':`${c>=0?'+':'-'}${Math.abs(c).toFixed(5)}x^{${k}}`}); } return arr;}}
+  };
+  let currentFunc='exp';
+  $('#functionButtons').innerHTML = Object.entries(funcs).map(([key,f])=>`<button class="fn-btn ${key==='exp'?'active':''}" data-fn="${key}">${f.label}</button>`).join('');
+  $$('.fn-btn').forEach(b=>b.addEventListener('click',()=>{
+    $$('.fn-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentFunc=b.dataset.fn; setSliderRanges(); drawGraphLab(); mathRender();
+  }));
+  ['termSlider','xSlider','pInput'].forEach(id=>$('#'+id)?.addEventListener('input',drawGraphLab));
+  $('#toggleTerms').addEventListener('click',()=>{ $('#termTableWrap').classList.toggle('hidden'); $('#toggleTerms').textContent = $('#termTableWrap').classList.contains('hidden') ? 'Reveal coefficient table' : 'Hide coefficient table'; mathRender(); });
+
+  function setSliderRanges(){
+    const f=funcs[currentFunc], xs=$('#xSlider');
+    xs.min=f.xMin; xs.max=f.xMax; xs.step='0.01';
+    if(Number(xs.value)<f.xMin || Number(xs.value)>f.xMax) xs.value = Math.min(Math.max(1,f.xMin),f.xMax);
+    $('#binomialControl').classList.toggle('hidden', currentFunc!=='binom');
+  }
+  function polyVal(terms,x){ return terms.reduce((s,t)=>s+t.coef*Math.pow(x,t.power),0); }
+  function termLatexJoin(terms){
+    if(currentFunc==='binom') return terms.map((t,i)=> i===0?'1':`${t.coef>=0?'+':'-'} ${fmt(Math.abs(t.coef),5)}x^{${t.power}}`).join(' ');
+    return terms.map((t,i)=>{
+      let s=t.latex;
+      if(i>0 && !s.startsWith('+') && !s.startsWith('-')) s='+'+s;
+      return s;
+    }).join(' ');
+  }
+  function drawGraphLab(){
+    if(!$('#seriesCanvas')) return;
+    setSliderRanges();
+    const f=funcs[currentFunc], N=Number($('#termSlider').value), x0=Number($('#xSlider').value);
+    $('#termLabel').textContent=N; $('#xLabel').textContent=fmt(x0,2);
+    const terms=f.terms(N), trueVal=f.f(x0), approxVal=polyVal(terms,x0), err=Math.abs(trueVal-approxVal);
+    $('#kpiFunction').innerHTML=f.label;
+    $('#kpiTrue').textContent=fmt(trueVal,8);
+    $('#kpiApprox').textContent=fmt(approxVal,8);
+    $('#kpiError').textContent=`abs ${fmt(err,8)}${Math.abs(trueVal)>1e-12?`, ${fmt(100*err/Math.abs(trueVal),4)}%`:''}`;
+    $('#seriesFormula').innerHTML = `\\[${f.plain} \\approx ${termLatexJoin(terms)}\\]`;
+    $('#convergenceNote').innerHTML = `<strong>Convergence note:</strong> ${f.conv}`;
+    let partial=0;
+    $('#termTableWrap').innerHTML = `<table><thead><tr><th>Term</th><th>Expression</th><th>Value at x=${fmt(x0,2)}</th><th>Partial sum</th></tr></thead><tbody>${terms.map((t,i)=>{const val=t.coef*Math.pow(x0,t.power); partial+=val; return `<tr><td>${i+1}</td><td>\\(${t.latex.replace(/^\+/,'')}\\)</td><td>${fmt(val,8)}</td><td>${fmt(partial,8)}</td></tr>`;}).join('')}</tbody></table>`;
+
+    const canvas=$('#seriesCanvas'), ctx=canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    const pad=54, xMin=f.xMin, xMax=f.xMax;
+    const samples=[];
+    for(let i=0;i<=500;i++){
+      const x=xMin+(xMax-xMin)*i/500, y=f.f(x), p=polyVal(terms,x);
+      if(Number.isFinite(y) && Math.abs(y)<200 && Number.isFinite(p) && Math.abs(p)<200) samples.push([x,y,p]);
+    }
+    let yMin=Math.min(...samples.flatMap(s=>[s[1],s[2]])), yMax=Math.max(...samples.flatMap(s=>[s[1],s[2]]));
+    if(!Number.isFinite(yMin)||!Number.isFinite(yMax)||yMin===yMax){yMin=-2;yMax=2;}
+    const margin=(yMax-yMin)*.12; yMin-=margin; yMax+=margin;
+    const X=x=>pad+(x-xMin)/(xMax-xMin)*(w-2*pad);
+    const Y=y=>h-pad-(y-yMin)/(yMax-yMin)*(h-2*pad);
+    ctx.strokeStyle='#d9e0eb'; ctx.lineWidth=1;
+    ctx.beginPath(); for(let i=0;i<=10;i++){const xx=pad+i*(w-2*pad)/10;ctx.moveTo(xx,pad);ctx.lineTo(xx,h-pad);} for(let i=0;i<=8;i++){const yy=pad+i*(h-2*pad)/8;ctx.moveTo(pad,yy);ctx.lineTo(w-pad,yy);} ctx.stroke();
+    ctx.strokeStyle='#7b8494'; ctx.lineWidth=1.5;
+    if(xMin<0 && xMax>0){ctx.beginPath();ctx.moveTo(X(0),pad);ctx.lineTo(X(0),h-pad);ctx.stroke();}
+    if(yMin<0 && yMax>0){ctx.beginPath();ctx.moveTo(pad,Y(0));ctx.lineTo(w-pad,Y(0));ctx.stroke();}
+    function plot(idx,color,width,dash=[]){
+      ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.beginPath();let started=false;
+      for(const s of samples){ const x=s[0], y=s[idx]; if(!Number.isFinite(y)||Math.abs(y)>200){started=false;continue;} const px=X(x), py=Y(y); if(!started){ctx.moveTo(px,py);started=true;} else ctx.lineTo(px,py); }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    plot(1,'#4d63ff',4); plot(2,'#00a98f',3,[8,6]);
+    if(Number.isFinite(trueVal)){ ctx.fillStyle='#172033'; ctx.beginPath(); ctx.arc(X(x0),Y(trueVal),6,0,Math.PI*2); ctx.fill(); }
+    if(Number.isFinite(approxVal)){ ctx.fillStyle='#00a98f'; ctx.beginPath(); ctx.arc(X(x0),Y(approxVal),6,0,Math.PI*2); ctx.fill(); }
+    ctx.font='18px Inter, sans-serif'; ctx.fillStyle='#4d63ff'; ctx.fillText('function',pad+10,26); ctx.fillStyle='#00a98f'; ctx.fillText('Maclaurin polynomial',pad+120,26);
+    ctx.fillStyle='#4b5568'; ctx.font='14px Inter, sans-serif'; ctx.fillText(`x from ${xMin} to ${xMax}`,w-pad-150,h-18);
+    mathRender();
+  }
+  setSliderRanges();
+
+  // Accordions
+  $$('.accordion button').forEach(b=>b.addEventListener('click',()=>{b.parentElement.classList.toggle('open'); mathRender();}));
+
+  // Operations lab
+  const opData = [
+    {title:'Substitution: \\(\\sin(2x^2)\\)', badge:'substitution', prompt:'Find the Maclaurin series for \\(\\sin(2x^2)\\) up to and including the term in \\(x^6\\).', hint:'Start with \\(\\sin u=u-\\frac{u^3}{3!}+\\cdots\\), then substitute \\(u=2x^2\\).', solution:'\\[\\sin(2x^2)=2x^2-\\frac{(2x^2)^3}{3!}+\\cdots=2x^2-\\frac{4}{3}x^6+\\cdots\\]'},
+    {title:'Product: \\(e^x\\cos x\\)', badge:'product', prompt:'Find \\(e^x\\cos x\\) up to and including the term in \\(x^4\\).', hint:'Write both series up to \\(x^4\\), then multiply only terms that contribute up to \\(x^4\\).', solution:'\\[e^x=1+x+\\frac{x^2}{2}+\\frac{x^3}{6}+\\frac{x^4}{24}+\\cdots\\]\\[\\cos x=1-\\frac{x^2}{2}+\\frac{x^4}{24}+\\cdots\\]\\[e^x\\cos x=1+x+0x^2-\\frac{x^3}{3}-\\frac{x^4}{6}+\\cdots\\]'},
+    {title:'Integration: \\(\\arctan x\\)', badge:'integration', prompt:'Derive the first four non-zero terms of \\(\\arctan x\\) using a known series.', hint:'Use \\(\\frac{d}{dx}(\\arctan x)=\\frac{1}{1+x^2}\\). Expand \\((1+x^2)^{-1}\\), then integrate.', solution:'\\[\\frac{1}{1+x^2}=1-x^2+x^4-x^6+\\cdots\\]\\[\\arctan x=x-\\frac{x^3}{3}+\\frac{x^5}{5}-\\frac{x^7}{7}+\\cdots\\] because \\(\\arctan 0=0\\).'},
+    {title:'Composition: \\(\\ln(\\cos x)\\)', badge:'substitution + log', prompt:'Find \\(\\ln(\\cos x)\\) up to and including the term in \\(x^6\\).', hint:'Let \\(u=\\cos x-1=-\\frac{x^2}{2}+\\frac{x^4}{24}-\\frac{x^6}{720}+\\cdots\\), then use \\(\\ln(1+u)=u-\\frac{u^2}{2}+\\frac{u^3}{3}+\\cdots\\).', solution:'\\[\\ln(\\cos x)=-\\frac{x^2}{2}-\\frac{x^4}{12}-\\frac{x^6}{45}+\\cdots\\]'},
+    {title:'Binomial: \\((1-2x)^{-1/2}\\)', badge:'binomial', prompt:'Expand \\((1-2x)^{-1/2}\\) up to and including \\(x^3\\). State the interval condition.', hint:'Use \\((1+u)^p=1+pu+\\frac{p(p-1)}{2!}u^2+\\frac{p(p-1)(p-2)}{3!}u^3+\\cdots\\) with \\(u=-2x\\), \\(p=-\\frac12\\).', solution:'\\[(1-2x)^{-1/2}=1+x+\\frac32x^2+\\frac52x^3+\\cdots,\\quad |-2x|<1\\Rightarrow |x|<\\frac12.\\]'}
+  ];
+  $('#opButtons').innerHTML=opData.map((o,i)=>`<button class="op-btn ${i===0?'active':''}" data-i="${i}">${o.title}</button>`).join('');
+  function showOp(i){
+    const o=opData[i];
+    $('#opContent').innerHTML=`<span class="badge green">${o.badge}</span><h3>${o.title}</h3><p>${o.prompt}</p><button class="localReveal" data-target="opHint">Reveal hint</button> <button class="localReveal secondary" data-target="opSol">Reveal solution</button><div id="opHint" class="callout hidden"><strong>Hint:</strong> ${o.hint}</div><div id="opSol" class="formula-box hidden">${o.solution}</div>`;
+    bindLocalReveals(); mathRender();
+  }
+  $$('.op-btn').forEach(b=>b.addEventListener('click',()=>{$$('.op-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); showOp(Number(b.dataset.i));}));
+  showOp(0);
+
+  // Limits lab
+  const limitData = [
+    {title:'\\(\\lim_{x\\to0}\\frac{\\sin x}{x}\\)', solution:'Using \\(\\sin x=x-\\frac{x^3}{3!}+\\cdots\\),\\[\\frac{\\sin x}{x}=1-\\frac{x^2}{3!}+\\cdots\\to1.\\] L’Hôpital also gives \\(\\lim\\frac{\\cos x}{1}=1\\).'},
+    {title:'\\(\\lim_{x\\to0}\\frac{e^x-1-x}{x^2}\\)', solution:'\\[e^x=1+x+\\frac{x^2}{2}+\\frac{x^3}{6}+\\cdots\\] so \\[\\frac{e^x-1-x}{x^2}=\\frac{\\frac{x^2}{2}+\\frac{x^3}{6}+\\cdots}{x^2}=\\frac12+\\frac{x}{6}+\\cdots\\to\\frac12.\\]'},
+    {title:'\\(\\lim_{x\\to0}\\frac{x-\\sin x}{x^3}\\)', solution:'\\[x-\\sin x=x-\\left(x-\\frac{x^3}{6}+\\frac{x^5}{120}-\\cdots\\right)=\\frac{x^3}{6}-\\frac{x^5}{120}+\\cdots\\] hence the limit is \\(\\frac16\\).'},
+    {title:'\\(\\lim_{x\\to0}\\frac{\\ln(1+x)-x}{x^2}\\)', solution:'\\[\\ln(1+x)=x-\\frac{x^2}{2}+\\frac{x^3}{3}-\\cdots\\] so \\[\\frac{\\ln(1+x)-x}{x^2}=-\\frac12+\\frac{x}{3}-\\cdots\\to-\\frac12.\\]'},
+    {title:'\\(\\lim_{x\\to0}\\frac{e^x-1-x-\\frac{x^2}{2}}{x^3}\\)', solution:'The first surviving term in the numerator is \\(\\frac{x^3}{3!}\\), so the limit is \\(\\frac16\\). This would require repeated L’Hôpital if done mechanically.'}
+  ];
+  $('#limitButtons').innerHTML=limitData.map((o,i)=>`<button class="limit-btn ${i===0?'active':''}" data-i="${i}">${o.title}</button>`).join('');
+  function showLimit(i){
+    const o=limitData[i];
+    $('#limitContent').innerHTML=`<h3>${o.title}</h3><button class="localReveal primary" data-target="limitSol">Reveal method</button><div id="limitSol" class="formula-box hidden">${o.solution}</div>`;
+    bindLocalReveals(); mathRender();
+  }
+  $$('.limit-btn').forEach(b=>b.addEventListener('click',()=>{$$('.limit-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); showLimit(Number(b.dataset.i));}));
+  showLimit(0);
+
+  // Differential equations lab
+  const deData = [
+    {title:'\\(y\'=y,\\ y(0)=1\\)', recurrence:'\\[(n+1)a_{n+1}=a_n,\\quad a_0=1\\]', table:[['\\(a_0\\)','1'],['\\(a_1\\)','1'],['\\(a_2\\)','\\frac12'],['\\(a_3\\)','\\frac16'],['\\(a_4\\)','\\frac1{24}']], solution:'\\[y=1+x+\\frac{x^2}{2!}+\\frac{x^3}{3!}+\\frac{x^4}{4!}+\\cdots=e^x.\\]'},
+    {title:'\\(y\'\'+y=0,\\ y(0)=0,\\ y\'(0)=1\\)', recurrence:'\\[(n+2)(n+1)a_{n+2}+a_n=0,\\quad a_0=0,\\ a_1=1\\]', table:[['\\(a_0\\)','0'],['\\(a_1\\)','1'],['\\(a_2\\)','0'],['\\(a_3\\)','-\\frac16'],['\\(a_4\\)','0'],['\\(a_5\\)','\\frac1{120}']], solution:'\\[y=x-\\frac{x^3}{3!}+\\frac{x^5}{5!}-\\cdots=\\sin x.\\]'},
+    {title:'\\(y\'=x+y,\\ y(0)=1\\)', recurrence:'Equating coefficients gives \\((n+1)a_{n+1}=a_n+\\delta_{n1}\\), where \\(\\delta_{n1}=1\\) only when \\(n=1\\).', table:[['\\(a_0\\)','1'],['\\(a_1\\)','1'],['\\(a_2\\)','1'],['\\(a_3\\)','\\frac13'],['\\(a_4\\)','\\frac1{12}']], solution:'\\[y=1+x+x^2+\\frac{x^3}{3}+\\frac{x^4}{12}+\\cdots.\\]'},
+    {title:'\\(y\'\'=y,\\ y(0)=1,\\ y\'(0)=0\\)', recurrence:'\\[(n+2)(n+1)a_{n+2}=a_n,\\quad a_0=1,\\ a_1=0\\]', table:[['\\(a_0\\)','1'],['\\(a_1\\)','0'],['\\(a_2\\)','\\frac12'],['\\(a_3\\)','0'],['\\(a_4\\)','\\frac1{24}'],['\\(a_5\\)','0']], solution:'\\[y=1+\\frac{x^2}{2!}+\\frac{x^4}{4!}+\\cdots=\\cosh x.\\]'}
+  ];
+  $('#deButtons').innerHTML=deData.map((o,i)=>`<button class="de-btn ${i===0?'active':''}" data-i="${i}">${o.title}</button>`).join('');
+  function showDE(i){
+    const o=deData[i];
+    $('#deContent').innerHTML=`<h3>${o.title}</h3><button class="localReveal" data-target="deRec">Reveal recurrence</button> <button class="localReveal" data-target="deTable">Reveal coefficients</button> <button class="localReveal secondary" data-target="deSol">Reveal solution</button><div id="deRec" class="formula-box hidden">${o.recurrence}</div><div id="deTable" class="hidden"><table><thead><tr><th>Coefficient</th><th>Value</th></tr></thead><tbody>${o.table.map(r=>`<tr><td>${r[0]}</td><td>\\(${r[1]}\\)</td></tr>`).join('')}</tbody></table></div><div id="deSol" class="formula-box hidden">${o.solution}</div>`;
+    bindLocalReveals(); mathRender();
+  }
+  $$('.de-btn').forEach(b=>b.addEventListener('click',()=>{$$('.de-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); showDE(Number(b.dataset.i));}));
+  showDE(0);
+
+  function bindLocalReveals(){
+    $$('.localReveal').forEach(b=>b.onclick=()=>{ $('#' + b.dataset.target).classList.toggle('hidden'); mathRender(); });
+  }
+
+  // Exam practice
+  const examBank = [
+    {type:'standard', marks:4, q:'Find the Maclaurin expansion of \\(e^{2x}\\) up to and including the term in \\(x^4\\).', hint:'Substitute \\(u=2x\\) into the expansion for \\(e^u\\).', sol:'\\[e^{2x}=1+2x+\\frac{(2x)^2}{2!}+\\frac{(2x)^3}{3!}+\\frac{(2x)^4}{4!}+\\cdots=1+2x+2x^2+\\frac43x^3+\\frac23x^4+\\cdots.\\]'},
+    {type:'standard', marks:4, q:'Find the first three non-zero terms of \\(\\sin(3x)\\).', hint:'Use \\(\\sin u=u-\\frac{u^3}{3!}+\\frac{u^5}{5!}-\\cdots\\).', sol:'\\[\\sin(3x)=3x-\\frac{27x^3}{6}+\\frac{243x^5}{120}+\\cdots=3x-\\frac92x^3+\\frac{81}{40}x^5+\\cdots.\\]'},
+    {type:'standard', marks:5, q:'Expand \\(\\ln(1+2x)\\) up to and including \\(x^4\\), and state a condition on \\(x\\).', hint:'Use \\(\\ln(1+u)=u-\\frac{u^2}{2}+\\frac{u^3}{3}-\\frac{u^4}{4}+\\cdots\\).', sol:'\\[\\ln(1+2x)=2x-2x^2+\\frac83x^3-4x^4+\\cdots,\\quad |2x|<1.\\]'},
+    {type:'operation', marks:6, q:'Find the expansion of \\(e^x\\sin x\\) up to and including the term in \\(x^4\\).', hint:'Multiply \\(1+x+\\frac{x^2}{2}+\\frac{x^3}{6}+\\cdots\\) by \\(x-\\frac{x^3}{6}+\\cdots\\).', sol:'\\[e^x\\sin x=x+x^2+\\frac{x^3}{3}+0x^4+\\cdots.\\]'},
+    {type:'operation', marks:5, q:'Find the Maclaurin series for \\(\\sin(x^2)\\) up to and including the term in \\(x^6\\).', hint:'Substitute \\(u=x^2\\).', sol:'\\[\\sin(x^2)=x^2-\\frac{x^6}{3!}+\\cdots=x^2-\\frac{x^6}{6}+\\cdots.\\]'},
+    {type:'operation', marks:7, q:'Use integration to derive the first four non-zero terms of \\(\\arctan(2x)\\).', hint:'Either integrate \\(\\frac{2}{1+4x^2}\\), or substitute \\(2x\\) into the arctan series.', sol:'\\[\\arctan(2x)=2x-\\frac{(2x)^3}{3}+\\frac{(2x)^5}{5}-\\frac{(2x)^7}{7}+\\cdots=2x-\\frac83x^3+\\frac{32}{5}x^5-\\frac{128}{7}x^7+\\cdots.\\]'},
+    {type:'limit', marks:5, q:'Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{e^x-1-x}{x^2}\\).', hint:'Expand \\(e^x\\) until the first term that survives cancellation.', sol:'The numerator is \\(\\frac{x^2}{2}+\\frac{x^3}{6}+\\cdots\\), so the limit is \\(\\boxed{\\frac12}\\).'},
+    {type:'limit', marks:5, q:'Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{x-\\sin x}{x^3}\\).', hint:'Use the sine series and watch the \\(x\\) terms cancel.', sol:'\\[x-\\sin x=\\frac{x^3}{6}-\\frac{x^5}{120}+\\cdots\\Rightarrow\\lim=\\boxed{\\frac16}.\\]'},
+    {type:'limit', marks:6, q:'Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{\\ln(1+x)-x}{x^2}\\).', hint:'Use \\(\\ln(1+x)=x-\\frac{x^2}{2}+\\cdots\\).', sol:'\\[\\ln(1+x)-x=-\\frac{x^2}{2}+\\frac{x^3}{3}-\\cdots\\Rightarrow\\lim=\\boxed{-\\frac12}.\\]'},
+    {type:'de', marks:7, q:'Assume \\(y=\\sum a_nx^n\\). Find the first five terms of the solution to \\(y\'=y\\), \\(y(0)=1\\).', hint:'Equate coefficients after substituting the series into \\(y\'=y\\).', sol:'\\[(n+1)a_{n+1}=a_n,\\ a_0=1\\Rightarrow a_1=1,a_2=\\frac12,a_3=\\frac16,a_4=\\frac1{24}.\\] Hence \\(y=1+x+\\frac{x^2}{2}+\\frac{x^3}{6}+\\frac{x^4}{24}+\\cdots\\).'},
+    {type:'de', marks:8, q:'Find the first three non-zero terms of the series solution to \\(y\'\'+y=0\\), with \\(y(0)=0\\), \\(y\'(0)=1\\).', hint:'The initial conditions give \\(a_0=0\\), \\(a_1=1\\).', sol:'\\[(n+2)(n+1)a_{n+2}+a_n=0.\\] This gives \\(y=x-\\frac{x^3}{3!}+\\frac{x^5}{5!}+\\cdots\\).'},
+    {type:'approx', marks:5, q:'Use four non-zero terms of the Maclaurin series for \\(e^x\\) to estimate \\(e^{0.2}\\).', hint:'Use \\(1+x+\\frac{x^2}{2!}+\\frac{x^3}{3!}\\).', sol:'\\[e^{0.2}\\approx1+0.2+\\frac{0.2^2}{2}+\\frac{0.2^3}{6}=1.221333\\ldots\\]'},
+    {type:'approx', marks:6, q:'Use the first three non-zero terms of \\(\\cos x\\) to estimate \\(\\cos(0.3)\\).', hint:'Use \\(1-\\frac{x^2}{2!}+\\frac{x^4}{4!}\\).', sol:'\\[\\cos(0.3)\\approx1-\\frac{0.3^2}{2}+\\frac{0.3^4}{24}=0.9553375.\\]'},
+    {type:'standard', marks:6, q:'Expand \\((1-2x)^{-1/2}\\) up to and including \\(x^3\\).', hint:'Use the binomial series with \\(p=-\\frac12\\) and \\(u=-2x\\).', sol:'\\[(1-2x)^{-1/2}=1+x+\\frac32x^2+\\frac52x^3+\\cdots,\\quad |x|<\\frac12.\\]'}
+  ];
+  let currentExam=null;
+  let currentExamType='all';
+  function labelForType(type){
+    return ({all:'mixed',standard:'standard',operation:'operation',limit:'limit',de:'differential equations',approx:'approximation'})[type] || type;
+  }
+  function setExamType(type){
+    currentExamType=type;
+    $$('.type-btn').forEach(btn=>btn.classList.toggle('active', btn.dataset.type===type));
+    newExamQuestion();
+  }
+  function newExamQuestion(){
+    const type=currentExamType;
+    const pool=type==='all'?examBank:examBank.filter(q=>q.type===type);
+    currentExam=pool[Math.floor(Math.random()*pool.length)];
+    $('#examQuestion').innerHTML=`<span class="badge orange">${labelForType(currentExam.type)}</span><span class="mark">${currentExam.marks} marks</span><h3>${currentExam.q}</h3><textarea placeholder="Write your working here before revealing the hint or solution..."></textarea><div id="examHint" class="callout hidden"><strong>Hint:</strong> ${currentExam.hint}</div><div id="examSol" class="formula-box hidden"><strong>Solution:</strong><br>${currentExam.sol}</div>`;
+    mathRender();
+  }
+  $$('.type-btn').forEach(btn=>btn.addEventListener('click',()=>setExamType(btn.dataset.type)));
+  $('#newQuestion').addEventListener('click',newExamQuestion);
+  $('#showHint').addEventListener('click',()=>{$('#examHint')?.classList.toggle('hidden'); mathRender();});
+  $('#showSolution').addEventListener('click',()=>{$('#examSol')?.classList.toggle('hidden'); mathRender();});
+  newExamQuestion();
+
+  // Initial render
+  setTimeout(()=>{drawGraphLab(); mathRender();},300);
+})();
+</script>
+</body>
+</html>
