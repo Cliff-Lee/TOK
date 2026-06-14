@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Binomial Expansion Accuracy Laboratory</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --ink:#182033; --muted:#5b6475;
+    --accent:#2563eb; --accent2:#7c3aed; --ok:#059669; --warn:#d97706; --bad:#dc2626;
+    --line:#d8deea; --soft:#eef2ff; --soft2:#f5f3ff; --code:#111827;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:linear-gradient(180deg,#f9fbff 0%,var(--bg) 100%);
+    color:var(--ink);
+  }
+  header{
+    padding:22px 18px 18px;
+    background:#111827;
+    color:white;
+  }
+  header h1{margin:0 0 6px;font-size:clamp(1.4rem,3vw,2.4rem)}
+  header p{margin:0;color:#cbd5e1;max-width:1000px}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  .tabs{
+    display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px;
+    position:sticky;top:0;background:rgba(246,247,251,.92);backdrop-filter:blur(6px);
+    padding:10px 0;z-index:3;
+  }
+  .tab{
+    border:1px solid var(--line);background:white;color:var(--ink);
+    padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:650;
+  }
+  .tab.active{background:var(--accent);color:white;border-color:var(--accent)}
+  section{display:none}
+  section.active{display:block}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+  .card{
+    grid-column:span 12;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(15,23,42,.05);
+  }
+  @media(min-width:850px){
+    .half{grid-column:span 6}.third{grid-column:span 4}.twoThird{grid-column:span 8}
+  }
+  h2,h3{margin:0 0 10px}
+  h2{font-size:1.35rem}
+  h3{font-size:1.05rem}
+  p{line-height:1.55}
+  .muted{color:var(--muted)}
+  .pill{display:inline-block;padding:4px 9px;border-radius:999px;background:var(--soft);color:#1e40af;font-weight:700;font-size:.85rem}
+  .formula{
+    background:linear-gradient(180deg,#0b1533 0%, #0f1d45 100%);
+    color:#f8fbff;
+    padding:16px 18px;
+    border-radius:18px;
+    overflow-x:auto;
+    line-height:1.7;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+  }
+  .formula math{
+    color:inherit;
+    font-family: "Cambria Math","STIX Two Math","Times New Roman",serif;
+    font-size:1.38rem;
+    line-height:1.3;
+  }
+  .formula math[display="block"]{
+    display:block;
+    margin:0;
+  }
+  .formula .mathText{
+    font-family: "Cambria Math","STIX Two Math","Times New Roman",serif;
+    font-size:1.26rem;
+    letter-spacing:.01em;
+  }
+  .formula.smallFormula math,
+  .formula.smallFormula .mathText{
+    font-size:1.08rem;
+  }
+  .controls{display:grid;grid-template-columns:1fr;gap:10px}
+  label{font-weight:650;font-size:.92rem}
+  input,select,button{
+    font:inherit;border:1px solid var(--line);border-radius:10px;padding:9px;background:white;
+  }
+  input[type=range]{padding:0}
+  button{
+    cursor:pointer;font-weight:700;background:var(--accent);color:white;border-color:var(--accent);
+  }
+  button.secondary{background:white;color:var(--ink);border-color:var(--line)}
+  button.ghost{background:#f8fafc;color:var(--ink);border-color:var(--line)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .bigNumber{font-size:1.5rem;font-weight:800}
+  .status{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#f8fafc}
+  .status.ok{border-color:#a7f3d0;background:#ecfdf5;color:#064e3b}
+  .status.warn{border-color:#fde68a;background:#fffbeb;color:#78350f}
+  .status.bad{border-color:#fecaca;background:#fef2f2;color:#7f1d1d}
+  .small{font-size:.88rem}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{background:#f8fafc;position:sticky;top:48px}
+  tr.highlight{background:#ecfdf5}
+  canvas{width:100%;height:280px;border:1px solid var(--line);border-radius:12px;background:white}
+  .termTiles{display:flex;gap:8px;flex-wrap:wrap}
+  .term{
+    border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#f8fafc;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  .term.on{background:#dbeafe;border-color:#93c5fd}
+  details{
+    border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfdff;
+  }
+  summary{font-weight:750;cursor:pointer}
+  .checkItem{padding:8px 0;border-bottom:1px dashed var(--line)}
+  .checkItem:last-child{border-bottom:0}
+  .qbox{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px}
+  .successBox{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:12px}
+  .errorBox{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .sliderLabel{min-width:52px;text-align:right;font-weight:800}
+  .miniGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  .miniStat{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fafafa}
+  .miniStat div:first-child{font-size:.78rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+  .miniStat div:last-child{font-size:1.1rem;font-weight:800;margin-top:4px}
+  .footer{color:var(--muted);font-size:.86rem;text-align:center;margin:25px 0}
+  .hidden{display:none}
+  .revealHint{
+    margin:10px 0 12px;
+    padding:10px 12px;
+    border:1px dashed #fbbf24;
+    border-radius:12px;
+    background:#fffbeb;
+    color:#78350f;
+  }
+  .choiceGroup{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .choiceBtn{
+    background:#f8fafc;
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 12px;
+    font-weight:650;
+  }
+  .choiceBtn:hover{
+    background:#eef2ff;
+    border-color:#c7d2fe;
+  }
+  .choiceBtn.active{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0">
+    <h1>Binomial Expansion Accuracy Laboratory</h1>
+    <p>Explore Newton’s generalized binomial theorem, then see exactly how accuracy depends on the number of terms, the size of the input, and whether the series is inside its validity interval.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="tabs" aria-label="Laboratory tabs">
+    <button class="tab active" data-tab="discover">1. Discover</button>
+    <button class="tab" data-tab="method">2. Exam Method</button>
+    <button class="tab" data-tab="accuracy">3. Accuracy Lab</button>
+    <button class="tab" data-tab="challenge">4. Challenge</button>
+    <button class="tab" data-tab="teacher">Teacher Notes</button>
+  </nav>
+
+  <section id="discover" class="active">
+    <div class="grid">
+      <div class="card twoThird">
+        <span class="pill">Stage 1: patterns before formula</span>
+        <h2>Build the idea from a geometric series</h2>
+        <p>
+          Start with a familiar infinite series. When <b>|x| &lt; 1</b>,
+          <span class="mono">1 + x + x² + x³ + ... = 1 / (1 - x)</span>.
+          That means <span class="mono">(1 - x)<sup>-1</sup></span> has an infinite expansion.
+        </p>
+        <div class="formula">
+          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+            <mrow>
+              <msup>
+                <mrow><mo>(</mo><mn>1</mn><mo>−</mo><mi>x</mi><mo>)</mo></mrow>
+                <mrow><mo>−</mo><mn>1</mn></mrow>
+              </msup>
+              <mo>=</mo>
+              <mn>1</mn>
+              <mo>+</mo><mi>x</mi>
+              <mo>+</mo><msup><mi>x</mi><mn>2</mn></msup>
+              <mo>+</mo><msup><mi>x</mi><mn>3</mn></msup>
+              <mo>+</mo><msup><mi>x</mi><mn>4</mn></msup>
+              <mo>+</mo><mo>⋯</mo>
+            </mrow>
+          </math>
+        </div>
+        <p>
+          Now multiply two copies of this series. The coefficient of each power counts the number of ways to make that power.
+        </p>
+        <div class="row">
+          <label for="discoverPower">Explore negative power:</label>
+          <select id="discoverPower">
+            <option value="1">(1 − x)^−1</option>
+            <option value="2">(1 − x)^−2</option>
+            <option value="3">(1 − x)^−3</option>
+            <option value="4">(1 − x)^−4</option>
+            <option value="5">(1 − x)^−5</option>
+          </select>
+          <label for="discoverTerms">terms:</label>
+          <input id="discoverTerms" type="range" min="3" max="10" value="6" />
+          <span id="discoverTermsLabel" class="sliderLabel">6</span>
+        </div>
+        <div id="discoverExpansion" class="formula" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card third">
+        <h3>Coefficient table</h3>
+        <p class="muted small">First, predict the next row. Then reveal the table to check the pattern.</p>
+        <div class="revealHint small">
+          Try writing the first six coefficients yourself before opening the table.
+        </div>
+        <button id="revealCoef" class="secondary" type="button">Reveal coefficient table</button>
+        <div id="coefTable" class="hidden" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card half">
+        <h3>Investigation prompt</h3>
+        <div class="qbox">
+          <p><b>Predict:</b> What should the first six coefficients of <span class="mono">(1 − x)<sup>-4</sup></span> be?</p>
+          <p><b>Explain:</b> Why do the coefficients not stop?</p>
+          <p><b>Connect:</b> How is this different from <span class="mono">(1 + x)<sup>4</sup></span>?</p>
+        </div>
+      </div>
+
+      <div class="card half">
+        <h3>From pattern to generalization</h3>
+        <p>For any rational exponent <span class="mono">n</span>, the generalized binomial expansion is:</p>
+        <div class="formula">
+          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+            <mrow>
+              <msup>
+                <mrow><mo>(</mo><mn>1</mn><mo>+</mo><mi>u</mi><mo>)</mo></mrow>
+                <mi>n</mi>
+              </msup>
+              <mo>=</mo>
+              <mn>1</mn>
+              <mo>+</mo><mi>n</mi><mi>u</mi>
+              <mo>+</mo>
+              <mfrac>
+                <mrow><mi>n</mi><mo>(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo>)</mo><msup><mi>u</mi><mn>2</mn></msup></mrow>
+                <mrow><mn>2</mn><mo>!</mo></mrow>
+              </mfrac>
+              <mo>+</mo>
+              <mfrac>
+                <mrow><mi>n</mi><mo>(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo>)</mo><msup><mi>u</mi><mn>3</mn></msup></mrow>
+                <mrow><mn>3</mn><mo>!</mo></mrow>
+              </mfrac>
+              <mo>+</mo><mo>⋯</mo>
+            </mrow>
+          </math>
+        </div>
+        <p class="muted">The key condition is usually <b>|u| &lt; 1</b>. If the expression is not already in the form <span class="mono">(1 + u)^n</span>, factor first.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <div class="grid">
+      <div class="card">
+        <span class="pill">Stage 2: reliable procedure</span>
+        <h2>The exam method: factorise → identify → expand → state validity</h2>
+        <p>Use this four-step routine whenever the expression is not already in the form <span class="mono">A(1 + u)^n</span>.</p>
+      </div>
+
+      <div class="card half">
+        <h3>Choose an expression</h3>
+        <div class="controls">
+          <label>Preset</label>
+          <div id="methodPresetGroup" class="choiceGroup" role="group" aria-label="Method presets">
+            <button type="button" class="choiceBtn active" data-value="sqrt1plus2x">√(1 + 2x)</button>
+            <button type="button" class="choiceBtn" data-value="recip2minus3x">2 / (1 − 3x)</button>
+            <button type="button" class="choiceBtn" data-value="sqrt4plusx">√(4 + x)</button>
+            <button type="button" class="choiceBtn" data-value="recipSqrt2plusx">1 / √(2 + x)</button>
+            <button type="button" class="choiceBtn" data-value="custom">Custom A(1 + kx)^n</button>
+          </div>
+          <div class="miniGrid">
+            <div>
+              <label for="A">A</label>
+              <input id="A" type="number" step="any" value="1" />
+            </div>
+            <div>
+              <label for="k">k in u = kx</label>
+              <input id="k" type="number" step="any" value="2" />
+            </div>
+            <div>
+              <label for="n">n</label>
+              <input id="n" type="number" step="any" value="0.5" />
+            </div>
+          </div>
+          <div>
+            <label for="xMethod">x value</label>
+            <div class="row">
+              <input id="xMethod" type="range" min="-0.95" max="0.95" step="0.01" value="0.2" style="flex:1" />
+              <span id="xMethodLabel" class="sliderLabel">0.20</span>
+            </div>
+          </div>
+          <div>
+            <label for="NMethod">number of terms</label>
+            <div class="row">
+              <input id="NMethod" type="range" min="1" max="20" step="1" value="4" style="flex:1" />
+              <span id="NMethodLabel" class="sliderLabel">4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card half">
+        <h3>Worked structure</h3>
+        <div id="methodStatus" class="status"></div>
+        <div id="methodSteps" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <h3>Term-by-term partial sum</h3>
+        <div id="methodTiles" class="termTiles"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="accuracy">
+    <div class="grid">
+      <div class="card">
+        <span class="pill">Stage 3: approximation and convergence</span>
+        <h2>Accuracy Lab: how many terms are enough?</h2>
+        <p>
+          Change the expression, the value of <span class="mono">x</span>, and the number of terms.
+          Watch the partial sum approach the true value — or fail when the validity condition is broken.
+        </p>
+      </div>
+
+      <div class="card third">
+        <h3>Controls</h3>
+        <div class="controls">
+          <label>Expression</label>
+          <div id="accPresetGroup" class="choiceGroup" role="group" aria-label="Accuracy expressions">
+            <button type="button" class="choiceBtn active" data-value="recip1plusx">1 / (1 + x)</button>
+            <button type="button" class="choiceBtn" data-value="sqrt1plusx">√(1 + x)</button>
+            <button type="button" class="choiceBtn" data-value="recipSqrt1plusx">1 / √(1 + x)</button>
+            <button type="button" class="choiceBtn" data-value="sqrt1minusx">√(1 − x)</button>
+            <button type="button" class="choiceBtn" data-value="recip1minusx">1 / (1 − x)</button>
+            <button type="button" class="choiceBtn" data-value="custom">Custom A(1 + kx)^n</button>
+          </div>
+          <div class="miniGrid">
+            <div>
+              <label for="AA">A</label>
+              <input id="AA" type="number" step="any" value="1" />
+            </div>
+            <div>
+              <label for="kk">k</label>
+              <input id="kk" type="number" step="any" value="1" />
+            </div>
+            <div>
+              <label for="nn">n</label>
+              <input id="nn" type="number" step="any" value="-1" />
+            </div>
+          </div>
+          <label for="xAcc">x</label>
+          <div class="row">
+            <input id="xAcc" type="range" min="-1.5" max="1.5" step="0.01" value="0.2" style="flex:1" />
+            <input id="xAccNum" type="number" step="0.01" value="0.20" style="width:90px" />
+          </div>
+          <label for="NAcc">terms used</label>
+          <div class="row">
+            <input id="NAcc" type="range" min="1" max="40" step="1" value="5" style="flex:1" />
+            <span id="NAccLabel" class="sliderLabel">5</span>
+          </div>
+          <label for="target">target absolute error</label>
+          <select id="target">
+            <option value="0.1">0.1</option>
+            <option value="0.01">0.01</option>
+            <option value="0.001" selected>0.001</option>
+            <option value="0.0001">0.0001</option>
+            <option value="0.00001">0.00001</option>
+            <option value="0.000001">0.000001</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card twoThird">
+        <h3>Live results</h3>
+        <div id="accStatus" class="status"></div>
+        <div class="miniGrid" style="margin-top:12px">
+          <div class="miniStat"><div>True value</div><div id="trueVal">—</div></div>
+          <div class="miniStat"><div>Partial sum</div><div id="partialVal">—</div></div>
+          <div class="miniStat"><div>Absolute error</div><div id="absErr">—</div></div>
+          <div class="miniStat"><div>Relative error</div><div id="relErr">—</div></div>
+          <div class="miniStat"><div>First term count meeting target</div><div id="firstTarget">—</div></div>
+          <div class="miniStat"><div>|u|</div><div id="uSize">—</div></div>
+        </div>
+        <canvas id="errorCanvas" width="900" height="310" aria-label="Error graph"></canvas>
+      </div>
+
+      <div class="card half">
+        <h3>Error table</h3>
+        <div id="errorTable" style="max-height:390px;overflow:auto"></div>
+      </div>
+
+      <div class="card half">
+        <h3>What to notice</h3>
+        <div id="noticing"></div>
+        <details style="margin-top:10px">
+          <summary>Teacher reveal: why accuracy changes</summary>
+          <p>
+            The size of the inner value <span class="mono">u = kx</span> is crucial.
+            When <span class="mono">|u|</span> is small, later terms become tiny quickly.
+            When <span class="mono">|u|</span> is close to 1, convergence is slow.
+            When <span class="mono">|u| ≥ 1</span>, the generalized binomial series is not valid in the usual interval, so adding more terms may not improve the approximation.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="challenge">
+    <div class="grid">
+      <div class="card">
+        <h2>Challenge: become the examiner</h2>
+        <p>Choose whether each solution contains a common binomial-expansion error.</p>
+      </div>
+      <div class="card half">
+        <h3>Question</h3>
+        <p>Find the first three terms of <span class="mono">(2 − 3x)<sup>−1</sup></span>.</p>
+        <div class="formula smallFormula">
+          <div class="mathText">
+            <b>Student A:</b> 2(1 − 3x)<sup>−1</sup> = 2(1 + 3x + 9x² + ⋯) = 2 + 6x + 18x² + ⋯
+            <br><br>
+            <b>Student B:</b> (2 − 3x)<sup>−1</sup> = ½(1 − 3x/2)<sup>−1</sup> = ½ + 3x/4 + 9x²/8 + ⋯
+            <br><br>
+            <b>Student C:</b> (2 − 3x)<sup>−1</sup> = ½(1 − 3x/2)<sup>−1</sup> = ½(1 + 3x/2 + 9x²/4 + ⋯) = ½ + 3x/4 + 9x²/8 + ⋯
+          </div>
+        </div>
+      </div>
+      <div class="card half">
+        <h3>Your decision</h3>
+        <div class="controls">
+          <label>Which solution is fully correct?</label>
+          <select id="examinerAnswer">
+            <option value="">Choose...</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+          </select>
+          <button id="checkExaminer">Check</button>
+          <div id="examinerFeedback"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Mini investigation prompts</h3>
+        <div class="grid">
+          <div class="card third" style="box-shadow:none">
+            <b>1. Accuracy race</b>
+            <p>For <span class="mono">√(1+x)</span>, compare <span class="mono">x = 0.1</span>, <span class="mono">0.5</span>, and <span class="mono">0.9</span>. Which needs the most terms for error below 0.001?</p>
+          </div>
+          <div class="card third" style="box-shadow:none">
+            <b>2. Outside the interval</b>
+            <p>Try <span class="mono">1/(1+x)</span> with <span class="mono">x = 1.1</span>. Does the error improve as terms increase?</p>
+          </div>
+          <div class="card third" style="box-shadow:none">
+            <b>3. Factorisation matters</b>
+            <p>Compare <span class="mono">√(4+x)</span> written as <span class="mono">2(1+x/4)^{1/2}</span>. Why is this better than trying to expand it directly?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="teacher">
+    <div class="grid">
+      <div class="card">
+        <h2>Teacher Notes: learning progression</h2>
+        <p>This laboratory follows the sequence: <b>discovery through patterns → reliable procedure → approximation and convergence</b>.</p>
+      </div>
+      <div class="card half">
+        <h3>Suggested lesson flow</h3>
+        <ol>
+          <li><b>Discover:</b> Students build negative-power expansions from geometric series and coefficient patterns.</li>
+          <li><b>Generalize:</b> Introduce <span class="mono">(1+u)^n</span> and the condition <span class="mono">|u|&lt;1</span>.</li>
+          <li><b>Method:</b> Practise factorising into <span class="mono">A(1+kx)^n</span>, expanding, and stating validity.</li>
+          <li><b>Accuracy:</b> Investigate how the number of terms affects absolute error.</li>
+          <li><b>Reflect:</b> Students explain why smaller <span class="mono">|u|</span> gives faster convergence.</li>
+        </ol>
+      </div>
+      <div class="card half">
+        <h3>Exit ticket questions</h3>
+        <ol>
+          <li>Why is <span class="mono">|u|&lt;1</span> more important than just <span class="mono">|x|&lt;1</span>?</li>
+          <li>Why does <span class="mono">(1+x)^5</span> stop but <span class="mono">(1+x)^{-1}</span> continues forever?</li>
+          <li>For a fixed number of terms, why is <span class="mono">x=0.1</span> usually more accurate than <span class="mono">x=0.8</span>?</li>
+          <li>How could you use the binomial expansion to approximate <span class="mono">√1.04</span>?</li>
+        </ol>
+      </div>
+    </div>
+    <p class="footer">Single-file app. No external libraries required.</p>
+  </section>
+</div>
+
+<script>
+function factorial(n){let f=1; for(let i=2;i<=n;i++) f*=i; return f;}
+function binomCoeff(n,r){
+  let c=1;
+  for(let i=0;i<r;i++) c *= (n-i)/(i+1);
+  return c;
+}
+function formatNum(v, sig=8){
+  if(!Number.isFinite(v)) return "undefined";
+  if(Math.abs(v)===0) return "0";
+  if(Math.abs(v)>=1e6 || Math.abs(v)<1e-5) return v.toExponential(4);
+  return Number(v.toPrecision(sig)).toString();
+}
+function superscript(n){
+  const map={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","-":"⁻",".":"·"};
+  return String(n).split("").map(ch=>map[ch]||ch).join("");
+}
+function numML(v){
+  return `<mn>${formatNum(v)}</mn>`;
+}
+function powerML(symbol, r){
+  if(r===1) return `<mi>${symbol}</mi>`;
+  return `<msup><mi>${symbol}</mi><mn>${r}</mn></msup>`;
+}
+function termML(coeff, r, symbol="x"){
+  const abs = Math.abs(coeff);
+  if(r===0) return numML(abs);
+  const coeffPart = Math.abs(abs-1) < 1e-12 ? "" : numML(abs);
+  return coeffPart + powerML(symbol, r);
+}
+function parenBaseML(sign, mag, symbol="x"){
+  return `<mrow><mo>(</mo><mn>1</mn><mo>${sign}</mo><mn>${formatNum(mag)}</mn><mi>${symbol}</mi><mo>)</mo></mrow>`;
+}
+function expML(n){
+  if(Number.isInteger(n)) return `<mn>${formatNum(n)}</mn>`;
+  if(n < 0) return `<mrow><mo>−</mo><mn>${formatNum(Math.abs(n))}</mn></mrow>`;
+  return `<mn>${formatNum(n)}</mn>`;
+}
+function fullExpressionML(A,k,n,symbol="x"){
+  const sign = k >= 0 ? "+" : "−";
+  const mag = Math.abs(k);
+  const coeffPart = Math.abs(A-1) < 1e-12 ? "" : `<mn>${formatNum(A)}</mn>`;
+  return `${coeffPart}<msup>${parenBaseML(sign, mag, symbol)}${expML(n)}</msup>`;
+}
+function discoverExpansionMathML(p, terms){
+  let ml = `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow>`;
+  ml += `<msup><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mi>x</mi><mo>)</mo></mrow><mrow><mo>−</mo><mn>${p}</mn></mrow></msup>`;
+  ml += `<mo>=</mo>`;
+  for(let r=0;r<terms;r++){
+    const coeff = binomCoeff(p+r-1,r);
+    if(r>0) ml += `<mo>+</mo>`;
+    ml += `<mrow>${termML(coeff,r,"x")}</mrow>`;
+  }
+  ml += `<mo>+</mo><mo>⋯</mo></mrow></math>`;
+  return ml;
+}
+function expansionMathML(A,n,k,terms){
+  let ml = `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow>`;
+  ml += `${fullExpressionML(A,k,n,"x")}<mo>=</mo>`;
+  for(let r=0;r<terms;r++){
+    const coeff = A*binomCoeff(n,r)*Math.pow(k,r);
+    if(r===0){
+      ml += `<mrow>${termML(coeff,r,"x")}</mrow>`;
+    } else {
+      ml += `<mo>${coeff < 0 ? "−" : "+"}</mo><mrow>${termML(coeff,r,"x")}</mrow>`;
+    }
+  }
+  ml += `<mo>+</mo><mo>⋯</mo></mrow></math>`;
+  return ml;
+}
+function partial(A,n,k,x,terms){
+  let u=k*x, sum=0, rows=[];
+  for(let r=0;r<terms;r++){
+    let coeff=A*binomCoeff(n,r)*Math.pow(k,r);
+    let term=A*binomCoeff(n,r)*Math.pow(u,r);
+    sum+=term;
+    rows.push({r, coeff, term, sum});
+  }
+  return {sum, rows, u};
+}
+function trueValue(A,n,k,x){
+  let base=1+k*x;
+  if(base<0 && Math.abs(n-Math.round(n))>1e-12) return NaN;
+  return A*Math.pow(base,n);
+}
+function validityText(k,x){
+  const u=k*x, au=Math.abs(u);
+  if(au<1) return {cls:"ok", text:"Valid: |u| = |kx| = "+formatNum(au)+" < 1. The series should converge to the true value."};
+  if(Math.abs(au-1)<1e-12) return {cls:"warn", text:"Boundary case: |u| = 1. The usual binomial validity condition is not safely met."};
+  return {cls:"bad", text:"Not valid: |u| = |kx| = "+formatNum(au)+" ≥ 1. More terms may not improve the approximation."};
+}
+function setupTabs(){
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+      if(btn.dataset.tab==="accuracy") drawAccuracy();
+    });
+  });
+}
+
+function updateDiscover(){
+  const p=Number(document.getElementById("discoverPower").value);
+  const terms=Number(document.getElementById("discoverTerms").value);
+  document.getElementById("discoverTermsLabel").textContent=terms;
+  document.getElementById("discoverExpansion").innerHTML = discoverExpansionMathML(p, terms);
+
+  let html="<table><thead><tr><th>Expression</th>";
+  for(let r=0;r<6;r++) html+="<th>x"+(r?superscript(r):"⁰")+"</th>";
+  html+="</tr></thead><tbody>";
+  for(let pp=1;pp<=5;pp++){
+    html+="<tr"+(pp===p?' class="highlight"':"")+"><td>(1−x)<sup>−"+pp+"</sup></td>";
+    for(let r=0;r<6;r++) html+="<td>"+formatNum(binomCoeff(pp+r-1,r),6)+"</td>";
+    html+="</tr>";
+  }
+  html+="</tbody></table>";
+  document.getElementById("coefTable").innerHTML=html;
+}
+
+
+function getActiveChoiceValue(groupId){
+  const btn = document.querySelector(`#${groupId} .choiceBtn.active`);
+  return btn ? btn.dataset.value : null;
+}
+function setActiveChoice(groupId, value){
+  document.querySelectorAll(`#${groupId} .choiceBtn`).forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.value === value);
+  });
+}
+function bindChoiceGroup(groupId, handler){
+  document.querySelectorAll(`#${groupId} .choiceBtn`).forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      setActiveChoice(groupId, btn.dataset.value);
+      handler(btn.dataset.value);
+    });
+  });
+}
+
+const methodPresets={
+  sqrt1plus2x:{A:1,k:2,n:0.5,desc:"√(1 + 2x)"},
+  recip2minus3x:{A:2,k:-3,n:-1,desc:"2 / (1 − 3x)"},
+  sqrt4plusx:{A:2,k:0.25,n:0.5,desc:"√(4 + x) = 2(1 + x/4)^(1/2)"},
+  recipSqrt2plusx:{A:1/Math.sqrt(2),k:0.5,n:-0.5,desc:"1/√(2 + x) = 1/√2 · (1 + x/2)^(-1/2)"}
+};
+function loadMethodPreset(v=getActiveChoiceValue("methodPresetGroup")){
+  if(!v) v="sqrt1plus2x";
+  setActiveChoice("methodPresetGroup", v);
+  if(v!=="custom"){
+    document.getElementById("A").value=methodPresets[v].A;
+    document.getElementById("k").value=methodPresets[v].k;
+    document.getElementById("n").value=methodPresets[v].n;
+  }
+  updateMethod();
+}
+function updateMethod(){
+  const A=Number(document.getElementById("A").value);
+  const k=Number(document.getElementById("k").value);
+  const n=Number(document.getElementById("n").value);
+  const x=Number(document.getElementById("xMethod").value);
+  const N=Number(document.getElementById("NMethod").value);
+  document.getElementById("xMethodLabel").textContent=x.toFixed(2);
+  document.getElementById("NMethodLabel").textContent=N;
+
+  const val=validityText(k,x);
+  const st=document.getElementById("methodStatus");
+  st.className="status "+val.cls;
+  st.textContent=val.text;
+
+  const u=k*x;
+  const tv=trueValue(A,n,k,x);
+  const p=partial(A,n,k,x,N);
+  const err=Math.abs(tv-p.sum);
+  document.getElementById("methodSteps").innerHTML=`
+    <div class="checkItem"><b>1. Factorise:</b> write the expression as <span class="mono">${formatNum(A)}(1 ${k>=0?"+":"−"} ${formatNum(Math.abs(k))}x)<sup>${n}</sup></span>.</div>
+    <div class="checkItem"><b>2. Identify:</b> <span class="mono">A=${formatNum(A)}, u=${formatNum(k)}x, n=${formatNum(n)}</span>.</div>
+    <div class="checkItem"><b>3. Expand:</b><div class="formula" style="margin-top:6px">${expansionMathML(A,n,k,Math.min(N,8))}</div></div>
+    <div class="checkItem"><b>4. At x=${x.toFixed(2)}:</b> partial sum using ${N} terms = <span class="mono">${formatNum(p.sum,10)}</span>; true value = <span class="mono">${formatNum(tv,10)}</span>; error = <span class="mono">${formatNum(err,6)}</span>.</div>
+  `;
+  let tiles="";
+  p.rows.forEach((row,i)=>{
+    tiles+=`<span class="term on">T${i+1}: ${formatNum(row.term,8)}</span>`;
+  });
+  document.getElementById("methodTiles").innerHTML=tiles;
+}
+
+const accPresets={
+  recip1plusx:{A:1,k:1,n:-1},
+  sqrt1plusx:{A:1,k:1,n:0.5},
+  recipSqrt1plusx:{A:1,k:1,n:-0.5},
+  sqrt1minusx:{A:1,k:-1,n:0.5},
+  recip1minusx:{A:1,k:-1,n:-1}
+};
+function loadAccPreset(v=getActiveChoiceValue("accPresetGroup")){
+  if(!v) v="recip1plusx";
+  setActiveChoice("accPresetGroup", v);
+  if(v!=="custom"){
+    document.getElementById("AA").value=accPresets[v].A;
+    document.getElementById("kk").value=accPresets[v].k;
+    document.getElementById("nn").value=accPresets[v].n;
+  }
+  drawAccuracy();
+}
+function drawCanvas(rows, N, target, valid){
+  const c=document.getElementById("errorCanvas"), ctx=c.getContext("2d");
+  const W=c.width,H=c.height,pad=48;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="#d8deea"; ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    let y=pad+(H-2*pad)*i/5;
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(W-pad,y); ctx.stroke();
+  }
+  const finite=rows.filter(r=>Number.isFinite(r.err) && r.err>0);
+  if(finite.length===0){
+    ctx.fillStyle="#5b6475"; ctx.fillText("No finite error values to graph.", pad, H/2); return;
+  }
+  let logs=finite.map(r=>Math.log10(r.err));
+  let minY=Math.min(...logs, Math.log10(target))-0.2;
+  let maxY=Math.max(...logs, Math.log10(target))+0.2;
+  if(Math.abs(maxY-minY)<0.5){maxY+=0.25;minY-=0.25;}
+  const xScale=r=>pad+(W-2*pad)*(r.terms-1)/(rows.length-1);
+  const yScale=lg=>H-pad-(H-2*pad)*(lg-minY)/(maxY-minY);
+
+  // target line
+  const ty=yScale(Math.log10(target));
+  ctx.strokeStyle="#059669"; ctx.setLineDash([7,5]); ctx.beginPath(); ctx.moveTo(pad,ty); ctx.lineTo(W-pad,ty); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle="#059669"; ctx.fillText("target", W-pad-42, ty-6);
+
+  ctx.strokeStyle=valid ? "#2563eb" : "#dc2626"; ctx.lineWidth=3; ctx.beginPath();
+  finite.forEach((r,i)=>{
+    const x=xScale(r), y=yScale(Math.log10(r.err));
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  finite.forEach(r=>{
+    const x=xScale(r), y=yScale(Math.log10(r.err));
+    ctx.fillStyle = r.terms===N ? "#111827" : (valid ? "#2563eb" : "#dc2626");
+    ctx.beginPath(); ctx.arc(x,y,r.terms===N?5:3,0,Math.PI*2); ctx.fill();
+  });
+
+  ctx.fillStyle="#111827"; ctx.font="13px system-ui";
+  ctx.fillText("number of terms", W/2-45, H-12);
+  ctx.save(); ctx.translate(16,H/2+55); ctx.rotate(-Math.PI/2); ctx.fillText("log10(absolute error)",0,0); ctx.restore();
+  ctx.fillStyle="#5b6475";
+  ctx.fillText("1", pad-3, H-pad+20);
+  ctx.fillText(String(rows.length), W-pad-8, H-pad+20);
+  ctx.fillText("10^"+Math.round(maxY), 8, yScale(maxY)+4);
+  ctx.fillText("10^"+Math.round(minY), 8, yScale(minY)+4);
+}
+function drawAccuracy(){
+  const A=Number(document.getElementById("AA").value);
+  const k=Number(document.getElementById("kk").value);
+  const n=Number(document.getElementById("nn").value);
+  const x=Number(document.getElementById("xAccNum").value);
+  const N=Number(document.getElementById("NAcc").value);
+  const target=Number(document.getElementById("target").value);
+  document.getElementById("xAcc").value=Math.max(-1.5,Math.min(1.5,x));
+  document.getElementById("NAccLabel").textContent=N;
+
+  const val=validityText(k,x);
+  const st=document.getElementById("accStatus");
+  st.className="status "+val.cls;
+  st.innerHTML=`<b>Expression:</b> <span class="mono">${formatNum(A)}(1 ${k>=0?"+":"−"} ${formatNum(Math.abs(k))}x)<sup>${formatNum(n)}</sup></span><br>${val.text}`;
+
+  const tv=trueValue(A,n,k,x);
+  const pN=partial(A,n,k,x,N);
+  const err=Math.abs(tv-pN.sum);
+  const rel=Math.abs(err/tv);
+  document.getElementById("trueVal").textContent=formatNum(tv,10);
+  document.getElementById("partialVal").textContent=formatNum(pN.sum,10);
+  document.getElementById("absErr").textContent=formatNum(err,8);
+  document.getElementById("relErr").textContent=Number.isFinite(rel)?formatNum(100*rel,6)+"%":"undefined";
+  document.getElementById("uSize").textContent=formatNum(Math.abs(k*x),6);
+
+  let rows=[], first=null;
+  for(let t=1;t<=40;t++){
+    const pp=partial(A,n,k,x,t).sum;
+    const e=Math.abs(tv-pp);
+    rows.push({terms:t, sum:pp, err:e});
+    if(first===null && Number.isFinite(e) && e<target) first=t;
+  }
+  document.getElementById("firstTarget").textContent=first===null?"not reached":first+" terms";
+
+  let html="<table><thead><tr><th>Terms</th><th>Partial sum</th><th>Abs error</th><th>Meets target?</th></tr></thead><tbody>";
+  rows.forEach(r=>{
+    html+=`<tr ${r.terms===N?'class="highlight"':''}><td>${r.terms}</td><td>${formatNum(r.sum,10)}</td><td>${formatNum(r.err,8)}</td><td>${r.err<target?"✓":"—"}</td></tr>`;
+  });
+  html+="</tbody></table>";
+  document.getElementById("errorTable").innerHTML=html;
+
+  drawCanvas(rows,N,target,Math.abs(k*x)<1);
+
+  let notice="";
+  const au=Math.abs(k*x);
+  if(au<0.25) notice=`<div class="successBox"><b>Fast convergence.</b> Since |u| is small, each new term usually becomes much smaller quickly. A small number of terms may be enough.</div>`;
+  else if(au<0.75) notice=`<div class="qbox"><b>Moderate convergence.</b> The approximation improves, but you may need several terms to reach high accuracy.</div>`;
+  else if(au<1) notice=`<div class="qbox"><b>Slow convergence.</b> |u| is close to 1, so the error may decrease slowly. This is where the number of terms really matters.</div>`;
+  else notice=`<div class="errorBox"><b>Outside the usual validity interval.</b> Adding more terms may make the approximation worse. The formula is not a magic polynomial; it is a series with conditions.</div>`;
+  notice += `<p><b>Student sentence frame:</b> “Using more terms improves the approximation when the series is valid, but the improvement is faster when |u| is smaller.”</p>`;
+  document.getElementById("noticing").innerHTML=notice;
+}
+function syncXRange(){
+  document.getElementById("xAccNum").value=Number(document.getElementById("xAcc").value).toFixed(2);
+  drawAccuracy();
+}
+function checkExaminer(){
+  const ans=document.getElementById("examinerAnswer").value;
+  const fb=document.getElementById("examinerFeedback");
+  if(ans==="C"){
+    fb.innerHTML='<div class="successBox"><b>Correct.</b> Student C first factors correctly: 2 − 3x = 2(1 − 3x/2), so the reciprocal is 1/2(1 − 3x/2)<sup>−1</sup>.</div>';
+  } else if(ans==="A"){
+    fb.innerHTML='<div class="errorBox"><b>Not quite.</b> Student A treats (2 − 3x)<sup>−1</sup> like 2(1 − 3x)<sup>−1</sup>. The outside factor should be 1/2 after taking the reciprocal.</div>';
+  } else if(ans==="B"){
+    fb.innerHTML='<div class="errorBox"><b>Careful.</b> Student B has the right final terms, but the working skips the expansion step and is not as clear as Student C. In an exam, Student C is the safest fully correct solution.</div>';
+  } else {
+    fb.innerHTML='<div class="qbox">Choose A, B, or C first.</div>';
+  }
+}
+
+function toggleCoefficientTable(){
+  const table=document.getElementById("coefTable");
+  const btn=document.getElementById("revealCoef");
+  const hidden=table.classList.toggle("hidden");
+  btn.textContent = hidden ? "Reveal coefficient table" : "Hide coefficient table";
+}
+
+function attach(){
+  setupTabs();
+  document.getElementById("revealCoef").addEventListener("click",toggleCoefficientTable);
+  document.getElementById("discoverPower").addEventListener("change",updateDiscover);
+  document.getElementById("discoverTerms").addEventListener("input",updateDiscover);
+  bindChoiceGroup("methodPresetGroup", loadMethodPreset);
+  ["A","k","n","xMethod","NMethod"].forEach(id=>document.getElementById(id).addEventListener("input",updateMethod));
+  bindChoiceGroup("accPresetGroup", loadAccPreset);
+  ["AA","kk","nn","NAcc","target"].forEach(id=>document.getElementById(id).addEventListener("input",drawAccuracy));
+  document.getElementById("xAcc").addEventListener("input",syncXRange);
+  document.getElementById("xAccNum").addEventListener("input",drawAccuracy);
+  document.getElementById("checkExaminer").addEventListener("click",checkExaminer);
+  updateDiscover(); loadMethodPreset(); loadAccPreset();
+}
+document.addEventListener("DOMContentLoaded",attach);
+</script>
+</body>
+</html>
