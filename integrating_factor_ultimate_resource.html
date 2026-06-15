@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integrating Factors | Ultimate Student Resource</title>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']]},
+      svg: {fontCache: 'global'}
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --paper:#ffffff;
+      --ink:#17202a;
+      --muted:#5d6d7e;
+      --line:#d9e2ec;
+      --accent:#244c8f;
+      --accent2:#7c3aed;
+      --success:#0b7a53;
+      --danger:#b42318;
+      --warn:#8a5a00;
+      --soft:#eef4ff;
+      --soft2:#f6efff;
+      --soft3:#ecfdf3;
+      --shadow:0 14px 35px rgba(31,41,55,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background:linear-gradient(180deg,#eef4ff 0%, var(--bg) 24rem);
+      color:var(--ink);
+      line-height:1.55;
+    }
+    header{
+      padding:44px 22px 28px;
+      max-width:1180px;
+      margin:0 auto;
+    }
+    .hero{
+      background:rgba(255,255,255,.82);
+      backdrop-filter: blur(8px);
+      border:1px solid rgba(217,226,236,.9);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:34px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero:after{
+      content:"";
+      position:absolute;
+      right:-90px; top:-120px;
+      width:330px; height:330px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(124,58,237,.18), rgba(36,76,143,.08), transparent 70%);
+      pointer-events:none;
+    }
+    .eyebrow{
+      font-weight:800;
+      color:var(--accent);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:.78rem;
+      margin-bottom:8px;
+    }
+    h1{
+      margin:.1rem 0 .5rem;
+      font-size:clamp(2.1rem, 5vw, 4.6rem);
+      line-height:1.03;
+      letter-spacing:-.055em;
+    }
+    h2{
+      font-size:clamp(1.55rem, 2.4vw, 2.25rem);
+      line-height:1.12;
+      margin:0 0 16px;
+      letter-spacing:-.025em;
+    }
+    h3{font-size:1.18rem;margin:18px 0 9px;letter-spacing:-.01em}
+    p{margin:9px 0 12px}
+    .lead{font-size:1.13rem;color:#334155;max-width:890px}
+    .equation-banner{
+      margin-top:22px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--line);
+      padding:9px 13px;
+      border-radius:999px;
+      background:#fff;
+      color:#243b53;
+      font-weight:700;
+      font-size:.93rem;
+    }
+    nav{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(246,247,251,.92);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav-inner{
+      max-width:1180px;
+      margin:0 auto;
+      padding:10px 20px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .nav-inner a, button, .button-link{
+      appearance:none;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      color:#17202a;
+      padding:9px 13px;
+      font-weight:750;
+      font-size:.92rem;
+      text-decoration:none;
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .nav-inner a:hover, button:hover, .button-link:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(31,41,55,.10)}
+    button.primary, .button-link.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    button.secondary{background:var(--soft);border-color:#b8c9ea;color:#173c7a}
+    button.purple{background:var(--soft2);border-color:#d8c4ff;color:#4b1d95}
+    button.green{background:var(--soft3);border-color:#bde7cc;color:#075f40}
+    button.danger{background:#fff1f0;border-color:#ffd1cf;color:#9b2018}
+    main{max-width:1180px;margin:0 auto;padding:22px}
+    section.card{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      margin:22px 0;
+    }
+    .grid{display:grid;gap:18px}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .mini-card{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+      background:#fff;
+    }
+    .mini-card.soft{background:var(--soft)}
+    .mini-card.purple{background:var(--soft2)}
+    .mini-card.green{background:var(--soft3)}
+    .mini-card.warn{background:#fff8e6;border-color:#ffe1a6}
+    .mini-card.danger{background:#fff5f5;border-color:#ffd1d1}
+    .muted{color:var(--muted)}
+    .mathbox{
+      background:#f8fafc;
+      border:1px solid #dce7f3;
+      border-radius:16px;
+      padding:16px;
+      overflow-x:auto;
+      margin:12px 0;
+    }
+    .big-math{font-size:1.2rem;text-align:center}
+    .callout{
+      border-left:6px solid var(--accent);
+      background:#f7fbff;
+      border-radius:14px;
+      padding:16px 18px;
+      margin:14px 0;
+    }
+    .callout.purple{border-left-color:var(--accent2);background:#fbf7ff}
+    .callout.green{border-left-color:var(--success);background:#f4fff8}
+    .button-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+    .feedback{
+      min-height:55px;
+      border:1px dashed #cbd5e1;
+      border-radius:14px;
+      padding:14px;
+      background:#fff;
+      margin-top:12px;
+    }
+    .hidden{display:none}
+    .solution{
+      display:none;
+      margin-top:12px;
+      border:1px solid #bdd7ff;
+      background:#f3f8ff;
+      border-radius:16px;
+      padding:16px;
+    }
+    .solution.visible{display:block}
+    .step-list{counter-reset:step}
+    .step{
+      display:none;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:16px;
+      padding:16px;
+      margin:10px 0;
+    }
+    .step.visible{display:block}
+    .step::before{
+      counter-increment:step;
+      content:"Step " counter(step);
+      display:inline-block;
+      font-weight:900;
+      color:var(--accent);
+      margin-bottom:4px;
+    }
+    .progress{
+      width:100%;
+      height:10px;
+      border-radius:999px;
+      background:#e5eaf2;
+      overflow:hidden;
+      margin:12px 0 8px;
+    }
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s ease}
+    table{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+    th,td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+    th{background:#f1f5f9;font-weight:900;color:#23344d}
+    tr:last-child td{border-bottom:none}
+    .practice-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      background:#fff;
+      margin:14px 0;
+    }
+    .tag{
+      display:inline-block;
+      font-size:.76rem;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:#25466e;
+      background:#edf4ff;
+      border:1px solid #c9ddff;
+      border-radius:999px;
+      padding:4px 8px;
+      margin-right:6px;
+    }
+    .teacher-note{font-size:.93rem;color:#475569}
+    .checklist li{margin:8px 0}
+    .print-only{display:none}
+    @media (max-width:850px){.grid.two,.grid.three{grid-template-columns:1fr}.hero{padding:24px}section.card{padding:20px}.nav-inner{overflow-x:auto;flex-wrap:nowrap}.nav-inner a{white-space:nowrap}}
+    @media print{
+      nav,.button-row,button,.no-print{display:none!important}
+      body{background:#fff;color:#000}
+      section.card,.hero,.mini-card,.practice-card{box-shadow:none;break-inside:avoid}
+      .solution{display:block!important}
+      .step{display:block!important}
+      .print-only{display:block}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <div class="eyebrow">IB Mathematics · Differential equations</div>
+      <h1>Integrating Factors</h1>
+      <p class="lead">A guided resource for discovering, understanding, applying, and practising the method for first-order linear differential equations.</p>
+      <div class="equation-banner">
+        <span class="pill">Target form: \(y' + P(x)y = Q(x)\)</span>
+        <span class="pill">Goal: make the left side a product derivative</span>
+        <span class="pill">Method: \(\mu(x)=e^{\int P(x)\,dx}\)</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="no-print">
+    <div class="nav-inner">
+      <a href="#overview">Overview</a>
+      <a href="#discovery">1. Discovery</a>
+      <a href="#worked">2. Worked example</a>
+      <a href="#derivation">3. Derivation</a>
+      <a href="#method">4. Method lab</a>
+      <a href="#modelling">5. Modelling</a>
+      <a href="#exam">6. Exam practice</a>
+      <a href="#teacher">Teacher notes</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="overview" class="card">
+      <h2>What this topic is really about</h2>
+      <div class="grid two">
+        <div class="mini-card soft">
+          <h3>The surface skill</h3>
+          <p>Solve equations in the form</p>
+          <div class="mathbox big-math">\[\frac{dy}{dx}+P(x)y=Q(x).\]</div>
+          <p>Students need to put the equation into standard form, find the integrating factor, multiply through, integrate, and use any initial condition.</p>
+        </div>
+        <div class="mini-card purple">
+          <h3>The deeper idea</h3>
+          <p>The left side is not usually a derivative of one simple expression. The integrating factor is a multiplier that forces it to become one:</p>
+          <div class="mathbox big-math">\[\mu y' + \mu P y = \frac{d}{dx}(\mu y).\]</div>
+        </div>
+      </div>
+      <div class="callout green">
+        <strong>Learning route:</strong> first discover the missing product rule, then work one clean example, then prove the formula, then apply it in modelling and exam questions.
+      </div>
+    </section>
+
+    <section id="discovery" class="card">
+      <h2>1. Discovery: what multiplier would make this a product rule?</h2>
+      <p>Begin with a simple equation:</p>
+      <div class="mathbox big-math">\[\frac{dy}{dx}+\frac{2}{x}y=x^3 \qquad (x>0).\]</div>
+      <p>Try multiplying the whole equation by one of the expressions below. Which one makes the left-hand side become a perfect product-rule derivative?</p>
+      <div class="button-row">
+        <button onclick="tryMultiplier('1')">Multiply by \(1\)</button>
+        <button onclick="tryMultiplier('x')">Multiply by \(x\)</button>
+        <button onclick="tryMultiplier('x2')" class="primary">Multiply by \(x^2\)</button>
+        <button onclick="tryMultiplier('ex')">Multiply by \(e^x\)</button>
+      </div>
+      <div id="multiplierFeedback" class="feedback">Choose a multiplier and check whether the left side matches the derivative of something like \(\mu(x)y\).</div>
+
+      <div class="grid two" style="margin-top:18px">
+        <div class="mini-card">
+          <h3>Product-rule target</h3>
+          <p>If \(\mu=\mu(x)\), then</p>
+          <div class="mathbox">\[\frac{d}{dx}(\mu y)=\mu\frac{dy}{dx}+\mu' y.\]</div>
+          <p>So after multiplying by \(\mu\), the coefficient of \(y\) must be \(\mu'\).</p>
+        </div>
+        <div class="mini-card">
+          <h3>Compare with the equation</h3>
+          <p>Multiplying \(y'+P(x)y=Q(x)\) by \(\mu\) gives</p>
+          <div class="mathbox">\[\mu y' + \mu P(x)y=\mu Q(x).\]</div>
+          <p>For this to match the product rule, we need \(\mu P(x)=\mu'\).</p>
+        </div>
+      </div>
+
+      <h3>Mini-investigation: match the multiplier to the equation</h3>
+      <p>Each button shows a different \(P(x)\). Notice the pattern: the integrating factor grows by accumulating \(P(x)\).</p>
+      <div class="button-row">
+        <button onclick="showIFCase(0)">\(P(x)=2/x\)</button>
+        <button onclick="showIFCase(1)">\(P(x)=3\)</button>
+        <button onclick="showIFCase(2)">\(P(x)=-3/(x+1)\)</button>
+        <button onclick="showIFCase(3)">\(P(x)=2x\)</button>
+      </div>
+      <div id="ifCase" class="feedback">Select a case.</div>
+    </section>
+
+    <section id="worked" class="card">
+      <h2>2. Worked example: one clean exam-style solution</h2>
+      <p>Solve the differential equation</p>
+      <div class="mathbox big-math">\[\frac{dy}{dx}+\frac{2}{x}y=x^3, \qquad x>0.\]</div>
+      <div class="progress"><div id="stepBar" class="bar"></div></div>
+      <div class="button-row">
+        <button onclick="showStep(1)">Step 1</button>
+        <button onclick="showStep(2)">Step 2</button>
+        <button onclick="showStep(3)">Step 3</button>
+        <button onclick="showStep(4)">Step 4</button>
+        <button onclick="showStep(5)" class="primary">Final answer</button>
+        <button onclick="showAllSteps()" class="secondary">Show all</button>
+      </div>
+      <div class="step-list">
+        <div id="step1" class="step visible">
+          <p>Identify \(P(x)\) and \(Q(x)\).</p>
+          <div class="mathbox">\[P(x)=\frac{2}{x},\qquad Q(x)=x^3.\]</div>
+        </div>
+        <div id="step2" class="step">
+          <p>Find the integrating factor.</p>
+          <div class="mathbox">\[\mu(x)=e^{\int P(x)\,dx}=e^{\int 2/x\,dx}=e^{2\ln x}=x^2.\]</div>
+        </div>
+        <div id="step3" class="step">
+          <p>Multiply the whole equation by \(x^2\).</p>
+          <div class="mathbox">\[x^2\frac{dy}{dx}+2xy=x^5.\]</div>
+        </div>
+        <div id="step4" class="step">
+          <p>Recognise the product-rule derivative.</p>
+          <div class="mathbox">\[\frac{d}{dx}(x^2y)=x^5.\]</div>
+          <p>That is the key moment: the awkward left-hand side has become one derivative.</p>
+        </div>
+        <div id="step5" class="step">
+          <p>Integrate and solve for \(y\).</p>
+          <div class="mathbox">\[x^2y=\int x^5\,dx=\frac{x^6}{6}+C\]</div>
+          <div class="mathbox">\[\boxed{y=\frac{x^4}{6}+\frac{C}{x^2}}.\]</div>
+        </div>
+      </div>
+      <div class="callout purple">
+        <strong>Exam habit:</strong> if the equation is not already in the form \(y'+P(x)y=Q(x)\), divide through by the coefficient of \(y'\) first.
+      </div>
+    </section>
+
+    <section id="derivation" class="card">
+      <h2>3. Derivation: where does \(e^{\int P(x)\,dx}\) come from?</h2>
+      <p>The method is not magic. It is just the product rule used backwards.</p>
+      <div class="grid two">
+        <div class="mini-card soft">
+          <h3>Start with the standard form</h3>
+          <div class="mathbox">\[y'+P(x)y=Q(x).\]</div>
+          <p>Multiply through by an unknown function \(\mu(x)\):</p>
+          <div class="mathbox">\[\mu y' + \mu P(x)y=\mu Q(x).\]</div>
+        </div>
+        <div class="mini-card soft">
+          <h3>Force a product rule</h3>
+          <p>We want the left-hand side to be</p>
+          <div class="mathbox">\[\frac{d}{dx}(\mu y)=\mu y'+\mu' y.\]</div>
+          <p>So we require</p>
+          <div class="mathbox">\[\mu P(x)=\mu'.\]</div>
+        </div>
+      </div>
+      <button onclick="toggleSolution('deriveBox', this)" class="primary">Reveal full derivation</button>
+      <div id="deriveBox" class="solution">
+        <p>From \(\mu P(x)=\mu'\), assuming \(\mu\ne0\),</p>
+        <div class="mathbox">\[\frac{\mu'}{\mu}=P(x).\]</div>
+        <p>Integrate both sides:</p>
+        <div class="mathbox">\[\int \frac{\mu'}{\mu}\,dx=\int P(x)\,dx.\]</div>
+        <div class="mathbox">\[\ln|\mu|=\int P(x)\,dx+C.\]</div>
+        <p>Exponentiate:</p>
+        <div class="mathbox">\[\mu=Ae^{\int P(x)\,dx}.\]</div>
+        <p>The constant multiplier \(A\) is not needed because multiplying the whole equation by \(A\mu\) instead of \(\mu\) gives the same family of solutions. So we take</p>
+        <div class="mathbox big-math">\[\boxed{\mu(x)=e^{\int P(x)\,dx}}.\]</div>
+      </div>
+
+      <div class="callout green">
+        <strong>The entire method in one line:</strong>
+        \[
+        y'+P(x)y=Q(x)
+        \quad \xrightarrow{\times\, e^{\int Pdx}} \quad
+        \frac{d}{dx}\left(e^{\int Pdx}y\right)=e^{\int Pdx}Q(x).
+        \]
+      </div>
+    </section>
+
+    <section id="method" class="card">
+      <h2>4. Method lab: practise recognising the structure</h2>
+      <p>Choose a case. For each one, the essential question is: what is \(P(x)\), and what integrating factor does it produce?</p>
+      <div class="button-row">
+        <button onclick="renderSolver(0)">Case A: \(2/x\)</button>
+        <button onclick="renderSolver(1)">Case B: constant coefficient</button>
+        <button onclick="renderSolver(2)">Case C: standard form first</button>
+        <button onclick="renderSolver(3)">Case D: Gaussian-type factor</button>
+      </div>
+      <div id="solverLab" class="mini-card soft">
+        Select a case to display the solution structure.
+      </div>
+
+      <h3>Reliable checklist</h3>
+      <ol class="checklist">
+        <li>Put the equation into \(y'+P(x)y=Q(x)\).</li>
+        <li>Identify \(P(x)\), not the whole left side.</li>
+        <li>Compute \(\mu=e^{\int P(x)dx}\). Do not add a constant of integration here.</li>
+        <li>Multiply every term by \(\mu\).</li>
+        <li>Rewrite the left side as \(\frac{d}{dx}(\mu y)\).</li>
+        <li>Integrate both sides.</li>
+        <li>Divide by \(\mu\), then use any initial condition.</li>
+      </ol>
+    </section>
+
+    <section id="modelling" class="card">
+      <h2>5. Modelling: different situations, same hidden structure</h2>
+      <p>The power of this topic is that very different real situations lead to the same mathematical form:</p>
+      <div class="mathbox big-math">\[\text{rate of change} + \text{loss/drag/decay term} = \text{input/forcing term}.\]</div>
+      <div class="button-row">
+        <button onclick="renderModel('cooling')">Cooling / warming</button>
+        <button onclick="renderModel('mixing')">Mixing tank</button>
+        <button onclick="renderModel('circuit')">Electric circuit</button>
+        <button onclick="renderModel('falling')">Falling with air resistance</button>
+        <button onclick="renderModel('medicine')">Medicine infusion</button>
+        <button onclick="renderModel('logistic')">Extension: logistic by substitution</button>
+      </div>
+      <div id="modelBox" class="mini-card green">
+        Choose a modelling situation.
+      </div>
+    </section>
+
+    <section id="exam" class="card">
+      <h2>6. Final examination practice</h2>
+      <p>Attempt the questions first. Then reveal the worked solution. These are arranged from routine to modelling and interpretation.</p>
+
+      <div class="practice-card">
+        <span class="tag">Routine</span><span class="tag">No initial condition</span>
+        <h3>Question 1</h3>
+        <p>Solve \(\displaystyle \frac{dy}{dx}+4y=8\).</p>
+        <button onclick="toggleSolution('q1', this)">Reveal worked solution</button>
+        <div id="q1" class="solution">
+          <p>Here \(P(x)=4\), so \(\mu=e^{\int4dx}=e^{4x}\).</p>
+          <div class="mathbox">\[e^{4x}y'+4e^{4x}y=8e^{4x}\]</div>
+          <div class="mathbox">\[\frac{d}{dx}(e^{4x}y)=8e^{4x}\]</div>
+          <div class="mathbox">\[e^{4x}y=2e^{4x}+C\]</div>
+          <div class="mathbox">\[\boxed{y=2+Ce^{-4x}}.\]</div>
+        </div>
+      </div>
+
+      <div class="practice-card">
+        <span class="tag">Variable coefficient</span>
+        <h3>Question 2</h3>
+        <p>Solve \(\displaystyle \frac{dy}{dx}+\frac{3}{x}y=x^2\), where \(x>0\).</p>
+        <button onclick="toggleSolution('q2', this)">Reveal worked solution</button>
+        <div id="q2" class="solution">
+          <p>\(P(x)=3/x\), so \(\mu=e^{\int3/x\,dx}=e^{3\ln x}=x^3\).</p>
+          <div class="mathbox">\[x^3y'+3x^2y=x^5\]</div>
+          <div class="mathbox">\[\frac{d}{dx}(x^3y)=x^5\]</div>
+          <div class="mathbox">\[x^3y=\frac{x^6}{6}+C\]</div>
+          <div class="mathbox">\[\boxed{y=\frac{x^3}{6}+\frac{C}{x^3}}.\]</div>
+        </div>
+      </div>
+
+      <div class="practice-card">
+        <span class="tag">Standard form first</span>
+        <h3>Question 3</h3>
+        <p>Solve \(\displaystyle (x+1)\frac{dy}{dx}-3y=(x+1)^4\), where \(x>-1\).</p>
+        <button onclick="toggleSolution('q3', this)">Reveal worked solution</button>
+        <div id="q3" class="solution">
+          <p>First divide by \(x+1\):</p>
+          <div class="mathbox">\[y'-\frac{3}{x+1}y=(x+1)^3.\]</div>
+          <p>So \(P(x)=-3/(x+1)\), and</p>
+          <div class="mathbox">\[\mu=e^{\int -3/(x+1)\,dx}=e^{-3\ln(x+1)}=(x+1)^{-3}.\]</div>
+          <div class="mathbox">\[\frac{d}{dx}\left((x+1)^{-3}y\right)=1.\]</div>
+          <div class="mathbox">\[(x+1)^{-3}y=x+C\]</div>
+          <div class="mathbox">\[\boxed{y=(x+1)^3(x+C)}.\]</div>
+        </div>
+      </div>
+
+      <div class="practice-card">
+        <span class="tag">Initial condition</span>
+        <h3>Question 4</h3>
+        <p>Find the particular solution of \(\displaystyle \frac{dy}{dx}+2xy=2x\), given \(y(0)=5\).</p>
+        <button onclick="toggleSolution('q4', this)">Reveal worked solution</button>
+        <div id="q4" class="solution">
+          <p>\(P(x)=2x\), so \(\mu=e^{\int2x dx}=e^{x^2}\).</p>
+          <div class="mathbox">\[\frac{d}{dx}(e^{x^2}y)=2xe^{x^2}.\]</div>
+          <p>Integrate:</p>
+          <div class="mathbox">\[e^{x^2}y=e^{x^2}+C.\]</div>
+          <div class="mathbox">\[y=1+Ce^{-x^2}.\]</div>
+          <p>Use \(y(0)=5\): \(5=1+C\), so \(C=4\).</p>
+          <div class="mathbox">\[\boxed{y=1+4e^{-x^2}}.\]</div>
+        </div>
+      </div>
+
+      <div class="practice-card">
+        <span class="tag">Modelling</span><span class="tag">Interpretation</span>
+        <h3>Question 5</h3>
+        <p>A tank contains 100 L of water. Brine containing 3 kg of salt per litre flows in at 4 L/min and the well-mixed solution flows out at 4 L/min. Initially the tank contains pure water. Let \(A(t)\) be the mass of salt in kg after \(t\) minutes.</p>
+        <ol>
+          <li>Form a differential equation for \(A\).</li>
+          <li>Solve it.</li>
+          <li>Find the long-term amount of salt in the tank.</li>
+        </ol>
+        <button onclick="toggleSolution('q5', this)">Reveal worked solution</button>
+        <div id="q5" class="solution">
+          <p>Input rate: \(3\times4=12\) kg/min.</p>
+          <p>Output concentration: \(A/100\) kg/L, so output rate: \(4(A/100)=A/25\) kg/min.</p>
+          <div class="mathbox">\[\frac{dA}{dt}=12-\frac{A}{25}.\]</div>
+          <div class="mathbox">\[A'+\frac{1}{25}A=12.\]</div>
+          <p>Integrating factor: \(\mu=e^{t/25}\).</p>
+          <div class="mathbox">\[\frac{d}{dt}(e^{t/25}A)=12e^{t/25}.\]</div>
+          <div class="mathbox">\[e^{t/25}A=300e^{t/25}+C\]</div>
+          <div class="mathbox">\[A=300+Ce^{-t/25}.\]</div>
+          <p>Since \(A(0)=0\), \(0=300+C\), so \(C=-300\).</p>
+          <div class="mathbox">\[\boxed{A(t)=300(1-e^{-t/25})}.\]</div>
+          <p>Long-term amount: \(\boxed{300\text{ kg}}\), which matches 100 L at 3 kg/L.</p>
+        </div>
+      </div>
+
+      <div class="practice-card">
+        <span class="tag">Harder</span><span class="tag">Forcing term</span>
+        <h3>Question 6</h3>
+        <p>Solve \(\displaystyle \frac{dy}{dx}-2y=e^x\), given \(y(0)=3\).</p>
+        <button onclick="toggleSolution('q6', this)">Reveal worked solution</button>
+        <div id="q6" class="solution">
+          <p>\(P(x)=-2\), so \(\mu=e^{-2x}\).</p>
+          <div class="mathbox">\[\frac{d}{dx}(e^{-2x}y)=e^{-2x}e^x=e^{-x}.\]</div>
+          <div class="mathbox">\[e^{-2x}y=-e^{-x}+C.\]</div>
+          <div class="mathbox">\[y=-e^x+Ce^{2x}.\]</div>
+          <p>Use \(y(0)=3\): \(3=-1+C\), so \(C=4\).</p>
+          <div class="mathbox">\[\boxed{y=-e^x+4e^{2x}}.\]</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="teacher" class="card">
+      <h2>Teacher notes: suggested lesson sequence</h2>
+      <div class="grid two">
+        <div class="mini-card soft">
+          <h3>60–75 minute lesson</h3>
+          <ol>
+            <li><strong>0–10 min:</strong> product-rule warm-up. Ask: “What derivative gives \(x^2y'+2xy\)?”</li>
+            <li><strong>10–25 min:</strong> discovery multiplier activity.</li>
+            <li><strong>25–40 min:</strong> worked example, slowly, with students predicting each next line.</li>
+            <li><strong>40–50 min:</strong> derivation of \(\mu=e^{\int Pdx}\).</li>
+            <li><strong>50–65 min:</strong> method lab cases.</li>
+            <li><strong>65–75 min:</strong> exam practice Q1–Q3.</li>
+          </ol>
+        </div>
+        <div class="mini-card purple">
+          <h3>Common misconceptions</h3>
+          <ul>
+            <li>Forgetting to put the equation into standard form first.</li>
+            <li>Using \(Q(x)\) instead of \(P(x)\) to find the integrating factor.</li>
+            <li>Adding a constant when calculating the integrating factor.</li>
+            <li>Multiplying only some terms by \(\mu\).</li>
+            <li>Not recognising \(\mu y'+\mu' y\) as \(\frac{d}{dx}(\mu y)\).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Best assessment question type:</strong> give one equation not in standard form, one with an initial condition, and one modelling problem where students must form the differential equation before solving it.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function typeset(){ if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise(); } }
+
+    function tryMultiplier(choice){
+      const fb=document.getElementById('multiplierFeedback');
+      const content={
+        '1': `<strong>Not enough.</strong><br>Multiplying by 1 gives \\(y'+\\frac{2}{x}y\\). The derivative of \\(y\\) is just \\(y'\\), so the extra \\(\\frac{2}{x}y\\) has not been absorbed into a product rule.`,
+        'x': `<strong>Close, but not quite.</strong><br>Multiplying by \\(x\\) gives \\(xy'+2y\\). But \\(\\frac{d}{dx}(xy)=xy'+y\\). The coefficient of \\(y\\) is wrong.`,
+        'x2': `<strong>Yes.</strong><br>Multiplying by \\(x^2\\) gives \\(x^2y'+2xy\\). This is exactly \\(\\frac{d}{dx}(x^2y)\\). So the equation becomes \\[\\frac{d}{dx}(x^2y)=x^5.\\]`,
+        'ex': `<strong>No.</strong><br>Multiplying by \\(e^x\\) gives \\(e^xy'+\\frac{2e^x}{x}y\\). But \\(\\frac{d}{dx}(e^xy)=e^xy'+e^xy\\). The coefficient of \\(y\\) does not match.`
+      };
+      fb.innerHTML=content[choice]; typeset();
+    }
+
+    const ifCases=[
+      {p:'\\frac{2}{x}', integral:'2\\ln x', mu:'x^2', derivative:'\\frac{d}{dx}(x^2y)=x^2Q(x)'},
+      {p:'3', integral:'3x', mu:'e^{3x}', derivative:'\\frac{d}{dx}(e^{3x}y)=e^{3x}Q(x)'},
+      {p:'-\\frac{3}{x+1}', integral:'-3\\ln(x+1)', mu:'(x+1)^{-3}', derivative:'\\frac{d}{dx}((x+1)^{-3}y)=(x+1)^{-3}Q(x)'},
+      {p:'2x', integral:'x^2', mu:'e^{x^2}', derivative:'\\frac{d}{dx}(e^{x^2}y)=e^{x^2}Q(x)'}
+    ];
+    function showIFCase(i){
+      const c=ifCases[i];
+      document.getElementById('ifCase').innerHTML=`
+        <p>For \\(P(x)=${c.p}\\):</p>
+        <div class="mathbox">\\[\\mu=e^{\\int P(x)dx}=e^{${c.integral}}=${c.mu}.\\]</div>
+        <div class="mathbox">\\[${c.derivative}.\\]</div>
+        <p class="muted">The integrating factor is the expression whose logarithmic derivative is \\(P(x)\\).</p>`;
+      typeset();
+    }
+
+    function showStep(n){
+      for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.toggle('visible', i===n);
+      document.getElementById('stepBar').style.width=(n/5*100)+'%';
+      typeset();
+    }
+    function showAllSteps(){
+      for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.add('visible');
+      document.getElementById('stepBar').style.width='100%';
+      typeset();
+    }
+
+    function toggleSolution(id, btn){
+      const el=document.getElementById(id);
+      el.classList.toggle('visible');
+      if(btn){
+        if(!btn.dataset.original){ btn.dataset.original = btn.textContent; }
+        btn.textContent = el.classList.contains('visible') ? 'Hide' : btn.dataset.original;
+      }
+      typeset();
+    }
+
+    const solverCases=[
+      {
+        title:'Case A: variable coefficient with powers',
+        eq:'y\'+\\frac{2}{x}y=x^3,\\quad x>0',
+        body:`<p>Standard form already.</p>
+        <div class="mathbox">\\[P(x)=\\frac{2}{x},\\qquad Q(x)=x^3.\\]</div>
+        <div class="mathbox">\\[\\mu=e^{\\int 2/x\\,dx}=x^2.\\]</div>
+        <div class="mathbox">\\[\\frac{d}{dx}(x^2y)=x^5.\\]</div>
+        <div class="mathbox">\\[\\boxed{y=\\frac{x^4}{6}+\\frac{C}{x^2}}.\\]</div>`
+      },
+      {
+        title:'Case B: constant coefficient',
+        eq:'y\'-3y=e^{2x}',
+        body:`<div class="mathbox">\\[P(x)=-3,\\qquad Q(x)=e^{2x}.\\]</div>
+        <div class="mathbox">\\[\\mu=e^{\\int -3dx}=e^{-3x}.\\]</div>
+        <div class="mathbox">\\[\\frac{d}{dx}(e^{-3x}y)=e^{-x}.\\]</div>
+        <div class="mathbox">\\[e^{-3x}y=-e^{-x}+C.\\]</div>
+        <div class="mathbox">\\[\\boxed{y=-e^{2x}+Ce^{3x}}.\\]</div>`
+      },
+      {
+        title:'Case C: standard form first',
+        eq:'(x+1)y\'+y=4(x+1)',
+        body:`<p>Divide by \\(x+1\\):</p>
+        <div class="mathbox">\\[y'+\\frac{1}{x+1}y=4.\\]</div>
+        <div class="mathbox">\\[P(x)=\\frac{1}{x+1},\\qquad \\mu=e^{\\ln(x+1)}=x+1.\\]</div>
+        <div class="mathbox">\\[\\frac{d}{dx}((x+1)y)=4(x+1).\\]</div>
+        <div class="mathbox">\\[(x+1)y=2(x+1)^2+C.\\]</div>
+        <div class="mathbox">\\[\\boxed{y=2(x+1)+\\frac{C}{x+1}}.\\]</div>`
+      },
+      {
+        title:'Case D: variable coefficient with exponential integrating factor',
+        eq:'y\'+2xy=2x',
+        body:`<div class="mathbox">\\[P(x)=2x,\\qquad Q(x)=2x.\\]</div>
+        <div class="mathbox">\\[\\mu=e^{\\int2x\\,dx}=e^{x^2}.\\]</div>
+        <div class="mathbox">\\[\\frac{d}{dx}(e^{x^2}y)=2xe^{x^2}.\\]</div>
+        <div class="mathbox">\\[e^{x^2}y=e^{x^2}+C.\\]</div>
+        <div class="mathbox">\\[\\boxed{y=1+Ce^{-x^2}}.\\]</div>`
+      }
+    ];
+    function renderSolver(i){
+      const c=solverCases[i];
+      document.getElementById('solverLab').innerHTML=`<h3>${c.title}</h3><div class="mathbox big-math">\\[${c.eq}\\]</div>${c.body}`;
+      typeset();
+    }
+
+    const modelData={
+      cooling:{
+        title:'Cooling / warming toward an ambient temperature',
+        idea:'An object changes temperature at a rate proportional to the difference between its temperature and the surrounding temperature.',
+        model:'\\frac{dT}{dt}=-k(T-A)',
+        standard:'T\'+kT=kA',
+        solution:'T=A+(T_0-A)e^{-kt}',
+        interpret:'The temperature approaches the ambient temperature A. The exponential term is the disappearing memory of the initial temperature.'
+      },
+      mixing:{
+        title:'Mixing tank',
+        idea:'Amount of substance changes by input rate minus output rate. If the tank volume is constant, the output rate is proportional to the current amount.',
+        model:'\\frac{dA}{dt}=r_{in}c_{in}-\\frac{r_{out}}{V}A',
+        standard:'A\'+\\frac{r_{out}}{V}A=r_{in}c_{in}',
+        solution:'A=\\frac{Vr_{in}c_{in}}{r_{out}}+Ce^{-r_{out}t/V}',
+        interpret:'If inflow equals outflow, the long-term concentration becomes the incoming concentration.'
+      },
+      circuit:{
+        title:'Electric circuit with resistor and inductor',
+        idea:'The applied voltage is split between the inductor and resistor.',
+        model:'L\\frac{dI}{dt}+RI=E_0',
+        standard:'I\'+\\frac{R}{L}I=\\frac{E_0}{L}',
+        solution:'I=\\frac{E_0}{R}+Ce^{-Rt/L}',
+        interpret:'The current approaches E₀/R. The time constant is L/R.'
+      },
+      falling:{
+        title:'Falling object with linear air resistance',
+        idea:'Gravity increases velocity, but drag is proportional to velocity and acts against the motion.',
+        model:'m\\frac{dv}{dt}=mg-kv',
+        standard:'v\'+\\frac{k}{m}v=g',
+        solution:'v=\\frac{mg}{k}+Ce^{-kt/m}',
+        interpret:'The object approaches terminal velocity mg/k.'
+      },
+      medicine:{
+        title:'Medicine infusion / concentration model',
+        idea:'A drug is added at a steady rate and removed at a rate proportional to the current concentration.',
+        model:'\\frac{dC}{dt}=\\frac{R}{V}-kC',
+        standard:'C\'+kC=\\frac{R}{V}',
+        solution:'C=\\frac{R}{kV}+Ce^{-kt}',
+        interpret:'The concentration approaches a steady-state level R/(kV).'
+      },
+      logistic:{
+        title:'Extension: logistic growth can become linear after substitution',
+        idea:'The logistic equation is not linear in P, but the substitution z=1/P transforms it into a first-order linear equation.',
+        model:'\\frac{dP}{dt}=rP\\left(1-\\frac{P}{K}\\right)',
+        standard:'z\'+rz=\\frac{r}{K},\\quad z=1/P',
+        solution:'P=\\frac{K}{1+Ae^{-rt}}',
+        interpret:'This is a useful extension: not every model starts linear, but some can be transformed into the same method.'
+      }
+    };
+    function renderModel(key){
+      const m=modelData[key];
+      document.getElementById('modelBox').innerHTML=`
+        <h3>${m.title}</h3>
+        <p>${m.idea}</p>
+        <table>
+          <tr><th>Model</th><td>\\[${m.model}\\]</td></tr>
+          <tr><th>Linear form</th><td>\\[${m.standard}\\]</td></tr>
+          <tr><th>Typical solution</th><td>\\[${m.solution}\\]</td></tr>
+          <tr><th>Interpretation</th><td>${m.interpret}</td></tr>
+        </table>`;
+      typeset();
+    }
+
+    showStep(1);
+  </script>
+</body>
+</html>
