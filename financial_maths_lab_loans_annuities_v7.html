@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial Mathematics Lab: Compound Interest, Annuities and Loans</title>
+<style>
+  :root{
+    --ink:#1e293b;
+    --muted:#64748b;
+    --bg:#f8fafc;
+    --panel:#ffffff;
+    --line:#dbe4ee;
+    --syll:#0f766e;
+    --syll-bg:#e6fffb;
+    --ext:#a16207;
+    --ext-bg:#fff7ed;
+    --ti:#2563eb;
+    --ti-bg:#eff6ff;
+    --exam:#7c3aed;
+    --exam-bg:#f5f3ff;
+    --danger:#b91c1c;
+    --danger-bg:#fff1f2;
+    --ok:#166534;
+    --ok-bg:#f0fdf4;
+    --shadow:0 10px 30px rgba(15,23,42,.08);
+    --radius:18px;
+    --formula-bg:#081533;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:linear-gradient(180deg,#eef8ff 0,#f8fafc 34%,#ffffff 100%);
+    color:var(--ink);
+    line-height:1.55;
+  }
+  header{
+    padding:24px 22px 18px;
+    background:
+      radial-gradient(circle at top left, rgba(14,165,233,.18), transparent 35%),
+      radial-gradient(circle at bottom right, rgba(124,58,237,.12), transparent 35%);
+    border-bottom:1px solid var(--line);
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-size:clamp(2rem,4vw,4.05rem);line-height:1.02;margin:.05rem 0 .45rem;letter-spacing:-.06em}
+  h2{font-size:clamp(1.5rem,2.6vw,2.35rem);margin:0 0 1rem;letter-spacing:-.03em}
+  h3{font-size:1.25rem;margin:0 0 .6rem}
+  h4{font-size:1.02rem;margin:.7rem 0 .3rem}
+  p{margin:.45rem 0 .8rem}
+  .lead{font-size:1.08rem;max-width:1040px;color:#334155;margin-bottom:.55rem}
+  .hero-compact{display:grid;gap:14px}
+  .hero-main{max-width:1120px}
+  .hero-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:stretch}
+  @media (max-width:850px){.hero-grid{grid-template-columns:1fr}}
+  .card{
+    background:rgba(255,255,255,.86);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px;
+  }
+  .mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+  .mini-grid.compact{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+  @media (max-width:800px){.mini-grid{grid-template-columns:repeat(2,1fr)}}
+  .pill{
+    display:inline-flex;gap:7px;align-items:center;
+    padding:6px 10px;border-radius:999px;font-weight:700;font-size:.78rem;
+    border:1px solid transparent;white-space:nowrap;
+  }
+  .syll{background:var(--syll-bg);border-color:#99f6e4;color:var(--syll)}
+  .ext{background:var(--ext-bg);border-color:#fed7aa;color:var(--ext)}
+  .ti{background:var(--ti-bg);border-color:#bfdbfe;color:var(--ti)}
+  .exam{background:var(--exam-bg);border-color:#ddd6fe;color:var(--exam)}
+  .warn{background:var(--danger-bg);border-color:#fecdd3;color:var(--danger)}
+  .ok{background:var(--ok-bg);border-color:#bbf7d0;color:var(--ok)}
+  .nav{
+    position:sticky;top:0;z-index:20;
+    background:rgba(248,250,252,.92);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
+  button, .btn{
+    cursor:pointer;border:1px solid #cbd5e1;background:#fff;color:#0f172a;
+    border-radius:999px;padding:10px 14px;font-weight:750;
+    transition:.15s ease;box-shadow:0 1px 0 rgba(15,23,42,.04);
+    font:inherit;
+  }
+  button:hover,.btn:hover{transform:translateY(-1px);border-color:#94a3b8}
+  button.active{background:#0f172a;color:white;border-color:#0f172a}
+  .btn-primary{background:#0f172a;color:#fff;border-color:#0f172a}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .btn-reveal{
+    background:#f8fafc;border-color:#cbd5e1;color:#0f172a;
+    padding:10px 16px;border-radius:12px;
+  }
+  main{padding:24px 22px 60px}
+  section.tab{display:none;animation:fade .2s ease}
+  section.tab.active{display:block}
+  @keyframes fade{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .four{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  @media (max-width:900px){.two,.three,.four{grid-template-columns:1fr}}
+  .module{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:22px;margin:0 0 18px;
+  }
+  .module.syllabus{border-top:6px solid var(--syll)}
+  .module.extension{border-top:6px solid var(--ext)}
+  .module.tifocus{border-top:6px solid var(--ti)}
+  .module.examfocus{border-top:6px solid var(--exam)}
+  .note{border-left:4px solid #94a3b8;background:#f8fafc;padding:12px 14px;border-radius:12px;color:#334155}
+  .note.syllabus{border-left-color:var(--syll);background:var(--syll-bg)}
+  .note.extension{border-left-color:var(--ext);background:var(--ext-bg)}
+  .note.ti{border-left-color:var(--ti);background:var(--ti-bg)}
+  .note.warn{border-left-color:var(--danger);background:var(--danger-bg)}
+  .math-box{
+    background:linear-gradient(180deg,#091936,var(--formula-bg));
+    color:#f8fafc;border-radius:20px;padding:18px 20px;overflow:auto;margin:.9rem 0;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+  }
+  .math{
+    font-family: "Cambria Math","STIX Two Math","Times New Roman",Georgia,serif;
+    font-size:1.15rem; line-height:1.55; white-space:nowrap;
+  }
+  .math .mono{font-family:inherit}
+  .math sup{font-size:.72em;vertical-align:super}
+  .math sub{font-size:.72em;vertical-align:sub}
+  .math .frac{display:inline-flex;flex-direction:column;vertical-align:middle;align-items:center;margin:0 .12em}
+  .math .frac .top{padding:0 .18em;border-bottom:1.8px solid rgba(255,255,255,.95);line-height:1.1}
+  .math .frac .bottom{padding:0 .18em;line-height:1.1}
+  .math-inline{
+    font-family: "Cambria Math","STIX Two Math","Times New Roman",Georgia,serif;
+    background:#0f172a;color:#fff;border-radius:10px;padding:4px 8px;
+    white-space:nowrap;font-size:.98rem;
+  }
+  label{font-weight:750;font-size:.86rem;color:#334155}
+  input{
+    width:100%;padding:10px 12px;border-radius:12px;border:1px solid #cbd5e1;
+    font:inherit;background:white;margin-top:4px;
+  }
+  .form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end}
+  @media (max-width:800px){.form-grid{grid-template-columns:1fr 1fr}}
+  @media (max-width:520px){.form-grid{grid-template-columns:1fr}}
+  .button-group{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .choice-btn{
+    border-radius:14px;padding:10px 14px;border:1px solid #cbd5e1;background:white;font-weight:700;
+  }
+  .choice-btn.selected{
+    background:#0f172a;color:#fff;border-color:#0f172a;
+  }
+  .choice-row{margin-top:2px}
+  .result{
+    background:linear-gradient(180deg,#ffffff,#f8fafc);
+    border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px;
+  }
+  .big-number{font-size:clamp(1.5rem,3vw,2.4rem);font-weight:900;letter-spacing:-.04em}
+  table{width:100%;border-collapse:collapse;margin:.8rem 0;background:white;border-radius:14px;overflow:hidden}
+  th,td{border-bottom:1px solid #e2e8f0;padding:9px 10px;text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{background:#f1f5f9;color:#334155;font-size:.83rem;text-transform:uppercase;letter-spacing:.03em}
+  tr:last-child td{border-bottom:0}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:14px 0}
+  @media (max-width:900px){.flow{grid-template-columns:1fr 1fr}}
+  .flow div{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px}
+  .flow strong{display:block;font-size:.9rem;margin-bottom:4px}
+  .step-list{counter-reset:steps;padding-left:0;list-style:none}
+  .step-list li{
+    counter-increment:steps;margin:.55rem 0;padding:12px 12px 12px 48px;
+    border:1px solid #dbeafe;background:#eff6ff;border-radius:14px;position:relative;
+  }
+  .step-list li:before{
+    content:counter(steps);position:absolute;left:13px;top:12px;width:24px;height:24px;
+    border-radius:50%;background:var(--ti);color:white;text-align:center;font-weight:900;line-height:24px;
+  }
+  details{
+    border:1px solid var(--line);border-radius:14px;background:#fff;margin:.8rem 0;overflow:hidden;
+  }
+  summary{cursor:pointer;font-weight:850;padding:13px 15px;background:#f8fafc}
+  details .inside{padding:14px 15px}
+  .practice-card{border:1px solid var(--line);border-radius:18px;padding:18px;background:white}
+  .practice-card.syllabus{border-left:6px solid var(--syll)}
+  .practice-card.extension{border-left:6px solid var(--ext)}
+  .practice-card.exam{border-left:6px solid var(--exam)}
+  .small{font-size:.88rem;color:var(--muted)}
+  .split-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:700px){.kpi{grid-template-columns:1fr}}
+  .kpi div{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px}
+  .kpi b{display:block;font-size:1.4rem}
+  .traffic{
+    display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px
+  }
+  .t-syll{background:var(--syll)}
+  .t-ext{background:var(--ext)}
+  .t-ti{background:var(--ti)}
+  .t-exam{background:var(--exam)}
+  .key-strip{
+    display:grid;
+    grid-template-columns:auto repeat(4, minmax(130px, 1fr)) minmax(250px, 1.45fr);
+    gap:8px;
+    align-items:stretch;
+    background:rgba(255,255,255,.72);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:10px;
+    box-shadow:0 8px 24px rgba(15,23,42,.06);
+  }
+  .key-title{
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    padding:8px 10px;
+    color:#0f172a;
+    white-space:nowrap;
+  }
+  .key-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 10px;
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    font-size:.9rem;
+    min-height:40px;
+  }
+  .key-item span:last-child{color:#475569}
+  .key-warning{
+    padding:8px 12px;
+    background:var(--danger-bg);
+    border-left:4px solid var(--danger);
+    border-radius:14px;
+    color:#334155;
+    font-size:.9rem;
+  }
+  @media (max-width:1050px){
+    .key-strip{grid-template-columns:1fr 1fr}
+    .key-title,.key-warning{grid-column:1 / -1}
+  }
+  @media (max-width:620px){
+    .key-strip{grid-template-columns:1fr}
+    .key-title,.key-warning{grid-column:auto}
+  }
+
+  .matching-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+  .matching-instructions{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:12px 0;
+  }
+  @media(max-width:800px){.matching-instructions{grid-template-columns:1fr}}
+  .matching-instructions div{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px;
+    background:#fff;
+  }
+  .card-bank{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin:14px 0;
+  }
+  @media(max-width:900px){.card-bank{grid-template-columns:1fr}}
+  .bank-col{
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:14px;
+    background:#f8fafc;
+    min-height:120px;
+  }
+  .bank-col h3{font-size:1rem;margin:0 0 10px}
+  .bank-list{display:flex;flex-direction:column;gap:8px;min-height:70px}
+  .match-card{
+    border:1px solid #cbd5e1;
+    border-radius:14px;
+    padding:10px 12px;
+    background:#fff;
+    cursor:grab;
+    user-select:none;
+    font-weight:650;
+    box-shadow:0 2px 8px rgba(15,23,42,.05);
+  }
+  .match-card:active{cursor:grabbing}
+  .match-card.selected{
+    outline:3px solid rgba(37,99,235,.25);
+    border-color:#2563eb;
+  }
+  .meaning-card{border-left:6px solid var(--ti);background:#eff6ff}
+  .wording-card{border-left:6px solid var(--exam);background:#f5f3ff}
+  .term-fixed{
+    border-left:6px solid var(--syll);
+    background:var(--syll-bg);
+    border-radius:14px;
+    padding:10px 12px;
+    font-weight:900;
+  }
+  .matching-grid{
+    display:grid;
+    gap:8px;
+    margin-top:12px;
+  }
+  .match-header,.match-row{
+    display:grid;
+    grid-template-columns:1fr 1.6fr 1.6fr;
+    gap:8px;
+    align-items:stretch;
+  }
+  @media(max-width:900px){
+    .match-header{display:none}
+    .match-row{grid-template-columns:1fr}
+  }
+  .match-header div{
+    padding:8px 10px;
+    color:#334155;
+    font-size:.8rem;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    font-weight:900;
+  }
+  .dropzone{
+    min-height:58px;
+    border:2px dashed #cbd5e1;
+    border-radius:14px;
+    padding:8px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+  }
+  .dropzone::before{
+    content:attr(data-placeholder);
+    color:#94a3b8;
+    font-weight:700;
+  }
+  .dropzone.filled::before{content:""}
+  .dropzone.drag-over{
+    border-color:#2563eb;
+    background:#eff6ff;
+  }
+  .dropzone.correct{
+    border-color:#22c55e;
+    background:#f0fdf4;
+  }
+  .dropzone.incorrect{
+    border-color:#ef4444;
+    background:#fff1f2;
+  }
+  .match-feedback{
+    margin-top:12px;
+    border-radius:14px;
+    padding:12px 14px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    font-weight:750;
+  }
+  .match-feedback.good{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+  .match-feedback.mixed{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+  .match-feedback.bad{background:#fff1f2;border-color:#fecdd3;color:#991b1b}
+
+
+  .derivation-lab{
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:#fff;
+    padding:16px;
+    margin:14px 0;
+  }
+  .derivation-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:12px 0;
+  }
+  .derivation-step{
+    display:none;
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:14px;
+    margin:10px 0;
+    background:#f8fafc;
+  }
+  .derivation-step.visible{display:block}
+  .derivation-step.hint{
+    background:#eff6ff;
+    border-color:#bfdbfe;
+  }
+  .derivation-step.extension-hint{
+    background:#fff7ed;
+    border-color:#fed7aa;
+  }
+  .step-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 9px;
+    border-radius:999px;
+    font-size:.78rem;
+    font-weight:850;
+    background:#fff;
+    border:1px solid #cbd5e1;
+    margin-bottom:8px;
+  }
+  .derivation-summary{
+    border-left:5px solid var(--ext);
+    background:var(--ext-bg);
+    border-radius:14px;
+    padding:12px 14px;
+    margin-top:12px;
+  }
+  .mini-sequence{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:10px 0;
+  }
+  .mini-sequence span{
+    background:white;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    padding:8px 10px;
+    font-family:"Cambria Math","STIX Two Math","Times New Roman",Georgia,serif;
+    font-weight:800;
+  }
+  .derivation-progress{
+    height:10px;
+    background:#e2e8f0;
+    border-radius:999px;
+    overflow:hidden;
+    margin:8px 0 2px;
+  }
+  .derivation-progress span{
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--ext),#f59e0b);
+    transition:width .2s ease;
+  }
+
+
+  .theme-selector{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin:14px 0;
+  }
+  @media(max-width:900px){.theme-selector{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.theme-selector{grid-template-columns:1fr}}
+  .theme-btn{
+    border-radius:16px;
+    text-align:left;
+    padding:12px 14px;
+    background:#fff;
+    border:1px solid #cbd5e1;
+  }
+  .theme-btn strong{display:block;font-size:.95rem}
+  .theme-btn span{display:block;color:#64748b;font-size:.82rem;margin-top:2px}
+  .theme-btn.selected{
+    background:#0f172a;
+    color:#fff;
+    border-color:#0f172a;
+  }
+  .theme-btn.selected span{color:#dbeafe}
+  .theme-summary{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    margin:10px 0 14px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#f8fafc;
+  }
+  .theme-summary b{color:#0f172a}
+
+  .footer{color:#64748b;font-size:.86rem;margin-top:28px}
+  .term-table td:nth-child(1){font-weight:850;color:#0f172a}
+  .term-table td:nth-child(2){text-align:left}
+  .term-table td:nth-child(3){text-align:left;color:#475569}
+  .term-table th:nth-child(2),.term-table th:nth-child(3){text-align:left}
+  .parameter-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:15px}
+  .parameter-card h4{margin-top:0}
+  .parameter-card .symbol{font-family:"Cambria Math","STIX Two Math","Times New Roman",Georgia,serif;font-size:1.5rem;font-weight:900}
+  .scenario-table td:nth-child(2),.scenario-table td:nth-child(3){text-align:left}
+  .scenario-table th:nth-child(2),.scenario-table th:nth-child(3){text-align:left}
+  .hidden-answer{display:none;margin-top:14px}
+  .hidden-answer.show{display:block}
+  .answer-card{
+    background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hero-compact">
+    <div class="hero-main">
+      <div class="hero-badges">
+        <span class="pill syll">Within syllabus</span>
+        <span class="pill ext">Extension clearly marked</span>
+        <span class="pill ti">TI‑Nspire focus</span>
+      </div>
+      <h1>Financial Mathematics Lab</h1>
+      <p class="lead">A single-page classroom resource for compound interest, depreciation, inflation, annuities and amortized loans. It follows a discovery → formalisation → calculator fluency → modelling → exam-practice sequence.</p>
+      <div class="mini-grid compact">
+        <div class="pill syll">SL 1.4: compound interest</div>
+        <div class="pill syll">SL 1.4: depreciation</div>
+        <div class="pill syll">SL 1.7: annuities + loans</div>
+        <div class="pill ext">Geometric-series derivations</div>
+      </div>
+    </div>
+
+    <div class="key-strip" aria-label="Colour key">
+      <div class="key-title">Colour key</div>
+      <div class="key-item"><span class="traffic t-syll"></span><b>Green/teal</b><span>required syllabus</span></div>
+      <div class="key-item"><span class="traffic t-ti"></span><b>Blue</b><span>TI‑Nspire / technology</span></div>
+      <div class="key-item"><span class="traffic t-exam"></span><b>Purple</b><span>exam practice</span></div>
+      <div class="key-item"><span class="traffic t-ext"></span><b>Orange</b><span>extension / derivation</span></div>
+      <div class="key-warning"><b>Sign convention:</b> cash paid out and cash received usually have opposite signs. Report the positive amount in written answers.</div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="wrap tabs" id="tabs">
+    <button class="active" data-tab="roadmap">Roadmap</button>
+    <button data-tab="terms">Terminology + TI parameters</button>
+    <button data-tab="discover">1. Discover</button>
+    <button data-tab="compound">2. Compound / Depreciation</button>
+    <button data-tab="real">3. Inflation + real value</button>
+    <button data-tab="loans">4. Loans + annuities</button>
+    <button data-tab="tinspire">5. TI‑Nspire worked examples</button>
+    <button data-tab="practice">6. Exam practice</button>
+    <button data-tab="extension">7. Extension</button>
+  </div>
+</nav>
+
+<main class="wrap">
+<section class="tab active" id="roadmap">
+  <div class="module syllabus">
+    <div class="split-title">
+      <h2>Teaching sequence</h2>
+      <span class="pill syll">Recommended lesson arc</span>
+    </div>
+    <div class="flow">
+      <div><strong>1. Compare</strong>Simple vs compound interest table.</div>
+      <div><strong>2. Formalise</strong>Multiplier model and compound formula.</div>
+      <div><strong>3. Transfer</strong>Depreciation is compound growth with a negative rate.</div>
+      <div><strong>4. Model</strong>Inflation changes nominal value into real value.</div>
+      <div><strong>5. Automate</strong>Use TI‑Nspire Finance Solver for FV, PV, PMT, N, I%.</div>
+      <div><strong>6. Practise</strong>Choose the variable, justify assumptions, check reasonableness.</div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="module syllabus">
+      <h3>Core learning intentions</h3>
+      <ul>
+        <li>Recognise financial growth as repeated multiplication.</li>
+        <li>Use <span class="math-inline">FV = PV(1 + r/(100m))<sup>mt</sup></span> for compound interest.</li>
+        <li>Model depreciation using a multiplier below 1.</li>
+        <li>Calculate real value after inflation.</li>
+        <li>Use technology for amortization and annuity problems.</li>
+      </ul>
+    </div>
+    <div class="module extension">
+      <h3>Extension learning intentions</h3>
+      <ul>
+        <li>Derive annuity formulas from finite geometric series.</li>
+        <li>Compare approximate and exact real-value models.</li>
+        <li>Investigate equivalent annual rates and continuous compounding.</li>
+        <li>Model changing interest rates, payment holidays and mortgage choices.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="module tifocus">
+    <h3>TI‑Nspire master settings</h3>
+    <p>Use the <b>Terminology + TI parameters</b> tab before calculator work so students understand what each symbol means before entering values.</p>
+    <div class="kpi">
+      <div><span class="pill ti">N</span><b>Total periods</b><span class="small">Monthly for 25 years → N = 300.</span></div>
+      <div><span class="pill ti">I%</span><b>Annual nominal rate</b><span class="small">Enter 5, not 0.05.</span></div>
+      <div><span class="pill ti">P/Y and C/Y</span><b>Payments and compounding per year</b><span class="small">Usually set equal in this course.</span></div>
+    </div>
+  </div>
+</section>
+
+
+<section class="tab" id="terms">
+  <div class="module syllabus">
+    <div class="split-title">
+      <h2>Key terminology matching activity</h2>
+      <span class="pill syll">Within syllabus language</span>
+    </div>
+    <p>Choose a small theme, then drag the <b>blue meaning cards</b> and <b>purple wording cards</b> into the correct row beside each green term. On touch screens, tap a card, then tap the matching box.</p>
+
+    <div class="matching-instructions">
+      <div><span class="pill syll">Green</span><p><b>Term</b><br>The financial word students need to recognise.</p></div>
+      <div><span class="pill ti">Blue</span><p><b>Meaning</b><br>The definition or concept.</p></div>
+      <div><span class="pill exam">Purple</span><p><b>Typical wording</b><br>How the idea appears in exam questions.</p></div>
+    </div>
+
+    <div class="theme-selector" id="themeSelector"></div>
+    <div class="theme-summary" id="themeSummary">
+      <span class="pill syll">Theme mode</span>
+      <span>Choose one smaller group of terms at a time.</span>
+    </div>
+
+    <div class="matching-toolbar">
+      <button class="btn-primary" onclick="checkTerminologyMatches()">Check this theme</button>
+      <button onclick="shuffleTerminologyCards()">Shuffle this theme</button>
+      <button onclick="clearTerminologyBoard()">Clear this theme</button>
+      <button onclick="revealTerminologyAnswers()">Reveal this theme</button>
+    </div>
+
+    <div class="card-bank">
+      <div class="bank-col">
+        <h3><span class="pill ti">Blue meaning cards</span></h3>
+        <div class="bank-list" id="meaningBank"></div>
+      </div>
+      <div class="bank-col">
+        <h3><span class="pill exam">Purple wording cards</span></h3>
+        <div class="bank-list" id="wordingBank"></div>
+      </div>
+    </div>
+
+    <div class="matching-grid" id="terminologyBoard">
+      <div class="match-header">
+        <div>Green term</div>
+        <div>Blue meaning</div>
+        <div>Purple typical wording</div>
+      </div>
+    </div>
+
+    <div class="match-feedback" id="matchFeedback">Match the cards, then press <b>Check matches</b>.</div>
+
+    <details>
+      <summary>Teacher note: why this activity matters</summary>
+      <div class="inside">
+        <p>In this unit, students often know the calculation but choose the wrong variable. Matching the term, meaning and exam wording helps them decide whether a question is asking for <b>PV</b>, <b>FV</b>, <b>PMT</b>, <b>N</b> or <b>I%</b>.</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="module tifocus">
+    <div class="split-title">
+      <h2>What each TI‑Nspire Finance Solver parameter means</h2>
+      <span class="pill ti">TI‑Nspire essentials</span>
+    </div>
+    <p>Open a Calculator page, then use <b>Menu → Finance → Finance Solver</b>. Enter all known values, highlight the unknown value, and press <b>Enter</b>.</p>
+
+    <div class="three">
+      <div class="parameter-card">
+        <h4><span class="symbol">N</span> — number of periods</h4>
+        <p>Total number of payment or compounding periods.</p>
+        <p class="small">25 years monthly → N = 25 × 12 = 300.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">I%</span> — annual interest rate</h4>
+        <p>The quoted annual percentage rate. Do not divide by 100.</p>
+        <p class="small">5% p.a. → enter I% = 5, not 0.05.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">PV</span> — present value</h4>
+        <p>The starting value: amount borrowed, invested, or available now.</p>
+        <p class="small">A $100 000 loan usually uses PV = 100000.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">PMT</span> — regular payment</h4>
+        <p>The equal payment made each period.</p>
+        <p class="small">Monthly repayment, monthly deposit, pension withdrawal.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">FV</span> — future value</h4>
+        <p>The value at the end of the model.</p>
+        <p class="small">For a fully repaid loan, FV = 0.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">P/Y</span> — payments per year</h4>
+        <p>How many regular payments are made each year.</p>
+        <p class="small">Monthly payments → P/Y = 12.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">C/Y</span> — compounds per year</h4>
+        <p>How many times interest is added each year.</p>
+        <p class="small">Usually set C/Y equal to P/Y in this course.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">PMT: END</span> — payment timing</h4>
+        <p>Payments occur at the end of each period.</p>
+        <p class="small">This is the normal exam assumption for annuities.</p>
+      </div>
+      <div class="parameter-card">
+        <h4><span class="symbol">Solve</span> — unknown value</h4>
+        <p>Leave the unknown field blank or move the cursor to it, then press Enter.</p>
+        <p class="small">Find FV, PV, PMT, N, or I% depending on the question.</p>
+      </div>
+    </div>
+
+    <div class="note warn" style="margin-top:16px">
+      <b>Cash-flow sign convention:</b> money going out and money coming in should have opposite signs. For example, an investment might use PV = −5000 and produce FV = 5229.85. A loan might use PV = 100000 and produce PMT = −584.59. In written answers, usually report the positive amount: “$584.59 per month.”
+    </div>
+  </div>
+
+  <div class="module syllabus">
+    <div class="split-title">
+      <h2>Choosing the correct TI‑Nspire variable</h2>
+      <span class="pill syll">Decision support</span>
+    </div>
+    <table class="scenario-table">
+      <thead>
+        <tr><th>Question asks for…</th><th>TI variable to solve</th><th>Common setup</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Final balance of one investment</td><td><b>FV</b></td><td>PV known, PMT = 0, N known, I% known.</td></tr>
+        <tr><td>Starting amount needed</td><td><b>PV</b></td><td>FV known, PMT = 0, N known, I% known.</td></tr>
+        <tr><td>Monthly loan repayment</td><td><b>PMT</b></td><td>PV = loan amount, FV = 0, P/Y = C/Y = 12.</td></tr>
+        <tr><td>Maximum amount that can be borrowed</td><td><b>PV</b></td><td>PMT known, FV = 0, N known, I% known.</td></tr>
+        <tr><td>Regular pension or annuity withdrawal</td><td><b>PMT</b></td><td>PV = starting fund, FV often 0, payment timing END.</td></tr>
+        <tr><td>Time until an investment reaches a target</td><td><b>N</b></td><td>PV known, FV known, PMT = 0, I% known.</td></tr>
+        <tr><td>Interest rate needed to reach a target</td><td><b>I%</b></td><td>PV known, FV known, PMT usually 0, N known.</td></tr>
+        <tr><td>Remaining loan balance after some payments</td><td><b>FV</b></td><td>PV = original loan, PMT known, N = payments made.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="module extension">
+    <div class="split-title">
+      <h2>Extension terminology</h2>
+      <span class="pill ext">Useful but not always examined</span>
+    </div>
+    <table class="term-table">
+      <thead>
+        <tr><th>Term</th><th>Meaning</th><th>Why it matters</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Effective annual rate</td><td>The actual one-year percentage growth after compounding is considered.</td><td>Monthly compounding gives a slightly higher real yearly growth than the quoted nominal rate.</td></tr>
+        <tr><td>Continuous compounding</td><td>The limiting case where interest is compounded infinitely often.</td><td>Links finance to the exponential constant e.</td></tr>
+        <tr><td>Annuity due</td><td>An annuity where payments are made at the beginning of each period.</td><td>Different from the normal END setting; useful in real finance but usually extension here.</td></tr>
+        <tr><td>Rounding policy</td><td>Whether balances are rounded each month or only at the end.</td><td>Can slightly change long-term totals.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tab" id="discover">
+  <div class="module syllabus">
+    <div class="split-title">
+      <h2>1. Discover compound growth</h2>
+      <span class="pill syll">Within syllabus</span>
+    </div>
+    <p>Students first fill a table and see why compound interest becomes a geometric sequence.</p>
+    <div class="form-grid">
+      <label>Initial amount
+        <input id="discP" type="number" value="1000" step="100">
+      </label>
+      <label>Annual rate %
+        <input id="discR" type="number" value="5" step=".1">
+      </label>
+      <label>Years
+        <input id="discY" type="number" value="6" step="1">
+      </label>
+      <div><button class="btn-primary" onclick="updateDiscover()">Build table</button></div>
+    </div>
+    <div id="discoverTable"></div>
+    <details>
+      <summary>Reveal key idea</summary>
+      <div class="inside">
+        <p>Simple interest adds the same amount each year. Compound interest multiplies by the same factor each year. That makes the compound balances a geometric sequence.</p>
+        <div class="math-box"><div class="math">Simple: PV + PV<span class="frac"><span class="top">r</span><span class="bottom">100</span></span>t<br>Compound: PV(1 + <span class="frac"><span class="top">r</span><span class="bottom">100</span></span>)<sup>t</sup></div></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="module tifocus">
+    <h3>TI‑Nspire preview</h3>
+    <p>Open a Calculator page, then use:</p>
+    <ol class="step-list">
+      <li><b>Menu → Finance → Finance Solver</b></li>
+      <li>For compound interest with no regular payments, enter <b>PMT = 0</b>.</li>
+      <li>For annual compounding, set <b>P/Y = 1</b> and <b>C/Y = 1</b>.</li>
+      <li>Highlight the unknown variable, then press <b>Enter</b> to solve.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="tab" id="compound">
+  <div class="module syllabus">
+    <div class="split-title">
+      <h2>2. Compound interest and depreciation calculator</h2>
+      <span class="pill syll">Within syllabus</span>
+    </div>
+    <div class="form-grid">
+      <label>Starting value
+        <input id="cmpPV" type="number" value="5000" step="100">
+      </label>
+      <label>Annual rate %
+        <input id="cmpRate" type="number" value="3" step=".1">
+      </label>
+      <div class="choice-row">
+        <label>Compounding per year</label>
+        <div class="button-group" id="cmpMButtons"></div>
+      </div>
+      <label>Time in years
+        <input id="cmpYears" type="number" value="1.5" step=".1">
+      </label>
+      <div class="choice-row">
+        <label>Mode</label>
+        <div class="button-group" id="cmpModeButtons"></div>
+      </div>
+      <div><button class="btn-primary" onclick="updateCompound()">Calculate</button></div>
+    </div>
+    <div class="result" id="compoundResult"></div>
+    <div class="note ti">
+      <b>TI‑Nspire setup:</b> N = compounding periods × years, I% = annual rate, PMT = 0, P/Y = C/Y = compounding periods per year. Use a negative I% for depreciation if using the Finance Solver.
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="module syllabus">
+      <h3>Worked example: investment</h3>
+      <p><b>Question:</b> $5000 is invested at 3% p.a. compounded monthly for 18 months.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('we-investment', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="we-investment">
+        <div class="answer-card">
+          <div class="math-box"><div class="math">N = 18,&nbsp; I% = 3,&nbsp; PV = −5000,&nbsp; PMT = 0,&nbsp; P/Y = C/Y = 12<br>FV ≈ 5229.85</div></div>
+          <p><b>Answer:</b> $5229.85.</p>
+        </div>
+      </div>
+    </div>
+    <div class="module syllabus">
+      <h3>Worked example: depreciation</h3>
+      <p><b>Question:</b> A car worth £20 000 depreciates by 15% each year for 5 years.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('we-depreciation', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="we-depreciation">
+        <div class="answer-card">
+          <div class="math-box"><div class="math">FV = 20000(1 − 0.15)<sup>5</sup> = 20000(0.85)<sup>5</sup></div></div>
+          <p><b>Answer:</b> £8874.11, so about £8870 to the nearest £10.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="real">
+  <div class="module syllabus">
+    <div class="split-title">
+      <h2>3. Inflation and real value</h2>
+      <span class="pill syll">Within syllabus</span>
+    </div>
+    <p>Nominal value is the amount of money shown. Real value adjusts for inflation, so it estimates purchasing power.</p>
+    <div class="form-grid">
+      <label>Initial value
+        <input id="realPV" type="number" value="1000" step="100">
+      </label>
+      <label>Nominal growth / interest %
+        <input id="realC" type="number" value="6.2" step=".1">
+      </label>
+      <label>Inflation %
+        <input id="realI" type="number" value="3.2" step=".1">
+      </label>
+      <label>Years
+        <input id="realY" type="number" value="5" step="1">
+      </label>
+      <div><button class="btn-primary" onclick="updateReal()">Calculate real value</button></div>
+    </div>
+    <div class="result" id="realResult"></div>
+  </div>
+
+  <div class="two">
+    <div class="module syllabus">
+      <h3>Exam-friendly approximation</h3>
+      <p>For small percentages, use the approximate real annual percentage change:</p>
+      <div class="math-box"><div class="math">real rate ≈ nominal rate − inflation rate</div></div>
+      <p>This is quick, intuitive, and useful for interpreting exam contexts.</p>
+    </div>
+    <div class="module extension">
+      <h3>Extension: exact adjustment</h3>
+      <p>The exact real growth factor divides the nominal growth factor by the inflation growth factor.</p>
+      <div class="math-box"><div class="math">real factor = <span class="frac"><span class="top">1 + c/100</span><span class="bottom">1 + i/100</span></span></div></div>
+      <p>Useful for accuracy discussions, modelling, hyperinflation, and TOK-style assumptions.</p>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="loans">
+  <div class="module syllabus">
+    <div class="split-title">
+      <h2>4. Loans, annuities and amortization</h2>
+      <span class="pill syll">Within syllabus using technology</span>
+    </div>
+    <p>An amortized loan is repaid gradually. Each payment partly pays interest and partly reduces the principal.</p>
+    <div class="form-grid">
+      <div class="choice-row">
+        <label>Problem type</label>
+        <div class="button-group" id="loanTypeButtons"></div>
+      </div>
+      <label>Principal / present value
+        <input id="loanPV" type="number" value="100000" step="1000">
+      </label>
+      <label>Regular payment
+        <input id="loanPMT" type="number" value="500" step="10">
+      </label>
+      <label>Annual interest %
+        <input id="loanRate" type="number" value="5" step=".1">
+      </label>
+      <div class="choice-row">
+        <label>Payments per year</label>
+        <div class="button-group" id="loanMButtons"></div>
+      </div>
+      <label>Years
+        <input id="loanYears" type="number" value="25" step="1">
+      </label>
+      <div><button class="btn-primary" onclick="updateLoan()">Calculate</button></div>
+    </div>
+    <div class="result" id="loanResult"></div>
+  </div>
+
+  <div class="module tifocus">
+    <h3>Amortization table explorer</h3>
+    <p>Use the calculator result above, then inspect how the loan balance falls over time.</p>
+    <div id="amortTable"></div>
+  </div>
+</section>
+
+<section class="tab" id="tinspire">
+  <div class="module tifocus">
+    <div class="split-title">
+      <h2>5. TI‑Nspire worked examples</h2>
+      <span class="pill ti">Calculator fluency</span>
+    </div>
+    <p>Core menu path: <b>Calculator page → Menu → Finance → Finance Solver</b>. Enter all known values. Highlight the unknown value and press <b>Enter</b>.</p>
+  </div>
+
+  <div class="three">
+    <div class="module tifocus">
+      <h3>A. Future value</h3>
+      <p>$5000 at 3% compounded monthly for 18 months.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('ti-a', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="ti-a">
+        <div class="answer-card">
+          <ol class="step-list">
+            <li>N = 18</li>
+            <li>I% = 3</li>
+            <li>PV = −5000, PMT = 0</li>
+            <li>FV = ?, P/Y = 12, C/Y = 12, PMT at END</li>
+          </ol>
+          <div class="math-box"><div class="math">FV ≈ 5229.85</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module tifocus">
+      <h3>B. Loan repayment</h3>
+      <p>$100 000 mortgage over 25 years at 5% compounded monthly.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('ti-b', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="ti-b">
+        <div class="answer-card">
+          <ol class="step-list">
+            <li>N = 25 × 12 = 300</li>
+            <li>I% = 5</li>
+            <li>PV = 100000, FV = 0</li>
+            <li>PMT = ?, P/Y = 12, C/Y = 12</li>
+          </ol>
+          <div class="math-box"><div class="math">PMT ≈ −584.59, so payment is $584.59 per month</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module tifocus">
+      <h3>C. Maximum loan</h3>
+      <p>Ana can pay £500 per month for 10 years at 6% compounded monthly.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('ti-c', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="ti-c">
+        <div class="answer-card">
+          <ol class="step-list">
+            <li>N = 10 × 12 = 120</li>
+            <li>I% = 6</li>
+            <li>PMT = −500, FV = 0</li>
+            <li>PV = ?, P/Y = 12, C/Y = 12</li>
+          </ol>
+          <div class="math-box"><div class="math">PV ≈ 45036.72</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="three">
+    <div class="module tifocus">
+      <h3>D. Annuity drawdown</h3>
+      <p>$50 000 invested at 4%, withdrawing yearly for 30 years until empty.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('ti-d', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="ti-d">
+        <div class="answer-card">
+          <ol class="step-list">
+            <li>N = 30</li>
+            <li>I% = 4</li>
+            <li>PV = −50000, FV = 0</li>
+            <li>PMT = ?, P/Y = 1, C/Y = 1</li>
+          </ol>
+          <div class="math-box"><div class="math">PMT ≈ 2891.50 per year</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module tifocus">
+      <h3>E. Finding time</h3>
+      <p>$3000 grows to $5000 at 3.2% compounded monthly.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('ti-e', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="ti-e">
+        <div class="answer-card">
+          <ol class="step-list">
+            <li>PV = −3000, FV = 5000</li>
+            <li>I% = 3.2, PMT = 0</li>
+            <li>P/Y = 12, C/Y = 12</li>
+            <li>N = ?</li>
+          </ol>
+          <div class="math-box"><div class="math">N ≈ 191.8 months, so about 16.0 years</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module tifocus">
+      <h3>F. Finding interest rate</h3>
+      <p>$4000 doubles in 12 years, compounded monthly.</p>
+      <button class="btn-reveal" onclick="toggleAnswer('ti-f', this)">Reveal worked answer</button>
+      <div class="hidden-answer" id="ti-f">
+        <div class="answer-card">
+          <ol class="step-list">
+            <li>N = 12 × 12 = 144</li>
+            <li>PV = −4000, FV = 8000</li>
+            <li>PMT = 0, P/Y = 12, C/Y = 12</li>
+            <li>I% = ?</li>
+          </ol>
+          <div class="math-box"><div class="math">I% ≈ 5.79% nominal annual rate</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="practice">
+  <div class="module examfocus">
+    <div class="split-title">
+      <h2>6. Examination practice</h2>
+      <span class="pill exam">Revealable worked solutions</span>
+    </div>
+    <p>Questions deliberately mix contexts so students practise choosing the financial variable, not just repeating a procedure.</p>
+  </div>
+
+  <div class="two">
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>1. Future value</h3>
+      <p>$7500 is invested at 4.8% p.a. compounded quarterly for 6 years. Find the balance.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>N = 24, quarterly rate = 4.8% ÷ 4 = 1.2%.</p>
+        <div class="math-box"><div class="math">FV = 7500(1.012)<sup>24</sup> = 9986.05</div></div>
+        <p><b>Answer:</b> $9986.05.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>2. Depreciation</h3>
+      <p>Equipment worth $22 000 depreciates by 18% per year for 7 years. Estimate its value.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <div class="math-box"><div class="math">FV = 22000(0.82)<sup>7</sup> = 5484.28</div></div>
+        <p><b>Answer:</b> about $5484.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>3. Time required</h3>
+      <p>$3000 is invested at 3.2% p.a. compounded monthly. How long until it reaches $5000?</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Use TVM: PV = −3000, FV = 5000, I% = 3.2, PMT = 0, P/Y = C/Y = 12.</p>
+        <div class="math-box"><div class="math">N ≈ 191.8 months ≈ 16.0 years</div></div>
+        <p><b>Answer:</b> about 16 years.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>4. Required rate</h3>
+      <p>$4000 must double in 12 years, compounded monthly. Find the annual nominal interest rate.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Use TVM: N = 144, PV = −4000, FV = 8000, PMT = 0, P/Y = C/Y = 12.</p>
+        <div class="math-box"><div class="math">I% ≈ 5.79</div></div>
+        <p><b>Answer:</b> 5.79% p.a. compounded monthly.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>5. Real value</h3>
+      <p>$12 000 is invested for 8 years at 5.5% p.a. Inflation is 2.8% p.a. Estimate the real value.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Approximate real rate = 5.5 − 2.8 = 2.7%.</p>
+        <div class="math-box"><div class="math">Real value ≈ 12000(1.027)<sup>8</sup> = 14850.63</div></div>
+        <p><b>Answer:</b> about $14 851. Exact model gives $14 765.77.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>6. Mortgage repayment</h3>
+      <p>A $175 000 mortgage is repaid monthly over 20 years at 4.2% p.a. compounded monthly. Find the monthly repayment.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Use TVM: N = 240, I% = 4.2, PV = 175000, FV = 0, P/Y = C/Y = 12.</p>
+        <div class="math-box"><div class="math">PMT ≈ −1079.00</div></div>
+        <p><b>Answer:</b> $1079.00 per month.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>7. Maximum affordable loan</h3>
+      <p>A family can afford $950 per month for 18 years at 5.1% p.a. compounded monthly. What is the maximum loan?</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Use TVM: N = 216, I% = 5.1, PMT = −950, FV = 0, P/Y = C/Y = 12.</p>
+        <div class="math-box"><div class="math">PV ≈ 134096.55</div></div>
+        <p><b>Answer:</b> about $134 097.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card syllabus">
+      <span class="pill syll">Syllabus</span>
+      <h3>8. Retirement annuity</h3>
+      <p>$90 000 is invested at 3.6% p.a. compounded quarterly. Equal withdrawals are made quarterly for 20 years until the account reaches zero. Find the quarterly withdrawal.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Use TVM: N = 80, I% = 3.6, PV = −90000, FV = 0, P/Y = C/Y = 4.</p>
+        <div class="math-box"><div class="math">PMT ≈ 1583.03</div></div>
+        <p><b>Answer:</b> $1583.03 each quarter.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card exam">
+      <span class="pill exam">Exam modelling</span>
+      <h3>9. Compare two mortgages</h3>
+      <p>A $250 000 mortgage has two options. A: 4.0% p.a., monthly repayments, 25 years. B: 4.6% p.a., monthly repayments, 30 years. Both compound monthly. Which has lower monthly payments? Which has lower total repayment?</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>A: N = 300, I% = 4.0, PV = 250000, P/Y = C/Y = 12.</p>
+        <div class="math-box"><div class="math">PMT<sub>A</sub> ≈ 1319.59,&nbsp; total<sub>A</sub> ≈ 395877.63</div></div>
+        <p>B: N = 360, I% = 4.6, PV = 250000, P/Y = C/Y = 12.</p>
+        <div class="math-box"><div class="math">PMT<sub>B</sub> ≈ 1281.61,&nbsp; total<sub>B</sub> ≈ 461379.93</div></div>
+        <p><b>Answer:</b> B has lower monthly payments, but A has lower total repayment.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card extension">
+      <span class="pill ext">Extension</span>
+      <h3>10. Savings annuity</h3>
+      <p>$250 is deposited at the end of each month into an account paying 6% p.a. compounded monthly for 5 years. Find the future value.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Monthly rate = 0.5%, N = 60.</p>
+        <div class="math-box"><div class="math">FV = 250<span class="frac"><span class="top">(1.005)<sup>60</sup> − 1</span><span class="bottom">0.005</span></span> = 17442.51</div></div>
+        <p><b>Answer:</b> $17 442.51.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card extension">
+      <span class="pill ext">Extension</span>
+      <h3>11. Changing interest rate</h3>
+      <p>A $18 000 car loan is repaid at $350 per month. The first 2 years are at 5.2% p.a.; the remaining 3 years are at 6.4% p.a. Both compound monthly. Can the borrower finish in 5 years?</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>After 24 payments, balance is about $11 136.11. Required payment for the next 36 months at 6.4% is:</p>
+        <div class="math-box"><div class="math">PMT ≈ 340.80</div></div>
+        <p><b>Answer:</b> Yes. $350 per month is enough, with a slightly smaller final adjustment.</p>
+      </div></details>
+    </div>
+
+    <div class="practice-card extension">
+      <span class="pill ext">Extension</span>
+      <h3>12. Approximate vs exact real growth</h3>
+      <p>Government spending rises by 5% per year while inflation is 2.5% per year. Find the real percentage increase over 5 years using the approximate and exact models.</p>
+      <details><summary>Reveal solution</summary><div class="inside">
+        <p>Approximate annual real rate = 2.5%.</p>
+        <div class="math-box"><div class="math">Approx factor = 1.025<sup>5</sup> = 1.1314 → 13.14% increase</div></div>
+        <div class="math-box"><div class="math">Exact factor = <span class="frac"><span class="top">1.05</span><span class="bottom">1.025</span></span><sup>5</sup> = 1.1280 → 12.80% increase</div></div>
+        <p><b>Answer:</b> The approximation is close, but slightly high.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="module examfocus">
+    <h3>Random quick-practice generator</h3>
+    <p>Use this as a starter or exit ticket. It generates one routine syllabus question at a time.</p>
+    <button class="btn-primary" onclick="randomQuestion()">Generate question</button>
+    <div class="result" id="randomBox">Press the button to generate a question.</div>
+  </div>
+</section>
+
+<section class="tab" id="extension">
+  <div class="module extension">
+    <div class="split-title">
+      <h2>7. Extension: step-by-step derivations</h2>
+      <span class="pill ext">Beyond routine syllabus</span>
+    </div>
+    <p>These derivations all go back to one central idea: <b>compound interest creates a geometric sequence</b>. Students can reveal one stage at a time, using each hint before seeing the next line.</p>
+    <div class="note extension">
+      <b>Teacher use:</b> keep this as an enrichment or “why the calculator works” section. The syllabus emphasises technology for annuities and amortization, but these derivations help students understand what the Finance Solver is doing.
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="module extension">
+      <h3>Annuity future value from a geometric sequence</h3>
+      <p>Question behind the formula: if the same amount is paid at the end of each period, how much is the account worth after the final payment?</p>
+
+      <div class="derivation-lab" data-derivation="annuity-fv">
+        <div class="split-title">
+          <span class="pill ext">Reveal stages</span>
+          <span class="small">Goal: derive the future value of regular deposits.</span>
+        </div>
+        <div class="derivation-progress"><span></span></div>
+        <div class="derivation-controls">
+          <button onclick="showNextDerivationStep('annuity-fv')">Reveal next stage</button>
+          <button onclick="resetDerivation('annuity-fv')">Reset</button>
+        </div>
+
+        <div class="derivation-step hint">
+          <span class="step-tag">Hint 1</span>
+          <p>Think about each payment separately. The final payment earns no interest. The payment before it earns interest for one period. The first payment earns interest for the most periods.</p>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Stage 2: list the payments</span>
+          <p>Let each payment be <b>R</b>, the interest rate per period be <b>i</b>, and the number of payments be <b>n</b>.</p>
+          <div class="mini-sequence">
+            <span>R(1+i)<sup>n−1</sup></span>
+            <span>R(1+i)<sup>n−2</sup></span>
+            <span>...</span>
+            <span>R(1+i)</span>
+            <span>R</span>
+          </div>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Stage 3: write the sum</span>
+          <div class="math-box"><div class="math">FV = R(1+i)<sup>n−1</sup> + R(1+i)<sup>n−2</sup> + ... + R(1+i) + R</div></div>
+          <p>This is a geometric series because each term is found by multiplying or dividing by the same factor.</p>
+        </div>
+
+        <div class="derivation-step hint">
+          <span class="step-tag">Hint 4</span>
+          <p>The common ratio is <b>1+i</b>. It is easier to write the same sum in ascending powers:</p>
+          <div class="math-box"><div class="math">FV = R[1 + (1+i) + (1+i)<sup>2</sup> + ... + (1+i)<sup>n−1</sup>]</div></div>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Stage 5: use the geometric-series formula</span>
+          <p>For a finite geometric series:</p>
+          <div class="math-box"><div class="math">1 + q + q<sup>2</sup> + ... + q<sup>n−1</sup> = <span class="frac"><span class="top">q<sup>n</sup> − 1</span><span class="bottom">q − 1</span></span></div></div>
+          <p>Here, <b>q = 1+i</b>.</p>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Final result</span>
+          <div class="math-box"><div class="math">FV = R<span class="frac"><span class="top">(1+i)<sup>n</sup> − 1</span><span class="bottom">(1+i) − 1</span></span> = R<span class="frac"><span class="top">(1+i)<sup>n</sup> − 1</span><span class="bottom">i</span></span></div></div>
+          <div class="derivation-summary"><b>Meaning:</b> this gives the value of equal payments made at the end of each period, once all the payments and interest have accumulated.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module extension">
+      <h3>Loan payment formula from a geometric sequence</h3>
+      <p>Question behind the formula: what equal payment <b>A</b> will exactly pay off a loan of <b>P</b> after <b>n</b> periods?</p>
+
+      <div class="derivation-lab" data-derivation="loan-pmt">
+        <div class="split-title">
+          <span class="pill ext">Reveal stages</span>
+          <span class="small">Goal: derive the repayment formula.</span>
+        </div>
+        <div class="derivation-progress"><span></span></div>
+        <div class="derivation-controls">
+          <button onclick="showNextDerivationStep('loan-pmt')">Reveal next stage</button>
+          <button onclick="resetDerivation('loan-pmt')">Reset</button>
+        </div>
+
+        <div class="derivation-step hint">
+          <span class="step-tag">Hint 1</span>
+          <p>A loan repayment formula works by asking: what is the <b>present value</b> of all future payments?</p>
+          <p>If the loan is exactly paid off, then:</p>
+          <div class="math-box"><div class="math">present value of all repayments = principal borrowed</div></div>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Stage 2: discount each payment</span>
+          <p>A payment of <b>A</b> one period from now is worth less today. Its present value is:</p>
+          <div class="math-box"><div class="math"><span class="frac"><span class="top">A</span><span class="bottom">1+i</span></span></div></div>
+          <p>A payment two periods from now has present value:</p>
+          <div class="math-box"><div class="math"><span class="frac"><span class="top">A</span><span class="bottom">(1+i)<sup>2</sup></span></span></div></div>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Stage 3: write the present-value sum</span>
+          <div class="math-box"><div class="math">P = <span class="frac"><span class="top">A</span><span class="bottom">1+i</span></span> + <span class="frac"><span class="top">A</span><span class="bottom">(1+i)<sup>2</sup></span></span> + ... + <span class="frac"><span class="top">A</span><span class="bottom">(1+i)<sup>n</sup></span></span></div></div>
+        </div>
+
+        <div class="derivation-step hint">
+          <span class="step-tag">Hint 4</span>
+          <p>This is also a geometric series, but this time the common ratio is:</p>
+          <div class="math-box"><div class="math">q = <span class="frac"><span class="top">1</span><span class="bottom">1+i</span></span></div></div>
+          <p>So the powers are <span class="math-inline">q, q<sup>2</sup>, ..., q<sup>n</sup></span>.</p>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Stage 5: factor out A</span>
+          <div class="math-box"><div class="math">P = A[q + q<sup>2</sup> + ... + q<sup>n</sup>]</div></div>
+          <p>The finite sum is:</p>
+          <div class="math-box"><div class="math">q + q<sup>2</sup> + ... + q<sup>n</sup> = <span class="frac"><span class="top">q(1 − q<sup>n</sup>)</span><span class="bottom">1 − q</span></span></div></div>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Stage 6: substitute q</span>
+          <div class="math-box"><div class="math">P = A<span class="frac"><span class="top">1 − (1+i)<sup>−n</sup></span><span class="bottom">i</span></span></div></div>
+          <p>Now solve for <b>A</b>.</p>
+        </div>
+
+        <div class="derivation-step">
+          <span class="step-tag">Final result</span>
+          <div class="math-box"><div class="math">A = P<span class="frac"><span class="top">i</span><span class="bottom">1 − (1+i)<sup>−n</sup></span></span></div></div>
+          <div class="derivation-summary"><b>Meaning:</b> this is the regular payment needed to reduce the loan balance to zero after <b>n</b> payments.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module extension">
+    <h3>Equivalent annual rate from repeated multiplication</h3>
+    <p>A quoted annual rate compounded monthly is not exactly the same as the actual one-year growth.</p>
+
+    <div class="derivation-lab" data-derivation="ear">
+      <div class="split-title">
+        <span class="pill ext">Reveal stages</span>
+        <span class="small">Goal: convert a nominal rate into the actual annual growth.</span>
+      </div>
+      <div class="derivation-progress"><span></span></div>
+      <div class="derivation-controls">
+        <button onclick="showNextDerivationStep('ear')">Reveal next stage</button>
+        <button onclick="resetDerivation('ear')">Reset</button>
+      </div>
+
+      <div class="derivation-step hint">
+        <span class="step-tag">Hint 1</span>
+        <p>Start with the normal compound interest multiplier. If the annual nominal rate is <b>r%</b> and there are <b>m</b> compounding periods per year, then the rate per period is:</p>
+        <div class="math-box"><div class="math"><span class="frac"><span class="top">r</span><span class="bottom">100m</span></span></div></div>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Stage 2: one-period multiplier</span>
+        <div class="math-box"><div class="math">one-period multiplier = 1 + <span class="frac"><span class="top">r</span><span class="bottom">100m</span></span></div></div>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Stage 3: multiply for one full year</span>
+        <p>There are <b>m</b> periods in one year, so the one-year multiplier is:</p>
+        <div class="math-box"><div class="math">annual multiplier = (1 + <span class="frac"><span class="top">r</span><span class="bottom">100m</span></span>)<sup>m</sup></div></div>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Stage 4: convert multiplier to percentage rate</span>
+        <p>A multiplier of 1.1268 means a 12.68% increase. So subtract 1 to get the effective annual rate as a decimal.</p>
+        <div class="math-box"><div class="math">effective annual rate = (1 + <span class="frac"><span class="top">r</span><span class="bottom">100m</span></span>)<sup>m</sup> − 1</div></div>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Example</span>
+        <p>For 12% p.a. compounded monthly, <b>r = 12</b> and <b>m = 12</b>.</p>
+        <div class="math-box"><div class="math">(1 + <span class="frac"><span class="top">12</span><span class="bottom">100 × 12</span></span>)<sup>12</sup> − 1 = 0.1268...</div></div>
+        <div class="derivation-summary"><b>Answer:</b> the effective annual rate is about <b>12.68%</b>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module extension">
+    <h3>Continuous compounding as a limiting geometric process</h3>
+    <p>This is a conceptual extension. It shows how the compound-interest formula leads naturally to the exponential constant <b>e</b>.</p>
+
+    <div class="derivation-lab" data-derivation="continuous">
+      <div class="split-title">
+        <span class="pill ext">Reveal stages</span>
+        <span class="small">Goal: connect increasingly frequent compounding to e.</span>
+      </div>
+      <div class="derivation-progress"><span></span></div>
+      <div class="derivation-controls">
+        <button onclick="showNextDerivationStep('continuous')">Reveal next stage</button>
+        <button onclick="resetDerivation('continuous')">Reset</button>
+      </div>
+
+      <div class="derivation-step hint">
+        <span class="step-tag">Hint 1</span>
+        <p>For compound interest with <b>m</b> compounding periods per year:</p>
+        <div class="math-box"><div class="math">FV = PV(1 + <span class="frac"><span class="top">r</span><span class="bottom">m</span></span>)<sup>mt</sup></div></div>
+        <p>Here <b>r</b> is written as a decimal, for example 5% becomes 0.05.</p>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Stage 2: ask what happens as compounding gets more frequent</span>
+        <p>Yearly, monthly, daily, hourly, every second... the value approaches a limiting multiplier.</p>
+        <div class="mini-sequence">
+          <span>m = 1</span>
+          <span>m = 12</span>
+          <span>m = 365</span>
+          <span>m → ∞</span>
+        </div>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Stage 3: use the definition of e</span>
+        <p>The key limit is:</p>
+        <div class="math-box"><div class="math">(1 + <span class="frac"><span class="top">x</span><span class="bottom">n</span></span>)<sup>n</sup> → e<sup>x</sup> as n → ∞</div></div>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Stage 4: apply it to compound interest</span>
+        <p>As <b>m</b> becomes infinitely large:</p>
+        <div class="math-box"><div class="math">(1 + <span class="frac"><span class="top">r</span><span class="bottom">m</span></span>)<sup>mt</sup> → e<sup>rt</sup></div></div>
+      </div>
+
+      <div class="derivation-step">
+        <span class="step-tag">Final result</span>
+        <div class="math-box"><div class="math">FV = PV e<sup>rt</sup></div></div>
+        <div class="derivation-summary"><b>Meaning:</b> continuous compounding is the limiting case of a geometric growth process where the compounding period becomes infinitely small.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  Built as a self-contained classroom HTML resource. No internet connection required once downloaded.
+</div>
+</main>
+
+<script>
+function money(x, currency="$"){
+  if(!isFinite(x)) return "—";
+  return currency + Number(x).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function num(x, dp=2){
+  if(!isFinite(x)) return "—";
+  return Number(x).toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp});
+}
+function get(id){return document.getElementById(id)}
+document.querySelectorAll('#tabs button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.tab').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    get(btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  })
+})
+
+const state = {
+  cmpM: 12,
+  cmpMode: 'growth',
+  loanType: 'payment',
+  loanM: 12
+};
+
+function renderButtonGroup(containerId, items, selectedValue, onSelect){
+  const container = get(containerId);
+  container.innerHTML = '';
+  items.forEach(item=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className = 'choice-btn' + (String(item.value)===String(selectedValue) ? ' selected' : '');
+    btn.textContent = item.label;
+    btn.addEventListener('click',()=>{
+      onSelect(item.value);
+    });
+    container.appendChild(btn);
+  });
+}
+
+function toggleAnswer(id, btn){
+  const box = get(id);
+  const showing = box.classList.contains('show');
+  box.classList.toggle('show');
+  btn.textContent = showing ? 'Reveal worked answer' : 'Hide worked answer';
+}
+
+function updateCompoundButtonGroups(){
+  renderButtonGroup('cmpMButtons',[
+    {value:1,label:'1 yearly'},
+    {value:2,label:'2 half-yearly'},
+    {value:4,label:'4 quarterly'},
+    {value:12,label:'12 monthly'},
+    {value:365,label:'365 daily'}
+  ], state.cmpM, (value)=>{state.cmpM=Number(value); updateCompoundButtonGroups(); updateCompound();});
+  renderButtonGroup('cmpModeButtons',[
+    {value:'growth',label:'Investment / growth'},
+    {value:'depreciation',label:'Depreciation'}
+  ], state.cmpMode, (value)=>{state.cmpMode=value; updateCompoundButtonGroups(); updateCompound();});
+}
+function updateLoanButtonGroups(){
+  renderButtonGroup('loanTypeButtons',[
+    {value:'payment',label:'Find regular repayment PMT'},
+    {value:'borrow',label:'Find maximum amount borrowed PV'},
+    {value:'draw',label:'Find regular annuity withdrawal'}
+  ], state.loanType, (value)=>{state.loanType=value; updateLoanButtonGroups(); updateLoan();});
+  renderButtonGroup('loanMButtons',[
+    {value:1,label:'1 yearly'},
+    {value:4,label:'4 quarterly'},
+    {value:12,label:'12 monthly'}
+  ], state.loanM, (value)=>{state.loanM=Number(value); updateLoanButtonGroups(); updateLoan();});
+}
+
+function updateDiscover(){
+  const P=+get('discP').value, r=+get('discR').value/100, y=Math.max(1, Math.floor(+get('discY').value));
+  let rows='<table><thead><tr><th>Year</th><th>Simple interest</th><th>Compound interest</th><th>Compound multiplier</th></tr></thead><tbody>';
+  for(let k=0;k<=y;k++){
+    const simple=P*(1+r*k), comp=P*Math.pow(1+r,k);
+    rows+=`<tr><td>${k}</td><td>${money(simple)}</td><td>${money(comp)}</td><td>${k===0?'—':'× '+num(1+r,3)}</td></tr>`;
+  }
+  rows+='</tbody></table>';
+  get('discoverTable').innerHTML=rows;
+}
+
+function updateCompound(){
+  const P=+get('cmpPV').value, rate=+get('cmpRate').value, m=state.cmpM, t=+get('cmpYears').value;
+  const mode=state.cmpMode;
+  const sign = mode==='depreciation' ? -1 : 1;
+  const i = sign*rate/100/m;
+  const n = m*t;
+  const FV=P*Math.pow(1+i,n);
+  const mult=1+i;
+  const signTxt = i>=0 ? '+' : '−';
+  get('compoundResult').innerHTML=`
+    <span class="pill ${mode==='depreciation'?'warn':'syll'}">${mode==='depreciation'?'Depreciation':'Compound growth'}</span>
+    <div class="big-number">${money(FV, P>=0?'$':'')}</div>
+    <p><b>Period rate:</b> ${num(i*100,4)}% &nbsp; <b>Number of periods:</b> ${num(n,2)} &nbsp; <b>Period multiplier:</b> ${num(mult,6)}</p>
+    <div class="math-box"><div class="math">FV = ${P}(1 ${signTxt} ${num(Math.abs(i),6)})<sup>${num(n,2)}</sup> = ${num(FV,2)}</div></div>
+    <p class="small">For TI‑Nspire, enter I% as ${mode==='depreciation'?'-':''}${rate}, not ${num(sign*rate/100,4)}.</p>`;
+}
+
+function updateReal(){
+  const P=+get('realPV').value, c=+get('realC').value, inf=+get('realI').value, y=+get('realY').value;
+  const approxRate=c-inf;
+  const approx=P*Math.pow(1+approxRate/100,y);
+  const exact=P*Math.pow((1+c/100)/(1+inf/100),y);
+  const nominal=P*Math.pow(1+c/100,y);
+  get('realResult').innerHTML=`
+    <div class="kpi">
+      <div><span class="pill syll">Nominal</span><b>${money(nominal)}</b><span class="small">Money amount before inflation adjustment.</span></div>
+      <div><span class="pill syll">Approx real</span><b>${money(approx)}</b><span class="small">Uses ${num(approxRate,2)}% real annual rate.</span></div>
+      <div><span class="pill ext">Exact real</span><b>${money(exact)}</b><span class="small">Uses ratio of growth factors.</span></div>
+    </div>
+    <div class="math-box"><div class="math">Approx: ${P}(1 + ${num(approxRate,2)}/100)<sup>${y}</sup><br>Exact: ${P}(<span class="frac"><span class="top">1 + ${c}/100</span><span class="bottom">1 + ${inf}/100</span></span>)<sup>${y}</sup></div></div>`;
+}
+
+function payment(P, annual, m, years){
+  const i=annual/100/m, n=m*years;
+  if(Math.abs(i)<1e-12) return P/n;
+  return P*i/(1-Math.pow(1+i,-n));
+}
+function presentValueFromPayment(A, annual, m, years){
+  const i=annual/100/m, n=m*years;
+  if(Math.abs(i)<1e-12) return A*n;
+  return A*(1-Math.pow(1+i,-n))/i;
+}
+function updateLoan(){
+  const PV=+get('loanPV').value, A=+get('loanPMT').value, r=+get('loanRate').value, m=state.loanM, y=+get('loanYears').value;
+  const n=m*y, i=r/100/m;
+  let html='', usePV=PV, useA=A;
+  if(state.loanType==='payment'){
+    useA=payment(PV,r,m,y);
+    html=`<span class="pill syll">Find PMT</span><div class="big-number">${money(useA)} per period</div>
+    <p>N = ${n}, period rate = ${num(i*100,4)}%, total repaid = ${money(useA*n)}</p>
+    <div class="math-box"><div class="math">PMT = PV<span class="frac"><span class="top">i</span><span class="bottom">1 − (1+i)<sup>−N</sup></span></span></div></div>`;
+  } else if(state.loanType==='borrow'){
+    usePV=presentValueFromPayment(A,r,m,y);
+    html=`<span class="pill syll">Find PV</span><div class="big-number">${money(usePV)} maximum loan</div>
+    <p>N = ${n}, period rate = ${num(i*100,4)}%, total payments = ${money(A*n)}</p>
+    <div class="math-box"><div class="math">PV = PMT<span class="frac"><span class="top">1 − (1+i)<sup>−N</sup></span><span class="bottom">i</span></span></div></div>`;
+  } else {
+    useA=payment(PV,r,m,y);
+    html=`<span class="pill syll">Annuity drawdown</span><div class="big-number">${money(useA)} withdrawal per period</div>
+    <p>N = ${n}, period rate = ${num(i*100,4)}%, total withdrawn = ${money(useA*n)}</p>
+    <div class="math-box"><div class="math">The account is designed to reach FV = 0 after the final withdrawal.</div></div>`;
+  }
+  get('loanResult').innerHTML=html;
+  buildAmort(usePV,useA,r,m,Math.min(n,24));
+}
+function buildAmort(P,A,annual,m,limit){
+  const i=annual/100/m;
+  let bal=P;
+  let rows='<table><thead><tr><th>Payment</th><th>Interest</th><th>Principal paid</th><th>Balance</th></tr></thead><tbody>';
+  for(let k=1;k<=limit;k++){
+    let interest=bal*i;
+    let principal=A-interest;
+    bal=bal-principal;
+    if(bal<0){principal += bal; bal=0;}
+    rows+=`<tr><td>${k}</td><td>${money(interest)}</td><td>${money(principal)}</td><td>${money(Math.max(bal,0))}</td></tr>`;
+    if(bal<=0) break;
+  }
+  rows+='</tbody></table>';
+  get('amortTable').innerHTML=rows + '<p class="small">Showing the first payments only. Early payments are interest-heavy; later payments reduce principal faster.</p>';
+}
+
+function randomQuestion(){
+  const types=['fv','dep','pmt','pv','real'];
+  const t=types[Math.floor(Math.random()*types.length)];
+  let q='', a='';
+  if(t==='fv'){
+    const P=[1000,2500,5000,8000,12000][Math.floor(Math.random()*5)];
+    const r=[2.4,3.6,4.8,6][Math.floor(Math.random()*4)];
+    const m=[1,4,12][Math.floor(Math.random()*3)];
+    const y=[3,5,8,10][Math.floor(Math.random()*4)];
+    const ans=P*Math.pow(1+r/100/m,m*y);
+    q=`${money(P)} is invested at ${r}% p.a. compounded ${m===1?'annually':m===4?'quarterly':'monthly'} for ${y} years. Find the future value.`;
+    a=`FV = ${money(ans)}`;
+  }
+  if(t==='dep'){
+    const P=[9000,15000,22000,30000][Math.floor(Math.random()*4)];
+    const r=[8,12,15,20][Math.floor(Math.random()*4)];
+    const y=[3,4,5,6][Math.floor(Math.random()*4)];
+    const ans=P*Math.pow(1-r/100,y);
+    q=`An asset worth ${money(P)} depreciates by ${r}% per year for ${y} years. Find its value.`;
+    a=`Value = ${money(ans)}`;
+  }
+  if(t==='pmt'){
+    const P=[80000,120000,180000,250000][Math.floor(Math.random()*4)];
+    const r=[3.5,4.2,5.0,6.0][Math.floor(Math.random()*4)];
+    const y=[10,15,20,25][Math.floor(Math.random()*4)];
+    const ans=payment(P,r,12,y);
+    q=`A ${money(P)} loan is repaid monthly over ${y} years at ${r}% p.a. compounded monthly. Find the monthly repayment.`;
+    a=`PMT = ${money(ans)} per month`;
+  }
+  if(t==='pv'){
+    const A=[500,750,900,1200][Math.floor(Math.random()*4)];
+    const r=[4.5,5.2,6.0][Math.floor(Math.random()*3)];
+    const y=[8,10,15,20][Math.floor(Math.random()*4)];
+    const ans=presentValueFromPayment(A,r,12,y);
+    q=`A borrower can afford ${money(A)} per month for ${y} years at ${r}% p.a. compounded monthly. Find the maximum loan.`;
+    a=`PV = ${money(ans)}`;
+  }
+  if(t==='real'){
+    const P=[1000,5000,10000][Math.floor(Math.random()*3)];
+    const c=[4,5,6.5][Math.floor(Math.random()*3)];
+    const inf=[2,2.5,3][Math.floor(Math.random()*3)];
+    const y=[4,5,8][Math.floor(Math.random()*3)];
+    const ans=P*Math.pow(1+(c-inf)/100,y);
+    q=`${money(P)} grows at ${c}% p.a. while inflation is ${inf}% p.a. for ${y} years. Estimate the real value.`;
+    a=`Approx real value = ${money(ans)}`;
+  }
+  get('randomBox').innerHTML=`<p><b>Question:</b> ${q}</p><details><summary>Reveal answer</summary><div class="inside"><p>${a}</p></div></details>`;
+}
+
+
+const terminologyThemes = [
+  {
+    id:'money',
+    title:'1. Values and interest',
+    subtitle:'Principal, PV, FV, interest',
+    description:'Start here: the basic quantities in almost every finance question.'
+  },
+  {
+    id:'growth',
+    title:'2. Growth and rates',
+    subtitle:'Simple, compound, nominal rate, periods, depreciation',
+    description:'These terms help students identify repeated percentage increase or decrease.'
+  },
+  {
+    id:'inflation',
+    title:'3. Inflation and real terms',
+    subtitle:'Inflation, real value',
+    description:'A short theme about purchasing power and adjusting values for inflation.'
+  },
+  {
+    id:'payments',
+    title:'4. Payments and loans',
+    subtitle:'Payment period, annuity, amortization, mortgage, balance',
+    description:'These terms connect directly to the TI‑Nspire Finance Solver and loan questions.'
+  }
+];
+
+let currentTerminologyTheme = 'money';
+
+const terminologyData = [
+  {id:'principal', theme:'money', term:'Principal', meaning:'The original amount borrowed or invested.', wording:'“A loan of…”, “invests…”, “deposits…”'},
+  {id:'pv', theme:'money', term:'Present value, PV', meaning:'The value now, at the start of the model.', wording:'“How much can be borrowed now?”, “initial investment”'},
+  {id:'fv', theme:'money', term:'Future value, FV', meaning:'The value at the end of the time period.', wording:'“balance after…”, “amount owed after…”, “value after…”'},
+  {id:'interest', theme:'money', term:'Interest', meaning:'Extra money earned on an investment or charged on a loan.', wording:'“interest rate”, “interest paid”, “interest charged”'},
+
+  {id:'simple', theme:'growth', term:'Simple interest', meaning:'Interest calculated only on the original principal.', wording:'Usually an introductory comparison only.'},
+  {id:'compound', theme:'growth', term:'Compound interest', meaning:'Interest calculated on the current balance, so interest can earn interest.', wording:'“compounded monthly”, “compounded quarterly”'},
+  {id:'nominal', theme:'growth', term:'Nominal annual rate', meaning:'The quoted yearly rate entered into the TI‑Nspire as I%.', wording:'“5% p.a. compounded monthly” → enter I% = 5'},
+  {id:'compoundingperiod', theme:'growth', term:'Compounding period', meaning:'How often interest is added.', wording:'Annually = 1, quarterly = 4, monthly = 12'},
+  {id:'depreciation', theme:'growth', term:'Depreciation', meaning:'A repeated percentage decrease in value.', wording:'“depreciates by 12% each year”'},
+
+  {id:'inflation', theme:'inflation', term:'Inflation', meaning:'A general rise in prices, reducing purchasing power.', wording:'“inflation is 3% p.a.”'},
+  {id:'realvalue', theme:'inflation', term:'Real value', meaning:'Value adjusted for inflation; an estimate of purchasing power.', wording:'“in real terms”, “adjusted for inflation”'},
+
+  {id:'paymentperiod', theme:'payments', term:'Payment period', meaning:'How often regular payments are made.', wording:'Monthly repayments → P/Y = 12'},
+  {id:'annuity', theme:'payments', term:'Annuity', meaning:'A sequence of equal payments made at regular intervals.', wording:'Regular deposits, withdrawals, pensions, mortgage payments'},
+  {id:'amortization', theme:'payments', term:'Amortization', meaning:'Paying off a loan gradually using regular payments.', wording:'“repaid monthly over 20 years”'},
+  {id:'mortgage', theme:'payments', term:'Mortgage', meaning:'A long-term loan, usually for property.', wording:'“mortgage of $250 000 over 25 years”'},
+  {id:'balance', theme:'payments', term:'Outstanding balance', meaning:'The amount still owed on a loan at a given time.', wording:'“amount remaining”, “balance after 3 years”'}
+];
+
+let selectedMatchCard = null;
+
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function createMatchCard(item, type){
+  const card = document.createElement('div');
+  card.className = 'match-card ' + (type==='meaning' ? 'meaning-card' : 'wording-card');
+  card.textContent = item[type];
+  card.draggable = true;
+  card.dataset.id = item.id;
+  card.dataset.type = type;
+  card.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({id:item.id, type:type}));
+    setTimeout(()=>card.classList.add('dragging'),0);
+  });
+  card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.match-card').forEach(c=>c.classList.remove('selected'));
+    selectedMatchCard = card;
+    card.classList.add('selected');
+  });
+  return card;
+}
+
+function setupDropzone(zone){
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+    const card = document.querySelector(`.match-card[data-id="${data.id}"][data-type="${data.type}"]`);
+    placeCardInZone(card, zone);
+  });
+  zone.addEventListener('click', () => {
+    if(selectedMatchCard){
+      placeCardInZone(selectedMatchCard, zone);
+      selectedMatchCard.classList.remove('selected');
+      selectedMatchCard = null;
+    }
+  });
+}
+
+function placeCardInZone(card, zone){
+  if(!card) return;
+  if(card.dataset.type !== zone.dataset.type) return;
+  if(zone.firstElementChild){
+    const existing = zone.firstElementChild;
+    const bank = existing.dataset.type === 'meaning' ? get('meaningBank') : get('wordingBank');
+    bank.appendChild(existing);
+  }
+  zone.appendChild(card);
+  zone.classList.add('filled');
+  zone.classList.remove('correct','incorrect');
+}
+
+function currentThemeItems(){
+  return terminologyData.filter(item => item.theme === currentTerminologyTheme);
+}
+
+function renderThemeSelector(){
+  const selector = get('themeSelector');
+  if(!selector) return;
+  selector.innerHTML = '';
+  terminologyThemes.forEach(theme=>{
+    const count = terminologyData.filter(item=>item.theme === theme.id).length;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'theme-btn' + (theme.id === currentTerminologyTheme ? ' selected' : '');
+    btn.innerHTML = `<strong>${theme.title}</strong><span>${theme.subtitle}</span><span>${count} terms</span>`;
+    btn.addEventListener('click', ()=>{
+      currentTerminologyTheme = theme.id;
+      renderThemeSelector();
+      buildTerminologyBoard();
+      shuffleTerminologyCards();
+    });
+    selector.appendChild(btn);
+  });
+}
+
+function updateThemeSummary(){
+  const theme = terminologyThemes.find(t=>t.id === currentTerminologyTheme);
+  const summary = get('themeSummary');
+  if(summary && theme){
+    const count = currentThemeItems().length;
+    summary.innerHTML = `<span class="pill syll">${theme.title}</span><span><b>${count} terms only:</b> ${theme.description}</span>`;
+  }
+}
+
+function buildTerminologyBoard(){
+  const board = get('terminologyBoard');
+  if(!board) return;
+  board.querySelectorAll('.match-row').forEach(row=>row.remove());
+  currentThemeItems().forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'match-row';
+    row.dataset.id = item.id;
+
+    const term = document.createElement('div');
+    term.className = 'term-fixed';
+    term.textContent = item.term;
+
+    const meaningDrop = document.createElement('div');
+    meaningDrop.className = 'dropzone';
+    meaningDrop.dataset.id = item.id;
+    meaningDrop.dataset.type = 'meaning';
+    meaningDrop.dataset.placeholder = 'Drop blue meaning here';
+    setupDropzone(meaningDrop);
+
+    const wordingDrop = document.createElement('div');
+    wordingDrop.className = 'dropzone';
+    wordingDrop.dataset.id = item.id;
+    wordingDrop.dataset.type = 'wording';
+    wordingDrop.dataset.placeholder = 'Drop purple wording here';
+    setupDropzone(wordingDrop);
+
+    row.appendChild(term);
+    row.appendChild(meaningDrop);
+    row.appendChild(wordingDrop);
+    board.appendChild(row);
+  });
+  updateThemeSummary();
+}
+
+function shuffleTerminologyCards(){
+  const meaningBank = get('meaningBank');
+  const wordingBank = get('wordingBank');
+  if(!meaningBank || !wordingBank) return;
+  meaningBank.innerHTML = '';
+  wordingBank.innerHTML = '';
+  document.querySelectorAll('.dropzone').forEach(z=>{
+    z.innerHTML='';
+    z.classList.remove('filled','correct','incorrect');
+  });
+  const items = currentThemeItems();
+  shuffleArray(items).forEach(item=>meaningBank.appendChild(createMatchCard(item,'meaning')));
+  shuffleArray(items).forEach(item=>wordingBank.appendChild(createMatchCard(item,'wording')));
+  const feedback = get('matchFeedback');
+  if(feedback){
+    feedback.className='match-feedback';
+    feedback.innerHTML=`Theme loaded: <b>${items.length} terms</b>. Match the cards, then press <b>Check this theme</b>.`;
+  }
+}
+
+function clearTerminologyBoard(){
+  document.querySelectorAll('.dropzone .match-card').forEach(card=>{
+    const bank = card.dataset.type === 'meaning' ? get('meaningBank') : get('wordingBank');
+    bank.appendChild(card);
+  });
+  document.querySelectorAll('.dropzone').forEach(z=>z.classList.remove('filled','correct','incorrect'));
+  const feedback = get('matchFeedback');
+  if(feedback){
+    feedback.className='match-feedback';
+    feedback.innerHTML='This theme has been cleared. Try again.';
+  }
+}
+
+function checkTerminologyMatches(){
+  const total = currentThemeItems().length * 2;
+  let correct = 0;
+  document.querySelectorAll('.dropzone').forEach(zone=>{
+    zone.classList.remove('correct','incorrect');
+    const card = zone.firstElementChild;
+    if(card && card.dataset.id === zone.dataset.id){
+      zone.classList.add('correct');
+      correct++;
+    } else if(card){
+      zone.classList.add('incorrect');
+    }
+  });
+  const feedback = get('matchFeedback');
+  if(feedback){
+    const placed = document.querySelectorAll('.dropzone .match-card').length;
+    const missing = total - placed;
+    const theme = terminologyThemes.find(t=>t.id === currentTerminologyTheme);
+    if(correct === total){
+      feedback.className='match-feedback good';
+      feedback.textContent = `Excellent: ${correct}/${total} cards are correctly matched for ${theme.title}.`;
+    } else if(correct > total/2){
+      feedback.className='match-feedback mixed';
+      feedback.textContent = `${correct}/${total} correct in this theme. ${missing ? missing + ' card(s) still missing. ' : ''}Check the red boxes and try again.`;
+    } else {
+      feedback.className='match-feedback bad';
+      feedback.textContent = `${correct}/${total} correct in this theme. ${missing ? missing + ' card(s) still missing. ' : ''}Keep matching the term, meaning and exam wording.`;
+    }
+  }
+}
+
+function revealTerminologyAnswers(){
+  currentThemeItems().forEach(item=>{
+    ['meaning','wording'].forEach(type=>{
+      const zone = document.querySelector(`.dropzone[data-id="${item.id}"][data-type="${type}"]`);
+      if(!zone) return;
+      let card = document.querySelector(`.match-card[data-id="${item.id}"][data-type="${type}"]`);
+      if(!card) card = createMatchCard(item, type);
+      if(zone.firstElementChild && zone.firstElementChild !== card){
+        const existing = zone.firstElementChild;
+        const bank = existing.dataset.type === 'meaning' ? get('meaningBank') : get('wordingBank');
+        bank.appendChild(existing);
+      }
+      zone.appendChild(card);
+      zone.classList.add('filled','correct');
+      zone.classList.remove('incorrect');
+    });
+  });
+  const feedback = get('matchFeedback');
+  if(feedback){
+    const theme = terminologyThemes.find(t=>t.id === currentTerminologyTheme);
+    feedback.className='match-feedback good';
+    feedback.textContent=`Answers revealed for ${theme.title}. Use this as a self-check or revision table.`;
+  }
+}
+
+function updateDerivationProgress(derivationId){
+  const lab = document.querySelector(`.derivation-lab[data-derivation="${derivationId}"]`);
+  if(!lab) return;
+  const steps = lab.querySelectorAll('.derivation-step');
+  const visible = lab.querySelectorAll('.derivation-step.visible').length;
+  const bar = lab.querySelector('.derivation-progress span');
+  if(bar){
+    bar.style.width = steps.length ? `${Math.round((visible/steps.length)*100)}%` : '0%';
+  }
+}
+
+function showNextDerivationStep(derivationId){
+  const lab = document.querySelector(`.derivation-lab[data-derivation="${derivationId}"]`);
+  if(!lab) return;
+  const steps = [...lab.querySelectorAll('.derivation-step')];
+  const next = steps.find(step => !step.classList.contains('visible'));
+  if(next){
+    next.classList.add('visible');
+    next.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  updateDerivationProgress(derivationId);
+}
+
+function resetDerivation(derivationId){
+  const lab = document.querySelector(`.derivation-lab[data-derivation="${derivationId}"]`);
+  if(!lab) return;
+  lab.querySelectorAll('.derivation-step').forEach(step=>step.classList.remove('visible'));
+  updateDerivationProgress(derivationId);
+}
+
+function initialiseDerivations(){
+  document.querySelectorAll('.derivation-lab').forEach(lab=>{
+    const id = lab.dataset.derivation;
+    resetDerivation(id);
+  });
+}
+
+
+['discP','discR','discY'].forEach(id=>get(id).addEventListener('input',updateDiscover));
+['cmpPV','cmpRate','cmpYears'].forEach(id=>get(id).addEventListener('input',updateCompound));
+['realPV','realC','realI','realY'].forEach(id=>get(id).addEventListener('input',updateReal));
+['loanPV','loanPMT','loanRate','loanYears'].forEach(id=>get(id).addEventListener('input',updateLoan));
+
+initialiseDerivations();
+renderThemeSelector();
+buildTerminologyBoard();
+shuffleTerminologyCards();
+updateCompoundButtonGroups();
+updateLoanButtonGroups();
+updateDiscover();
+updateCompound();
+updateReal();
+updateLoan();
+</script>
+</body>
+</html>
