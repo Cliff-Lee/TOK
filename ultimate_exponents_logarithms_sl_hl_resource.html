@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IB AI Exponents & Logarithms — SL/HL Interactive Resource</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --paper:#ffffff;
+      --ink:#172033;
+      --muted:#657089;
+      --line:#dfe6f1;
+      --sl:#1778c8;
+      --sl-soft:#e8f4ff;
+      --sl-dark:#0b4778;
+      --hl:#8d3ed1;
+      --hl-soft:#f4eaff;
+      --hl-dark:#55217f;
+      --both:#0d9488;
+      --both-soft:#e9fbf8;
+      --warn:#f59e0b;
+      --bad:#e11d48;
+      --good:#10b981;
+      --shadow:0 10px 30px rgba(19,33,66,.08);
+      --radius:22px;
+      --mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(23,120,200,.14), transparent 35vw),
+        radial-gradient(circle at top right, rgba(141,62,209,.16), transparent 32vw),
+        linear-gradient(180deg,#fbfdff 0%,var(--bg) 420px,var(--bg) 100%);
+      line-height:1.55;
+    }
+    a{color:inherit}
+    .skip{position:absolute;left:-999px;top:0;background:#fff;padding:12px;border:2px solid var(--ink);z-index:9999}
+    .skip:focus{left:12px;top:12px}
+    .app-shell{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}
+    aside{
+      position:sticky;top:0;height:100vh;overflow:auto;padding:22px 18px;background:rgba(255,255,255,.78);backdrop-filter:blur(16px);border-right:1px solid var(--line);z-index:30
+    }
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+    .logo{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--sl),var(--hl));color:#fff;display:grid;place-items:center;font-weight:900;box-shadow:var(--shadow)}
+    .brand h1{font-size:1.04rem;line-height:1.08;margin:0}
+    .brand small{display:block;color:var(--muted);font-weight:600;margin-top:4px}
+    .mode-card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow);margin-bottom:16px}
+    .mode-card h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 9px}
+    .mode-buttons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+    button,.button{
+      border:0;border-radius:14px;background:#eef3fb;color:var(--ink);padding:10px 12px;font-weight:800;cursor:pointer;transition:.18s transform,.18s background,.18s box-shadow;display:inline-flex;gap:8px;align-items:center;justify-content:center;text-decoration:none
+    }
+    button:hover,.button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(18,31,55,.12)}
+    button:focus-visible,.button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(23,120,200,.35);outline-offset:2px}
+    .btn-sl{background:var(--sl-soft);color:var(--sl-dark)}
+    .btn-hl{background:var(--hl-soft);color:var(--hl-dark)}
+    .btn-both{background:var(--both-soft);color:#065f56}
+    .mode-buttons button.active{color:#fff;box-shadow:0 8px 18px rgba(18,31,55,.18)}
+    .mode-buttons .all.active{background:var(--both)}
+    .mode-buttons .sl.active{background:var(--sl)}
+    .mode-buttons .hl.active{background:var(--hl)}
+    nav{display:grid;gap:5px;margin-top:12px}
+    nav a{padding:9px 10px;border-radius:13px;text-decoration:none;color:#334155;font-weight:700;font-size:.93rem;display:flex;align-items:center;gap:8px}
+    nav a:hover{background:#edf4ff;color:#0f172a}
+    .legend{display:grid;gap:8px;margin-top:16px;font-size:.86rem;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:7px;border-radius:99px;padding:5px 9px;font-size:.75rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+    .pill.sl{background:var(--sl-soft);color:var(--sl-dark)}
+    .pill.hl{background:var(--hl-soft);color:var(--hl-dark)}
+    .pill.both{background:var(--both-soft);color:#075e54}
+    .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:currentColor}
+    main{padding:28px clamp(16px,3.4vw,56px) 80px;max-width:1500px;width:100%;margin:0 auto}
+    .hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:24px;align-items:stretch;margin-bottom:24px}
+    .hero-card{background:rgba(255,255,255,.84);border:1px solid rgba(223,230,241,.85);border-radius:30px;box-shadow:var(--shadow);padding:clamp(22px,3vw,38px);position:relative;overflow:hidden}
+    .hero-card::after{content:"";position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:50%;background:linear-gradient(135deg,rgba(23,120,200,.17),rgba(141,62,209,.17));z-index:0}
+    .hero-card>*{position:relative;z-index:1}
+    .eyebrow{font-weight:950;color:#0f766e;text-transform:uppercase;letter-spacing:.16em;font-size:.78rem;margin-bottom:10px}
+    h1.hero-title{font-size:clamp(2.2rem,5vw,5.1rem);line-height:.94;letter-spacing:-.06em;margin:0 0 18px}
+    .hero-title span{background:linear-gradient(120deg,var(--sl),var(--hl));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:1.12rem;color:#3c465c;max-width:76ch;margin:0 0 18px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .button.primary{background:linear-gradient(135deg,var(--sl),var(--hl));color:#fff;padding:12px 16px}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px}
+    .stat strong{display:block;font-size:1.25rem}.stat span{font-size:.82rem;color:var(--muted);font-weight:700}
+    .visual-board{background:#0f172a;border-radius:30px;box-shadow:var(--shadow);padding:18px;color:#fff;position:relative;overflow:hidden;min-height:450px}
+    .visual-board h2{margin:8px 0 4px;font-size:1.2rem}.visual-board p{color:#cbd5e1;margin:0 0 12px}
+    .mini-scene{border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:12px;margin-top:10px;display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:center}
+    .mini-scene svg{width:88px;height:76px}.mini-scene strong{display:block}.mini-scene small{color:#cbd5e1;display:block;margin-top:3px}
+    section{margin:26px 0}.section-card{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(18px,2.5vw,30px)}
+    .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .section-head h2{font-size:clamp(1.55rem,3vw,2.4rem);line-height:1;margin:0;letter-spacing:-.04em}.section-head p{margin:8px 0 0;color:var(--muted);max-width:76ch}
+    .grid{display:grid;gap:16px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .tile{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;position:relative;overflow:hidden}.tile h3{margin:0 0 8px;font-size:1.07rem}.tile p{margin:0 0 10px;color:#4b5568}.tile ul{margin:.4rem 0 0 1.1rem;padding:0;color:#4b5568}.tile li{margin:.22rem 0}.tile.sl{border-top:5px solid var(--sl)}.tile.hl{border-top:5px solid var(--hl)}.tile.both{border-top:5px solid var(--both)}
+    .callout{border-radius:18px;padding:14px 16px;margin:12px 0;border:1px solid}.callout.sl{background:var(--sl-soft);border-color:#bee3ff}.callout.hl{background:var(--hl-soft);border-color:#dfc5ff}.callout.both{background:var(--both-soft);border-color:#b7eee5}.callout.warn{background:#fff7ed;border-color:#fed7aa}
+    .formula{font-family:Georgia,serif;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:15px;padding:12px;margin:10px 0;overflow:auto}.formula.center{text-align:center;font-size:1.12rem}
+    .interactive{background:#fbfdff;border:1px solid #dbe7f4;border-radius:22px;padding:16px;margin-top:12px}.interactive h3{margin-top:0}.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}.control{display:grid;gap:5px}.control label{font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    input[type="range"]{accent-color:var(--sl);width:160px}select,input[type="number"],input[type="text"]{border:1px solid #cbd5e1;border-radius:12px;padding:9px 10px;background:#fff;font:inherit;font-weight:700;min-width:78px}.output{background:#0f172a;color:#e5e7eb;border-radius:18px;padding:14px;margin-top:12px;overflow:auto}.output code{font-family:var(--mono);color:#b9fbc0}.output .math{font-size:1.08rem}.feedback{font-weight:900;margin-top:10px}.good{color:var(--good)}.bad{color:var(--bad)}.muted{color:var(--muted)}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.tab{padding:10px 13px;border-radius:999px;background:#eef2f7;color:#334155}.tab.active{background:#111827;color:#fff}.tab-panel{display:none}.tab-panel.active{display:block}
+    .ladder{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:12px}.ladder-step{background:#fff;border:1px solid var(--line);border-radius:15px;padding:9px;text-align:center}.ladder-step strong{display:block;color:var(--sl-dark)}.ladder-step small{display:block;color:var(--muted)}
+    .card-stack{display:grid;gap:10px}.step-card{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px}.step-number{width:42px;height:42px;border-radius:14px;background:#edf2ff;color:#1e3a8a;display:grid;place-items:center;font-weight:950}.step-card.hl .step-number{background:var(--hl-soft);color:var(--hl-dark)}.step-card.sl .step-number{background:var(--sl-soft);color:var(--sl-dark)}.step-card h4{margin:0 0 4px}.step-card p{margin:0;color:#4b5568}
+    .question-box{border:2px solid #dbe7f4;border-radius:22px;background:#fff;padding:18px;margin-top:12px}.question-box h3{margin-top:0}.answer-area{display:none;margin-top:12px;background:#f8fafc;border-radius:18px;border:1px solid var(--line);padding:14px}.answer-area.show{display:block}.markscheme{display:grid;gap:10px}.mark{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;align-items:start}.mark b{background:#e0f2fe;color:#075985;padding:4px 8px;border-radius:999px;text-align:center}.mark.hl b{background:var(--hl-soft);color:var(--hl-dark)}
+    .checklist{display:grid;gap:9px}.check-row{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px}.check-row input{margin-top:5px}.check-row label{cursor:pointer}.result-chip{display:inline-flex;border-radius:999px;padding:5px 10px;font-weight:900;margin-top:8px}
+    .teacher-notes{background:#fffbeb;border:1px solid #fde68a;border-radius:18px;padding:14px}.teacher-notes summary{font-weight:950;cursor:pointer}.teacher-notes p,.teacher-notes li{color:#4b5568}.hidden-by-mode{display:none!important}.print-only{display:none}
+    .sticky-quick{position:fixed;right:16px;bottom:16px;z-index:50;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.sticky-quick button{box-shadow:var(--shadow)}
+    .svg-panel{width:100%;height:auto;border-radius:18px;background:#f8fafc;border:1px solid var(--line)}
+    .tiny{font-size:.84rem;color:var(--muted)}
+    .kbd{font-family:var(--mono);font-weight:800;background:#f1f5f9;border:1px solid #cbd5e1;border-bottom-width:3px;border-radius:8px;padding:1px 6px;color:#334155}
+    footer{padding:26px 0;color:var(--muted);font-size:.9rem;text-align:center}
+    @media(max-width:1050px){.app-shell{grid-template-columns:1fr}aside{position:relative;height:auto}.hero{grid-template-columns:1fr}.grid.two,.grid.three,.grid.four{grid-template-columns:1fr}.ladder{grid-template-columns:repeat(2,1fr)}}
+    @media print{body{background:#fff}.app-shell{display:block}aside,.sticky-quick,.hero-actions,.tabs button,.mode-card{display:none!important}main{padding:0}.section-card,.hero-card,.tile{box-shadow:none;border-color:#bbb;break-inside:avoid}.tab-panel{display:block!important}.print-only{display:block}.visual-board{color:#111;background:#fff;border:1px solid #ccc}.mini-scene{border-color:#ccc}.mini-scene small,.visual-board p{color:#555}}
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="app-shell">
+  <aside aria-label="Navigation and settings">
+    <div class="brand">
+      <div class="logo">a<sup>x</sup></div>
+      <div>
+        <h1>Exponents & Logs Lab</h1>
+        <small>IB AI SL 1.5 + AHL 1.10</small>
+      </div>
+    </div>
+    <div class="mode-card">
+      <h2>View mode</h2>
+      <div class="mode-buttons" role="group" aria-label="Choose content mode">
+        <button class="all active" data-mode="all">All</button>
+        <button class="sl" data-mode="sl">SL</button>
+        <button class="hl" data-mode="hl">HL</button>
+      </div>
+      <div class="legend">
+        <span><span class="pill sl"><span class="dot"></span>SL</span> integer exponents, logs, technology</span>
+        <span><span class="pill hl"><span class="dot"></span>HL</span> rational exponents extension</span>
+        <span><span class="pill both"><span class="dot"></span>Both</span> foundation or mixed-class task</span>
+      </div>
+    </div>
+    <nav>
+      <a href="#overview">⚡ Overview</a>
+      <a href="#explore">🧪 Explore first</a>
+      <a href="#laws">🔧 Exponent laws</a>
+      <a href="#standard-form">🌌 Standard form</a>
+      <a href="#logs">📉 Logarithms</a>
+      <a href="#tinspire">🧮 TI-Nspire</a>
+      <a href="#hl-extension">🚀 HL rational exponents</a>
+      <a href="#practice">🎲 Exam-style generator</a>
+      <a href="#misconceptions">🧠 Misconceptions</a>
+      <a href="#summary">✅ Summary</a>
+    </nav>
+  </aside>
+
+  <main id="main">
+    <header class="hero" id="overview">
+      <div class="hero-card">
+        <div class="eyebrow">Explore → discover → explain → practise</div>
+        <h1 class="hero-title">The Ultimate <span>Exponents & Logs</span> Resource</h1>
+        <p class="lead">A complete interactive lesson sequence for IB Mathematics: Applications and Interpretation. It is colour-coded so SL students know the core pathway, while HL students can extend into rational exponents and deeper proof.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#explore">Start the lab</a>
+          <a class="button btn-sl" href="#logs">Jump to logs</a>
+          <a class="button btn-hl" href="#hl-extension">HL extension</a>
+          <button onclick="window.print()">Print / PDF</button>
+        </div>
+        <div class="stats-grid" aria-label="Resource structure">
+          <div class="stat"><strong>SL 1.5</strong><span>Integer laws + logs</span></div>
+          <div class="stat"><strong>AHL 1.10</strong><span>Rational exponents</span></div>
+          <div class="stat"><strong>∞</strong><span>Random practice</span></div>
+        </div>
+        <details class="teacher-notes" style="margin-top:16px">
+          <summary>Teacher design note</summary>
+          <p>This resource combines a discovery approach, concise rule summaries, real-world contexts, technology instructions, guided proof, and exam-style practice. It can be used as a full lesson, a self-study lab, or a revision page.</p>
+        </details>
+      </div>
+      <div class="visual-board" aria-label="Context cards">
+        <h2>Why do these ideas matter?</h2>
+        <p>Exponents compress repeated change. Logarithms undo exponential change.</p>
+        <div class="mini-scene">
+          <svg viewBox="0 0 100 80" aria-hidden="true"><rect x="2" y="2" width="96" height="76" rx="16" fill="#0ea5e9" opacity=".2"/><circle cx="22" cy="50" r="8" fill="#38bdf8"/><circle cx="42" cy="42" r="6" fill="#7dd3fc"/><circle cx="66" cy="32" r="4" fill="#bae6fd"/><path d="M12 62 C35 18, 65 16, 89 13" stroke="#fff" stroke-width="4" fill="none"/></svg>
+          <div><strong>Growth models</strong><small>Population, compound interest, radioactive decay, epidemics.</small></div>
+        </div>
+        <div class="mini-scene">
+          <svg viewBox="0 0 100 80" aria-hidden="true"><rect x="2" y="2" width="96" height="76" rx="16" fill="#f97316" opacity=".25"/><path d="M11 54 Q28 22 45 54 T79 54" fill="none" stroke="#fed7aa" stroke-width="6"/><circle cx="52" cy="50" r="14" fill="#fdba74"/><path d="M50 10 L58 50 L23 42 Z" fill="#fff7ed" opacity=".9"/></svg>
+          <div><strong>Scales of intensity</strong><small>Sound level, earthquakes, pH and huge/small quantities.</small></div>
+        </div>
+        <div class="mini-scene">
+          <svg viewBox="0 0 100 80" aria-hidden="true"><rect x="2" y="2" width="96" height="76" rx="16" fill="#8b5cf6" opacity=".22"/><rect x="25" y="16" width="42" height="42" rx="6" fill="none" stroke="#ddd6fe" stroke-width="5"/><path d="M67 16 L82 28 L82 70 L40 70 L25 58" fill="none" stroke="#c4b5fd" stroke-width="5"/><path d="M25 16 L40 28 L82 28" fill="none" stroke="#ede9fe" stroke-width="4"/></svg>
+          <div><strong>HL roots as powers</strong><small>Lengths from areas and volumes; algebraic simplification.</small></div>
+        </div>
+      </div>
+    </header>
+
+    <section id="syllabus">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>Syllabus map</h2>
+            <p>The colour coding is deliberately simple: blue means SL core, purple means HL extension, and teal means useful for both groups.</p>
+          </div>
+        </div>
+        <div class="grid three">
+          <div class="tile sl" data-level="sl">
+            <span class="pill sl">SL 1.5</span>
+            <h3>Laws of exponents with integer exponents</h3>
+            <p>Use, explain, and simplify expressions involving positive, zero, and negative integer exponents.</p>
+            <div class="formula">\[a^m a^n=a^{m+n},\quad \frac{a^m}{a^n}=a^{m-n},\quad (a^m)^n=a^{mn}\]</div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <span class="pill sl">SL 1.5</span>
+            <h3>Introduction to logarithms</h3>
+            <p>Understand logs as the inverse question for exponentials, especially base 10 and base \(e\).</p>
+            <div class="formula">\[a^x=b \iff \log_a(b)=x,\qquad \log_e x=\ln x\]</div>
+          </div>
+          <div class="tile hl" data-level="hl">
+            <span class="pill hl">AHL 1.10</span>
+            <h3>Rational exponents</h3>
+            <p>Simplify numerical and algebraic expressions involving fractional and negative fractional exponents.</p>
+            <div class="formula">\[a^{1/n}=\sqrt[n]{a},\quad a^{m/n}=\sqrt[n]{a^m}=(\sqrt[n]{a})^m\]</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="explore">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>1. Explore first: where powers appear</h2>
+            <p>Students begin with situations, not rules. The aim is to make powers feel like a compact language for repeated multiplication, scaling, and repeated percentage change.</p>
+          </div>
+          <span class="pill both">Both</span>
+        </div>
+        <div class="grid four">
+          <div class="tile both">
+            <svg class="svg-panel" viewBox="0 0 260 150" aria-hidden="true"><rect width="260" height="150" rx="18" fill="#ecfeff"/><path d="M26 122 C52 92, 72 42, 124 54 S198 92, 232 26" stroke="#0891b2" stroke-width="8" fill="none"/><circle cx="28" cy="122" r="8" fill="#06b6d4"/><circle cx="75" cy="62" r="8" fill="#06b6d4"/><circle cx="128" cy="55" r="8" fill="#06b6d4"/><circle cx="210" cy="55" r="8" fill="#06b6d4"/></svg>
+            <h3>Repeated growth</h3>
+            <p>“A quantity increases by 5% each year. Why does \(400(1.05)^n\) make sense?”</p>
+          </div>
+          <div class="tile both">
+            <svg class="svg-panel" viewBox="0 0 260 150" aria-hidden="true"><rect width="260" height="150" rx="18" fill="#fff7ed"/><circle cx="71" cy="75" r="44" fill="#fed7aa"/><circle cx="71" cy="75" r="18" fill="#fb923c"/><path d="M134 33 q50 42 0 84" stroke="#f97316" stroke-width="7" fill="none"/><path d="M162 20 q72 55 0 110" stroke="#ea580c" stroke-width="7" fill="none"/></svg>
+            <h3>Sound level</h3>
+            <p>“Why can a sound-scale jump feel huge even when the number only rises by 10?”</p>
+          </div>
+          <div class="tile both">
+            <svg class="svg-panel" viewBox="0 0 260 150" aria-hidden="true"><rect width="260" height="150" rx="18" fill="#f0fdf4"/><path d="M35 125 L70 35 L105 125 Z" fill="#bbf7d0" stroke="#16a34a" stroke-width="5"/><path d="M115 125 L150 35 L185 125 Z" fill="#dcfce7" stroke="#22c55e" stroke-width="5"/><path d="M195 125 L225 65 L245 125 Z" fill="#bbf7d0" stroke="#16a34a" stroke-width="5"/></svg>
+            <h3>Scientific notation</h3>
+            <p>“How can we compare atoms, oceans, planets, and viruses without writing endless zeros?”</p>
+          </div>
+          <div class="tile hl" data-level="hl">
+            <svg class="svg-panel" viewBox="0 0 260 150" aria-hidden="true"><rect width="260" height="150" rx="18" fill="#faf5ff"/><rect x="50" y="42" width="68" height="68" rx="8" fill="#e9d5ff" stroke="#9333ea" stroke-width="5"/><path d="M118 42 L156 66 L156 134 L88 134 L50 110" fill="none" stroke="#a855f7" stroke-width="5"/><path d="M50 42 L88 66 L156 66" fill="none" stroke="#c084fc" stroke-width="5"/><text x="176" y="62" fill="#6b21a8" font-size="22" font-weight="900">V=s³</text><text x="176" y="96" fill="#6b21a8" font-size="22" font-weight="900">s=V^(1/3)</text></svg>
+            <h3>Roots as powers</h3>
+            <p>“If volume is \(s^3\), why is side length \(V^{1/3}\)?”</p>
+          </div>
+        </div>
+        <div class="interactive">
+          <h3>Opening prompt generator</h3>
+          <p>Use this to start discussion before formal teaching.</p>
+          <div class="controls">
+            <button onclick="newPrompt()">Generate a prompt</button>
+            <button onclick="revealPromptHint()">Reveal teacher hint</button>
+          </div>
+          <div class="output">
+            <div id="promptText" class="math">Click generate.</div>
+            <div id="promptHint" class="tiny" style="display:none;margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="laws">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>2. Discover and formalise the exponent laws</h2>
+            <p>Move from expanded multiplication to general rules. The examples use letters only after the pattern is clear with numbers.</p>
+          </div>
+          <span class="pill sl">SL</span>
+        </div>
+        <div class="grid two">
+          <div class="tile sl" data-level="sl">
+            <h3>Interactive law builder</h3>
+            <p>Choose a base and two exponents. The expansion shows why the rule works.</p>
+            <div class="interactive">
+              <div class="controls">
+                <div class="control"><label>base \(a\)</label><input id="lawBase" type="number" value="2" min="2" max="9" oninput="updateLawBuilder()"></div>
+                <div class="control"><label>m</label><input id="lawM" type="number" value="3" min="0" max="7" oninput="updateLawBuilder()"></div>
+                <div class="control"><label>n</label><input id="lawN" type="number" value="2" min="0" max="7" oninput="updateLawBuilder()"></div>
+                <select id="lawType" onchange="updateLawBuilder()">
+                  <option value="multiply">multiply \(a^m a^n\)</option>
+                  <option value="divide">divide \(a^m/a^n\)</option>
+                  <option value="power">power \((a^m)^n\)</option>
+                </select>
+              </div>
+              <div id="lawOutput" class="output math"></div>
+            </div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <h3>Key rules students need</h3>
+            <div class="formula center">\[a^m a^n=a^{m+n}\]</div>
+            <div class="formula center">\[\frac{a^m}{a^n}=a^{m-n}\quad (a\ne0)\]</div>
+            <div class="formula center">\[(a^m)^n=a^{mn}\]</div>
+            <div class="formula center">\[(ab)^n=a^n b^n,\qquad \left(\frac{a}{b}\right)^n=\frac{a^n}{b^n}\]</div>
+            <div class="callout warn"><strong>Important:</strong> These are not “magic laws”. They are shortcuts for repeated multiplication. When stuck, expand a small example.</div>
+          </div>
+        </div>
+
+        <div class="grid two" style="margin-top:16px">
+          <div class="tile sl" data-level="sl">
+            <h3>Zero and negative exponents as a ladder</h3>
+            <p>Each step down divides by the base. That is why negative powers become fractions.</p>
+            <div class="interactive">
+              <div class="controls">
+                <div class="control"><label>base</label><input id="ladderBase" type="number" value="2" min="2" max="9" oninput="updateLadder()"></div>
+              </div>
+              <div id="ladderOutput" class="ladder"></div>
+            </div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <h3>Algebra example: guide students, do not just tell them</h3>
+            <div class="card-stack">
+              <div class="step-card sl"><div class="step-number">1</div><div><h4>Separate coefficients and variables</h4><p>\(2x^3\cdot 7x^4=(2\cdot7)(x^3\cdot x^4)\)</p></div></div>
+              <div class="step-card sl"><div class="step-number">2</div><div><h4>Use the product law</h4><p>\(x^3x^4=x^{3+4}=x^7\)</p></div></div>
+              <div class="step-card sl"><div class="step-number">3</div><div><h4>Write the simplified expression</h4><p>\(2x^3\cdot 7x^4=14x^7\)</p></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="standard-form">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>3. Standard form: powers of 10 as a language for scale</h2>
+            <p>This section links exponent laws to very large and very small quantities. It works well before logarithms because students see why base 10 is special.</p>
+          </div>
+          <span class="pill sl">SL</span>
+        </div>
+        <div class="grid two">
+          <div class="tile sl" data-level="sl">
+            <h3>Convert a number into standard form</h3>
+            <div class="interactive">
+              <div class="controls">
+                <div class="control"><label>Number</label><input id="stdInput" type="text" value="0.0000567" oninput="updateStandardForm()"></div>
+              </div>
+              <div id="stdOutput" class="output math"></div>
+            </div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <h3>Why it matters</h3>
+            <ul>
+              <li><strong>Comparison:</strong> compare exponents first, then coefficients.</li>
+              <li><strong>Calculation:</strong> multiply coefficients and add powers of 10.</li>
+              <li><strong>Modelling:</strong> represent atoms, planets, money, bacteria, distances, and tiny probabilities.</li>
+            </ul>
+            <div class="formula">\[(3.2\times10^5)(4\times10^3)=12.8\times10^8=1.28\times10^9\]</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="logs">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>4. Logarithms: the inverse question</h2>
+            <p>A logarithm asks: “What exponent do I need?” This is the conceptual bridge from exponent laws to solving exponential equations.</p>
+          </div>
+          <span class="pill sl">SL</span>
+        </div>
+        <div class="grid two">
+          <div class="tile sl" data-level="sl">
+            <h3>The exponential/log machine</h3>
+            <div class="interactive">
+              <div class="controls">
+                <div class="control"><label>base \(a\)</label><input id="logBase" type="number" value="10" min="2" max="12" oninput="updateLogMachine()"></div>
+                <div class="control"><label>exponent \(x\)</label><input id="logX" type="range" value="3" min="-3" max="5" step="0.5" oninput="updateLogMachine()"></div>
+                <strong id="logXLabel"></strong>
+              </div>
+              <div id="logOutput" class="output math"></div>
+            </div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <h3>Three meanings students should connect</h3>
+            <div class="card-stack">
+              <div class="step-card sl"><div class="step-number">1</div><div><h4>Exponential form</h4><p>\(10^3=1000\)</p></div></div>
+              <div class="step-card sl"><div class="step-number">2</div><div><h4>Logarithmic form</h4><p>\(\log_{10}(1000)=3\)</p></div></div>
+              <div class="step-card sl"><div class="step-number">3</div><div><h4>Sentence form</h4><p>“The power of 10 needed to make 1000 is 3.”</p></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid three" style="margin-top:16px">
+          <div class="tile sl" data-level="sl">
+            <h3>Base 10: common logs</h3>
+            <p>Useful when quantities are measured in powers of 10.</p>
+            <div class="formula">\[\log(1000)=3\]</div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <h3>Base \(e\): natural logs</h3>
+            <p>Useful for continuous growth and decay.</p>
+            <div class="formula">\[\log_e(x)=\ln(x)\]</div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <h3>Contexts</h3>
+            <p>Decibels, Richter scale, pH, compound growth, cooling, and half-life all make logarithms feel necessary rather than arbitrary.</p>
+          </div>
+        </div>
+        <div class="interactive" data-level="sl">
+          <h3>Mini context: pH, sound, and earthquakes</h3>
+          <div class="tabs">
+            <button class="tab active" data-tab="ph">pH</button>
+            <button class="tab" data-tab="sound">Sound</button>
+            <button class="tab" data-tab="earthquake">Earthquake</button>
+          </div>
+          <div class="tab-panel active" id="tab-ph">
+            <p>pH uses \(-\log_{10}\) of hydrogen ion concentration. A pH decrease of 1 means the concentration is multiplied by 10.</p>
+            <div class="formula">\[\text{pH}=-\log_{10}[H^+]\]</div>
+          </div>
+          <div class="tab-panel" id="tab-sound">
+            <p>Sound level compares intensity to a reference intensity using a logarithm. A ratio becomes an additive scale.</p>
+            <div class="formula">\[\beta=10\log_{10}\left(\frac{I}{I_0}\right)\]</div>
+          </div>
+          <div class="tab-panel" id="tab-earthquake">
+            <p>Earthquake magnitude is logarithmic. A difference of 1 in magnitude represents a much larger physical intensity.</p>
+            <div class="formula">\[\text{larger log value} \Rightarrow \text{many times larger shaking}\]</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tinspire">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>5. TI-Nspire calculator support</h2>
+            <p>The calculator should not replace understanding. Students first predict the structure of the answer, then use technology to evaluate or check.</p>
+          </div>
+          <span class="pill sl">SL technology</span>
+        </div>
+        <div class="grid two">
+          <div class="tile sl" data-level="sl">
+            <h3>Calculator page: powers and roots</h3>
+            <div class="card-stack">
+              <div class="step-card sl"><div class="step-number">1</div><div><h4>Open a Calculator page</h4><p>Press <span class="kbd">Home</span> → Calculator.</p></div></div>
+              <div class="step-card sl"><div class="step-number">2</div><div><h4>Enter powers</h4><p>Use the exponent key/template, for example <span class="kbd">2^(-4)</span>. Use brackets around negative exponents.</p></div></div>
+              <div class="step-card sl"><div class="step-number">3</div><div><h4>Check exact or decimal form</h4><p>Use fraction/decimal conversion if needed. For SL, the structure of the simplification is often more important than the decimal.</p></div></div>
+            </div>
+          </div>
+          <div class="tile sl" data-level="sl">
+            <h3>Logs on TI-Nspire</h3>
+            <div class="card-stack">
+              <div class="step-card sl"><div class="step-number">1</div><div><h4>Base 10</h4><p>Use <span class="kbd">log(1000)</span> to calculate \(\log_{10}(1000)\).</p></div></div>
+              <div class="step-card sl"><div class="step-number">2</div><div><h4>Natural log</h4><p>Use <span class="kbd">ln(...)</span> for base \(e\), for example <span class="kbd">ln(e^2)</span>.</p></div></div>
+              <div class="step-card sl"><div class="step-number">3</div><div><h4>Other bases</h4><p>Use the log-base template if available, or use the change-of-base idea: \(\log_a b=\frac{\log b}{\log a}\).</p></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="callout both"><strong>Exam habit:</strong> Write one mathematical line before using the calculator. Example: \(10^x=7 \Rightarrow x=\log(7)\). Then evaluate.</div>
+      </div>
+    </section>
+
+    <section id="hl-extension" data-level="hl">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>6. HL extension: rational exponents</h2>
+            <p>HL students extend the exponent laws from integers to fractions. The important idea is that roots can be written as powers, so exponent laws still work.</p>
+          </div>
+          <span class="pill hl">AHL 1.10</span>
+        </div>
+        <div class="grid two">
+          <div class="tile hl">
+            <h3>Root-power explorer</h3>
+            <p>Compare “root first” and “power first”. For friendly numbers, both paths should agree.</p>
+            <div class="interactive">
+              <div class="controls">
+                <div class="control"><label>base \(a\)</label><select id="ratA" onchange="updateRationalExplorer()"><option>16</option><option>27</option><option>32</option><option>64</option><option>81</option><option>125</option><option>256</option></select></div>
+                <div class="control"><label>m</label><input id="ratM" type="number" value="3" min="1" max="6" oninput="updateRationalExplorer()"></div>
+                <div class="control"><label>n</label><input id="ratN" type="number" value="4" min="2" max="6" oninput="updateRationalExplorer()"></div>
+              </div>
+              <div id="ratOutput" class="output math"></div>
+            </div>
+          </div>
+          <div class="tile hl">
+            <h3>Guided proof: why \(a^{1/n}=\sqrt[n]{a}\)?</h3>
+            <div class="interactive">
+              <p>Reveal each clue and ask students to finish the next sentence.</p>
+              <div class="card-stack" id="proofSteps">
+                <div class="step-card hl"><div class="step-number">?</div><div><h4>Start</h4><p>What does \(\sqrt[n]{a}\) mean?</p></div></div>
+              </div>
+              <div class="controls"><button class="btn-hl" onclick="nextProofStep()">Reveal next clue</button><button onclick="resetProof()">Reset</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid three" style="margin-top:16px">
+          <div class="tile hl">
+            <h3>Positive fractional exponents</h3>
+            <div class="formula">\[32^{3/5}=(\sqrt[5]{32})^3=2^3=8\]</div>
+          </div>
+          <div class="tile hl">
+            <h3>Negative fractional exponents</h3>
+            <div class="formula">\[x^{-1/2}=\frac{1}{x^{1/2}}=\frac{1}{\sqrt{x}}\]</div>
+          </div>
+          <div class="tile hl">
+            <h3>Same-base simplification</h3>
+            <div class="formula">\[5^{1/2}\cdot5^{1/3}=5^{1/2+1/3}=5^{5/6}\]</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="practice">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>7. Exam-style question generator</h2>
+            <p>Generate unlimited SL or HL questions with worked solutions. Use it for starters, revision, independent practice, or exit tickets.</p>
+          </div>
+          <span class="pill both">SL + HL</span>
+        </div>
+        <div class="interactive">
+          <div class="controls">
+            <div class="control"><label>Level</label><select id="qLevel"><option value="sl">SL</option><option value="hl">HL</option><option value="mixed">Mixed</option></select></div>
+            <div class="control"><label>Question type</label><select id="qType"><option value="random">Random</option><option value="simplify">Simplify powers</option><option value="negative">Negative powers</option><option value="standard">Standard form</option><option value="logs">Logarithms</option><option value="rational">HL rational exponents</option></select></div>
+            <button class="primary button" onclick="generateQuestion()">Generate question</button>
+            <button onclick="toggleSolution()">Show / hide solution</button>
+          </div>
+          <div class="question-box">
+            <h3 id="questionBadge"><span class="pill sl">SL</span></h3>
+            <div id="questionText" class="math">Click generate question.</div>
+            <div id="answerArea" class="answer-area">
+              <h3>Worked solution</h3>
+              <div id="solutionText" class="math markscheme"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="misconceptions">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>8. Misconception checker</h2>
+            <p>Students often know the rules but apply them in the wrong situations. This section deliberately targets common errors.</p>
+          </div>
+          <span class="pill both">Both</span>
+        </div>
+        <div class="grid two">
+          <div class="tile both">
+            <h3>Which statements are always true?</h3>
+            <div class="checklist" id="misChecks">
+              <div class="check-row"><input type="checkbox" data-correct="true" id="m1"><label for="m1">\(a^m a^n=a^{m+n}\) for suitable non-zero bases.</label></div>
+              <div class="check-row"><input type="checkbox" data-correct="false" id="m2"><label for="m2">\(a^m+a^n=a^{m+n}\)</label></div>
+              <div class="check-row"><input type="checkbox" data-correct="true" id="m3"><label for="m3">\((a^m)^n=a^{mn}\)</label></div>
+              <div class="check-row"><input type="checkbox" data-correct="false" id="m4"><label for="m4">\((a+b)^n=a^n+b^n\)</label></div>
+              <div class="check-row" data-level="hl"><input type="checkbox" data-correct="true" id="m5"><label for="m5">\(a^{1/2}=\sqrt a\) for \(a\ge0\).</label></div>
+            </div>
+            <div class="controls"><button onclick="checkMisconceptions()">Check</button><button onclick="resetMisconceptions()">Reset</button></div>
+            <div id="misResult"></div>
+          </div>
+          <div class="tile both">
+            <h3>Error diagnosis routine</h3>
+            <ol>
+              <li><strong>Ask:</strong> Are we multiplying powers, dividing powers, raising a power, or adding terms?</li>
+              <li><strong>Check:</strong> Are the bases the same?</li>
+              <li><strong>Expand:</strong> Try a small example such as \(2^3\cdot2^2\).</li>
+              <li><strong>State:</strong> Which law was used?</li>
+              <li><strong>Verify:</strong> Calculator check only after the algebraic structure is clear.</li>
+            </ol>
+            <div class="callout warn"><strong>Powerful teacher move:</strong> Ask students to create a wrong solution and then explain why it is wrong.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="summary">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h2>9. One-page summary</h2>
+            <p>A compact reference for revision. Use the view-mode buttons to print SL only, HL only, or the full version.</p>
+          </div>
+          <span class="pill both">Revision</span>
+        </div>
+        <div class="grid two">
+          <div class="tile sl" data-level="sl">
+            <h3>SL must-know ideas</h3>
+            <ul>
+              <li>Exponent laws are shortcuts for repeated multiplication.</li>
+              <li>\(a^0=1\) for \(a\ne0\).</li>
+              <li>\(a^{-n}=\frac1{a^n}\).</li>
+              <li>Standard form writes numbers as \(a\times10^k\), where \(1\le a<10\).</li>
+              <li>\(a^x=b\) is equivalent to \(\log_a b=x\).</li>
+              <li>\(\log_e x=\ln x\).</li>
+            </ul>
+          </div>
+          <div class="tile hl" data-level="hl">
+            <h3>HL must-know ideas</h3>
+            <ul>
+              <li>\(a^{1/n}=\sqrt[n]{a}\).</li>
+              <li>\(a^{m/n}=\sqrt[n]{a^m}=(\sqrt[n]{a})^m\).</li>
+              <li>Negative fractional exponents combine roots and reciprocals.</li>
+              <li>Same-base laws still work with rational exponents.</li>
+              <li>Check domain restrictions when even roots are involved.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout both"><strong>Best learning sequence:</strong> Context → pattern → expanded multiplication → rule → algebraic fluency → calculator check → exam-style communication.</div>
+      </div>
+    </section>
+
+    <footer>Created as a standalone HTML resource. Works best in a modern browser with MathJax enabled.</footer>
+  </main>
+</div>
+
+<div class="sticky-quick" aria-label="Quick actions">
+  <button onclick="scrollTo({top:0,behavior:'smooth'})">↑ Top</button>
+  <button onclick="generateQuestion()">🎲 Question</button>
+</div>
+
+<script>
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  function renderMath(){ if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise().catch(()=>{}); } }
+  function fmt(n){
+    if(!isFinite(n)) return 'undefined';
+    if(Math.abs(n-Math.round(n))<1e-10) return String(Math.round(n));
+    if(Math.abs(n)>=10000 || (Math.abs(n)>0 && Math.abs(n)<0.001)) return n.toExponential(3);
+    return String(Math.round(n*100000)/100000);
+  }
+  function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1}
+  function sup(n){return `<sup>${n}</sup>`}
+  function powText(a,n){return `${a}${sup(n)}`}
+  function expandProduct(base,count){
+    if(count===0) return '1';
+    if(count>10) return `${base} × `.repeat(10) + '...';
+    return Array(count).fill(base).join(' × ');
+  }
+
+  // mode switching
+  $$('.mode-buttons button').forEach(btn=>btn.addEventListener('click',()=>{
+    const mode=btn.dataset.mode;
+    $$('.mode-buttons button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.body.dataset.mode=mode;
+    $$('[data-level]').forEach(el=>{
+      const level=el.dataset.level;
+      el.classList.toggle('hidden-by-mode', mode!=='all' && level!==mode && level!=='both');
+    });
+  }));
+
+  // tabs
+  document.addEventListener('click', e=>{
+    const t=e.target.closest('.tab');
+    if(!t) return;
+    const parent=t.closest('.interactive');
+    parent.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    t.classList.add('active');
+    parent.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    const panel=parent.querySelector('#tab-'+t.dataset.tab);
+    if(panel) panel.classList.add('active');
+    renderMath();
+  });
+
+  const prompts=[
+    {q:'A school YouTube channel doubles its subscribers every 3 weeks. What would the expression look like after n periods?', h:'Look for repeated multiplication by 2: initial × 2^n.'},
+    {q:'A sound is 1000 times as intense as another. How could a logarithm turn this into a smaller scale number?', h:'Ask: 10 to what power gives 1000?'},
+    {q:'A bacteria culture is multiplied by 1.2 every hour. Why is addition not the right model?', h:'Repeated percentage change is multiplicative: ×1.2 ×1.2 ×1.2.'},
+    {q:'If a cube has volume 64 cm³, what operation finds the side length? How could this be written as a power?', h:'Side length is the cube root: 64^(1/3). This is HL language.'},
+    {q:'Which is larger: the number of water molecules in a cup or the number of cups of water in a lake? How could standard form help?', h:'Students do not need exact values first. They need a way to compare powers of 10.'}
+  ];
+  let currentPrompt=0;
+  function newPrompt(){
+    currentPrompt=Math.floor(Math.random()*prompts.length);
+    $('#promptText').innerHTML=prompts[currentPrompt].q;
+    $('#promptHint').style.display='none';
+    $('#promptHint').innerHTML='';
+  }
+  function revealPromptHint(){
+    $('#promptHint').style.display='block';
+    $('#promptHint').innerHTML='Teacher hint: '+prompts[currentPrompt].h;
+  }
+
+  function updateLawBuilder(){
+    const a=Number($('#lawBase').value), m=Number($('#lawM').value), n=Number($('#lawN').value), type=$('#lawType').value;
+    let html='';
+    if(type==='multiply'){
+      html=`<div class="math">\\[${a}^${m}\\times ${a}^${n}=(${expandProduct(a,m)})\\times(${expandProduct(a,n)})=${a}^{${m+n}}\\]</div><p>Rule: keep the same base and add the exponents.</p>`;
+    }else if(type==='divide'){
+      const ansExp=m-n;
+      const result=ansExp>=0?`${a}^{${ansExp}}`:`\\frac{1}{${a}^{${-ansExp}}}`;
+      html=`<div class="math">\\[\\frac{${a}^${m}}{${a}^${n}}=${a}^{${m}-${n}}=${result}\\]</div><p>Rule: keep the same base and subtract the exponents. If the exponent is negative, write a reciprocal.</p>`;
+    }else{
+      html=`<div class="math">\\[(${a}^${m})^${n}=${a}^{${m}\\times ${n}}=${a}^{${m*n}}\\]</div><p>Rule: raising a power to a power multiplies the exponents.</p>`;
+    }
+    $('#lawOutput').innerHTML=html; renderMath();
+  }
+
+  function updateLadder(){
+    const a=Number($('#ladderBase').value);
+    const exps=[3,2,1,0,-1,-2,-3];
+    $('#ladderOutput').innerHTML=exps.map(e=>{
+      let val=e>=0?Math.pow(a,e):`1/${Math.pow(a,-e)}`;
+      return `<div class="ladder-step"><strong>${a}<sup>${e}</sup></strong><small>${val}</small></div>`;
+    }).join('');
+  }
+
+  function updateStandardForm(){
+    const raw=$('#stdInput').value.trim();
+    const x=Number(raw);
+    if(!isFinite(x) || x===0){ $('#stdOutput').innerHTML='Enter a non-zero number.'; return; }
+    const sign=x<0?-1:1;
+    const ax=Math.abs(x);
+    const k=Math.floor(Math.log10(ax));
+    const coeff=sign*ax/Math.pow(10,k);
+    $('#stdOutput').innerHTML=`\\[${raw}=${fmt(coeff)}\\times10^{${k}}\\]<p>The coefficient is between 1 and 10 in size, and the exponent records how far the decimal point moved.</p>`;
+    renderMath();
+  }
+
+  function updateLogMachine(){
+    const a=Number($('#logBase').value), x=Number($('#logX').value);
+    const b=Math.pow(a,x);
+    $('#logXLabel').textContent='x = '+x;
+    $('#logOutput').innerHTML=`<div class="math">\\[${a}^{${x}}=${fmt(b)}\\]</div><div class="math">\\[\\log_{${a}}(${fmt(b)})=${x}\\]</div><p>Same relationship, two languages. Exponential form makes the output. Log form asks for the exponent.</p>`;
+    renderMath();
+  }
+
+  function nthRoot(a,n){
+    const r=Math.pow(a,1/n);
+    const rr=Math.round(r);
+    if(Math.abs(Math.pow(rr,n)-a)<1e-8) return rr;
+    return r;
+  }
+  function updateRationalExplorer(){
+    const a=Number($('#ratA').value), m=Number($('#ratM').value), n=Number($('#ratN').value);
+    const root=nthRoot(a,n);
+    const rootFirst=Math.pow(root,m);
+    const powerFirstRoot=nthRoot(Math.pow(a,m),n);
+    const simpleRoot=Number.isInteger(root)?root:fmt(root);
+    $('#ratOutput').innerHTML=`<div class="math">\\[${a}^{${m}/${n}}=\\left(\\sqrt[${n}]{${a}}\\right)^${m}\\]</div>
+      <p><strong>Root first:</strong> \\(\\sqrt[${n}]{${a}}=${simpleRoot}\\), then \\(${simpleRoot}^${m}=${fmt(rootFirst)}\\).</p>
+      <p><strong>Power first:</strong> \\(\\sqrt[${n}]{${a}^${m}}=${fmt(powerFirstRoot)}\\).</p>
+      <p>Both paths agree when the expressions are defined and handled consistently.</p>`;
+    renderMath();
+  }
+
+  const proof=[
+    ['1','Definition of root','\\(\\sqrt[n]{a}\\) means “the number that becomes \\(a\\) when raised to power \\(n\\).”'],
+    ['2','Test the candidate','If we think \\(a^{1/n}\\) is the root, raise it to power \\(n\\).'],
+    ['3','Use power of a power','\\((a^{1/n})^n=a^{(1/n)n}=a^1=a\\).'],
+    ['4','Conclusion','So \\(a^{1/n}\\) has the defining property of \\(\\sqrt[n]{a}\\), hence \\(a^{1/n}=\\sqrt[n]{a}\\).']
+  ];
+  let proofIndex=0;
+  function nextProofStep(){
+    if(proofIndex>=proof.length) return;
+    const [num,title,text]=proof[proofIndex++];
+    $('#proofSteps').insertAdjacentHTML('beforeend',`<div class="step-card hl"><div class="step-number">${num}</div><div><h4>${title}</h4><p>${text}</p></div></div>`);
+    renderMath();
+  }
+  function resetProof(){
+    proofIndex=0;
+    $('#proofSteps').innerHTML='<div class="step-card hl"><div class="step-number">?</div><div><h4>Start</h4><p>What does \\(\\sqrt[n]{a}\\) mean?</p></div></div>';
+    renderMath();
+  }
+
+  function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+  function choose(arr){return arr[Math.floor(Math.random()*arr.length)]}
+  function badge(level){return level==='hl'?'<span class="pill hl">HL</span>':'<span class="pill sl">SL</span>'}
+  function makeQuestion(type,level){
+    let q='', sol='', actualLevel=level;
+    if(type==='random'){
+      const pool=level==='hl'?['rational','simplify','negative','logs','standard']:level==='mixed'?['simplify','negative','logs','standard','rational']:['simplify','negative','logs','standard'];
+      type=choose(pool);
+    }
+    if(type==='rational'){actualLevel='hl'}
+    if(type==='simplify'){
+      const v=choose(['x','y','a']); const m=randInt(2,8), n=randInt(1,6); const c1=randInt(2,7), c2=randInt(2,8);
+      q=`Simplify \\(${c1}${v}^${m}\\cdot ${c2}${v}^${n}\\).`;
+      sol=`<div class="mark"><b>M1</b><div>Separate coefficients and powers: \\(${c1}\\cdot${c2}\\cdot ${v}^${m}${v}^${n}\\).</div></div><div class="mark"><b>A1</b><div>Use \\(a^m a^n=a^{m+n}\\): \\(${v}^{${m+n}}\\).</div></div><div class="mark"><b>A1</b><div>Final answer: \\(${c1*c2}${v}^{${m+n}}\\).</div></div>`;
+    }else if(type==='negative'){
+      const a=randInt(2,9), n=randInt(2,5);
+      q=`Write \\(${a}^{-${n}}\\) as a fraction.`;
+      sol=`<div class="mark"><b>M1</b><div>Use the negative exponent rule: \\(a^{-n}=\\frac1{a^n}\\).</div></div><div class="mark"><b>A1</b><div>\\(${a}^{-${n}}=\\frac1{${a}^${n}}=\\frac1{${Math.pow(a,n)}}\\).</div></div>`;
+    }else if(type==='standard'){
+      const c=randInt(12,98)/10, k=randInt(-5,6), d=randInt(12,98)/10, j=randInt(-4,5);
+      q=`Simplify and write in standard form: \\(( ${c}\\times10^{${k}})( ${d}\\times10^{${j}})\\).`;
+      const prod=c*d; let newK=k+j; let coeff=prod;
+      while(Math.abs(coeff)>=10){coeff/=10; newK++;}
+      while(Math.abs(coeff)<1 && coeff!==0){coeff*=10; newK--;}
+      sol=`<div class="mark"><b>M1</b><div>Multiply coefficients and powers separately: \\(${c}\\times${d}=${fmt(prod)}\\), and \\(10^{${k}}10^{${j}}=10^{${k+j}}\\).</div></div><div class="mark"><b>A1</b><div>Before adjustment: \\(${fmt(prod)}\\times10^{${k+j}}\\).</div></div><div class="mark"><b>A1</b><div>Standard form: \\(${fmt(coeff)}\\times10^{${newK}}\\).</div></div>`;
+    }else if(type==='logs'){
+      const base=choose([10,2,3,5]); const x=randInt(2,5); const val=Math.pow(base,x);
+      if(base===10){
+        q=`Solve \\(10^x=${val}\\).`;
+        sol=`<div class="mark"><b>M1</b><div>Rewrite in logarithmic form: \\(x=\\log(${val})\\).</div></div><div class="mark"><b>A1</b><div>Since \\(10^${x}=${val}\\), \\(x=${x}\\).</div></div>`;
+      }else{
+        q=`Solve \\(${base}^x=${val}\\).`;
+        sol=`<div class="mark"><b>M1</b><div>Rewrite as a logarithm: \\(x=\\log_{${base}}(${val})\\).</div></div><div class="mark"><b>A1</b><div>Since \\(${base}^${x}=${val}\\), \\(x=${x}\\).</div></div><div class="mark"><b>Tech</b><div>On a calculator without a log-base template, use \\(x=\\frac{\\log(${val})}{\\log(${base})}\\).</div></div>`;
+      }
+    }else if(type==='rational'){
+      actualLevel='hl';
+      const cases=[
+        {a:32,m:3,n:5,root:2}, {a:64,m:2,n:3,root:4}, {a:81,m:3,n:4,root:3}, {a:125,m:2,n:3,root:5}, {a:16,m:3,n:4,root:2}
+      ];
+      const c=choose(cases);
+      q=`Evaluate without a calculator: \\(${c.a}^{${c.m}/${c.n}}\\).`;
+      sol=`<div class="mark hl"><b>M1</b><div>Use \\(a^{m/n}=(\\sqrt[n]{a})^m\\).</div></div><div class="mark hl"><b>A1</b><div>\\(\\sqrt[${c.n}]{${c.a}}=${c.root}\\).</div></div><div class="mark hl"><b>A1</b><div>So \\(${c.a}^{${c.m}/${c.n}}=${c.root}^{${c.m}}=${Math.pow(c.root,c.m)}\\).</div></div>`;
+    }
+    return {q,sol,level:actualLevel};
+  }
+  function generateQuestion(){
+    const level=$('#qLevel').value;
+    const type=$('#qType').value;
+    const item=makeQuestion(type,level);
+    $('#questionBadge').innerHTML=badge(item.level);
+    $('#questionText').innerHTML=item.q;
+    $('#solutionText').innerHTML=item.sol;
+    $('#answerArea').classList.remove('show');
+    renderMath();
+  }
+  function toggleSolution(){ $('#answerArea').classList.toggle('show'); renderMath(); }
+
+  function checkMisconceptions(){
+    const rows=$$('#misChecks input');
+    let correct=0;
+    rows.forEach(ch=>{
+      const row=ch.closest('.check-row');
+      const ok=(ch.checked === (ch.dataset.correct==='true'));
+      row.style.borderColor=ok?'#86efac':'#fda4af';
+      row.style.background=ok?'#f0fdf4':'#fff1f2';
+      if(ok) correct++;
+    });
+    const total=rows.length;
+    $('#misResult').innerHTML=`<span class="result-chip" style="background:${correct===total?'#dcfce7':'#ffedd5'};color:${correct===total?'#166534':'#9a3412'}">${correct}/${total} correct</span>`;
+  }
+  function resetMisconceptions(){
+    $$('#misChecks input').forEach(ch=>{ch.checked=false; const row=ch.closest('.check-row'); row.style.borderColor=''; row.style.background='';});
+    $('#misResult').innerHTML='';
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    updateLawBuilder(); updateLadder(); updateStandardForm(); updateLogMachine(); updateRationalExplorer(); newPrompt(); generateQuestion(); renderMath();
+  });
+  window.addEventListener('load',()=>setTimeout(renderMath,500));
+</script>
+</body>
+</html>
