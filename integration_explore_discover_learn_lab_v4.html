@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Integration Lab: Explore, Discover, Learn</title>
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --ink:#172033;
+    --muted:#5d667a;
+    --line:#d9deea;
+    --accent:#6b4eff;
+    --accent2:#00a889;
+    --accent3:#f59e0b;
+    --danger:#dc2626;
+    --good:#047857;
+    --soft:#eef0ff;
+    --soft2:#e9fbf6;
+    --shadow:0 10px 30px rgba(20,25,40,.10);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background:linear-gradient(180deg,#fbfcff 0%,var(--bg) 100%);
+    color:var(--ink);
+  }
+  header{
+    padding:22px 24px 16px;
+    background:white;
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .titlebar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    max-width:1280px;
+    margin:auto;
+  }
+  h1{
+    font-size:clamp(1.4rem,2.2vw,2.1rem);
+    margin:0;
+    letter-spacing:-.02em;
+  }
+  .subtitle{
+    color:var(--muted);
+    margin:.35rem 0 0;
+    font-size:.96rem;
+  }
+  .badge{
+    background:var(--soft);
+    color:#3928b7;
+    border:1px solid #d8d3ff;
+    padding:8px 12px;
+    border-radius:999px;
+    white-space:nowrap;
+    font-weight:700;
+    font-size:.9rem;
+  }
+  .tabs{
+    max-width:1280px;
+    margin:14px auto 0;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:3px;
+  }
+  .tab{
+    border:1px solid var(--line);
+    background:#fff;
+    color:#2c3448;
+    border-radius:999px;
+    padding:9px 13px;
+    cursor:pointer;
+    font-weight:700;
+    white-space:nowrap;
+    transition:.18s ease;
+  }
+  .tab:hover{transform:translateY(-1px)}
+  .tab.active{
+    background:var(--accent);
+    color:white;
+    border-color:var(--accent);
+  }
+  main{
+    max-width:1280px;
+    margin:18px auto 36px;
+    padding:0 18px;
+  }
+  section.panel{display:none}
+  section.panel.active{display:block}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:16px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px;
+  }
+  .span-3{grid-column:span 3}
+  .span-4{grid-column:span 4}
+  .span-5{grid-column:span 5}
+  .span-6{grid-column:span 6}
+  .span-7{grid-column:span 7}
+  .span-8{grid-column:span 8}
+  .span-9{grid-column:span 9}
+  .span-12{grid-column:span 12}
+  @media (max-width:900px){
+    .span-3,.span-4,.span-5,.span-6,.span-7,.span-8,.span-9{grid-column:span 12}
+    header{position:static}
+  }
+  h2,h3{margin:.15rem 0 .65rem; letter-spacing:-.01em}
+  h2{font-size:1.45rem}
+  h3{font-size:1.13rem}
+  p{line-height:1.48}
+  .muted{color:var(--muted)}
+  .big{
+    font-size:1.12rem;
+    line-height:1.55;
+  }
+  .callout{
+    border-left:5px solid var(--accent);
+    background:var(--soft);
+    border-radius:14px;
+    padding:13px 15px;
+    margin:12px 0;
+  }
+  .callout.green{
+    border-left-color:var(--accent2);
+    background:var(--soft2);
+  }
+  .callout.amber{
+    border-left-color:var(--accent3);
+    background:#fff7e6;
+  }
+  .minirow{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  button.primary, button.secondary, button.ghost{
+    border:none;
+    border-radius:12px;
+    padding:10px 13px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.18s ease;
+  }
+  button.primary{background:var(--accent); color:white}
+  button.secondary{background:var(--accent2); color:white}
+  button.ghost{background:#eef1f8; color:#222a3c}
+  button.primary:hover, button.secondary:hover, button.ghost:hover{transform:translateY(-1px); filter:brightness(.98)}
+  button.small{padding:7px 10px; font-size:.88rem}
+  label{
+    font-weight:750;
+    font-size:.92rem;
+  }
+  input[type="range"]{width:100%}
+  input, select{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:8px 10px;
+    font:inherit;
+    background:white;
+  }
+  .control{
+    display:grid;
+    grid-template-columns:125px 1fr 50px;
+    gap:10px;
+    align-items:center;
+    margin:10px 0;
+  }
+  .canvasWrap{
+    width:100%;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px;
+    overflow:hidden;
+  }
+  canvas{width:100%; height:auto; display:block}
+  .statgrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:10px;
+  }
+  .stat{
+    background:#f7f8fc;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:10px;
+  }
+  .stat .n{font-size:1.25rem; font-weight:900}
+  .formula{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    background:#111827;
+    color:#f9fafb;
+    border-radius:12px;
+    padding:12px;
+    overflow-x:auto;
+    line-height:1.55;
+    white-space:pre-wrap;
+  }
+  .formula.clean{
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-size:1rem;
+    line-height:1.55;
+  }
+  .formula.clean .math{
+    color:#fff;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:1.12rem;
+  }
+  .displayMath{
+    display:block;
+    padding:.75rem .9rem;
+    background:#f7f8fc;
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-top:.75rem;
+  }
+  .intExpr{
+    display:inline-block;
+    white-space:nowrap;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:1.15em;
+  }
+  .intExpr sub{
+    font-size:.65em;
+    vertical-align:-0.55em;
+    margin-right:-.2em;
+  }
+  .intExpr sup{
+    font-size:.65em;
+    vertical-align:.75em;
+    margin-left:-.15em;
+  }
+  .math sup, .math sub{
+    line-height:0;
+  }
+  .math{
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:1.12rem;
+  }
+  .step{
+    display:flex;
+    gap:12px;
+    padding:12px 0;
+    border-top:1px solid var(--line);
+  }
+  .step:first-child{border-top:none}
+  .num{
+    min-width:34px;
+    height:34px;
+    border-radius:50%;
+    background:var(--accent);
+    color:white;
+    display:grid;
+    place-items:center;
+    font-weight:900;
+  }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 10px;
+    background:#fff;
+    font-weight:750;
+    margin:3px 3px 3px 0;
+  }
+  .choice{
+    display:block;
+    width:100%;
+    text-align:left;
+    border:1px solid var(--line);
+    background:white;
+    border-radius:12px;
+    padding:11px 12px;
+    margin:8px 0;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .choice.correct{border-color:#16a34a; background:#ecfdf5}
+  .choice.wrong{border-color:#dc2626; background:#fef2f2}
+  .hidden{display:none}
+  .solution{
+    background:#f8fafc;
+    border:1px dashed #b9c2d5;
+    border-radius:14px;
+    padding:14px;
+    margin-top:12px;
+  }
+  .twocol{
+    columns:2;
+    column-gap:28px;
+  }
+  @media (max-width:800px){.twocol{columns:1}}
+  .table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.95rem;
+  }
+  .table th,.table td{
+    border-bottom:1px solid var(--line);
+    padding:9px 7px;
+    text-align:left;
+    vertical-align:top;
+  }
+  .table th{background:#f7f8fc}
+  .progress{
+    height:10px;
+    background:#e5e7eb;
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress > div{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:.25s ease;
+  }
+  .stickyTools{
+    position:sticky;
+    top:128px;
+  }
+  @media (max-width:900px){.stickyTools{position:static}}
+  .examQuestion{
+    font-size:1.08rem;
+    line-height:1.55;
+  }
+
+  .codePill{
+    display:inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    background:#111827;
+    color:#f9fafb;
+    border-radius:999px;
+    padding:5px 10px;
+    font-size:.92em;
+    white-space:nowrap;
+    vertical-align:baseline;
+  }
+  .calcBox{
+    display:block;
+    width:max-content;
+    max-width:100%;
+    margin:.55rem 0 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    background:#111827;
+    color:#f9fafb;
+    border-radius:14px;
+    padding:11px 14px;
+    line-height:1.35;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+  .mathLine{
+    display:block;
+    margin:.35rem 0 .85rem;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:1.15rem;
+    line-height:1.35;
+  }
+  .solution h3,
+  .solution .solHeading{
+    display:block;
+    margin:1rem 0 .35rem;
+    font-weight:900;
+  }
+  .solution .solHeading:first-child{margin-top:0}
+
+  .fracText{
+    display:inline-block;
+    font-family: Georgia, "Times New Roman", serif;
+    white-space:nowrap;
+  }
+  .trapY{
+    width:72px;
+    padding:6px 7px;
+    text-align:center;
+  }
+
+  .table .mathFix{
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:1.05em;
+  }
+
+  sub{font-size:.7em}
+  sup{font-size:.7em}
+  .tag{
+    display:inline-block;
+    background:#eef1f8;
+    color:#374151;
+    border-radius:999px;
+    padding:5px 9px;
+    font-size:.82rem;
+    font-weight:800;
+    margin-right:5px;
+  }
+  details{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px 14px;
+    background:white;
+    margin:9px 0;
+  }
+  details summary{font-weight:900; cursor:pointer}
+  .footerNote{
+    text-align:center;
+    color:var(--muted);
+    font-size:.9rem;
+    margin-top:24px;
+  }
+</style>
+</head>
+
+<body>
+<header>
+  <div class="titlebar">
+    <div>
+      <h1>Integration Lab: Explore → Discover → Learn → Exam Practice</h1>
+      <p class="subtitle">A self-guided IB Mathematics: Applications & Interpretation SL 5.5 lab</p>
+    </div>
+    <div class="badge">SL 5.5 Integration</div>
+  </div>
+  <nav class="tabs" aria-label="Lab tabs">
+    <button class="tab active" data-tab="mission">1. Big idea</button>
+    <button class="tab" data-tab="explore">2. Explore accumulation</button>
+    <button class="tab" data-tab="discover">3. Discover area</button>
+    <button class="tab" data-tab="traprule">4. SL 5.8 Trapezoidal rule</button>
+    <button class="tab" data-tab="learn">5. Learn rules</button>
+    <button class="tab" data-tab="technology">6. Technology/GDC</button>
+    <button class="tab" data-tab="exam">7. Exam generator</button>
+    <button class="tab" data-tab="teacher">Teacher notes</button>
+  </nav>
+</header>
+
+<main>
+  <!-- MISSION -->
+  <section id="mission" class="panel active">
+    <div class="grid">
+      <div class="card span-8">
+        <h2>The central question</h2>
+        <p class="big"><strong>How can we find a total amount when we only know a changing rate?</strong></p>
+        <p>Integration is the mathematics of <strong>accumulation</strong>. It can mean area, distance, volume, total cost, total change, or any quantity built up from many small pieces.</p>
+        <div class="callout">
+          <strong>Journey through the lab:</strong> first estimate messy quantities, then approximate area with rectangles and trapezoids, then discover why anti-differentiation gives exact answers.
+        </div>
+        <h3>Three meanings you must connect</h3>
+        <div class="grid" style="gap:10px">
+          <div class="card span-4" style="box-shadow:none;background:#fbfcff">
+            <h3>Area</h3>
+            <p>The definite integral can represent the area between a positive curve and the x-axis.</p>
+          </div>
+          <div class="card span-4" style="box-shadow:none;background:#fbfcff">
+            <h3>Accumulation</h3>
+            <p>Area under a rate graph gives a total amount, such as distance from a velocity-time graph.</p>
+          </div>
+          <div class="card span-4" style="box-shadow:none;background:#fbfcff">
+            <h3>Anti-derivative</h3>
+            <p>Integration reverses differentiation, but the constant of integration must be handled carefully.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card span-4">
+        <h2>Success criteria</h2>
+        <p>By the end, you should be able to:</p>
+        <ul>
+          <li>explain what an integral is accumulating;</li>
+          <li>estimate areas using rectangles and trapezoids;</li>
+          <li>integrate powers of x, including negative integer powers except x⁻¹;</li>
+          <li>use a boundary condition to find +C;</li>
+          <li>write the correct definite integral before using technology;</li>
+          <li>answer exam-style questions with clear working.</li>
+        </ul>
+        <div class="callout green">
+          <strong>Key exam habit:</strong> write the integral first, then calculate.
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <h2>Quick concept check</h2>
+        <p class="muted">Click the best answer. These are not about formulas yet; they are about meaning.</p>
+        <div id="conceptQuiz"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLORE -->
+  <section id="explore" class="panel">
+    <div class="grid">
+      <div class="card span-7">
+        <h2>Explore: what is being accumulated?</h2>
+        <p>Integration becomes easier when you can name the quantity being built up. Match the graph/context to the accumulated result.</p>
+        <div id="matchArea"></div>
+      </div>
+      <div class="card span-5">
+        <h2>Velocity-time mini-lab</h2>
+        <p>Distance travelled is the area under a velocity-time graph.</p>
+        <div class="control">
+          <label for="v1">First speed</label>
+          <input id="v1" type="range" min="2" max="15" value="8" step="1">
+          <span id="v1v">8</span>
+        </div>
+        <div class="control">
+          <label for="t1">First time</label>
+          <input id="t1" type="range" min="1" max="8" value="4" step="1">
+          <span id="t1v">4</span>
+        </div>
+        <div class="control">
+          <label for="t2">Slow-down time</label>
+          <input id="t2" type="range" min="1" max="6" value="2" step="1">
+          <span id="t2v">2</span>
+        </div>
+        <div class="canvasWrap">
+          <canvas id="velCanvas" width="700" height="420"></canvas>
+        </div>
+        <div class="statgrid">
+          <div class="stat"><div class="muted">Rectangle</div><div class="n" id="distRect">32</div></div>
+          <div class="stat"><div class="muted">Triangle</div><div class="n" id="distTri">8</div></div>
+          <div class="stat"><div class="muted">Total distance</div><div class="n" id="distTotal">40</div></div>
+        </div>
+        <div class="solution">
+          <strong>Why the units work:</strong><br>
+          velocity × time = <span id="unitDemo">km/h × h = km</span>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCOVER -->
+  <section id="discover" class="panel">
+    <div class="grid">
+      <div class="card span-8">
+        <h2>Discover: approximate the area under a curve</h2>
+        <p>Choose a function, method, and number of strips. Watch the approximation move towards the exact integral.</p>
+
+        <div class="minirow">
+          <label for="funcSelect">Function</label>
+          <select id="funcSelect">
+            <option value="x2">f(x)=x²</option>
+            <option value="x2plus1">f(x)=x²+1</option>
+            <option value="linear">f(x)=2x+1</option>
+            <option value="cubic">f(x)=0.3x³+1</option>
+          </select>
+          <label for="methodSelect">Method</label>
+          <select id="methodSelect">
+            <option value="left">left rectangles</option>
+            <option value="right">right rectangles</option>
+            <option value="mid">midpoint rectangles</option>
+            <option value="trap">trapezoidal rule</option>
+          </select>
+        </div>
+
+        <div class="grid" style="gap:10px;margin-top:10px">
+          <div class="span-4">
+            <div class="control" style="grid-template-columns:70px 1fr 40px">
+              <label for="aVal">a</label>
+              <input id="aVal" type="range" min="0" max="3" value="0" step="0.5">
+              <span id="aOut">0</span>
+            </div>
+          </div>
+          <div class="span-4">
+            <div class="control" style="grid-template-columns:70px 1fr 40px">
+              <label for="bVal">b</label>
+              <input id="bVal" type="range" min="1" max="6" value="4" step="0.5">
+              <span id="bOut">4</span>
+            </div>
+          </div>
+          <div class="span-4">
+            <div class="control" style="grid-template-columns:70px 1fr 40px">
+              <label for="nVal">strips</label>
+              <input id="nVal" type="range" min="2" max="40" value="6" step="1">
+              <span id="nOut">6</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvasWrap">
+          <canvas id="areaCanvas" width="900" height="500"></canvas>
+        </div>
+      </div>
+
+      <div class="card span-4">
+        <div class="stickyTools">
+          <h2>What do you notice?</h2>
+          <div class="statgrid" style="grid-template-columns:1fr">
+            <div class="stat">
+              <div class="muted">Approximation</div>
+              <div class="n" id="approxOut">—</div>
+            </div>
+            <div class="stat">
+              <div class="muted">Exact integral</div>
+              <div class="n" id="exactOut">—</div>
+            </div>
+            <div class="stat">
+              <div class="muted">Error</div>
+              <div class="n" id="errorOut">—</div>
+            </div>
+          </div>
+
+          <div class="callout amber">
+            <strong>Prediction:</strong> What happens to the error when the number of strips increases?
+          </div>
+
+          <div class="formula" id="areaFormula"></div>
+
+          <details>
+            <summary>Why does this lead to integration?</summary>
+            <p>Each strip is a small area. Adding all strips gives an approximate total area. As the strips become thinner, the approximation approaches the definite integral.</p>
+            <p class="math displayMath">Area ≈ sum of small pieces → exact area = <span class="intExpr">∫<sub>a</sub><sup>b</sup> f(x)&thinsp;dx</span></p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- TRAPEZOIDAL RULE -->
+  <section id="traprule" class="panel">
+    <div class="grid">
+      <div class="card span-7">
+        <h2>SL 5.8: Approximating areas using the trapezoidal rule</h2>
+        <p class="big">The trapezoidal rule estimates an area by replacing curved or irregular pieces with trapezoids.</p>
+
+        <div class="callout green">
+          <strong>Syllabus meaning:</strong> given a table of data or a function, estimate the area using trapezoids with <strong>equal-width intervals</strong>.
+        </div>
+
+        <h3>The rule</h3>
+        <p>If the x-values are equally spaced, the width is <span class="math">h</span>.</p>
+        <div class="displayMath">
+          <span class="math">
+            Area ≈ <span class="fracText">h/2</span>[first y + last y + 2 × sum of the middle y-values]
+          </span>
+        </div>
+
+        <div class="formula clean">
+<strong>Symbol version</strong><br>
+Area ≈ h/2 [ y₀ + yₙ + 2(y₁ + y₂ + ... + yₙ₋₁) ]
+        </div>
+
+        <h3>Why trapezoids?</h3>
+        <p>Rectangles use a flat top. Trapezoids use a sloping top, so they usually follow the curve more closely. This is especially useful for:</p>
+        <div>
+          <span class="pill">irregular areas such as lakes</span>
+          <span class="pill">velocity-time graphs</span>
+          <span class="pill">experimental data</span>
+          <span class="pill">functions where exact integration is not required</span>
+        </div>
+
+        <details open>
+          <summary>Exam method</summary>
+          <div class="step"><div class="num">1</div><div><strong>Check equal width.</strong><br>The x-values must increase by the same amount each time.</div></div>
+          <div class="step"><div class="num">2</div><div><strong>Find h.</strong><br>This is the gap between consecutive x-values.</div></div>
+          <div class="step"><div class="num">3</div><div><strong>Substitute carefully.</strong><br>First and last y-values are used once. Middle y-values are doubled.</div></div>
+          <div class="step"><div class="num">4</div><div><strong>Interpret the answer.</strong><br>If the graph is velocity-time, the area estimates distance. If it is an irregular region, the answer estimates area.</div></div>
+        </details>
+      </div>
+
+      <div class="card span-5">
+        <h2>Interactive trapezoidal rule calculator</h2>
+        <p class="muted">Change the values or generate a new table. The x-values are equally spaced.</p>
+
+        <div class="minirow">
+          <button class="secondary" onclick="randomTrapData()">Random table</button>
+          <button class="ghost" onclick="setTrapFromFunction()">Use y = x² + 1</button>
+        </div>
+
+        <div class="control" style="grid-template-columns:95px 1fr 55px">
+          <label for="trapH">Width h</label>
+          <input id="trapH" type="range" min="0.5" max="3" step="0.5" value="1">
+          <span id="trapHOut">1</span>
+        </div>
+
+        <table class="table" id="trapInputTable" style="margin:10px 0">
+          <tr><th>x</th><td id="tx0">0</td><td id="tx1">1</td><td id="tx2">2</td><td id="tx3">3</td><td id="tx4">4</td></tr>
+          <tr>
+            <th>y</th>
+            <td><input class="trapY" type="number" value="2" step="0.1"></td>
+            <td><input class="trapY" type="number" value="3" step="0.1"></td>
+            <td><input class="trapY" type="number" value="6" step="0.1"></td>
+            <td><input class="trapY" type="number" value="11" step="0.1"></td>
+            <td><input class="trapY" type="number" value="18" step="0.1"></td>
+          </tr>
+        </table>
+
+        <div class="canvasWrap">
+          <canvas id="trapCanvas" width="700" height="360"></canvas>
+        </div>
+
+        <div class="solution" id="trapWorking"></div>
+      </div>
+
+      <div class="card span-12">
+        <h2>How SL 5.8 connects to SL 5.5</h2>
+        <table class="table">
+          <thead><tr><th>Idea</th><th>SL 5.5</th><th>SL 5.8</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Area under a curve</td>
+              <td>Use definite integrals, often with technology, when the function is known.</td>
+              <td>Use trapezoids to estimate the area, especially from a table or measured data.</td>
+            </tr>
+            <tr>
+              <td>Approximation</td>
+              <td>Rectangles help develop the idea of limiting area.</td>
+              <td>Trapezoids are the required numerical approximation method.</td>
+            </tr>
+            <tr>
+              <td>Real-world context</td>
+              <td>Rates accumulate to totals; positive curves give areas.</td>
+              <td>Irregular regions, lakes, maps, and kinematics can be estimated without exact formulae.</td>
+            </tr>
+            <tr>
+              <td>Technology</td>
+              <td>Graphing software can calculate exact/numerical definite integrals.</td>
+              <td>Dynamic graphing software can show trapezoids and help interpret the estimate.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout amber">
+          <strong>Enrichment:</strong> Simpson’s rule is another numerical integration technique. It uses parabolic arcs instead of straight-line trapezoid tops.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- LEARN -->
+  <section id="learn" class="panel">
+    <div class="grid">
+      <div class="card span-7">
+        <h2>Learn: anti-differentiation</h2>
+        <p>To integrate a power of x, increase the power by 1 and divide by the new power.</p>
+        <div class="formula">
+          ∫ axⁿ dx = a · xⁿ⁺¹ / (n+1) + C, &nbsp; where n ≠ -1
+        </div>
+        <div class="callout">
+          <strong>Why +C?</strong> Many functions can have the same derivative. For example, x² + 1, x² + 7, and x² − 100 all have derivative \(2x\).
+        </div>
+
+        <h3>Build an anti-derivative</h3>
+        <p class="muted">Use the controls to see the rule term-by-term.</p>
+        <div class="grid" style="gap:10px">
+          <div class="span-4">
+            <label>Coefficient \(a\)</label>
+            <input id="coefLearn" type="range" min="-8" max="8" value="3" step="1">
+            <div class="pill">a = <span id="coefLearnOut">3</span></div>
+          </div>
+          <div class="span-4">
+            <label>Power \(n\)</label>
+            <input id="powLearn" type="range" min="-4" max="5" value="2" step="1">
+            <div class="pill">n = <span id="powLearnOut">2</span></div>
+          </div>
+          <div class="span-4">
+            <label>Constant</label>
+            <input id="constLearn" type="range" min="-10" max="10" value="4" step="1">
+            <div class="pill">constant = <span id="constLearnOut">4</span></div>
+          </div>
+        </div>
+        <div class="solution">
+          <div class="math" id="learnIntegralOut"></div>
+        </div>
+        <p id="xMinusOneWarning" class="callout amber hidden">The special case ∫x⁻¹ dx is not part of this SL 5.5 power rule. Avoid \(n=-1\) here.</p>
+      </div>
+
+      <div class="card span-5">
+        <h2>Boundary condition</h2>
+        <p>If you know a point on the original function, you can find \(C\).</p>
+        <div class="minirow">
+          <button class="secondary" onclick="newBoundaryExample()">New example</button>
+          <button class="ghost" onclick="toggle('boundarySol')">Reveal solution</button>
+        </div>
+        <div id="boundaryQ" class="examQuestion" style="margin-top:14px"></div>
+        <div id="boundarySol" class="solution hidden"></div>
+      </div>
+
+      <div class="card span-12">
+        <h2>Definite integrals and area</h2>
+        <p>A definite integral has limits. For a positive curve, it gives the area between the curve and the x-axis.</p>
+        <div class="grid">
+          <div class="span-4">
+            <div class="step"><div class="num">1</div><div><strong>Write the expression</strong><br><span class="intExpr">∫<sub>a</sub><sup>b</sup> f(x)&thinsp;dx</span></div></div>
+          </div>
+          <div class="span-4">
+            <div class="step"><div class="num">2</div><div><strong>Find an anti-derivative</strong><br><span class="math">F′(x) = f(x)</span></div></div>
+          </div>
+          <div class="span-4">
+            <div class="step"><div class="num">3</div><div><strong>Subtract</strong><br><span class="math">F(b) − F(a)</span></div></div>
+          </div>
+        </div>
+        <div class="callout green">
+          For IB AI SL, technology is allowed for definite integrals, but you should still write the correct integral expression first.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNOLOGY -->
+  <section id="technology" class="panel">
+    <div class="grid">
+      <div class="card span-6">
+        <h2>Technology/GDC workflow</h2>
+        <p>This tab focuses on the exam habit: <strong>write first, calculate second</strong>.</p>
+        <div class="step"><div class="num">1</div><div><strong>Sketch or inspect the graph.</strong><br>Check the curve is above the x-axis if the question asks for area under a positive curve.</div></div>
+        <div class="step"><div class="num">2</div><div><strong>Write the integral.</strong><br><span class="intExpr">∫<sub>a</sub><sup>b</sup> f(x)&thinsp;dx</span></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Use technology.</strong><br>On a TI-Nspire, use Menu → Calculus → Numerical Integral, or type <span class="codePill">nInt(f(x), x, a, b)</span>.</div></div>
+        <div class="step"><div class="num">4</div><div><strong>Interpret the units.</strong><br>If the y-axis is a rate, the integral is a total amount.</div></div>
+      </div>
+
+      <div class="card span-6">
+        <h2>Integral expression builder</h2>
+        <p>Generate a simple definite integral and decide what must be typed into the calculator.</p>
+        <div class="minirow">
+          <button class="secondary" onclick="newTechExample()">New expression</button>
+          <button class="ghost" onclick="toggle('techSol')">Reveal answer</button>
+        </div>
+        <div id="techQ" class="examQuestion" style="margin-top:14px"></div>
+        <div id="techSol" class="solution hidden"></div>
+        <div class="callout amber">
+          <strong>Exam warning:</strong> Do not only write a decimal answer. The setup is part of the mathematics.
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <h2>Common mistakes</h2>
+        <table class="table">
+          <thead><tr><th>Mistake</th><th>Why it matters</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr><td>Forgetting +C</td><td>Indefinite integrals describe a family of functions.</td><td>Always add <span class="mathFix">+ C</span> unless limits are given.</td></tr>
+            <tr><td>Using the old power after integration</td><td>The power must increase by 1.</td><td><span class="mathFix">x<sup>n</sup> → x<sup>n+1</sup> ÷ (n+1)</span>.</td></tr>
+            <tr><td>Not writing limits</td><td>A definite integral needs a start and end value.</td><td>Write <span class="intExpr">∫<sub>a</sub><sup>b</sup></span>, not just <span class="mathFix">∫</span>.</td></tr>
+            <tr><td>Calling signed area “area” when graph is below x-axis</td><td>Area is positive; definite integrals can be negative.</td><td>For SL 5.5, focus on <span class="mathFix">f(x) &gt; 0</span>, or split if needed.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAM -->
+  <section id="exam" class="panel">
+    <div class="grid">
+      <div class="card span-4">
+        <div class="stickyTools">
+          <h2>Random exam-style questions</h2>
+          <p>Choose a type, generate a question, then reveal the worked solution.</p>
+          <label for="examType">Question type</label>
+          <select id="examType" style="width:100%;margin:8px 0 12px">
+            <option value="random">Mixed random</option>
+            <option value="anti">Anti-differentiation</option>
+            <option value="boundary">Boundary condition</option>
+            <option value="definite">Definite integral / area</option>
+            <option value="velocity">Velocity-time accumulation</option>
+            <option value="trap">Trapezoidal estimate</option>
+          </select>
+          <div class="minirow">
+            <button class="primary" onclick="newExamQuestion()">Generate</button>
+            <button class="ghost" onclick="toggle('examSolution')">Reveal</button>
+          </div>
+          <div style="margin:16px 0">
+            <div class="progress"><div id="examProgress"></div></div>
+            <p class="muted" id="examCount">0 questions generated</p>
+          </div>
+          <div class="callout green">
+            <strong>Challenge:</strong> before revealing, write one clean line that defines the integral or anti-derivative you need.
+          </div>
+        </div>
+      </div>
+
+      <div class="card span-8">
+        <div id="examTags"></div>
+        <h2 id="examTitle">Press Generate</h2>
+        <div id="examQuestion" class="examQuestion"></div>
+        <div id="examSolution" class="solution hidden"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEACHER -->
+  <section id="teacher" class="panel">
+    <div class="grid">
+      <div class="card span-7">
+        <h2>Suggested lesson sequence</h2>
+        <div class="step"><div class="num">1</div><div><strong>Hook: accumulation</strong><br>Use messy contexts: water filling, distance from speed, oil spill area, glass on a building.</div></div>
+        <div class="step"><div class="num">2</div><div><strong>Discover: area approximation</strong><br>Students use the rectangle/trapezoid tool and write observations about number of strips and error.</div></div>
+        <div class="step"><div class="num">3</div><div><strong>Formalise: anti-derivatives</strong><br>Introduce the reverse power rule and +C. Keep x⁻¹ separate/out of scope.</div></div>
+        <div class="step"><div class="num">4</div><div><strong>Connect: definite integrals</strong><br>Show F(b) − F(a) and compare to the numerical area from the tool.</div></div>
+        <div class="step"><div class="num">5</div><div><strong>Exam practice</strong><br>Use the generator. Students must write the expression first, then solve.</div></div>
+      </div>
+
+      <div class="card span-5">
+        <h2>Exit ticket</h2>
+        <ol>
+          <li>In one sentence, explain what an integral accumulates.</li>
+          <li>Why do thinner rectangles give a better estimate?</li>
+          <li>Find ∫(4x³ − 2x + 5) dx.</li>
+          <li>Write, but do not calculate, the area under \(y=3x^2+4\) from \(x=2\) to \(x=6\).</li>
+          <li>What does +C mean?</li>
+        </ol>
+        <details>
+          <summary>Possible answers</summary>
+          <ol>
+            <li>It accumulates small changes or small areas to find a total.</li>
+            <li>The rectangles follow the curve more closely.</li>
+            <li>\(x^4-x^2+5x+C\).</li>
+            <li>∫<sub>2</sub><sup>6</sup>(3x² + 4) dx.</li>
+            <li>A family of vertical shifts with the same derivative.</li>
+          </ol>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <p class="footerNote">Standalone HTML lab. No internet connection required.</p>
+</main>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+function fmt(x, dp=3){
+  if(!isFinite(x)) return "—";
+  const rounded = Math.abs(x) < 1e-10 ? 0 : x;
+  if(Math.abs(rounded - Math.round(rounded)) < 1e-10) return String(Math.round(rounded));
+  return Number(rounded.toFixed(dp)).toString();
+}
+function frac(n,d){
+  if(d===1) return String(n);
+  const g = gcd(Math.abs(n),Math.abs(d));
+  n/=g; d/=g;
+  if(d<0){n=-n; d=-d}
+  return `${n}/${d}`;
+}
+function gcd(a,b){while(b){[a,b]=[b,a%b]} return a||1}
+function randint(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function choice(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function toggle(id){$(id).classList.toggle("hidden")}
+function powerText(n){
+  if(n===0) return "";
+  if(n===1) return "x";
+  const supers = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  return "x" + String(n).split("").map(ch=>supers[ch]||ch).join("");
+}
+function termText(a,n){
+  if(a===0) return "";
+  const sign = a<0 ? "-" : "+";
+  const aa = Math.abs(a);
+  let body = "";
+  if(n===0) body = String(aa);
+  else body = (aa===1 ? "" : String(aa)) + powerText(n);
+  return {sign, body};
+}
+function polyText(terms, variable="x"){
+  // terms: [{a,n}], sorted high to low
+  let out="";
+  for(const t of terms){
+    if(t.a===0) continue;
+    const sign = t.a<0 ? "-" : "+";
+    const aa = Math.abs(t.a);
+    let body;
+    if(t.n===0) body = String(aa);
+    else {
+      body = (aa===1 ? "" : String(aa)) + powerText(t.n).replaceAll("x", variable);
+    }
+    if(out==="") out += (sign==="-" ? "-" : "") + body;
+    else out += ` ${sign} ${body}`;
+  }
+  return out || "0";
+}
+function htmlPoly(terms, variable="x"){
+  return polyText(terms, variable);
+}
+function antiderivativeTerms(terms){
+  return terms.map(t => ({a:t.a, oldN:t.n, n:t.n+1, denom:t.n+1}));
+}
+function antiText(terms, variable="x", plusC=true){
+  let parts=[];
+  for(const t of terms){
+    if(t.a===0) continue;
+    const den=t.n+1;
+    if(den===0) continue;
+
+    let coef=t.a;
+    let n=den;
+    let sign=coef<0?"-":"+";
+    coef=Math.abs(coef);
+
+    const g=gcd(coef, Math.abs(den));
+    coef/=g;
+    let d=Math.abs(den)/g;
+
+    if(den<0) sign = sign==="+" ? "-" : "+";
+
+    let body="";
+    const xPart = n===0 ? "" : powerText(n).replaceAll("x", variable);
+
+    if(n===0){
+      body = d===1 ? String(coef) : `${coef}/${d}`;
+    }else if(d===1){
+      body = (coef===1 ? "" : String(coef)) + xPart;
+    }else{
+      body = (coef===1 ? `1/${d}` : `${coef}/${d}`) + xPart;
+    }
+
+    if(body==="") body = xPart;
+
+    if(parts.length===0) parts.push((sign==="-"?"-":"")+body);
+    else parts.push(` ${sign} ${body}`);
+  }
+  let out=parts.join("") || "0";
+  if(plusC) out += " + C";
+  return out;
+}
+function evalPoly(terms,x){
+  return terms.reduce((s,t)=>s+t.a*Math.pow(x,t.n),0);
+}
+function evalAnti(terms,x){
+  return terms.reduce((s,t)=>s+t.a*Math.pow(x,t.n+1)/(t.n+1),0);
+}
+function setTab(id){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===id));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active", p.id===id));
+  if(id==="discover") drawArea();
+  if(id==="explore") drawVelocity();
+  if(id==="traprule") drawTrapRule();
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click",()=>setTab(btn.dataset.tab));
+});
+
+/* ---------- concept quiz ---------- */
+const conceptQs = [
+  {
+    q:"A tap fills a bath at a changing rate measured in litres per minute. What does the area under the rate-time graph represent?",
+    opts:["The final rate of flow","The total litres added","The average height of the bath","The time when the bath is full"],
+    ans:1,
+    why:"Rate × time gives litres. Adding all the small amounts gives the total volume."
+  },
+  {
+    q:"Why do we use many thin rectangles under a curve?",
+    opts:["To make the graph look smoother","To avoid using algebra","To make the approximation follow the curve more closely","To make the answer smaller"],
+    ans:2,
+    why:"Thinner rectangles reduce the mismatch between the flat top of the rectangle and the curved graph."
+  },
+  {
+    q:"Which statement best connects integration and differentiation?",
+    opts:["They are unrelated skills","Integration reverses differentiation, but definite integrals also represent accumulation","Integration always gives a negative answer","Differentiation is only used for area"],
+    ans:1,
+    why:"This is the key link: anti-derivative, area, and accumulation."
+  }
+];
+function renderConceptQuiz(){
+  const box=$("conceptQuiz");
+  box.innerHTML="";
+  conceptQs.forEach((item,idx)=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.style.boxShadow="none";
+    div.style.margin="10px 0";
+    div.innerHTML=`<h3>${idx+1}. ${item.q}</h3>`;
+    item.opts.forEach((o,i)=>{
+      const b=document.createElement("button");
+      b.className="choice";
+      b.textContent=o;
+      b.onclick=()=>{
+        div.querySelectorAll(".choice").forEach(x=>x.disabled=true);
+        b.classList.add(i===item.ans?"correct":"wrong");
+        div.querySelectorAll(".choice")[item.ans].classList.add("correct");
+        const why=document.createElement("p");
+        why.className="callout green";
+        why.innerHTML=`<strong>Explanation:</strong> ${item.why}`;
+        div.appendChild(why);
+      };
+      div.appendChild(b);
+    });
+    box.appendChild(div);
+  });
+}
+
+/* ---------- matching accumulation ---------- */
+const matchItems = [
+  ["Velocity-time graph", "distance or displacement"],
+  ["Flow-rate-time graph", "volume of water added"],
+  ["Cost-rate graph", "total cost"],
+  ["Population growth-rate graph", "change in population"],
+  ["Force-distance graph", "work done"]
+];
+function renderMatch(){
+  const box=$("matchArea");
+  box.innerHTML="";
+  const shuffled = [...matchItems].sort(()=>Math.random()-.5);
+  matchItems.forEach((pair,idx)=>{
+    const row=document.createElement("div");
+    row.className="card";
+    row.style.boxShadow="none";
+    row.style.margin="10px 0";
+    const options = shuffled.map(s=>`<option value="${s[1]}">${s[1]}</option>`).join("");
+    row.innerHTML=`
+      <div class="minirow" style="justify-content:space-between">
+        <strong>${pair[0]}</strong>
+        <select data-ans="${pair[1]}"><option value="">Choose...</option>${options}</select>
+      </div>
+      <p class="muted" style="margin:6px 0 0">Area under the graph gives the accumulated total.</p>
+    `;
+    box.appendChild(row);
+  });
+  const btn=document.createElement("button");
+  btn.className="secondary";
+  btn.textContent="Check matches";
+  btn.onclick=()=>{
+    box.querySelectorAll("select").forEach(sel=>{
+      sel.style.borderColor = sel.value===sel.dataset.ans ? "#16a34a" : "#dc2626";
+      sel.style.background = sel.value===sel.dataset.ans ? "#ecfdf5" : "#fef2f2";
+    });
+  };
+  box.appendChild(btn);
+}
+
+/* ---------- velocity canvas ---------- */
+function drawVelocity(){
+  const c=$("velCanvas"), ctx=c.getContext("2d");
+  const v1=+$("v1").value, t1=+$("t1").value, t2=+$("t2").value;
+  $("v1v").textContent=v1; $("t1v").textContent=t1; $("t2v").textContent=t2;
+  const W=c.width,H=c.height,p=58;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+  const totalT=t1+t2;
+  const xmax=Math.max(8,totalT+1), ymax=Math.max(16,v1+2);
+  const X=x=>p + x/(xmax)*(W-2*p);
+  const Y=y=>H-p - y/(ymax)*(H-2*p);
+
+  // grid
+  ctx.strokeStyle="#e5e7eb"; ctx.lineWidth=1;
+  for(let i=0;i<=xmax;i++){ctx.beginPath();ctx.moveTo(X(i),Y(0));ctx.lineTo(X(i),Y(ymax));ctx.stroke();}
+  for(let j=0;j<=ymax;j+=2){ctx.beginPath();ctx.moveTo(X(0),Y(j));ctx.lineTo(X(xmax),Y(j));ctx.stroke();}
+  // axes
+  ctx.strokeStyle="#111827"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(xmax),Y(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(0),Y(ymax)); ctx.stroke();
+
+  // areas
+  ctx.fillStyle="rgba(107,78,255,.22)";
+  ctx.fillRect(X(0),Y(v1),X(t1)-X(0),Y(0)-Y(v1));
+  ctx.beginPath();
+  ctx.moveTo(X(t1),Y(0)); ctx.lineTo(X(t1),Y(v1)); ctx.lineTo(X(totalT),Y(0)); ctx.closePath();
+  ctx.fillStyle="rgba(0,168,137,.25)"; ctx.fill();
+
+  // line
+  ctx.strokeStyle="#6b4eff"; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(v1)); ctx.lineTo(X(t1),Y(v1)); ctx.lineTo(X(totalT),Y(0)); ctx.stroke();
+
+  // labels
+  ctx.fillStyle="#111827"; ctx.font="16px system-ui";
+  ctx.fillText("time (h)", W-130, H-18);
+  ctx.save(); ctx.translate(18,120); ctx.rotate(-Math.PI/2); ctx.fillText("velocity (km/h)",0,0); ctx.restore();
+  ctx.font="14px system-ui";
+  ctx.fillText(`${v1} km/h`, X(0)+8, Y(v1)-8);
+  ctx.fillText(`${t1} h`, X(t1)-12, Y(0)+24);
+  ctx.fillText(`${totalT} h`, X(totalT)-12, Y(0)+24);
+
+  const rect=v1*t1, tri=0.5*v1*t2, total=rect+tri;
+  $("distRect").textContent=fmt(rect)+" km";
+  $("distTri").textContent=fmt(tri)+" km";
+  $("distTotal").textContent=fmt(total)+" km";
+}
+
+/* ---------- area canvas ---------- */
+function fValue(key,x){
+  if(key==="x2") return x*x;
+  if(key==="x2plus1") return x*x+1;
+  if(key==="linear") return 2*x+1;
+  if(key==="cubic") return 0.3*x*x*x+1;
+}
+function FValue(key,x){
+  if(key==="x2") return x*x*x/3;
+  if(key==="x2plus1") return x*x*x/3+x;
+  if(key==="linear") return x*x+x;
+  if(key==="cubic") return 0.3*x*x*x*x/4+x;
+}
+function fLabel(key){
+  return {x2:"x²", x2plus1:"x² + 1", linear:"2x + 1", cubic:"0.3x³ + 1"}[key];
+}
+function FLabel(key){
+  return {x2:"x³/3", x2plus1:"x³/3 + x", linear:"x² + x", cubic:"0.075x⁴ + x"}[key];
+}
+function approximate(key,a,b,n,method){
+  const dx=(b-a)/n;
+  let sum=0;
+  for(let i=0;i<n;i++){
+    const x0=a+i*dx, x1=x0+dx;
+    if(method==="left") sum += fValue(key,x0)*dx;
+    if(method==="right") sum += fValue(key,x1)*dx;
+    if(method==="mid") sum += fValue(key,(x0+x1)/2)*dx;
+    if(method==="trap") sum += (fValue(key,x0)+fValue(key,x1))*dx/2;
+  }
+  return sum;
+}
+function drawArea(){
+  const c=$("areaCanvas"), ctx=c.getContext("2d");
+  let a=+$("aVal").value, b=+$("bVal").value;
+  if(b<=a){ b=a+1; $("bVal").value=b; }
+  const n=+$("nVal").value;
+  const key=$("funcSelect").value, method=$("methodSelect").value;
+  $("aOut").textContent=fmt(a,1); $("bOut").textContent=fmt(b,1); $("nOut").textContent=n;
+
+  const W=c.width,H=c.height,p=58;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+  const xmax=Math.max(6,b+0.5), xmin=0;
+  let ymax=0;
+  for(let i=0;i<=200;i++){
+    const x=xmin+(xmax-xmin)*i/200;
+    ymax=Math.max(ymax,fValue(key,x));
+  }
+  ymax*=1.15;
+  const X=x=>p + (x-xmin)/(xmax-xmin)*(W-2*p);
+  const Y=y=>H-p - y/ymax*(H-2*p);
+
+  // grid
+  ctx.strokeStyle="#e5e7eb"; ctx.lineWidth=1;
+  for(let i=0;i<=xmax;i++){ctx.beginPath();ctx.moveTo(X(i),Y(0));ctx.lineTo(X(i),Y(ymax));ctx.stroke();}
+  const ystep=ymax/5;
+  for(let j=0;j<=5;j++){ctx.beginPath();ctx.moveTo(X(0),Y(j*ystep));ctx.lineTo(X(xmax),Y(j*ystep));ctx.stroke();}
+  // axes
+  ctx.strokeStyle="#111827"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(xmax),Y(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(0),Y(ymax)); ctx.stroke();
+
+  // shapes
+  const dx=(b-a)/n;
+  ctx.strokeStyle="rgba(107,78,255,.75)";
+  ctx.fillStyle="rgba(107,78,255,.18)";
+  ctx.lineWidth=1.5;
+  for(let i=0;i<n;i++){
+    const x0=a+i*dx, x1=x0+dx;
+    if(method==="trap"){
+      const y0=fValue(key,x0), y1=fValue(key,x1);
+      ctx.beginPath();
+      ctx.moveTo(X(x0),Y(0)); ctx.lineTo(X(x0),Y(y0)); ctx.lineTo(X(x1),Y(y1)); ctx.lineTo(X(x1),Y(0)); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    }else{
+      let xs=x0;
+      if(method==="right") xs=x1;
+      if(method==="mid") xs=(x0+x1)/2;
+      const y=fValue(key,xs);
+      ctx.fillRect(X(x0),Y(y),X(x1)-X(x0),Y(0)-Y(y));
+      ctx.strokeRect(X(x0),Y(y),X(x1)-X(x0),Y(0)-Y(y));
+    }
+  }
+
+  // curve
+  ctx.strokeStyle="#111827"; ctx.lineWidth=3;
+  ctx.beginPath();
+  for(let i=0;i<=400;i++){
+    const x=xmin+(xmax-xmin)*i/400, y=fValue(key,x);
+    if(i===0) ctx.moveTo(X(x),Y(y)); else ctx.lineTo(X(x),Y(y));
+  }
+  ctx.stroke();
+
+  // limits
+  ctx.strokeStyle="#f59e0b"; ctx.lineWidth=2; ctx.setLineDash([6,5]);
+  [a,b].forEach(x=>{ctx.beginPath(); ctx.moveTo(X(x),Y(0)); ctx.lineTo(X(x),Y(fValue(key,x))); ctx.stroke();});
+  ctx.setLineDash([]);
+
+  // labels
+  ctx.fillStyle="#111827"; ctx.font="16px system-ui";
+  ctx.fillText(`f(x) = ${fLabel(key)}`, X(Math.min(b+.15,xmax-2)), Y(fValue(key,Math.min(b,xmax-1))) - 16);
+  ctx.fillText(`a=${fmt(a,1)}`, X(a)-18, Y(0)+24);
+  ctx.fillText(`b=${fmt(b,1)}`, X(b)-18, Y(0)+24);
+
+  const approx=approximate(key,a,b,n,method);
+  const exact=FValue(key,b)-FValue(key,a);
+  $("approxOut").textContent=fmt(approx,4);
+  $("exactOut").textContent=fmt(exact,4);
+  $("errorOut").textContent=fmt(Math.abs(approx-exact),4);
+
+  const methodName = {left:"left rectangle", right:"right rectangle", mid:"midpoint rectangle", trap:"trapezoid"}[method];
+  $("areaFormula").classList.add("clean");
+  $("areaFormula").innerHTML =
+`<strong>Function:</strong> <span class="math">f(x) = ${fLabel(key)}</span><br>
+<strong>Strip width:</strong> <span class="math">Δx = (${fmt(b,1)} − ${fmt(a,1)}) ÷ ${n} = ${fmt((b-a)/n,4)}</span><br>
+<strong>Approximation:</strong> ${n} ${methodName}s<br>
+<strong>Exact area:</strong> <span class="intExpr">∫<sub>${fmt(a,1)}</sub><sup>${fmt(b,1)}</sup> (${fLabel(key)})&thinsp;dx</span><br>
+<strong>Anti-derivative:</strong> <span class="math">F(x) = ${FLabel(key)}</span><br>
+<strong>Evaluate:</strong> <span class="math">F(${fmt(b,1)}) − F(${fmt(a,1)})</span>`;
+}
+
+/* ---------- learn tab ---------- */
+function updateLearn(){
+  const a=+$("coefLearn").value, n=+$("powLearn").value, c=+$("constLearn").value;
+  $("coefLearnOut").textContent=a; $("powLearnOut").textContent=n; $("constLearnOut").textContent=c;
+  const warn=$("xMinusOneWarning");
+  const input = `${a===1?"":a===-1?"-":a}${powerText(n)} ${c>=0?"+":"-"} ${Math.abs(c)}`;
+  if(n===-1){
+    warn.classList.remove("hidden");
+    $("learnIntegralOut").innerHTML = `The term ${a}x⁻¹ is a special case, so this lab avoids it for the SL 5.5 power rule. The constant integrates to ${c}x.`;
+  }else{
+    warn.classList.add("hidden");
+    const terms=[{a:a,n:n},{a:c,n:0}];
+    $("learnIntegralOut").innerHTML = `
+      <strong>Question:</strong> Find ∫(${input}) dx<br><br>
+      Increase each power by 1 and divide by the new power:<br>
+      <strong>Answer:</strong> ${antiText(terms)}
+    `;
+  }
+}
+
+/* ---------- boundary examples ---------- */
+let boundaryState=null;
+function newBoundaryExample(){
+  const terms=[
+    {a:choice([2,3,4,5,-2,-3]), n:choice([1,2,3])},
+    {a:choice([1,2,3,-1,-2]), n:0}
+  ];
+  const x0=choice([1,2,3,-1]);
+  const C=randint(-8,8);
+  const y0=evalAnti(terms,x0)+C;
+  boundaryState={terms,x0,C,y0};
+  $("boundaryQ").innerHTML = `
+    <span class="tag">Boundary condition</span><br>
+    Given <span class="math">dy/dx = ${htmlPoly(terms)}</span> and <span class="math">y = ${fmt(y0)} when x = ${x0}</span>, find <span class="math">y</span>.
+  `;
+  $("boundarySol").classList.add("hidden");
+  $("boundarySol").innerHTML = `
+    <strong>Worked solution</strong><br>
+    1. Integrate the gradient:<br>
+    <span class="math">y = ${antiText(terms)}</span><br><br>
+    2. Substitute the boundary condition:<br>
+    <span class="math">${fmt(y0)} = ${fmt(evalAnti(terms,x0))} + C</span><br><br>
+    3. Therefore <span class="math">C = ${fmt(C)}</span>.<br><br>
+    <strong>Final answer:</strong><br>
+    <span class="math">y = ${antiText(terms,"x",false)} ${C>=0?"+":"-"} ${Math.abs(C)}</span>
+  `;
+}
+
+/* ---------- technology examples ---------- */
+let techState=null;
+function newTechExample(){
+  const terms=[
+    {a:choice([1,2,3,4]), n:choice([2,3])},
+    {a:choice([1,2,4]), n:0}
+  ];
+  const a=randint(0,3), b=randint(a+2,a+6);
+  const exact=evalAnti(terms,b)-evalAnti(terms,a);
+  techState={terms,a,b,exact};
+  $("techQ").innerHTML=`
+    Find the area under <span class="math">y = ${htmlPoly(terms)}</span> from <span class="math">x=${a}</span> to <span class="math">x=${b}</span>. What should be typed into technology?
+  `;
+  $("techSol").classList.add("hidden");
+  $("techSol").innerHTML=`
+    <span class="solHeading">Correct setup</span>
+    <span class="mathLine"><span class="intExpr">∫<sub>${a}</sub><sup>${b}</sup> (${htmlPoly(terms)})&thinsp;dx</span></span>
+
+    <span class="solHeading">TI-Nspire style</span>
+    <span class="calcBox">nInt(${htmlPoly(terms).replaceAll("²","^2").replaceAll("³","^3").replaceAll("⁴","^4")}, x, ${a}, ${b})</span>
+
+    <span class="solHeading">Value</span>
+    ${fmt(exact,4)} square units.
+  `;
+}
+
+/* ---------- exam generator ---------- */
+let generatedCount=0;
+function newExamQuestion(){
+  let type=$("examType").value;
+  if(type==="random") type=choice(["anti","boundary","definite","velocity","trap"]);
+  const gen = {
+    anti: genAnti,
+    boundary: genBoundary,
+    definite: genDefinite,
+    velocity: genVelocity,
+    trap: genTrap
+  }[type]();
+  generatedCount++;
+  $("examProgress").style.width=Math.min(100,generatedCount*10)+"%";
+  $("examCount").textContent=`${generatedCount} question${generatedCount===1?"":"s"} generated`;
+  $("examTags").innerHTML=`<span class="tag">${gen.tag}</span>`;
+  $("examTitle").textContent=gen.title;
+  $("examQuestion").innerHTML=gen.q;
+  $("examSolution").classList.add("hidden");
+  $("examSolution").innerHTML=gen.sol;
+}
+function genAnti(){
+  let terms=[
+    {a:choice([2,3,4,5,-2,-3]), n:choice([2,3,4])},
+    {a:choice([2,4,-2,-5]), n:choice([1,2])},
+    {a:choice([3,6,-4]), n:0}
+  ];
+  return {
+    tag:"Anti-differentiation",
+    title:"Find an indefinite integral",
+    q:`Find <span class="math">∫(${htmlPoly(terms)}) dx</span>.`,
+    sol:`<strong>Worked solution</strong><br>
+      Use <span class="math">∫ axⁿ dx = axⁿ⁺¹/(n+1)+C</span>.<br><br>
+      <span class="math">∫(${htmlPoly(terms)}) dx = ${antiText(terms)}</span>.`
+  };
+}
+function genBoundary(){
+  const terms=[
+    {a:choice([2,3,4,5]), n:choice([1,2])},
+    {a:choice([1,-1,2,-2]), n:0}
+  ];
+  const x0=choice([1,2,3]);
+  const C=randint(-6,8);
+  const y0=evalAnti(terms,x0)+C;
+  return {
+    tag:"Boundary condition",
+    title:"Use a point to find C",
+    q:`Given <span class="math">dy/dx = ${htmlPoly(terms)}</span> and <span class="math">y=${fmt(y0)}</span> when <span class="math">x=${x0}</span>, find <span class="math">y</span>.`,
+    sol:`<strong>Worked solution</strong><br>
+      First integrate:<br>
+      <span class="math">y = ${antiText(terms)}</span><br><br>
+      Substitute <span class="math">x=${x0}, y=${fmt(y0)}</span>:<br>
+      <span class="math">${fmt(y0)} = ${fmt(evalAnti(terms,x0))} + C</span><br>
+      <span class="math">C = ${fmt(C)}</span><br><br>
+      <strong>Final answer:</strong><br>
+      <span class="math">y = ${antiText(terms,"x",false)} ${C>=0?"+":"-"} ${Math.abs(C)}</span>.`
+  };
+}
+function genDefinite(){
+  const terms=[
+    {a:choice([1,2,3,4]), n:choice([2,3])},
+    {a:choice([2,3,5]), n:0}
+  ];
+  const a=randint(0,3), b=randint(a+2,a+6);
+  const exact=evalAnti(terms,b)-evalAnti(terms,a);
+  return {
+    tag:"Definite integral / area",
+    title:"Find the area under a positive curve",
+    q:`The curve <span class="math">y=${htmlPoly(terms)}</span> is above the x-axis on the interval shown. Find the area between the curve and the x-axis from <span class="math">x=${a}</span> to <span class="math">x=${b}</span>.`,
+    sol:`<strong>Worked solution</strong><br>
+      Write the definite integral first:<br>
+      <span class="mathLine">Area = <span class="intExpr">∫<sub>${a}</sub><sup>${b}</sup> (${htmlPoly(terms)})&thinsp;dx</span></span>
+      Anti-derivative:<br>
+      <span class="math">F(x) = ${antiText(terms,"x",false)}</span><br><br>
+      Evaluate:<br>
+      <span class="math">Area = F(${b}) - F(${a}) = ${fmt(evalAnti(terms,b),4)} - ${fmt(evalAnti(terms,a),4)} = ${fmt(exact,4)}</span> square units.`
+  };
+}
+function genVelocity(){
+  const v=randint(4,14), t=randint(2,8), slow=randint(1,5);
+  const total=v*t + 0.5*v*slow;
+  return {
+    tag:"Velocity-time accumulation",
+    title:"Find total distance from a graph description",
+    q:`An object travels at a constant speed of <span class="math">${v} km/h</span> for <span class="math">${t}</span> hours. It then slows down uniformly to rest over the next <span class="math">${slow}</span> hours. Find the total distance travelled.`,
+    sol:`<strong>Worked solution</strong><br>
+      Distance is the area under the velocity-time graph.<br><br>
+      First part: rectangle area<br>
+      <span class="math">${v} × ${t} = ${v*t} km</span><br><br>
+      Slow-down part: triangle area<br>
+      <span class="math">1/2 × ${slow} × ${v} = ${fmt(0.5*v*slow)} km</span><br><br>
+      <strong>Total distance:</strong> <span class="math">${fmt(total)} km</span>.`
+  };
+}
+function genTrap(){
+  const xs=[0,1,2,3,4];
+  const ys=[];
+  const base=randint(2,5), slope=randint(1,3);
+  for(let i=0;i<xs.length;i++) ys.push(base + slope*i + randint(0,2));
+  const h=1;
+  const trap = h/2*(ys[0]+ys[ys.length-1]+2*ys.slice(1,-1).reduce((a,b)=>a+b,0));
+  return {
+    tag:"Trapezoidal estimate",
+    title:"Approximate an area from a table",
+    q:`The table gives values of a positive function. Use the trapezoidal rule to estimate the area under the curve from <span class="math">x=0</span> to <span class="math">x=4</span>.<br><br>
+      <table class="table">
+        <tr><th>x</th>${xs.map(x=>`<td>${x}</td>`).join("")}</tr>
+        <tr><th>y</th>${ys.map(y=>`<td>${y}</td>`).join("")}</tr>
+      </table>
+      <p class="muted">The x-values are equally spaced.</p>`,
+    sol:`<strong>Worked solution</strong><br>
+      The spacing is <span class="math">h=1</span>.<br><br>
+      <span class="math">Area ≈ h/2 [y₀ + y₄ + 2(y₁+y₂+y₃)]</span><br><br>
+      <span class="math">Area ≈ 1/2 [${ys[0]} + ${ys[4]} + 2(${ys[1]}+${ys[2]}+${ys[3]})]</span><br>
+      <span class="math">Area ≈ ${fmt(trap)}</span> square units.`
+  };
+}
+
+
+/* ---------- SL 5.8 trapezoidal rule ---------- */
+function getTrapYValues(){
+  return [...document.querySelectorAll(".trapY")].map(inp => Number(inp.value));
+}
+function getTrapH(){
+  return Number($("trapH").value);
+}
+function updateTrapXLabels(){
+  const h=getTrapH();
+  $("trapHOut").textContent=fmt(h,1);
+  for(let i=0;i<5;i++) $("tx"+i).textContent=fmt(i*h,1);
+}
+function trapEstimateFromValues(ys,h){
+  return h/2 * (ys[0] + ys[ys.length-1] + 2*ys.slice(1,-1).reduce((a,b)=>a+b,0));
+}
+function drawTrapRule(){
+  if(!$("trapCanvas")) return;
+  updateTrapXLabels();
+
+  const c=$("trapCanvas"), ctx=c.getContext("2d");
+  const h=getTrapH();
+  const ys=getTrapYValues();
+  const xs=ys.map((_,i)=>i*h);
+  const estimate=trapEstimateFromValues(ys,h);
+
+  const W=c.width,H=c.height,p=48;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+
+  const xmax=xs[xs.length-1] || 4;
+  const ymax=Math.max(...ys,1)*1.2;
+  const X=x=>p + x/(xmax||1)*(W-2*p);
+  const Y=y=>H-p - y/(ymax||1)*(H-2*p);
+
+  // grid
+  ctx.strokeStyle="#e5e7eb"; ctx.lineWidth=1;
+  for(let i=0;i<xs.length;i++){ctx.beginPath();ctx.moveTo(X(xs[i]),Y(0));ctx.lineTo(X(xs[i]),Y(ymax));ctx.stroke();}
+  for(let j=0;j<=5;j++){const y=ymax*j/5; ctx.beginPath();ctx.moveTo(X(0),Y(y));ctx.lineTo(X(xmax),Y(y));ctx.stroke();}
+
+  // axes
+  ctx.strokeStyle="#111827"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(xmax),Y(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(0),Y(ymax)); ctx.stroke();
+
+  // trapezoids
+  ctx.strokeStyle="rgba(107,78,255,.9)";
+  ctx.fillStyle="rgba(107,78,255,.18)";
+  ctx.lineWidth=2;
+  for(let i=0;i<ys.length-1;i++){
+    ctx.beginPath();
+    ctx.moveTo(X(xs[i]),Y(0));
+    ctx.lineTo(X(xs[i]),Y(ys[i]));
+    ctx.lineTo(X(xs[i+1]),Y(ys[i+1]));
+    ctx.lineTo(X(xs[i+1]),Y(0));
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // top line
+  ctx.strokeStyle="#111827"; ctx.lineWidth=3;
+  ctx.beginPath();
+  ys.forEach((y,i)=> i===0 ? ctx.moveTo(X(xs[i]),Y(y)) : ctx.lineTo(X(xs[i]),Y(y)));
+  ctx.stroke();
+
+  // points and labels
+  ctx.fillStyle="#111827";
+  ys.forEach((y,i)=>{
+    ctx.beginPath(); ctx.arc(X(xs[i]),Y(y),5,0,Math.PI*2); ctx.fill();
+  });
+  ctx.font="14px system-ui";
+  ctx.fillText("x", W-30, H-18);
+  ctx.fillText("y", 17, 30);
+
+  const middleSum = ys.slice(1,-1).reduce((a,b)=>a+b,0);
+  $("trapWorking").innerHTML = `
+    <span class="solHeading">Working</span>
+    <span class="mathLine">h = ${fmt(h,1)}</span>
+    <span class="mathLine">Area ≈ h/2 [y₀ + y₄ + 2(y₁ + y₂ + y₃)]</span>
+    <span class="mathLine">Area ≈ ${fmt(h,1)}/2 [${fmt(ys[0],2)} + ${fmt(ys[4],2)} + 2(${ys.slice(1,-1).map(y=>fmt(y,2)).join(" + ")})]</span>
+    <span class="mathLine">Area ≈ ${fmt(estimate,4)} square units</span>
+  `;
+}
+function randomTrapData(){
+  const start=randint(1,5);
+  const ys=[start];
+  for(let i=1;i<5;i++) ys.push(ys[i-1] + randint(1,5));
+  document.querySelectorAll(".trapY").forEach((inp,i)=>inp.value=ys[i]);
+  drawTrapRule();
+}
+function setTrapFromFunction(){
+  const h=getTrapH();
+  document.querySelectorAll(".trapY").forEach((inp,i)=>{
+    const x=i*h;
+    inp.value=fmt(x*x+1,2);
+  });
+  drawTrapRule();
+}
+
+/* ---------- listeners ---------- */
+["v1","t1","t2"].forEach(id=>$(id).addEventListener("input",drawVelocity));
+["funcSelect","methodSelect","aVal","bVal","nVal"].forEach(id=>$(id).addEventListener("input",drawArea));
+["coefLearn","powLearn","constLearn"].forEach(id=>$(id).addEventListener("input",updateLearn));
+if($("trapH")) $("trapH").addEventListener("input",drawTrapRule);
+document.querySelectorAll(".trapY").forEach(inp=>inp.addEventListener("input",drawTrapRule));
+
+
+/* ---------- lightweight self-checks ---------- */
+function runSelfChecks(){
+  const test = antiText([{a:-3,n:3},{a:-2,n:0}], "x", false);
+  if(test.includes("false")){
+    console.error("Self-check failed: antiText is replacing x with false.", test);
+  }
+}
+
+/* ---------- init ---------- */
+runSelfChecks();
+renderConceptQuiz();
+renderMatch();
+drawVelocity();
+drawArea();
+drawTrapRule();
+updateLearn();
+newBoundaryExample();
+newTechExample();
+newExamQuestion();
+</script>
+</body>
+</html>
