@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AHL 1.14 Matrices — Ultimate Interactive Resource</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --panel:#ffffff;
+      --ink:#162033;
+      --muted:#5f6c7b;
+      --line:#d9e2ec;
+      --brand:#2356d6;
+      --brand2:#6d3df0;
+      --ahl:#7b2ff7;
+      --core:#0f9f6e;
+      --future:#f59e0b;
+      --danger:#d64545;
+      --ok:#0f7b4e;
+      --soft:#eef4ff;
+      --soft2:#f5efff;
+      --soft3:#eafaf3;
+      --shadow:0 12px 30px rgba(20,31,55,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(35,86,214,.15), transparent 34rem),
+        radial-gradient(circle at top right, rgba(123,47,247,.12), transparent 32rem),
+        var(--bg);
+      line-height:1.5;
+    }
+    .app{max-width:1220px;margin:0 auto;padding:22px}
+    header.hero{
+      display:grid;
+      grid-template-columns:1.35fr .65fr;
+      gap:20px;
+      align-items:stretch;
+      padding:26px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:linear-gradient(135deg, #ffffff 0%, #f1f6ff 55%, #f6f0ff 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    header.hero:after{
+      content:"";
+      position:absolute;
+      right:-90px;top:-90px;
+      width:260px;height:260px;border-radius:50%;
+      background:rgba(35,86,214,.08);
+    }
+    .eyebrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .pill{
+      display:inline-flex;align-items:center;gap:7px;
+      border:1px solid var(--line);
+      padding:6px 10px;border-radius:999px;
+      font-size:13px;font-weight:700;background:#fff;color:#344054;
+    }
+    .pill.ahl{background:var(--soft2);color:#5925dc;border-color:#d6bbfb}
+    .pill.core{background:var(--soft3);color:#087443;border-color:#abefc6}
+    .pill.future{background:#fff7ed;color:#b45309;border-color:#fed7aa}
+    h1{font-size:clamp(34px,5vw,64px);line-height:1.02;margin:0 0 12px;font-weight:900;letter-spacing:-.05em}
+    h2{font-size:clamp(24px,3vw,36px);line-height:1.1;margin:0 0 12px;letter-spacing:-.03em}
+    h3{font-size:21px;margin:0 0 10px;letter-spacing:-.02em}
+    h4{font-size:16px;margin:16px 0 8px}
+    p{margin:0 0 12px;color:#263145}
+    .lead{font-size:18px;color:#344054;max-width:780px}
+    .hero-card{
+      z-index:1;
+      border:1px solid rgba(35,86,214,.18);
+      border-radius:24px;
+      padding:18px;
+      background:rgba(255,255,255,.72);
+      backdrop-filter:blur(10px);
+      box-shadow:0 8px 24px rgba(35,86,214,.08);
+      min-height:100%;
+    }
+    .big-equation{
+      margin-top:10px;
+      padding:14px;
+      border-radius:16px;
+      background:#111827;
+      color:#fff;
+      font-size:19px;
+      font-weight:800;
+      display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+    }
+    .small{font-size:13px;color:var(--muted)}
+    .tabs-wrap{position:sticky;top:0;z-index:20;margin:18px 0;background:rgba(246,248,251,.92);backdrop-filter:blur(10px);padding:10px 0}
+    .tabs{display:flex;gap:8px;overflow:auto;padding-bottom:4px}
+    .tab-btn{
+      border:1px solid var(--line);background:#fff;color:#344054;
+      border-radius:999px;padding:10px 14px;font-weight:800;white-space:nowrap;cursor:pointer;
+      transition:.2s transform,.2s background,.2s color,.2s border;
+    }
+    .tab-btn:hover{transform:translateY(-1px);border-color:#aac0e8}
+    .tab-btn.active{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+    main{margin-top:10px}
+    section.tab{display:none;animation:fade .24s ease}
+    section.tab.active{display:block}
+    @keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .grid{display:grid;gap:16px}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .card{
+      background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 8px 20px rgba(20,31,55,.06)
+    }
+    .card.soft{background:linear-gradient(180deg,#fff,#f4f7ff)}
+    .card.ahl{border-color:#d6bbfb;background:linear-gradient(180deg,#fff,#faf5ff)}
+    .card.core{border-color:#abefc6;background:linear-gradient(180deg,#fff,#f0fdf4)}
+    .card.future{border-color:#fed7aa;background:linear-gradient(180deg,#fff,#fff7ed)}
+    .checklist{display:grid;gap:10px;margin-top:12px}
+    .check{
+      display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;
+      padding:10px;border-radius:14px;background:#fff;border:1px solid var(--line)
+    }
+    .tick{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#ecfdf3;color:#087443;font-weight:900}
+    .tagrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .mini-tag{font-size:12px;font-weight:800;padding:4px 8px;border-radius:999px;background:#eef4ff;color:#1d4ed8}
+    .mini-tag.ahl{background:#f4ebff;color:#6d28d9}.mini-tag.future{background:#fff7ed;color:#b45309}.mini-tag.core{background:#ecfdf3;color:#087443}
+    .note{padding:12px 14px;border-left:5px solid var(--brand);background:#eef4ff;border-radius:14px;margin:12px 0;color:#344054}
+    .warning{padding:12px 14px;border-left:5px solid var(--danger);background:#fff1f2;border-radius:14px;margin:12px 0;color:#7f1d1d}
+    .success{padding:12px 14px;border-left:5px solid var(--ok);background:#ecfdf3;border-radius:14px;margin:12px 0;color:#064e3b}
+    .mathline{font-weight:800;font-size:18px;letter-spacing:.01em;color:#111827;margin:8px 0}
+    .matrix{
+      display:inline-grid;
+      gap:4px;
+      padding:8px 12px;
+      margin:4px 4px;
+      position:relative;
+      vertical-align:middle;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-weight:800;
+    }
+    .matrix:before,.matrix:after{content:"";position:absolute;top:2px;bottom:2px;width:9px;border-top:2px solid #111827;border-bottom:2px solid #111827}
+    .matrix:before{left:0;border-left:2px solid #111827;border-radius:8px 0 0 8px}.matrix:after{right:0;border-right:2px solid #111827;border-radius:0 8px 8px 0}
+    .cell{
+      min-width:34px;min-height:30px;display:grid;place-items:center;border-radius:9px;padding:4px 6px;background:#f8fafc;border:1px solid #e5e7eb;color:#111827;
+    }
+    .cell.hl{background:#dbeafe;border-color:#93c5fd}.cell.row{background:#eef2ff;border-color:#c7d2fe}.cell.col{background:#fef3c7;border-color:#fcd34d}.cell.target{background:#dcfce7;border-color:#86efac}.cell.bad{background:#fee2e2;border-color:#fca5a5}
+    .matrix.plain .cell{background:transparent;border-color:transparent;min-width:28px}
+    .flex{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    button,.btn{
+      border:0;border-radius:12px;padding:10px 13px;font-weight:850;cursor:pointer;
+      background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:0 6px 16px rgba(35,86,214,.18);
+      transition:.2s transform,.2s box-shadow,.2s opacity;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    }
+    button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(35,86,214,.22)}
+    button.secondary{background:#fff;color:#344054;border:1px solid var(--line);box-shadow:none}
+    button.good{background:linear-gradient(135deg,#059669,#10b981)}
+    button.warn{background:linear-gradient(135deg,#d97706,#f59e0b)}
+    input,select,textarea{
+      width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;background:#fff;color:#111827;
+    }
+    label{display:block;font-weight:800;margin-bottom:6px;color:#344054}
+    .control-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end}
+    .choice-stack{display:grid;gap:10px}
+    .choice-group{display:flex;flex-wrap:wrap;gap:8px}
+    .choice-btn{background:#fff;color:#344054;border:1px solid var(--line);box-shadow:none;padding:10px 12px;border-radius:999px}
+    .choice-btn:hover{box-shadow:none;border-color:#aac0e8}
+    .choice-btn.active{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(35,86,214,.18)}
+    .answer-box{margin-top:12px;padding:14px;border-radius:14px;background:#f8fafc;border:1px dashed #cbd5e1;min-height:52px;overflow:auto}
+    .step{padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);margin:8px 0}
+    .tiny-table{border-collapse:separate;border-spacing:0;width:100%;overflow:hidden;border-radius:14px;border:1px solid var(--line)}
+    .tiny-table th,.tiny-table td{padding:10px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);text-align:center;background:#fff}
+    .tiny-table th{background:#eef4ff;font-weight:900}.tiny-table tr:last-child td{border-bottom:0}.tiny-table td:last-child,.tiny-table th:last-child{border-right:0}
+    .svgbox{width:100%;min-height:210px;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;padding:8px}
+    svg{max-width:100%;height:auto;display:block;margin:0 auto}
+    details{border:1px solid var(--line);border-radius:14px;background:#fff;margin:10px 0;overflow:hidden}
+    summary{cursor:pointer;padding:12px 14px;font-weight:900;background:#f8fafc}
+    details>div{padding:14px}
+    .accordion-answer{display:none;margin-top:10px}.accordion-answer.show{display:block}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;border:1px solid #cbd5e1;border-bottom-width:3px;border-radius:8px;background:#fff;padding:2px 6px;font-size:13px;font-weight:900;color:#111827}
+    .progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.2s width}
+    .footer{margin:22px 0 6px;text-align:center;color:var(--muted);font-size:13px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.muted{color:var(--muted)}
+    .nowrap{white-space:nowrap}.hide{display:none!important}
+    .lesson-flow{counter-reset:flow;display:grid;gap:10px}.flow-item{counter-increment:flow;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff}.flow-item:before{content:counter(flow);width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;display:grid;place-items:center;font-weight:950;font-size:20px}
+    .two-col-list{columns:2;column-gap:25px}.two-col-list li{break-inside:avoid;margin-bottom:8px}
+    @media (max-width:900px){header.hero,.grid.two,.grid.three,.grid.four,.control-grid{grid-template-columns:1fr}.tabs-wrap{position:relative}.app{padding:12px}.hero{padding:18px}.two-col-list{columns:1}}
+    @media print{.tabs-wrap,button,.btn{display:none!important}section.tab{display:block!important;page-break-inside:avoid}.card,header.hero{box-shadow:none}.app{max-width:100%;padding:0}body{background:#fff}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">
+        <span class="pill ahl">AHL 1.14</span>
+        <span class="pill core">Explore → Learn → Practise</span>
+        <span class="pill future">Links to eigenvectors & phase portraits</span>
+      </div>
+      <h1>Matrices: data, transformations and decisions</h1>
+      <p class="lead">A complete interactive lab for IB DP Mathematics: Applications and Interpretation HL. It combines visual discovery, careful worked examples, TI-Nspire support, modelling contexts, coding/decoding, systems of equations, and a random exam-style question generator.</p>
+      <div class="big-equation">
+        <span>data table</span><span>→</span><span>matrix</span><span>→</span><span>operation</span><span>→</span><span>meaningful decision</span>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3>How to use this resource</h3>
+      <p>Start with the <b>Big idea</b>, then move through the skill labs. Use the <b>Exam Generator</b> at the end to create unlimited practice.</p>
+      <div class="checklist">
+        <div class="check"><div class="tick">✓</div><div><b>Concept first</b><br><span class="small">Matrices as organised data, not just brackets.</span></div></div>
+        <div class="check"><div class="tick">✓</div><div><b>Mechanics second</b><br><span class="small">Rows, columns, order, arithmetic and multiplication.</span></div></div>
+        <div class="check"><div class="tick">✓</div><div><b>Applications third</b><br><span class="small">Revenue, systems, coding and later HL links.</span></div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs-wrap">
+    <nav class="tabs" aria-label="Main resource tabs">
+      <button class="tab-btn active" data-tab="bigidea">1 Big idea</button>
+      <button class="tab-btn" data-tab="structure">2 Structure & arithmetic</button>
+      <button class="tab-btn" data-tab="multiply">3 Multiplication lab</button>
+      <button class="tab-btn" data-tab="inverse">4 Determinants & inverses</button>
+      <button class="tab-btn" data-tab="applications">5 Modelling applications</button>
+      <button class="tab-btn" data-tab="tinspire">6 TI-Nspire guide</button>
+      <button class="tab-btn" data-tab="practice">7 Exam generator</button>
+      <button class="tab-btn" data-tab="teacher">8 Teacher flow</button>
+    </nav>
+  </div>
+
+  <main>
+    <section class="tab active" id="bigidea">
+      <div class="grid two">
+        <div class="card soft">
+          <h2>Why matrices?</h2>
+          <p>A matrix is a compact way to store information in rows and columns. The power comes when we operate on that information all at once.</p>
+          <div class="note"><b>Teacher move:</b> repeatedly ask, “What do the rows mean? What do the columns mean? What does each entry mean?” This prevents students from treating matrices as meaningless number rectangles.</div>
+          <div class="svgbox" aria-label="Data to matrix diagram">
+            <svg viewBox="0 0 760 300" role="img">
+              <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2356d6"/></marker>
+              </defs>
+              <rect x="20" y="36" width="250" height="210" rx="18" fill="#eef4ff" stroke="#aac0e8"/>
+              <text x="145" y="68" text-anchor="middle" font-weight="800" font-size="22" fill="#162033">Stationery sales</text>
+              <rect x="58" y="88" width="176" height="118" rx="8" fill="#fff" stroke="#cbd5e1"/>
+              <line x1="58" y1="122" x2="234" y2="122" stroke="#cbd5e1"/><line x1="58" y1="156" x2="234" y2="156" stroke="#cbd5e1"/><line x1="58" y1="190" x2="234" y2="190" stroke="#cbd5e1"/><line x1="116" y1="88" x2="116" y2="206" stroke="#cbd5e1"/><line x1="176" y1="88" x2="176" y2="206" stroke="#cbd5e1"/>
+              <text x="87" y="111" text-anchor="middle" font-size="15" font-weight="800">Colour</text><text x="146" y="111" text-anchor="middle" font-size="15" font-weight="800">P</text><text x="206" y="111" text-anchor="middle" font-size="15" font-weight="800">R</text>
+              <text x="87" y="145" text-anchor="middle" font-size="15">Blue</text><text x="146" y="145" text-anchor="middle" font-size="15">32</text><text x="206" y="145" text-anchor="middle" font-size="15">24</text>
+              <text x="87" y="179" text-anchor="middle" font-size="15">Black</text><text x="146" y="179" text-anchor="middle" font-size="15">25</text><text x="206" y="179" text-anchor="middle" font-size="15">16</text>
+              <text x="87" y="202" text-anchor="middle" font-size="15">Red</text><text x="146" y="202" text-anchor="middle" font-size="15">13</text><text x="206" y="202" text-anchor="middle" font-size="15">9</text>
+              <path d="M290 145 C340 145, 340 145, 390 145" fill="none" stroke="#2356d6" stroke-width="5" marker-end="url(#arrow)"/>
+              <text x="340" y="128" text-anchor="middle" font-size="16" font-weight="800" fill="#2356d6">strip labels</text>
+              <rect x="410" y="36" width="150" height="210" rx="18" fill="#f5efff" stroke="#d6bbfb"/>
+              <text x="485" y="68" text-anchor="middle" font-weight="800" font-size="22" fill="#162033">Matrix Q</text>
+              <text x="485" y="130" text-anchor="middle" font-family="monospace" font-size="24" fill="#111827">[32 24]</text>
+              <text x="485" y="165" text-anchor="middle" font-family="monospace" font-size="24" fill="#111827">[25 16]</text>
+              <text x="485" y="200" text-anchor="middle" font-family="monospace" font-size="24" fill="#111827">[13  9]</text>
+              <path d="M580 145 C615 145, 615 145, 650 145" fill="none" stroke="#2356d6" stroke-width="5" marker-end="url(#arrow)"/>
+              <rect x="662" y="78" width="72" height="134" rx="14" fill="#ecfdf3" stroke="#abefc6"/>
+              <text x="698" y="112" text-anchor="middle" font-weight="800" font-size="18">P</text>
+              <text x="698" y="146" text-anchor="middle" font-family="monospace" font-size="19">1.19</text>
+              <text x="698" y="178" text-anchor="middle" font-family="monospace" font-size="19">1.55</text>
+              <text x="660" y="235" text-anchor="start" font-size="15" fill="#344054">Q × P gives revenue by colour</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card ahl">
+          <h2>Syllabus map</h2>
+          <p>The chapter is best taught as one connected story:</p>
+          <div class="checklist">
+            <div class="check"><div class="tick">1</div><div><b>Definition</b>: element, row, column and order for <span class="mono">m × n</span> matrices.</div></div>
+            <div class="check"><div class="tick">2</div><div><b>Arithmetic</b>: equality, addition, subtraction and scalar multiplication.</div></div>
+            <div class="check"><div class="tick">3</div><div><b>Multiplication</b>: row-by-column products, dimensions, non-commutativity, associativity and distributivity.</div></div>
+            <div class="check"><div class="tick">4</div><div><b>Special matrices</b>: identity matrix <span class="mono">I</span>, zero matrix <span class="mono">0</span>, determinant and inverse.</div></div>
+            <div class="check"><div class="tick">5</div><div><b>Systems</b>: write equations as <span class="mono">Ax = b</span> and solve with <span class="mono">x = A⁻¹b</span>.</div></div>
+            <div class="check"><div class="tick">6</div><div><b>Applications</b>: revenue modelling, coding/decoding, transition matrices and later HL links.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid three" style="margin-top:16px">
+        <div class="card core"><h3>Concrete-to-abstract scaffold</h3><p>Build from familiar tables. Keep the organisation of the data visible. Label rows and columns before gradually removing the labels.</p></div>
+        <div class="card future"><h3>Exam-and-technology clarity</h3><p>Give clear key points and calculator-efficient exam methods. Make technology use explicit rather than assumed.</p></div>
+        <div class="card ahl"><h3>Inquiry and modelling focus</h3><p>Frame the topic as modelling with data. Use investigations, interpretation prompts and TOK-style questions.</p></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h2>Opening exploration: what does each product mean?</h2>
+        <p>Quantity matrix <b>Q</b> stores pens sold by colour and brand. Price matrix <b>P</b> stores price per brand.</p>
+        <div class="flex" id="openingMatrices"></div>
+        <div class="control-grid">
+          <div><label for="blueP">Blue Pentex</label><input id="blueP" type="number" value="32"></div>
+          <div><label for="blueR">Blue Rollerball</label><input id="blueR" type="number" value="24"></div>
+          <div><label for="priceP">Pentex price</label><input id="priceP" type="number" value="1.19" step="0.01"></div>
+          <div><label for="priceR">Rollerball price</label><input id="priceR" type="number" value="1.55" step="0.01"></div>
+        </div>
+        <div class="flex" style="margin-top:12px"><button onclick="updateOpening()">Update blue-row revenue</button><button class="secondary" onclick="resetOpening()">Reset</button></div>
+        <div id="openingAnswer" class="answer-box"></div>
+      </div>
+    </section>
+
+    <section class="tab" id="structure">
+      <div class="grid two">
+        <div class="card">
+          <h2>Matrix structure</h2>
+          <p>A matrix with <b>m rows</b> and <b>n columns</b> has order <b>m × n</b>. The entry <b>a<sub>ij</sub></b> means: row <b>i</b>, column <b>j</b>.</p>
+          <div class="note"><b>Common error:</b> students often say columns first. Use the phrase: <b>down then across</b>, or <b>row then column</b>.</div>
+          <div id="structureMatrix"></div>
+          <div class="control-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div><label>Row i</label><select id="elemRow" onchange="updateElementFinder()"><option>1</option><option>2</option><option>3</option></select></div>
+            <div><label>Column j</label><select id="elemCol" onchange="updateElementFinder()"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+            <div><label>New matrix</label><button onclick="randomStructureMatrix()">Randomise</button></div>
+          </div>
+          <div id="elementAnswer" class="answer-box"></div>
+        </div>
+        <div class="card soft">
+          <h2>Matrix arithmetic</h2>
+          <p>Addition and subtraction only work when matrices have the <b>same order</b>. Scalar multiplication means multiply every entry by the same number.</p>
+          <div id="arithmeticMatrices" class="flex"></div>
+          <div class="control-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div><label>Scalar k</label><input id="scalarK" type="number" value="2"></div>
+            <div><label>Operation</label><select id="arithOp"><option value="add">A + B</option><option value="sub">A − B</option><option value="scalar">kA</option><option value="combo">2A − B</option></select></div>
+            <div><label>Calculate</label><button onclick="doArithmetic()">Show result</button></div>
+          </div>
+          <div id="arithmeticAnswer" class="answer-box"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h2>Equality: turning a matrix statement into equations</h2>
+        <p>If two matrices are equal, their corresponding entries are equal. This lets us solve unknowns entry-by-entry.</p>
+        <div class="mathline">Example: if <span id="eqExample"></span>, find x and y.</div>
+        <button onclick="newEqualityExample()">New equality example</button>
+        <button class="secondary" onclick="toggleSolution('eqSol')">Reveal solution</button>
+        <div id="eqSol" class="accordion-answer answer-box"></div>
+      </div>
+    </section>
+
+    <section class="tab" id="multiply">
+      <div class="grid two">
+        <div class="card ahl">
+          <h2>Multiplication lab</h2>
+          <p>Matrix multiplication is a machine for combining rows from the first matrix with columns from the second matrix.</p>
+          <div class="mathline">If A is <span class="mono">m × n</span> and B is <span class="mono">n × p</span>, then AB is <span class="mono">m × p</span>.</div>
+          <div class="warning"><b>Important:</b> AB and BA are usually different. Sometimes one of them is not even possible.</div>
+          <div id="multMatrices" class="flex"></div>
+          <div class="control-grid" style="grid-template-columns:repeat(4,1fr)">
+            <div><label>Choose row of A</label><select id="multRow" onchange="updateMultStep()"><option value="0">Row 1</option><option value="1">Row 2</option></select></div>
+            <div><label>Choose column of B</label><select id="multCol" onchange="updateMultStep()"><option value="0">Column 1</option><option value="1">Column 2</option></select></div>
+            <div><label>New numbers</label><button onclick="randomMultLab()">Randomise</button></div>
+            <div><label>Full product</label><button class="good" onclick="showFullProduct()">Show AB</button></div>
+          </div>
+          <div id="multStep" class="answer-box"></div>
+        </div>
+        <div class="card soft">
+          <h2>Diagram: row × column</h2>
+          <div class="svgbox">
+            <svg viewBox="0 0 760 360" role="img" aria-label="Row column multiplication diagram">
+              <defs><marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#6d3df0"/></marker></defs>
+              <rect x="30" y="45" width="210" height="160" rx="16" fill="#eef2ff" stroke="#c7d2fe"/>
+              <text x="135" y="34" text-anchor="middle" font-size="22" font-weight="900">A</text>
+              <rect x="64" y="82" width="142" height="44" rx="10" fill="#dbeafe" stroke="#60a5fa"/>
+              <text x="95" y="111" font-family="monospace" font-size="24">a</text><text x="135" y="111" font-family="monospace" font-size="24">b</text><text x="175" y="111" font-family="monospace" font-size="24">c</text>
+              <text x="95" y="163" font-family="monospace" font-size="24">d</text><text x="135" y="163" font-family="monospace" font-size="24">e</text><text x="175" y="163" font-family="monospace" font-size="24">f</text>
+              <rect x="310" y="45" width="190" height="210" rx="16" fill="#fff7ed" stroke="#fed7aa"/>
+              <text x="405" y="34" text-anchor="middle" font-size="22" font-weight="900">B</text>
+              <rect x="380" y="72" width="48" height="154" rx="10" fill="#fef3c7" stroke="#f59e0b"/>
+              <text x="355" y="107" font-family="monospace" font-size="24">g</text><text x="405" y="107" font-family="monospace" font-size="24">h</text>
+              <text x="355" y="156" font-family="monospace" font-size="24">i</text><text x="405" y="156" font-family="monospace" font-size="24">j</text>
+              <text x="355" y="205" font-family="monospace" font-size="24">k</text><text x="405" y="205" font-family="monospace" font-size="24">l</text>
+              <path d="M210 104 C260 104, 288 116, 342 148" fill="none" stroke="#2356d6" stroke-width="4" marker-end="url(#arrow2)"/>
+              <path d="M405 228 C405 280, 330 292, 252 280" fill="none" stroke="#d97706" stroke-width="4" marker-end="url(#arrow2)"/>
+              <rect x="570" y="102" width="150" height="90" rx="16" fill="#ecfdf3" stroke="#86efac"/>
+              <text x="645" y="90" text-anchor="middle" font-size="22" font-weight="900">C = AB</text>
+              <rect x="612" y="126" width="66" height="44" rx="10" fill="#dcfce7" stroke="#22c55e"/>
+              <text x="645" y="155" text-anchor="middle" font-family="monospace" font-size="23">c₁₁</text>
+              <text x="380" y="323" text-anchor="middle" font-size="23" font-weight="900" fill="#111827">c₁₁ = a·g + b·i + c·k</text>
+            </svg>
+          </div>
+          <details open><summary>Why multiplication is defined this way</summary><div>It matches situations where one table converts one category into another. For example, quantities by brand multiplied by prices by brand gives revenue. In later HL topics, transition matrices convert today’s state into tomorrow’s state.</div></details>
+        </div>
+      </div>
+      <div class="grid two" style="margin-top:16px">
+        <div class="card">
+          <h2>Non-commutativity explorer</h2>
+          <p>Try two square matrices. Compare AB and BA.</p>
+          <div id="commMatrices" class="flex"></div>
+          <div class="flex"><button onclick="newCommutativity()">New example</button><button class="secondary" onclick="showCommutativity()">Compare AB and BA</button></div>
+          <div id="commAnswer" class="answer-box"></div>
+        </div>
+        <div class="card future">
+          <h2>Properties worth knowing</h2>
+          <div class="step"><b>Associative:</b> <span class="mono">A(BC) = (AB)C</span>. You may regroup, if the products are defined.</div>
+          <div class="step"><b>Distributive:</b> <span class="mono">A(B + C) = AB + AC</span>. Multiplication distributes over addition.</div>
+          <div class="step"><b>Not commutative:</b> usually <span class="mono">AB ≠ BA</span>. Order matters.</div>
+          <div class="step"><b>Identity:</b> <span class="mono">AI = IA = A</span>, where the identity matrix has 1s on the main diagonal and 0s elsewhere.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="inverse">
+      <div class="grid two">
+        <div class="card ahl">
+          <h2>Determinant and inverse for 2 × 2</h2>
+          <p>For</p>
+          <div class="mathline flex"><span>A =</span>
+            <span class="matrix plain" style="grid-template-columns:repeat(2,auto)">
+              <span class="cell">a</span><span class="cell">b</span>
+              <span class="cell">c</span><span class="cell">d</span>
+            </span>
+          </div>
+          <div class="mathline">det(A) = ad − bc</div>
+          <div class="mathline flex"><span>A⁻¹ =</span><span class="mono">1/(ad − bc)</span><span>×</span>
+            <span class="matrix plain" style="grid-template-columns:repeat(2,auto)">
+              <span class="cell">d</span><span class="cell">−b</span>
+              <span class="cell">−c</span><span class="cell">a</span>
+            </span>
+          </div>
+          <div class="warning"><b>If det(A) = 0</b>, the inverse does not exist. The matrix is singular.</div>
+          <div class="control-grid" style="grid-template-columns:repeat(4,1fr)">
+            <div><label>a</label><input id="ia" type="number" value="2"></div><div><label>b</label><input id="ib" type="number" value="1"></div><div><label>c</label><input id="ic" type="number" value="5"></div><div><label>d</label><input id="id" type="number" value="3"></div>
+          </div>
+          <div class="flex" style="margin-top:12px"><button onclick="calculateInverse()">Calculate determinant & inverse</button><button class="secondary" onclick="randomInverseMatrix()">Random invertible matrix</button></div>
+          <div id="inverseAnswer" class="answer-box"></div>
+        </div>
+        <div class="card soft">
+          <h2>Solving systems with Ax = b</h2>
+          <p>A system such as</p>
+          <div class="mathline">2x + y = 7<br>5x + 3y = 18</div>
+          <p>can be written as</p>
+          <div class="mathline flex"><span>A</span>
+            <span class="matrix plain" style="grid-template-columns:repeat(2,auto)">
+              <span class="cell">x</span>
+              <span class="cell">y</span>
+            </span>
+            <span>= b</span>
+          </div>
+          <div class="flex" style="gap:18px;align-items:flex-start;flex-wrap:wrap;margin:6px 0 12px">
+            <div><span class="small"><b>A =</b></span><br><span class="matrix plain" style="grid-template-columns:repeat(2,auto)"><span class="cell">2</span><span class="cell">1</span><span class="cell">5</span><span class="cell">3</span></span></div>
+            <div><span class="small"><b>x =</b></span><br><span class="matrix plain" style="grid-template-columns:repeat(1,auto)"><span class="cell">x</span><span class="cell">y</span></span></div>
+            <div><span class="small"><b>b =</b></span><br><span class="matrix plain" style="grid-template-columns:repeat(1,auto)"><span class="cell">7</span><span class="cell">18</span></span></div>
+          </div>
+          <div class="success"><b>If A is invertible:</b> multiply both sides by A⁻¹ to get <span class="mono">x = A⁻¹b</span>.</div>
+          <div class="control-grid" style="grid-template-columns:repeat(6,1fr)">
+            <div><label>a</label><input id="sa" type="number" value="2"></div><div><label>b</label><input id="sb" type="number" value="1"></div><div><label>e</label><input id="se" type="number" value="7"></div><div><label>c</label><input id="sc" type="number" value="5"></div><div><label>d</label><input id="sd" type="number" value="3"></div><div><label>f</label><input id="sf" type="number" value="18"></div>
+          </div>
+          <p class="small" style="margin-top:8px">This represents ax + by = e and cx + dy = f.</p>
+          <div class="flex"><button onclick="solveSystem()">Solve with inverse matrix</button><button class="secondary" onclick="randomSystem()">Random integer-solution system</button></div>
+          <div id="systemAnswer" class="answer-box"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h2>Visual meaning of determinant</h2>
+        <p>For a 2 × 2 matrix, the determinant is the signed area scale factor. If the determinant is zero, the transformation squashes the plane onto a line, so it cannot be reversed.</p>
+        <div class="svgbox">
+          <svg viewBox="0 0 760 280" role="img">
+            <rect x="20" y="20" width="220" height="220" rx="16" fill="#fff" stroke="#d9e2ec"/>
+            <path d="M55 220 L55 55 M55 220 L220 220" stroke="#94a3b8" stroke-width="2"/>
+            <path d="M55 220 L155 220 L155 120 L55 120 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+            <text x="130" y="248" text-anchor="middle" font-weight="900">Unit square</text>
+            <path d="M280 140 C325 140, 325 140, 370 140" stroke="#2356d6" stroke-width="5" marker-end="url(#arrow2)"/>
+            <rect x="410" y="20" width="310" height="220" rx="16" fill="#fff" stroke="#d9e2ec"/>
+            <path d="M445 220 L445 55 M445 220 L690 220" stroke="#94a3b8" stroke-width="2"/>
+            <path d="M445 220 L595 190 L660 90 L510 120 Z" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+            <text x="565" y="248" text-anchor="middle" font-weight="900">Transformed parallelogram</text>
+            <text x="565" y="44" text-anchor="middle" font-size="18" font-weight="900">area scale = |det(A)|</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="applications">
+      <div class="grid two">
+        <div class="card core">
+          <h2>Application 1: revenue model</h2>
+          <p>Use a quantity matrix and a price matrix. The product has a direct meaning.</p>
+          <table class="tiny-table">
+            <thead><tr><th>Product</th><th>Budget sold</th><th>Premium sold</th></tr></thead>
+            <tbody><tr><td>Notebooks</td><td>40</td><td>18</td></tr><tr><td>Pens</td><td>80</td><td>35</td></tr><tr><td>Folders</td><td>26</td><td>22</td></tr></tbody>
+          </table>
+          <p style="margin-top:10px">Prices: Budget = ¥8, Premium = ¥14.</p>
+          <button onclick="showRevenueModel()">Calculate revenue by product</button>
+          <div id="revenueAnswer" class="answer-box"></div>
+        </div>
+        <div class="card ahl">
+          <h2>Application 2: coding and decoding</h2>
+          <p>Encode a message by converting letters to numbers, grouping into pairs, and multiplying by a coding matrix modulo 26.</p>
+          <div class="note">
+            <div style="margin-bottom:8px"><b>Letter code:</b> A = 0, B = 1, …, Z = 25.</div>
+            <div class="flex" style="gap:18px;align-items:center;flex-wrap:wrap">
+              <span><b>Coding matrix</b></span>
+              <span class="mathline flex" style="margin:0"><span>C =</span><span class="matrix plain" style="grid-template-columns:repeat(2,auto)"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">5</span></span></span>
+              <span><b>Inverse modulo 26</b></span>
+              <span class="mathline flex" style="margin:0"><span>C⁻¹ =</span><span class="matrix plain" style="grid-template-columns:repeat(2,auto)"><span class="cell">21</span><span class="cell">2</span><span class="cell">3</span><span class="cell">25</span></span></span>
+            </div>
+          </div>
+          <label for="messageInput">Message</label>
+          <input id="messageInput" value="MATRIX MAGIC" maxlength="40">
+          <div class="flex" style="margin-top:12px"><button onclick="encodeMessage()">Encode</button><button class="secondary" onclick="decodeMessage()">Decode numbers below</button></div>
+          <label for="encodedInput" style="margin-top:10px">Encoded numbers</label>
+          <textarea id="encodedInput" rows="3" placeholder="Encoded numbers appear here"></textarea>
+          <div id="codingAnswer" class="answer-box"></div>
+        </div>
+      </div>
+      <div class="grid two" style="margin-top:16px">
+        <div class="card"><h3>Systems of equations</h3><p>Coefficients form <b>A</b>, unknowns form <b>x</b>, constants form <b>b</b>. Solve using <b>x = A⁻¹b</b>.</p></div>
+        <div class="card future"><h3>Eigenvectors</h3><p>An eigenvector keeps its direction under a matrix transformation. This is the bridge to later HL work on long-term behaviour and phase portraits.</p></div>
+      </div>
+    </section>
+
+    <section class="tab" id="tinspire">
+      <div class="grid two">
+        <div class="card">
+          <h2>TI-Nspire: entering matrices</h2>
+          <div class="step"><b>1.</b> Press <span class="kbd">Home</span> → <span class="kbd">Calculator</span>.</div>
+          <div class="step"><b>2.</b> Press <span class="kbd">Menu</span> → <span class="kbd">Matrix & Vector</span> → <span class="kbd">Create</span> → <span class="kbd">Matrix</span>.</div>
+          <div class="step"><b>3.</b> Choose the number of rows and columns.</div>
+          <div class="step"><b>4.</b> Type values, moving with arrow keys or <span class="kbd">Tab</span>.</div>
+          <div class="step"><b>Tip:</b> Store a matrix as a variable: type the matrix, then press <span class="kbd">Ctrl</span> + <span class="kbd">Var</span> or use <span class="kbd">:=</span>, e.g. <span class="mono">a := [[2,1][5,3]]</span>.</div>
+        </div>
+        <div class="card ahl">
+          <h2>TI-Nspire: determinant, inverse and solve</h2>
+          <div class="step"><b>Determinant:</b> <span class="kbd">Menu</span> → <span class="kbd">Matrix & Vector</span> → <span class="kbd">Determinant</span>, then enter the matrix.</div>
+          <div class="step"><b>Inverse:</b> type matrix, then press the power key and enter <span class="mono">−1</span>, e.g. <span class="mono">a^-1</span>.</div>
+          <div class="step"><b>System Ax=b:</b> enter <span class="mono">a^-1*b</span>, where <span class="mono">b</span> is a column matrix.</div>
+          <div class="step"><b>Check:</b> multiply <span class="mono">a*x</span>. It should return <span class="mono">b</span>.</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h2>Calculator discipline</h2>
+        <ul class="two-col-list">
+          <li>Always write matrix order before multiplying.</li>
+          <li>For 2 × 2 determinants and inverses, practise the by-hand method.</li>
+          <li>For larger matrices, use technology but interpret the result.</li>
+          <li>Do not write <span class="mono">b/A</span>. Matrix division is not used. Use <span class="mono">A⁻¹b</span>.</li>
+          <li>Order matters: <span class="mono">A⁻¹b</span> and <span class="mono">bA⁻¹</span> are not the same expression.</li>
+          <li>If the determinant is zero, say the inverse does not exist.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="tab" id="practice">
+      <div class="card ahl">
+        <div class="between">
+          <div>
+            <h2>Random exam-style question generator</h2>
+            <p>Choose a skill, generate a question, then reveal a worked solution. Values are designed to be classroom-friendly.</p>
+          </div>
+          <div style="min-width:220px"><label>Progress this session</label><div class="progress"><div class="bar" id="progressBar"></div></div><p class="small"><span id="progressText">0</span> questions attempted</p></div>
+        </div>
+        <div class="control-grid" style="grid-template-columns:2fr 1.4fr 1fr 1fr">
+          <div class="choice-stack">
+            <label>Question type</label>
+            <input type="hidden" id="qType" value="mixed">
+            <div class="choice-group" id="qTypeButtons">
+              <button type="button" class="choice-btn" onclick="setChoice('qType','order',this)">Order and element notation</button>
+              <button type="button" class="choice-btn" onclick="setChoice('qType','arithmetic',this)">Matrix arithmetic</button>
+              <button type="button" class="choice-btn" onclick="setChoice('qType','multiply',this)">Matrix multiplication</button>
+              <button type="button" class="choice-btn" onclick="setChoice('qType','detinverse',this)">Determinant and inverse</button>
+              <button type="button" class="choice-btn" onclick="setChoice('qType','system',this)">Solve Ax = b</button>
+              <button type="button" class="choice-btn" onclick="setChoice('qType','modelling',this)">Practical revenue modelling</button>
+              <button type="button" class="choice-btn" onclick="setChoice('qType','coding',this)">Coding and decoding</button>
+              <button type="button" class="choice-btn active" onclick="setChoice('qType','mixed',this)">Mixed exam-style</button>
+            </div>
+          </div>
+          <div class="choice-stack">
+            <label>Difficulty</label>
+            <input type="hidden" id="difficulty" value="medium">
+            <div class="choice-group" id="difficultyButtons">
+              <button type="button" class="choice-btn" onclick="setChoice('difficulty','easy',this)">Accessible</button>
+              <button type="button" class="choice-btn active" onclick="setChoice('difficulty','medium',this)">Exam standard</button>
+              <button type="button" class="choice-btn" onclick="setChoice('difficulty','hard',this)">Challenge</button>
+            </div>
+          </div>
+          <div><label>Generate</label><button onclick="generateQuestion()">New question</button></div>
+          <div><label>Solution</label><button class="secondary" onclick="revealPracticeSolution()">Reveal</button></div>
+        </div>
+        <div id="questionBox" class="answer-box" style="background:#fff"></div>
+        <div id="solutionBox" class="answer-box hide"></div>
+      </div>
+      <div class="grid three" style="margin-top:16px">
+        <div class="card"><h3>Exam command words</h3><p><b>Find</b>: calculate. <b>Show that</b>: give enough working to prove the result. <b>Interpret</b>: say what the number means in context.</p></div>
+        <div class="card"><h3>Mark-winning habits</h3><p>State dimensions, show row-column multiplication, write determinant before inverse, and keep units in modelling questions.</p></div>
+        <div class="card"><h3>ESL sentence frames</h3><p>“The entry represents…” “The product is defined because…” “The inverse exists because…” “In context, this means…”</p></div>
+      </div>
+    </section>
+
+    <section class="tab" id="teacher">
+      <div class="grid two">
+        <div class="card">
+          <h2>Suggested lesson sequence</h2>
+          <div class="lesson-flow">
+            <div class="flow-item"><div><b>Hook: data table problem</b><br>Students convert a labelled table into a matrix and explain what entries mean.</div></div>
+            <div class="flow-item"><div><b>Structure</b><br>Rows, columns, order and element notation. Use quick mini-whiteboard checks.</div></div>
+            <div class="flow-item"><div><b>Arithmetic</b><br>Same-order rule, scalar multiplication and equality problems.</div></div>
+            <div class="flow-item"><div><b>Multiplication discovery</b><br>Use quantity × price first, then formalise row × column.</div></div>
+            <div class="flow-item"><div><b>Properties</b><br>Students test examples to discover non-commutativity, then check associativity/distributivity.</div></div>
+            <div class="flow-item"><div><b>Inverses and systems</b><br>Do 2 × 2 by hand first, then use TI-Nspire for larger matrices.</div></div>
+            <div class="flow-item"><div><b>Applications</b><br>Revenue, coding and systems of equations.</div></div>
+            <div class="flow-item"><div><b>Exam practice</b><br>Use the generator for fluency and mixed questions.</div></div>
+          </div>
+        </div>
+        <div class="card soft">
+          <h2>Assessment checklist</h2>
+          <div class="checklist">
+            <div class="check"><div class="tick">✓</div><div>Can identify order and entries using <span class="mono">aᵢⱼ</span>.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can add, subtract and scalar multiply matrices only when valid.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can decide if AB is defined and determine the order of AB.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can multiply matrices and explain one entry as a dot product.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can demonstrate non-commutativity with an example.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can find determinant and inverse of a 2 × 2 matrix by hand.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can use technology for larger determinants/inverses.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can model and solve a system as <span class="mono">Ax=b</span>.</div></div>
+            <div class="check"><div class="tick">✓</div><div>Can interpret a matrix product in a real context.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card future" style="margin-top:16px">
+        <h2>Extension prompts</h2>
+        <ul>
+          <li>Why does matrix multiplication feel “unnatural” at first, but become natural in modelling?</li>
+          <li>Can a matrix represent a physical transformation, a data operation and a prediction rule at the same time?</li>
+          <li>What does it mean for a matrix to be reversible? What real-world processes are not reversible?</li>
+          <li>Why does the order of operations matter in matrices, but not in ordinary multiplication?</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  <div class="footer">AHL 1.14 Matrices — standalone HTML resource. No internet required.</div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const rnd = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+  const choice = arr => arr[Math.floor(Math.random()*arr.length)];
+  const fmt = x => {
+    if (typeof x === 'string') return x;
+    if (x === null || x === undefined || Number.isNaN(x)) return '';
+    if (!Number.isFinite(x)) return String(x);
+    return Number.isInteger(x) ? String(x) : (Math.round(x*1000)/1000).toString();
+  };
+  const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
+  function frac(n,d){ if(d<0){n=-n;d=-d} const g=gcd(n,d); n/=g; d/=g; return d===1?String(n):`${n}/${d}`; }
+
+  document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.tab').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active'); $(btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+
+  function matrixHTML(M, opts={}){
+    const rows=M.length, cols=M[0].length;
+    let html=`<span class="matrix ${opts.plain?'plain':''}" style="grid-template-columns:repeat(${cols},auto)">`;
+    for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){
+      let cls='cell';
+      if(opts.row===i) cls+=' row';
+      if(opts.col===j) cls+=' col';
+      if(opts.target && opts.target[0]===i && opts.target[1]===j) cls+=' target';
+      if(opts.hl && opts.hl.some(p=>p[0]===i&&p[1]===j)) cls+=' hl';
+      html+=`<span class="${cls}">${fmt(M[i][j])}</span>`;
+    }
+    html+='</span>'; return html;
+  }
+  function add(A,B){return A.map((r,i)=>r.map((v,j)=>v+B[i][j]));}
+  function sub(A,B){return A.map((r,i)=>r.map((v,j)=>v-B[i][j]));}
+  function scalar(k,A){return A.map(r=>r.map(v=>k*v));}
+  function mult(A,B){const m=A.length,n=A[0].length,p=B[0].length;let C=Array.from({length:m},()=>Array(p).fill(0));for(let i=0;i<m;i++)for(let j=0;j<p;j++)for(let k=0;k<n;k++)C[i][j]+=A[i][k]*B[k][j];return C;}
+  function det2(A){return A[0][0]*A[1][1]-A[0][1]*A[1][0];}
+  function inv2(A){const d=det2(A); if(d===0)return null; return [[A[1][1]/d,-A[0][1]/d],[-A[1][0]/d,A[0][0]/d]];}
+  function dims(A){return `${A.length} × ${A[0].length}`;}
+  function linTerm(coef, variable, constant=0){
+    const coefPart = coef===1 ? variable : coef===-1 ? `−${variable}` : `${coef}${variable}`;
+    if (constant===0) return coefPart;
+    return `${coefPart} ${constant>0 ? '+' : '−'} ${Math.abs(constant)}`;
+  }
+
+  let openQ=[[32,24],[25,16],[13,9]], openP=[[1.19],[1.55]];
+  function updateOpening(){
+    openQ[0][0]=Number($('blueP').value); openQ[0][1]=Number($('blueR').value);
+    openP[0][0]=Number($('priceP').value); openP[1][0]=Number($('priceR').value);
+    const rev = openQ[0][0]*openP[0][0]+openQ[0][1]*openP[1][0];
+    $('openingMatrices').innerHTML = `<span>Q = ${matrixHTML(openQ,{row:0})}</span><span> P = ${matrixHTML(openP,{col:0})}</span>`;
+    $('openingAnswer').innerHTML = `<b>Blue-row revenue:</b> ${openQ[0][0]}(${openP[0][0]}) + ${openQ[0][1]}(${openP[1][0]}) = <b>${fmt(rev)}</b>. This is the first entry of QP.`;
+  }
+  function resetOpening(){ $('blueP').value=32; $('blueR').value=24; $('priceP').value=1.19; $('priceR').value=1.55; updateOpening(); }
+
+  let structM=[[1,3,-1,5],[2,0,1,4],[-3,7,2,8]];
+  function randomStructureMatrix(){structM=Array.from({length:3},()=>Array.from({length:4},()=>rnd(-6,9))); updateElementFinder();}
+  function updateElementFinder(){
+    const i=Number($('elemRow').value)-1,j=Number($('elemCol').value)-1;
+    $('structureMatrix').innerHTML = `<div class="flex"><b>A = </b>${matrixHTML(structM,{target:[i,j]})}</div>`;
+    $('elementAnswer').innerHTML = `<b>A has order 3 × 4.</b><br>The highlighted entry is <b>a<sub>${i+1}${j+1}</sub> = ${structM[i][j]}</b>, because it is in row ${i+1}, column ${j+1}.`;
+  }
+
+  let arA=[[2,-3,5],[4,-2,6]], arB=[[-1,4,2],[3,0,-5]];
+  function doArithmetic(){
+    const op=$('arithOp').value,k=Number($('scalarK').value); let R,label;
+    if(op==='add'){R=add(arA,arB);label='A + B';}
+    if(op==='sub'){R=sub(arA,arB);label='A − B';}
+    if(op==='scalar'){R=scalar(k,arA);label=`${k}A`;}
+    if(op==='combo'){R=sub(scalar(2,arA),arB);label='2A − B';}
+    $('arithmeticMatrices').innerHTML=`<span>A = ${matrixHTML(arA)}</span><span>B = ${matrixHTML(arB)}</span>`;
+    $('arithmeticAnswer').innerHTML=`<b>${label} = </b>${matrixHTML(R)}<br><span class="small">Each result entry is calculated from the corresponding entry position.</span>`;
+  }
+
+  function newEqualityExample(){
+    const x=rnd(-5,6), y=rnd(-5,6), a=rnd(1,5), b=rnd(-4,4), c=rnd(1,5), d=rnd(-4,4);
+    const right=[[a*x+b, 2*y-3],[c*y+d, x+y]];
+    const symbolic=[[linTerm(a,'x',b), '2y − 3'], [linTerm(c,'y',d), 'x + y']];
+    $('eqExample').innerHTML = `${matrixHTML(symbolic,{plain:true})} = ${matrixHTML(right,{plain:true})}`;
+    $('eqSol').innerHTML = `<div class="step">Compare corresponding entries in matching positions.</div><div class="step"><b>Top-left:</b> ${linTerm(a,'x',b)} = ${a*x+b}, so <b>x = ${x}</b>.</div><div class="step"><b>Top-right:</b> 2y − 3 = ${2*y-3}, so <b>y = ${y}</b>.</div><div class="step">Check using the other entries: ${linTerm(c,'y',d)} = ${c*y+d} and x + y = ${x+y}. Everything is consistent.</div>`;
+    $('eqSol').classList.remove('show');
+  }
+  function toggleSolution(id){$(id).classList.toggle('show')}
+
+  let mA=[[2,1,-3],[0,4,5]], mB=[[1,-2],[3,0],[-1,2]];
+  function randomMultLab(){mA=Array.from({length:2},()=>Array.from({length:3},()=>rnd(-4,5)));mB=Array.from({length:3},()=>Array.from({length:2},()=>rnd(-4,5)));updateMultStep();}
+  function updateMultStep(){
+    const i=Number($('multRow').value), j=Number($('multCol').value);
+    $('multMatrices').innerHTML=`<span>A = ${matrixHTML(mA,{row:i})}</span><span>B = ${matrixHTML(mB,{col:j})}</span>`;
+    const products=mA[i].map((v,k)=>`${v}×${mB[k][j]}`);
+    const sum=mA[i].reduce((acc,v,k)=>acc+v*mB[k][j],0);
+    $('multStep').innerHTML=`<b>Entry c<sub>${i+1}${j+1}</sub></b> uses row ${i+1} of A and column ${j+1} of B:<br><div class="mathline">${products.join(' + ')} = ${sum}</div>`;
+  }
+  function showFullProduct(){ const C=mult(mA,mB); $('multStep').innerHTML += `<div class="step"><b>Full product AB:</b> ${matrixHTML(C)}</div>`; }
+
+  let cA=[[1,2],[3,4]], cB=[[2,1],[0,3]];
+  function newCommutativity(){cA=Array.from({length:2},()=>Array.from({length:2},()=>rnd(-3,5)));cB=Array.from({length:2},()=>Array.from({length:2},()=>rnd(-3,5)));$('commMatrices').innerHTML=`<span>A = ${matrixHTML(cA)}</span><span>B = ${matrixHTML(cB)}</span>`;$('commAnswer').innerHTML='';}
+  function showCommutativity(){const AB=mult(cA,cB),BA=mult(cB,cA);const same=JSON.stringify(AB)===JSON.stringify(BA);$('commAnswer').innerHTML=`AB = ${matrixHTML(AB)}<br>BA = ${matrixHTML(BA)}<br><b>${same?'In this special case AB = BA.':'Usually order matters: here AB ≠ BA.'}</b>`;}
+
+  function calculateInverse(){
+    const A=[[Number($('ia').value),Number($('ib').value)],[Number($('ic').value),Number($('id').value)]]; const d=det2(A);
+    if(d===0){$('inverseAnswer').innerHTML=`A = ${matrixHTML(A)}<br><b>det(A) = ${d}</b>. The inverse does not exist.`;return;}
+    const adj=[[A[1][1],-A[0][1]],[-A[1][0],A[0][0]]]; const inv=inv2(A).map(r=>r.map(x=>Math.round(x*1000)/1000));
+    $('inverseAnswer').innerHTML=`A = ${matrixHTML(A)}<br><div class="step">det(A) = (${A[0][0]})(${A[1][1]}) − (${A[0][1]})(${A[1][0]}) = <b>${d}</b></div><div class="step">Swap a and d; change signs of b and c: ${matrixHTML(adj)}</div><div class="step">A⁻¹ = 1/${d} ${matrixHTML(adj)} = ${matrixHTML(inv)}</div>`;
+  }
+  function randomInverseMatrix(){let A,d;do{A=[[rnd(-5,5),rnd(-5,5)],[rnd(-5,5),rnd(-5,5)]];d=det2(A)}while(d===0||Math.abs(d)>12); $('ia').value=A[0][0];$('ib').value=A[0][1];$('ic').value=A[1][0];$('id').value=A[1][1];calculateInverse();}
+
+  function solveSystem(){
+    const A=[[Number($('sa').value),Number($('sb').value)],[Number($('sc').value),Number($('sd').value)]], b=[[Number($('se').value)],[Number($('sf').value)]], d=det2(A);
+    if(d===0){$('systemAnswer').innerHTML=`A = ${matrixHTML(A)} has determinant 0, so this inverse method cannot be used.`;return;}
+    const x=mult(inv2(A),b);
+    $('systemAnswer').innerHTML=`<div class="step">A = ${matrixHTML(A)}, x = ${matrixHTML([['x'],['y']],{plain:true})}, b = ${matrixHTML(b)}</div><div class="step">det(A) = ${d}, so A is invertible.</div><div class="step">x = A⁻¹b = ${matrixHTML(x.map(r=>r.map(v=>Math.round(v*1000)/1000)))}</div><div class="success">Solution: <b>x = ${fmt(x[0][0])}</b>, <b>y = ${fmt(x[1][0])}</b>.</div>`;
+  }
+  function randomSystem(){let A,d;do{A=[[rnd(-5,5),rnd(-5,5)],[rnd(-5,5),rnd(-5,5)]];d=det2(A)}while(d===0||Math.abs(d)>15); const sol=[[rnd(-4,6)],[rnd(-4,6)]], b=mult(A,sol);$('sa').value=A[0][0];$('sb').value=A[0][1];$('sc').value=A[1][0];$('sd').value=A[1][1];$('se').value=b[0][0];$('sf').value=b[1][0];solveSystem();}
+
+  function showRevenueModel(){const Q=[[40,18],[80,35],[26,22]], P=[[8],[14]], R=mult(Q,P);$('revenueAnswer').innerHTML=`Q = ${matrixHTML(Q)}, P = ${matrixHTML(P)}<br><b>QP = ${matrixHTML(R)}</b><br><div class="step">Notebooks: 40×8 + 18×14 = ¥${R[0][0]}</div><div class="step">Pens: 80×8 + 35×14 = ¥${R[1][0]}</div><div class="step">Folders: 26×8 + 22×14 = ¥${R[2][0]}</div>`;}
+
+  const Cmod=[[1,2],[3,5]], Cinv=[[21,2],[3,25]];
+  function cleanMsg(s){return s.toUpperCase().replace(/[^A-Z]/g,'') || 'X'}
+  function pairNums(nums){if(nums.length%2)nums.push(23);let pairs=[];for(let i=0;i<nums.length;i+=2)pairs.push([[nums[i]],[nums[i+1]]]);return pairs;}
+  function mod(n,m=26){return ((n%m)+m)%m}
+  function encodeMessage(){const msg=cleanMsg($('messageInput').value); const nums=[...msg].map(ch=>ch.charCodeAt(0)-65); const pairs=pairNums(nums); const encoded=[]; let detail=''; pairs.forEach(p=>{const e=mult(Cmod,p).map(r=>[mod(r[0])]);encoded.push(e[0][0],e[1][0]); detail+=`${matrixHTML(p)} → ${matrixHTML(e)} `;}); $('encodedInput').value=encoded.join(' '); $('codingAnswer').innerHTML=`<b>Clean message:</b> ${msg}${msg.length%2?'X':''}<br><b>Encoded numbers:</b> ${encoded.join(' ')}<br><div class="step">${detail}</div>`;}
+  function decodeMessage(){let nums=($('encodedInput').value.match(/-?\d+/g)||[]).map(Number).map(n=>mod(n)); if(!nums.length){$('codingAnswer').innerHTML='Enter encoded numbers first.';return;} const pairs=pairNums(nums); let letters=[]; let detail=''; pairs.forEach(p=>{const d=mult(Cinv,p).map(r=>[mod(r[0])]);letters.push(String.fromCharCode(d[0][0]+65),String.fromCharCode(d[1][0]+65)); detail+=`${matrixHTML(p)} → ${matrixHTML(d)} `;}); $('codingAnswer').innerHTML=`<b>Decoded message:</b> ${letters.join('')}<br><div class="step">${detail}</div>`;}
+
+
+  function setChoice(id, value, btn){
+    const input = $(id);
+    if(input) input.value = value;
+    const group = btn.parentElement;
+    group.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  let qData=null, attempted=0;
+  function randInv2(max=5){let A,d;do{A=[[rnd(-max,max),rnd(-max,max)],[rnd(-max,max),rnd(-max,max)]];d=det2(A)}while(d===0);return A;}
+  function generateQuestion(){
+    let type=$('qType').value; if(type==='mixed') type=choice(['order','arithmetic','multiply','detinverse','system','modelling']); const diff=$('difficulty').value; let q='',s='';
+    if(type==='order'){
+      const r=diff==='hard'?rnd(3,4):rnd(2,3), c=diff==='easy'?rnd(2,3):rnd(3,5); const M=Array.from({length:r},()=>Array.from({length:c},()=>rnd(-9,9))); const i=rnd(1,r), j=rnd(1,c);
+      q=`For A = ${matrixHTML(M)}, state the order of A and find a<sub>${i}${j}</sub>.`;
+      s=`A has <b>${r}</b> rows and <b>${c}</b> columns, so its order is <b>${r} × ${c}</b>. The entry a<sub>${i}${j}</sub> is row ${i}, column ${j}, so <b>a<sub>${i}${j}</sub> = ${M[i-1][j-1]}</b>.`;
+    }
+    if(type==='arithmetic'){
+      const r=2,c=diff==='easy'?2:3; const A=Array.from({length:r},()=>Array.from({length:c},()=>rnd(-5,7))), B=Array.from({length:r},()=>Array.from({length:c},()=>rnd(-5,7))); const k=rnd(-3,4)||2; const op=choice(['A+B','A-B','kA','2A-B']); let R;
+      if(op==='A+B')R=add(A,B); if(op==='A-B')R=sub(A,B); if(op==='kA')R=scalar(k,A); if(op==='2A-B')R=sub(scalar(2,A),B);
+      q=`Given A = ${matrixHTML(A)} and B = ${matrixHTML(B)}, find <b>${op==='kA'?k+'A':op}</b>.`;
+      s=`The matrices have the same order, so corresponding entries can be combined.<br><b>${op==='kA'?k+'A':op} = ${matrixHTML(R)}</b>.`;
+    }
+    if(type==='multiply'){
+      const A=diff==='easy'?[[rnd(1,5),rnd(1,5)],[rnd(1,5),rnd(1,5)]]:Array.from({length:2},()=>Array.from({length:3},()=>rnd(-4,5))); const B=diff==='easy'?[[rnd(1,5),rnd(1,5)],[rnd(1,5),rnd(1,5)]]:Array.from({length:3},()=>Array.from({length:2},()=>rnd(-4,5))); const C=mult(A,B);
+      const products=A[0].map((v,k)=>`${v}×${B[k][0]}`).join(' + ');
+      q=`Given A = ${matrixHTML(A)} and B = ${matrixHTML(B)}, find AB.`;
+      s=`A is ${dims(A)} and B is ${dims(B)}, so AB is defined and has order ${A.length} × ${B[0].length}.<br><div class="step">For example, c<sub>11</sub> = ${products} = ${C[0][0]}.</div><b>AB = ${matrixHTML(C)}</b>.`;
+    }
+    if(type==='detinverse'){
+      const A=randInv2(diff==='hard'?7:5), d=det2(A), adj=[[A[1][1],-A[0][1]],[-A[1][0],A[0][0]]];
+      q=`For A = ${matrixHTML(A)}, find det(A) and A⁻¹.`;
+      s=`det(A) = (${A[0][0]})(${A[1][1]}) − (${A[0][1]})(${A[1][0]}) = <b>${d}</b>.<br>A⁻¹ = 1/${d} ${matrixHTML(adj)}.`;
+    }
+    if(type==='system'){
+      const A=randInv2(5), sol=[[rnd(-5,6)],[rnd(-5,6)]], b=mult(A,sol);
+      q=`Write the system as Ax=b and solve:<br><div class="mathline">${A[0][0]}x ${A[0][1]>=0?'+':''} ${A[0][1]}y = ${b[0][0]}<br>${A[1][0]}x ${A[1][1]>=0?'+':''} ${A[1][1]}y = ${b[1][0]}</div>`;
+      s=`A = ${matrixHTML(A)}, x = ${matrixHTML([['x'],['y']],{plain:true})}, b = ${matrixHTML(b)}.<br>Using x = A⁻¹b gives ${matrixHTML(sol)}.<br><b>x = ${sol[0][0]}, y = ${sol[1][0]}</b>.`;
+    }
+    if(type==='modelling'){
+      const Q=[[rnd(10,60),rnd(5,40)],[rnd(10,70),rnd(5,45)],[rnd(10,50),rnd(5,35)]], P=[[rnd(4,12)],[rnd(9,20)]], R=mult(Q,P);
+      q=`A school shop sells standard and deluxe versions of three items. Quantities sold are Q = ${matrixHTML(Q)} and prices are P = ${matrixHTML(P)}. Find QP and interpret the result.`;
+      s=`QP = ${matrixHTML(R)}. The entries give the revenue for each item category. For example, first item revenue = ${Q[0][0]}×${P[0][0]} + ${Q[0][1]}×${P[1][0]} = ${R[0][0]}.`;
+    }
+    if(type==='coding'){
+      q=`Using A=0, B=1, ..., Z=25 and coding matrix C = ${matrixHTML(Cmod)}, encode the pair HI as a column vector modulo 26.`;
+      const p=[[7],[8]], e=mult(Cmod,p).map(r=>[mod(r[0])]);
+      s=`HI becomes ${matrixHTML(p)}. Then C${matrixHTML(p)} = ${matrixHTML(mult(Cmod,p))}, which is ${matrixHTML(e)} modulo 26.`;
+    }
+    qData={q,s}; $('questionBox').innerHTML=q; $('solutionBox').innerHTML=s; $('solutionBox').classList.add('hide'); attempted++; updateProgress();
+  }
+  function revealPracticeSolution(){ if(!qData) generateQuestion(); $('solutionBox').classList.remove('hide'); }
+  function updateProgress(){ $('progressText').textContent=attempted; $('progressBar').style.width=Math.min(100,attempted*10)+'%'; }
+
+  // initialise
+  updateOpening(); updateElementFinder(); doArithmetic(); newEqualityExample(); updateMultStep(); newCommutativity(); calculateInverse(); solveSystem(); showRevenueModel(); generateQuestion();
+</script>
+</body>
+</html>
