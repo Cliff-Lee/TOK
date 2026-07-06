@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 4.2–4.3 Data Presentation and Descriptive Statistics</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --ink:#18212d; --muted:#5c6a79; --paper:#fff; --soft:#f5f7fb; --line:#d7dee8;
+  --accent:#2364aa; --accent2:#0ca678; --accent3:#7048e8; --warn:#f08c00;
+  --good:#2f9e44; --bad:#c92a2a; --shadow:0 14px 28px rgba(16,24,40,.10);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+    radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+    linear-gradient(#fff,#f7f9fc 48rem);
+  line-height:1.45;
+}
+header{max-width:1220px;margin:auto;padding:34px 22px 18px}
+.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(2rem,5vw,4.3rem);line-height:.95;letter-spacing:-.06em}
+h1 span{display:block;color:var(--accent)}
+.subtitle{margin:15px 0 0;max-width:900px;color:#344054;font-size:1.12rem}
+.badge{
+  display:inline-flex;align-items:center;gap:.55rem;padding:9px 14px;background:white;
+  border:1px solid var(--line);border-radius:999px;box-shadow:0 5px 18px rgba(0,0,0,.06);
+  font-weight:800;color:var(--accent);white-space:nowrap;
+}
+main{max-width:1220px;margin:0 auto 70px;padding:0 22px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.card{
+  background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+@media(max-width:940px){.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}}
+h2{margin:0 0 12px;font-size:1.55rem;letter-spacing:-.025em}
+h3{margin:16px 0 8px;font-size:1.12rem}
+p{margin:8px 0}
+.syllabus-table{
+  display:grid;grid-template-columns:1fr 1fr;border:1px solid #9ca3af;border-radius:14px;overflow:hidden;background:white;
+}
+.syllabus-table>div{padding:14px 17px;border-bottom:1px solid #9ca3af}
+.syllabus-table .head{background:#eef0f2;color:#6b7280;font-weight:850;font-size:1.08rem}
+.syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+.syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:740px){
+  .syllabus-table{grid-template-columns:1fr}
+  .syllabus-table div:nth-child(odd){border-right:none}
+  .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}
+.tile h3{margin-top:0}
+.tabs{
+  position:sticky;top:0;z-index:10;padding:12px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;
+  background:rgba(247,249,252,.86);border:1px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+button{
+  appearance:none;border:none;border-radius:999px;padding:10px 14px;background:#e9eef6;color:var(--ink);
+  font-weight:800;cursor:pointer;transition:.16s transform,.16s background,.16s color,.16s box-shadow;font-size:.95rem;
+}
+button:hover{transform:translateY(-1px)}
+button.active{background:var(--accent);color:white;box-shadow:0 8px 18px rgba(35,100,170,.24)}
+button.secondary{background:#eef2ff;color:#3b2b98}
+button.good{background:#d3f9d8;color:#1b5e20}
+button.warn{background:#fff3bf;color:#7c4a00}
+button.danger{background:#ffe3e3;color:#8a1717}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+.formula{background:#0f172a;color:white;border-radius:16px;padding:18px;margin:15px 0;overflow-x:auto}
+.note{border-left:5px solid var(--accent);background:#edf6ff;padding:12px 14px;border-radius:12px;margin:12px 0}
+.note.warn{border-color:var(--warn);background:#fff7e6}
+.note.good{border-color:var(--good);background:#ebfbee}
+.steps{counter-reset:step;list-style:none;padding:0;margin:12px 0}
+.steps li{
+  counter-increment:step;position:relative;margin:10px 0;padding:12px 12px 12px 48px;
+  background:#f8fafc;border:1px solid var(--line);border-radius:14px;
+}
+.steps li::before{
+  content:counter(step);position:absolute;left:12px;top:12px;width:25px;height:25px;
+  display:grid;place-items:center;border-radius:50%;background:var(--accent);color:white;font-weight:900;
+}
+.mathline{font-size:1.08rem;padding:12px;border:1px solid var(--line);background:white;border-radius:12px;overflow-x:auto}
+.eq-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px;margin:10px 0}
+.eq-label{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:6px}
+.feedback{margin-top:10px;padding:12px 14px;border-radius:12px;min-height:48px;background:#f1f5f9}
+.feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+.feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+.feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+.practice-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin:12px 0}
+.answer{display:none;margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.answer.show{display:block}
+input, textarea, select{
+  width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:white;
+}
+textarea{min-height:90px;resize:vertical}
+label{display:block;margin:8px 0 5px;font-weight:850}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.graph-wrap{background:white;border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden}
+.svg-graph{
+  width:100%;aspect-ratio:1.45/1;max-height:540px;display:block;
+  background:linear-gradient(#fcfdff,#f6fbff);border-radius:12px;overflow:visible;
+}
+.context-svg{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:white}
+.pill{
+  display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#edf2ff;color:#364fc7;
+  font-size:.82rem;font-weight:850;margin:2px;
+}
+.pill.green{background:#e6fcf5;color:#087f5b}.pill.orange{background:#fff3bf;color:#7c4a00}.pill.red{background:#ffe3e3;color:#8a1717}
+table{width:100%;border-collapse:collapse;margin:12px 0;background:white;border-radius:14px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}
+th{background:#eef4fb}
+.data-strip{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.data-chip{padding:5px 8px;border-radius:999px;background:#edf2ff;color:#174a7c;font-weight:800;font-size:.86rem}
+.data-chip.out{background:#ffe3e3;color:#8a1717}
+.nspire{
+  border-radius:22px;background:#202a35;color:white;padding:18px;max-width:360px;margin:0 auto;
+  box-shadow:inset 0 -8px 0 rgba(0,0,0,.18),0 12px 25px rgba(0,0,0,.2);
+}
+.nspire-screen{
+  background:#d7f5e3;color:#0f2b19;border:5px solid #101720;border-radius:12px;padding:12px;
+  min-height:155px;font-family:"Courier New",monospace;margin-bottom:14px;
+}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.key{background:#3b4552;color:white;text-align:center;border-radius:9px;padding:8px 4px;font-weight:850;font-size:.82rem}
+.key.blue{background:#1d4ed8}.key.orange{background:#b45309}.key.green{background:#087f5b}.key.light{background:#667085}
+@media print{
+  body{background:white}.tabs,button{display:none!important}.tab-panel{display:block!important}.card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 4.2–4.3 <span>Data Presentation and Descriptive Statistics</span></h1>
+      <p class="subtitle">An interactive resource combining frequency tables, histograms, cumulative frequency, box-and-whisker diagrams, measures of central tendency, grouped mean estimation, dispersion, technology, transformations, and contextual interpretation.</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Statistics</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus-table">
+      <div class="head">SL 4.2: presentation of data</div>
+      <div class="head">SL 4.3: central tendency and dispersion</div>
+      <div>
+        Frequency distributions and frequency tables for discrete and continuous data.<br><br>
+        Histograms with equal class intervals. Frequency density histograms are not required.<br><br>
+        Cumulative frequency and cumulative frequency graphs; use to find median, quartiles, percentiles, range and IQR.<br><br>
+        Box-and-whisker diagrams, including comparison of distributions. Outliers should be shown with a cross.<br><br>
+        Symmetry of boxplots can be used to judge whether data may be normally distributed.
+      </div>
+      <div>
+        Mean, median and mode.<br><br>
+        Estimation of mean from grouped data using mid-interval values.<br><br>
+        Modal class for equal class intervals only.<br><br>
+        Standard deviation, variance and IQR. Standard deviation and variance are calculated using technology, though hand calculation can aid understanding.<br><br>
+        Effects of adding/subtracting constants and multiplying/dividing all data values.<br><br>
+        Quartiles of discrete data using technology, with awareness that different methods exist.
+      </div>
+    </div>
+    <div class="mini-grid" style="margin-top:14px">
+      <div class="tile"><h3>Present</h3><p>Turn raw data into frequency tables, histograms, cumulative frequency graphs and boxplots.</p></div>
+      <div class="tile"><h3>Summarise</h3><p>Use mean, median and mode to describe a typical value.</p></div>
+      <div class="tile"><h3>Compare</h3><p>Use IQR, range, standard deviation and boxplots to compare spread.</p></div>
+      <div class="tile"><h3>Interpret</h3><p>Ask what the graph says in context, not just what the calculation gives.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore distributions</button>
+  <button class="tab-button" data-tab="freq">2. Frequency tables & histograms</button>
+  <button class="tab-button" data-tab="cumfreq">3. Cumulative frequency</button>
+  <button class="tab-button" data-tab="boxplots">4. Boxplots & comparison</button>
+  <button class="tab-button" data-tab="central">5. Mean, median, mode</button>
+  <button class="tab-button" data-tab="grouped">6. Grouped data</button>
+  <button class="tab-button" data-tab="dispersion">7. Dispersion & transformations</button>
+  <button class="tab-button" data-tab="technology">8. Technology guide</button>
+  <button class="tab-button" data-tab="contexts">9. Contexts & TOK</button>
+  <button class="tab-button" data-tab="formalise">10. Formalise</button>
+  <button class="tab-button" data-tab="practice">11. Exam generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore: one data set, many views</h2>
+      <p>Generate a data set from a context. The dot plot, histogram, boxplot and summary statistics update together.</p>
+      <div class="tight-row">
+        <button onclick="generateDataset('exam')">Exam scores</button>
+        <button onclick="generateDataset('commute')">Commute times</button>
+        <button onclick="generateDataset('crop')">Crop yield</button>
+        <button onclick="generateDataset('maintenance')">Machine lifetimes</button>
+        <button onclick="generateDataset('bimodal')">Two-group data</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="overviewGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div id="dataStrip" class="data-strip"></div>
+    </div>
+    <div class="card span-5">
+      <h2>Live summary</h2>
+      <div class="eq-box"><div class="eq-label">Context</div><div id="datasetContext" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Centre</div><div id="centreStats" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Spread</div><div id="spreadStats" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Shape</div><div id="shapeStats" class="mathline"></div></div>
+      <div id="overviewFeedback" class="feedback info">Start with the shape before quoting statistics.</div>
+    </div>
+    <div class="card span-12">
+      <h2>First questions when seeing a data display</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>What is measured?</strong><br>Identify the variable and unit.</div>
+        <div class="tile"><strong>How is it grouped?</strong><br>Check class intervals and whether there are gaps.</div>
+        <div class="tile"><strong>What is typical?</strong><br>Mean, median, mode or modal class?</div>
+        <div class="tile"><strong>How spread out?</strong><br>Range, IQR, standard deviation or variance?</div>
+        <div class="tile"><strong>What shape?</strong><br>Symmetric, skewed, bimodal, clustered, outliers?</div>
+        <div class="tile"><strong>What context?</strong><br>What does the graph mean in the real situation?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="freq" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Frequency tables</h2>
+      <p>A frequency table records how often values occur. Continuous data is often grouped into class intervals written as inequalities with no gaps.</p>
+      <div class="note">
+        Example class intervals: \(0\le x<10\), \(10\le x<20\), \(20\le x<30\). These have no gaps and no overlaps.
+      </div>
+      <div class="practice-card">
+        <label for="freqData">Raw data</label>
+        <textarea id="freqData">12, 18, 20, 24, 25, 27, 31, 36, 37, 39, 42, 45, 48, 49, 51, 52, 55, 58, 62, 65, 67, 71, 75, 80</textarea>
+        <div class="row">
+          <div><label for="classStart">Start</label><input id="classStart" value="10"></div>
+          <div><label for="classWidth">Class width</label><input id="classWidth" value="10"></div>
+          <div><label for="classCount">Number of classes</label><input id="classCount" value="8"></div>
+        </div>
+        <button onclick="buildFrequencyTable()">Build table and histogram</button>
+      </div>
+      <div id="freqTableOutput"></div>
+    </div>
+    <div class="card span-6">
+      <h2>Histogram with equal class intervals</h2>
+      <div class="graph-wrap">
+        <svg id="histGraph" class="svg-graph" viewBox="0 0 720 460"></svg>
+      </div>
+      <div id="histFeedback" class="feedback info">Build the frequency table to draw the histogram.</div>
+      <div class="note warn">
+        This syllabus point uses frequency histograms with equal class intervals. Frequency density histograms are not required.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Histogram interpretation checks</h2>
+      <div id="histChecks" class="mini-grid"></div>
+      <div id="histCheckFeedback" class="feedback">Choose the best interpretation.</div>
+    </div>
+  </div>
+</section>
+
+<section id="cumfreq" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Cumulative frequency graph</h2>
+      <p>Cumulative frequency answers “how many values are less than this boundary?” Use the graph to estimate the median, quartiles and percentiles.</p>
+      <div class="tight-row">
+        <button onclick="loadCFExample('scores')">Exam scores</button>
+        <button onclick="loadCFExample('rainfall')">Rainfall</button>
+        <button onclick="loadCFExample('times')">Race times</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="cfGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div class="range-wrap">
+        <div><label for="percentileSlider">Percentile to estimate</label><input id="percentileSlider" type="range" min="5" max="95" step="5" value="50" oninput="drawCFGraph()"></div>
+        <div class="pill" id="percentileLabel">50th</div>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>CF table and estimates</h2>
+      <div id="cfTableOutput"></div>
+      <div class="eq-box"><div class="eq-label">Graph reading</div><div id="cfReadout" class="mathline"></div></div>
+      <div class="note good">
+        Median is the 50th percentile. \(Q_1\) is the 25th percentile. \(Q_3\) is the 75th percentile.
+      </div>
+      <div class="note warn">
+        Values read from a cumulative frequency graph are estimates, especially for grouped data.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Worked cumulative frequency task</h2>
+      <div class="practice-card">
+        <p>A grouped data set has \(n=80\). Explain how to estimate \(Q_1\), median and \(Q_3\) from the cumulative frequency graph.</p>
+        <button onclick="toggleAnswer('cfWorked')">Reveal solution</button>
+        <div id="cfWorked" class="answer">
+          \(Q_1\) is at cumulative frequency \(0.25(80)=20\). The median is at cumulative frequency \(0.50(80)=40\). \(Q_3\) is at cumulative frequency \(0.75(80)=60\). Draw horizontal lines from 20, 40 and 60 to the curve, then drop vertical lines to the data axis.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="boxplots" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Box-and-whisker diagrams</h2>
+      <p>Boxplots compress a distribution into its five-number summary and show outliers with crosses.</p>
+      <div class="tight-row">
+        <button onclick="generateBoxComparison('similar')">Similar medians</button>
+        <button onclick="generateBoxComparison('spread')">Different spread</button>
+        <button onclick="generateBoxComparison('skew')">Skewed vs symmetric</button>
+        <button onclick="generateBoxComparison('outliers')">With outliers</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="boxGraph" class="svg-graph" viewBox="0 0 760 460"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Comparison language</h2>
+      <div class="eq-box"><div class="eq-label">Group A</div><div id="boxAStats" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Group B</div><div id="boxBStats" class="mathline"></div></div>
+      <div id="boxInterpret" class="feedback info">Generate a comparison.</div>
+      <div class="note">
+        Compare distributions using median, IQR, range, symmetry, skewness and outliers.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Normally distributed?</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Box roughly centred</h3><p>Median near the centre of the box suggests symmetry.</p></div>
+        <div class="tile"><h3>Whiskers similar</h3><p>Similar whisker lengths suggest both tails are similar.</p></div>
+        <div class="tile"><h3>No strong outliers</h3><p>Several extreme outliers may suggest non-normality or data issues.</p></div>
+        <div class="tile"><h3>But be careful</h3><p>A boxplot alone cannot prove normality. It only gives evidence about symmetry and spread.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="central" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Mean, median and mode</h2>
+      <div class="formula">
+        \[
+          \bar{x}=\frac{\sum x}{n}
+        \]
+      </div>
+      <div class="mini-grid">
+        <div class="tile"><h3>Mean</h3><p>Add values and divide by the number of values. Sensitive to outliers.</p></div>
+        <div class="tile"><h3>Median</h3><p>The middle value when ordered. Resistant to outliers.</p></div>
+        <div class="tile"><h3>Mode</h3><p>The most common value. For grouped data, use modal class.</p></div>
+      </div>
+      <div class="practice-card">
+        <label for="centralData">Data</label>
+        <textarea id="centralData">8, 9, 10, 10, 11, 12, 12, 12, 13, 40</textarea>
+        <button onclick="analyseCentral()">Analyse centre</button>
+      </div>
+      <div id="centralOutput" class="feedback info">Press analyse.</div>
+    </div>
+    <div class="card span-6">
+      <h2>Outlier effect on centre</h2>
+      <div class="graph-wrap">
+        <svg id="centralGraph" class="svg-graph" viewBox="0 0 720 420"></svg>
+      </div>
+      <div id="centralInterpret" class="feedback info">Mean is pulled by extreme values more than the median.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Which average should be used?</h2>
+      <div id="averageChecks" class="mini-grid"></div>
+      <div id="averageFeedback" class="feedback">Choose a measure of centre.</div>
+    </div>
+  </div>
+</section>
+
+<section id="grouped" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Estimating mean from grouped data</h2>
+      <p>For grouped data, use the midpoint of each interval as a representative value.</p>
+      <div class="formula">
+        \[
+          \text{estimated mean}=\frac{\sum (\text{midpoint}\times\text{frequency})}{\sum \text{frequency}}
+        \]
+      </div>
+      <div class="practice-card">
+        <p>The table below shows commute times, in minutes.</p>
+        <div id="groupedTable"></div>
+        <button onclick="newGroupedExample()">New grouped example</button>
+        <button onclick="analyseGrouped()">Estimate mean</button>
+      </div>
+      <div id="groupedOutput" class="feedback info">Press estimate mean.</div>
+    </div>
+    <div class="card span-6">
+      <h2>Modal class</h2>
+      <div class="note">
+        The modal class is the class interval with the highest frequency. This syllabus point only requires equal class intervals.
+      </div>
+      <div class="graph-wrap">
+        <svg id="groupedHist" class="svg-graph" viewBox="0 0 720 460"></svg>
+      </div>
+      <div id="modalOutput" class="feedback info">The modal class will be highlighted.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Why grouped means are estimates</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>We do not know exact values</h3><p>All values in a class are treated as if they were at the midpoint.</p></div>
+        <div class="tile"><h3>Better with narrow intervals</h3><p>Smaller class widths usually improve the estimate.</p></div>
+        <div class="tile"><h3>Context matters</h3><p>For skewed data inside a class, the midpoint may not be very representative.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dispersion" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Measures of dispersion</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Range</h3><p>\(\max-\min\). Simple but affected by extremes.</p></div>
+        <div class="tile"><h3>IQR</h3><p>\(Q_3-Q_1\). Spread of the middle 50%.</p></div>
+        <div class="tile"><h3>Variance</h3><p>Average squared distance from the mean. Use technology.</p></div>
+        <div class="tile"><h3>Standard deviation</h3><p>Typical distance from the mean. Use technology.</p></div>
+      </div>
+      <div class="practice-card">
+        <label for="dispData">Data</label>
+        <textarea id="dispData">14, 15, 17, 18, 18, 19, 20, 21, 22, 24, 27</textarea>
+        <button onclick="analyseDispersion()">Calculate spread</button>
+      </div>
+      <div id="dispOutput" class="feedback info">Press calculate.</div>
+    </div>
+    <div class="card span-6">
+      <h2>Effect of constant changes</h2>
+      <p>Transform the data and observe what changes.</p>
+      <div class="row">
+        <div><label for="addConst">Add/subtract constant</label><input id="addConst" value="3"></div>
+        <div><label for="multConst">Multiply by constant</label><input id="multConst" value="2"></div>
+      </div>
+      <div class="tight-row">
+        <button onclick="transformData('add')">Add constant</button>
+        <button onclick="transformData('subtract')">Subtract constant</button>
+        <button onclick="transformData('multiply')">Multiply</button>
+        <button onclick="transformData('reset')">Reset</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="transformGraph" class="svg-graph" viewBox="0 0 720 420"></svg>
+      </div>
+      <div id="transformOutput" class="feedback info">Changing every value by addition shifts the centre but not the spread. Multiplication scales both centre and spread.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Transformation rules</h2>
+      <table>
+        <tr><th>Transformation</th><th>Mean</th><th>Median</th><th>Standard deviation</th><th>IQR</th></tr>
+        <tr><td>Add \(k\) to every value</td><td>increases by \(k\)</td><td>increases by \(k\)</td><td>unchanged</td><td>unchanged</td></tr>
+        <tr><td>Subtract \(k\) from every value</td><td>decreases by \(k\)</td><td>decreases by \(k\)</td><td>unchanged</td><td>unchanged</td></tr>
+        <tr><td>Multiply every value by \(k\)</td><td>multiplied by \(k\)</td><td>multiplied by \(k\)</td><td>multiplied by \(|k|\)</td><td>multiplied by \(|k|\)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="technology" class="tab-panel">
+  <div class="grid">
+    <div class="card span-5">
+      <h2>TI-Nspire CX: one-variable statistics</h2>
+      <div class="nspire">
+        <div class="nspire-screen">
+          Lists & Spreadsheet<br>
+          list name: scores<br>
+          enter data<br><br>
+          Menu > Statistics<br>
+          Stat Calculations<br>
+          One-Variable Statistics
+        </div>
+        <div class="keys">
+          <div class="key blue">home</div><div class="key">doc</div><div class="key">menu</div><div class="key">tab</div><div class="key orange">enter</div>
+          <div class="key">ctrl</div><div class="key">esc</div><div class="key">var</div><div class="key">x</div><div class="key green">stat</div>
+          <div class="key light">7</div><div class="key light">8</div><div class="key light">9</div><div class="key">/</div><div class="key">^</div>
+        </div>
+      </div>
+    </div>
+    <div class="card span-7">
+      <h2>Step-by-step TI-Nspire instructions</h2>
+      <ol class="steps">
+        <li>Press <strong>Home</strong> → <strong>New Document</strong> → <strong>Add Lists & Spreadsheet</strong>.</li>
+        <li>Name the first column, for example <strong>scores</strong>, then enter the raw data below it.</li>
+        <li>For one-variable statistics: <strong>Menu</strong> → <strong>Statistics</strong> → <strong>Stat Calculations</strong> → <strong>One-Variable Statistics</strong>.</li>
+        <li>Set <strong>Num of Lists = 1</strong>, choose the data list, and press <strong>OK</strong>.</li>
+        <li>Read the output: \(\bar{x}\), \(\sum x\), \(Sx\), \(\sigma x\), \(n\), five-number summary and quartiles depending on model/settings.</li>
+        <li>For boxplot or histogram: add a <strong>Data & Statistics</strong> page, click the axis, and select the variable.</li>
+        <li>Use <strong>Menu</strong> → <strong>Plot Type</strong> to select histogram or boxplot.</li>
+      </ol>
+      <div class="note warn">
+        Different technologies and hand methods can produce different quartiles for discrete data. State the method or use the technology expected in the question.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Technology interpretation</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>\(\bar{x}\)</strong><br>mean</div>
+        <div class="tile"><strong>\(Sx\)</strong><br>sample standard deviation, commonly used when the data is a sample</div>
+        <div class="tile"><strong>\(\sigma x\)</strong><br>population standard deviation, commonly used when the data is the whole population</div>
+        <div class="tile"><strong>Q1, Med, Q3</strong><br>quartiles and median, possibly method-dependent</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contexts" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Context image: agriculture</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Agricultural crop data context">
+        <defs>
+          <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#d8f5a2"/><stop offset="1" stop-color="#69db7c"/>
+          </linearGradient>
+        </defs>
+        <rect width="760" height="420" fill="#dbeafe"/>
+        <circle cx="650" cy="80" r="45" fill="#ffd43b"/>
+        <rect x="0" y="210" width="760" height="210" fill="url(#field)"/>
+        <g stroke="#2b8a3e" stroke-width="5">
+          <line x1="40" y1="420" x2="160" y2="210"/><line x1="160" y1="420" x2="260" y2="210"/><line x1="280" y1="420" x2="360" y2="210"/><line x1="420" y1="420" x2="460" y2="210"/><line x1="600" y1="420" x2="560" y2="210"/>
+        </g>
+        <rect x="70" y="58" width="420" height="92" rx="18" fill="white" opacity=".92"/>
+        <text x="92" y="95" font-size="25" font-weight="900" fill="#17212d">Crop yield comparison</text>
+        <text x="92" y="130" font-size="20" fill="#344054">Compare median yield and variation between farms.</text>
+      </svg>
+    </div>
+    <div class="card span-6">
+      <h2>Context image: reliability and maintenance</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Reliability and maintenance context">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <rect x="80" y="140" width="600" height="150" rx="28" fill="#dee2e6" stroke="#868e96" stroke-width="4"/>
+        <circle cx="180" cy="290" r="54" fill="#495057"/><circle cx="580" cy="290" r="54" fill="#495057"/>
+        <circle cx="180" cy="290" r="22" fill="#adb5bd"/><circle cx="580" cy="290" r="22" fill="#adb5bd"/>
+        <rect x="170" y="95" width="420" height="65" rx="16" fill="#2364aa"/>
+        <text x="380" y="137" text-anchor="middle" font-size="28" font-weight="900" fill="white">Machine lifetime data</text>
+        <path d="M120 105 L95 65 L160 82 L190 45 L210 100" fill="none" stroke="#f08c00" stroke-width="7" stroke-linecap="round"/>
+        <text x="112" y="365" font-size="22" font-weight="850" fill="#17212d">Spread matters: consistent parts are valuable.</text>
+      </svg>
+    </div>
+    <div class="card span-12">
+      <h2>Contexts and TOK prompts</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Sciences</h3><p>Compare experimental measurements with histograms and standard deviation.</p></div>
+        <div class="tile"><h3>Geography</h3><p>Use cumulative frequency and boxplots for rainfall, population age, or income data.</p></div>
+        <div class="tile"><h3>Economics</h3><p>Consumer price index and social indicators often compress complex realities into numerical summaries.</p></div>
+        <div class="tile"><h3>TOK</h3><p>What is the difference between information and data? Does the word “data” mean the same thing in mathematics, science, economics and history?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formal summary: SL 4.2</h2>
+      <table>
+        <tr><th>Display</th><th>Use</th><th>Important features</th></tr>
+        <tr><td>Frequency table</td><td>Organise counts</td><td>Intervals written as inequalities with no gaps</td></tr>
+        <tr><td>Histogram</td><td>Show distribution shape</td><td>Equal class intervals; bars touch</td></tr>
+        <tr><td>Cumulative frequency graph</td><td>Estimate median, quartiles, percentiles</td><td>Plot cumulative frequency against upper boundaries</td></tr>
+        <tr><td>Boxplot</td><td>Compare centre and spread</td><td>Median, quartiles, range, IQR, outliers as crosses</td></tr>
+      </table>
+    </div>
+    <div class="card span-6">
+      <h2>Formal summary: SL 4.3</h2>
+      <table>
+        <tr><th>Measure</th><th>Meaning</th><th>Notes</th></tr>
+        <tr><td>Mean</td><td>Balance point</td><td>Sensitive to outliers</td></tr>
+        <tr><td>Median</td><td>Middle value</td><td>Resistant to outliers</td></tr>
+        <tr><td>Mode / modal class</td><td>Most frequent value/class</td><td>Modal class for grouped data</td></tr>
+        <tr><td>IQR</td><td>Spread of middle 50%</td><td>\(Q_3-Q_1\)</td></tr>
+        <tr><td>Standard deviation</td><td>Typical distance from mean</td><td>Use technology</td></tr>
+        <tr><td>Variance</td><td>Squared spread</td><td>Use technology</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Worked examples</h2>
+      <div class="mini-grid">
+        <div class="practice-card">
+          <p><strong>Example 1.</strong> Estimate the mean from grouped data.</p>
+          <button onclick="toggleAnswer('formalEx1')">Reveal solution</button>
+          <div id="formalEx1" class="answer">
+            Use each class midpoint. Multiply midpoint by frequency, add these products, then divide by total frequency. The answer is an estimate because exact values inside each interval are unknown.
+          </div>
+        </div>
+        <div class="practice-card">
+          <p><strong>Example 2.</strong> Compare two boxplots.</p>
+          <button onclick="toggleAnswer('formalEx2')">Reveal solution</button>
+          <div id="formalEx2" class="answer">
+            Compare medians for typical value, IQRs for consistency of the middle 50%, ranges for total spread, and symmetry/skewness using box and whisker lengths. Mention outliers if shown.
+          </div>
+        </div>
+        <div class="practice-card">
+          <p><strong>Example 3.</strong> What happens when all data values are doubled?</p>
+          <button onclick="toggleAnswer('formalEx3')">Reveal solution</button>
+          <div id="formalEx3" class="answer">
+            The mean and median are doubled. The standard deviation and IQR are also doubled. The variance is multiplied by \(2^2=4\).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Exam-style question generator</h2>
+      <p>Generate a question, attempt it, then reveal the worked solution.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('hist')">Frequency / histogram</button>
+        <button onclick="generatePractice('cf')">Cumulative frequency</button>
+        <button onclick="generatePractice('box')">Boxplot comparison</button>
+        <button onclick="generatePractice('centre')">Mean/median/mode</button>
+        <button onclick="generatePractice('grouped')">Grouped mean</button>
+        <button onclick="generatePractice('spread')">Dispersion</button>
+        <button onclick="generatePractice('transform')">Transformations</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Exam checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Histogram:</strong> equal intervals, touching bars, frequency on vertical axis.</div>
+        <div class="tile"><strong>CF graph:</strong> plot upper boundaries against cumulative frequency.</div>
+        <div class="tile"><strong>Boxplot:</strong> label five-number summary and use crosses for outliers.</div>
+        <div class="tile"><strong>Comparison:</strong> mention median and spread in context.</div>
+        <div class="tile"><strong>Grouped mean:</strong> use midpoints and state it is an estimate.</div>
+        <div class="tile"><strong>Technology:</strong> know whether you need \(Sx\) or \(\sigma x\).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start with dynamic data sets and ask students to describe shape before calculating.</li>
+        <li>Build frequency tables and histograms from raw data.</li>
+        <li>Move from frequency to cumulative frequency and estimate quartiles/percentiles.</li>
+        <li>Use boxplots to compare two distributions with context language.</li>
+        <li>Formalise mean, median and mode, then grouped mean estimation.</li>
+        <li>Use technology for standard deviation and variance, but connect them to visual spread.</li>
+        <li>Finish with transformation effects and exam-style questions.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Histogram bars can have gaps.</td><td>Stress continuous grouped data and touching bars.</td></tr>
+        <tr><td>Cumulative frequency uses class midpoints.</td><td>Use upper class boundaries for CF graphs.</td></tr>
+        <tr><td>Boxplot width shows frequency.</td><td>Box width is usually not frequency in this syllabus.</td></tr>
+        <tr><td>Mean from grouped data is exact.</td><td>Call it an estimate and explain midpoints.</td></tr>
+        <tr><td>Adding a constant changes standard deviation.</td><td>Use dot plots to show the whole data set shifts without spreading.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">Why do histogram bars touch but bar chart bars often do not?</div>
+        <div class="tile">Explain how to estimate the median from a CF graph.</div>
+        <div class="tile">Which is more affected by an outlier: mean or median?</div>
+        <div class="tile">Estimate the mean from grouped data using midpoints.</div>
+        <div class="tile">Compare two boxplots using median and IQR.</div>
+        <div class="tile">What happens to standard deviation when every value is increased by 5?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function rerenderMath(){ if(window.MathJax && window.MathJax.typesetPromise){ window.MathJax.typesetPromise(); } }
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); $(btn.dataset.tab).classList.add('active'); rerenderMath();
+  });
+});
+function toggleAnswer(id){ $(id).classList.toggle('show'); rerenderMath(); }
+function fmt(x){ if(!isFinite(x)) return String(x); if(Math.abs(x)<1e-10) return '0'; return Number(x.toFixed(3)).toString(); }
+function randn(){ let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+function shuffle(arr){return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);}
+function sum(arr){return arr.reduce((a,b)=>a+b,0);}
+function mean(arr){return sum(arr)/arr.length;}
+function sorted(arr){return [...arr].sort((a,b)=>a-b);}
+function median(arr){const s=sorted(arr),n=s.length; return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2;}
+function modes(arr){
+  const counts={}; arr.forEach(x=>counts[x]=(counts[x]||0)+1);
+  const max=Math.max(...Object.values(counts));
+  return Object.keys(counts).filter(k=>counts[k]===max).map(Number).sort((a,b)=>a-b);
+}
+function quartiles(arr){
+  const s=sorted(arr), n=s.length, med=median(s);
+  const lower=n%2?s.slice(0,(n-1)/2):s.slice(0,n/2);
+  const upper=n%2?s.slice((n+1)/2):s.slice(n/2);
+  return {min:s[0],q1:median(lower),median:med,q3:median(upper),max:s[n-1],sorted:s};
+}
+function variancePop(arr){ const m=mean(arr); return mean(arr.map(x=>(x-m)*(x-m))); }
+function sdPop(arr){ return Math.sqrt(variancePop(arr)); }
+function varianceSample(arr){ const m=mean(arr); return arr.reduce((a,x)=>a+(x-m)*(x-m),0)/(arr.length-1); }
+function sdSample(arr){ return Math.sqrt(varianceSample(arr)); }
+
+/* SVG utilities */
+function pxy(x,y,w=760,h=520,xmin=0,xmax=100,ymin=0,ymax=100){
+  return {x:(x-xmin)/(xmax-xmin)*w, y:h-(y-ymin)/(ymax-ymin)*h};
+}
+function svgAxes(w=760,h=520,xmin=0,xmax=100,ymin=0,ymax=100,xlab='x',ylab='frequency'){
+  let g='';
+  const x0=60,y0=h-58, plotW=w-95, plotH=h-95;
+  g+=`<rect x="0" y="0" width="${w}" height="${h}" fill="#fcfdff"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0+plotW}" y2="${y0}" stroke="#17212d" stroke-width="2"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-plotH}" stroke="#17212d" stroke-width="2"/>`;
+  for(let i=0;i<=5;i++){
+    const xv=xmin+(xmax-xmin)*i/5, xp=x0+plotW*i/5;
+    g+=`<line x1="${xp}" y1="${y0}" x2="${xp}" y2="${y0+7}" stroke="#64748b"/><text x="${xp}" y="${y0+24}" text-anchor="middle" font-size="12" fill="#64748b">${fmt(xv)}</text>`;
+    const yv=ymin+(ymax-ymin)*i/5, yp=y0-plotH*i/5;
+    g+=`<line x1="${x0-7}" y1="${yp}" x2="${x0}" y2="${yp}" stroke="#64748b"/><text x="${x0-10}" y="${yp+4}" text-anchor="end" font-size="12" fill="#64748b">${fmt(yv)}</text>`;
+    if(i>0){g+=`<line x1="${x0}" y1="${yp}" x2="${x0+plotW}" y2="${yp}" stroke="#e2e8f0"/>`;}
+  }
+  g+=`<text x="${x0+plotW/2}" y="${h-14}" text-anchor="middle" font-size="15" font-weight="850" fill="#17212d">${xlab}</text>`;
+  g+=`<text x="18" y="${y0-plotH/2}" transform="rotate(-90 18 ${y0-plotH/2})" text-anchor="middle" font-size="15" font-weight="850" fill="#17212d">${ylab}</text>`;
+  return {g,x0,y0,plotW,plotH};
+}
+function mapPlot(x,y,ax,xmin,xmax,ymin,ymax){
+  return {x:ax.x0+(x-xmin)/(xmax-xmin)*ax.plotW, y:ax.y0-(y-ymin)/(ymax-ymin)*ax.plotH};
+}
+
+/* Dataset overview */
+let currentData=[];
+let currentContext='';
+function generateDataset(type){
+  let data=[], ctx='';
+  if(type==='exam'){
+    for(let i=0;i<52;i++) data.push(Math.round(clamp(68+12*randn(),25,98)));
+    ctx='Exam scores out of 100: roughly symmetric with moderate spread.';
+  }else if(type==='commute'){
+    for(let i=0;i<58;i++) data.push(Math.round(clamp(8+Math.exp(2.55+0.55*randn()),5,95)));
+    ctx='Commute times in minutes: right-skewed because a few journeys are very long.';
+  }else if(type==='crop'){
+    for(let i=0;i<56;i++) data.push(Number(clamp(4.8+0.55*randn(),3.2,6.4).toFixed(1)));
+    ctx='Crop yield in tonnes per hectare: fairly symmetric natural variation.';
+  }else if(type==='maintenance'){
+    for(let i=0;i<50;i++) data.push(Math.round(clamp(250+70*randn(),80,430)));
+    data.push(620, 640);
+    ctx='Machine lifetimes in hours: mostly clustered, with a few unusually long-lasting parts.';
+  }else{
+    for(let i=0;i<28;i++) data.push(Math.round(clamp(52+7*randn(),30,75)));
+    for(let i=0;i<28;i++) data.push(Math.round(clamp(78+6*randn(),58,96)));
+    ctx='Two-group data: a bimodal distribution can hide two different populations.';
+  }
+  currentData=data; currentContext=ctx; drawOverview();
+}
+function freqBins(data,width,start=null,count=null){
+  const min=Math.min(...data), max=Math.max(...data);
+  if(start===null) start=Math.floor(min/width)*width;
+  if(count===null) count=Math.ceil((max-start)/width);
+  const bins=[];
+  for(let i=0;i<count;i++) bins.push({lo:start+i*width, hi:start+(i+1)*width, f:0});
+  data.forEach(x=>{
+    let idx=Math.floor((x-start)/width);
+    if(idx<0) return;
+    if(idx>=bins.length && Math.abs(x-bins[bins.length-1].hi)<1e-9) idx=bins.length-1;
+    if(idx>=0 && idx<bins.length) bins[idx].f++;
+  });
+  return bins;
+}
+function drawOverview(){
+  const data=currentData, q=quartiles(data), m=mean(data), sd=sdPop(data), iqr=q.q3-q.q1, r=q.max-q.min;
+  const width=Math.max(1, Math.ceil((q.max-q.min)/8));
+  const start=Math.floor(q.min/width)*width;
+  const bins=freqBins(data,width,start,9);
+  const maxF=Math.max(...bins.map(b=>b.f),1);
+  const svg=$("overviewGraph");
+  const ax=svgAxes(760,520,start,start+width*bins.length,0,maxF+2,'value','frequency');
+  let g=ax.g;
+  bins.forEach(b=>{
+    const x1=mapPlot(b.lo,0,ax,start,start+width*bins.length,0,maxF+2).x;
+    const x2=mapPlot(b.hi,0,ax,start,start+width*bins.length,0,maxF+2).x;
+    const y=mapPlot(0,b.f,ax,start,start+width*bins.length,0,maxF+2).y;
+    g+=`<rect x="${x1}" y="${y}" width="${x2-x1}" height="${ax.y0-y}" fill="#2364aa" opacity=".72" stroke="white"/>`;
+  });
+  const yDot=ax.y0+35;
+  data.forEach((x,i)=>{
+    const xp=mapPlot(x,0,ax,start,start+width*bins.length,0,maxF+2).x;
+    const yp=yDot - (i%5)*7;
+    g+=`<circle cx="${xp}" cy="${yp}" r="3.5" fill="#7048e8" opacity=".75"/>`;
+  });
+  // boxplot
+  const by=ax.y0+58, boxH=24;
+  const scaleX=x=>mapPlot(x,0,ax,start,start+width*bins.length,0,maxF+2).x;
+  g+=`<line x1="${scaleX(q.min)}" y1="${by}" x2="${scaleX(q.max)}" y2="${by}" stroke="#17212d" stroke-width="2"/>`;
+  g+=`<rect x="${scaleX(q.q1)}" y="${by-boxH/2}" width="${scaleX(q.q3)-scaleX(q.q1)}" height="${boxH}" fill="#e6fcf5" stroke="#087f5b" stroke-width="2"/>`;
+  g+=`<line x1="${scaleX(q.median)}" y1="${by-boxH/2}" x2="${scaleX(q.median)}" y2="${by+boxH/2}" stroke="#c92a2a" stroke-width="3"/>`;
+  g+=`<line x1="${scaleX(q.min)}" y1="${by-11}" x2="${scaleX(q.min)}" y2="${by+11}" stroke="#17212d" stroke-width="2"/>`;
+  g+=`<line x1="${scaleX(q.max)}" y1="${by-11}" x2="${scaleX(q.max)}" y2="${by+11}" stroke="#17212d" stroke-width="2"/>`;
+  g+=`<text x="${ax.x0}" y="28" font-size="18" font-weight="900" fill="#17212d">Histogram + dot plot + boxplot</text>`;
+  svg.innerHTML=g;
+  $("datasetContext").innerHTML=currentContext;
+  $("centreStats").innerHTML=`\\(n=${data.length}\\)<br>Mean \\(\\bar{x}=${fmt(m)}\\)<br>Median \\(=${fmt(q.median)}\\)<br>Mode(s): ${modes(data).slice(0,5).join(', ')}${modes(data).length>5?'...':''}`;
+  $("spreadStats").innerHTML=`Range \\(=${fmt(r)}\\)<br>\\(Q_1=${fmt(q.q1)}\\), \\(Q_3=${fmt(q.q3)}\\)<br>IQR \\(=${fmt(iqr)}\\)<br>Population SD \\(\\sigma=${fmt(sd)}\\)`;
+  $("shapeStats").innerHTML=shapeInterpretation(data,q,m,sd);
+  $("dataStrip").innerHTML=sorted(data).slice(0,120).map(x=>`<span class="data-chip">${x}</span>`).join('');
+  rerenderMath();
+}
+function shapeInterpretation(data,q,m,sd){
+  const mid=(q.q1+q.q3)/2;
+  let skew=Math.abs(m-q.median)<0.1*sd?'roughly symmetric':(m>q.median?'right-skewed':'left-skewed');
+  const iqr=q.q3-q.q1, lower=q.q1-1.5*iqr, upper=q.q3+1.5*iqr;
+  const outs=data.filter(x=>x<lower||x>upper).length;
+  return `${skew}.<br>Outliers by \(1.5\\times\\mathrm{IQR}\) rule: ${outs}.<br>${outs?'Consider whether outliers are valid in context.':'No strong outliers by this rule.'}`;
+}
+
+/* Frequency */
+function parseNumbers(text){ return text.split(/[,\s]+/).map(s=>s.trim()).filter(Boolean).map(Number).filter(x=>isFinite(x)); }
+function buildFrequencyTable(){
+  const data=parseNumbers($("freqData").value);
+  const start=Number($("classStart").value), width=Number($("classWidth").value), count=Number($("classCount").value);
+  if(data.length===0 || !isFinite(start)||!isFinite(width)||width<=0||!Number.isFinite(count)||count<1){
+    $("freqTableOutput").innerHTML='<div class="feedback bad">Enter valid data and class settings.</div>'; return;
+  }
+  const bins=freqBins(data,width,start,count);
+  let html='<table><tr><th>Class interval</th><th>Frequency</th><th>Cumulative frequency</th></tr>';
+  let cf=0; bins.forEach(b=>{cf+=b.f; html+=`<tr><td>\\(${fmt(b.lo)}\\le x<${fmt(b.hi)}\\)</td><td>${b.f}</td><td>${cf}</td></tr>`;});
+  html+='</table>';
+  $("freqTableOutput").innerHTML=html;
+  drawHistogram('histGraph',bins,'value','frequency');
+  const maxBin=bins.reduce((a,b)=>b.f>a.f?b:a,bins[0]);
+  $("histFeedback").className='feedback info';
+  $("histFeedback").innerHTML=`The modal class is \\(${fmt(maxBin.lo)}\\le x<${fmt(maxBin.hi)}\\) because it has the highest frequency.`;
+  rerenderMath();
+}
+function drawHistogram(svgId,bins,xlab='value',ylab='frequency',highlightIndex=-1){
+  const svg=$(svgId), maxF=Math.max(...bins.map(b=>b.f),1), xmin=bins[0].lo, xmax=bins[bins.length-1].hi;
+  const ax=svgAxes(720,460,xmin,xmax,0,maxF+2,xlab,ylab);
+  let g=ax.g;
+  bins.forEach((b,i)=>{
+    const x1=mapPlot(b.lo,0,ax,xmin,xmax,0,maxF+2).x;
+    const x2=mapPlot(b.hi,0,ax,xmin,xmax,0,maxF+2).x;
+    const y=mapPlot(0,b.f,ax,xmin,xmax,0,maxF+2).y;
+    const fill=i===highlightIndex?'#f08c00':'#2364aa';
+    g+=`<rect x="${x1}" y="${y}" width="${x2-x1}" height="${ax.y0-y}" fill="${fill}" opacity=".78" stroke="white"/>`;
+    g+=`<text x="${(x1+x2)/2}" y="${y-5}" text-anchor="middle" font-size="12" font-weight="850" fill="#17212d">${b.f}</text>`;
+  });
+  svg.innerHTML=g;
+}
+const histCheckItems=[
+  {q:'In a histogram for continuous grouped data, should bars usually touch?', ans:'yes', explain:'Yes. The intervals are continuous and have no gaps.'},
+  {q:'For SL 4.2, do students need frequency density histograms?', ans:'no', explain:'No. Frequency histograms with equal class intervals are required; frequency density histograms are not required.'},
+  {q:'Which class is the modal class?', ans:'highest', explain:'The class with the highest frequency.'}
+];
+function initHistChecks(){
+  const box=$("histChecks"); box.innerHTML='';
+  histCheckItems.forEach((it,i)=>{
+    const opts=i===2?['highest','lowest']:['yes','no'];
+    const div=document.createElement('div'); div.className='tile';
+    div.innerHTML=`<p>${it.q}</p>${opts.map(o=>`<button onclick="checkHist(${i},'${o}')">${o}</button>`).join(' ')}`;
+    box.appendChild(div);
+  });
+}
+function checkHist(i,ans){
+  const it=histCheckItems[i];
+  $("histCheckFeedback").className='feedback '+(ans===it.ans?'good':'bad');
+  $("histCheckFeedback").innerHTML=(ans===it.ans?'Correct. ':'Not quite. ')+it.explain;
+}
+
+/* Cumulative frequency */
+let cfBins=[];
+function loadCFExample(type){
+  if(type==='scores') cfBins=[{lo:0,hi:20,f:2},{lo:20,hi:40,f:8},{lo:40,hi:60,f:18},{lo:60,hi:80,f:34},{lo:80,hi:100,f:18}];
+  if(type==='rainfall') cfBins=[{lo:0,hi:10,f:6},{lo:10,hi:20,f:14},{lo:20,hi:30,f:20},{lo:30,hi:40,f:12},{lo:40,hi:50,f:6},{lo:50,hi:60,f:2}];
+  if(type==='times') cfBins=[{lo:10,hi:20,f:4},{lo:20,hi:30,f:16},{lo:30,hi:40,f:24},{lo:40,hi:50,f:12},{lo:50,hi:60,f:4}];
+  drawCFGraph();
+}
+function smoothPathThrough(points, ax, xmin, xmax, ymin, ymax){
+  const mapped=points.map(pt=>mapPlot(pt.x,pt.y,ax,xmin,xmax,ymin,ymax));
+  if(mapped.length<2) return '';
+  let d=`M${mapped[0].x} ${mapped[0].y}`;
+  for(let i=0;i<mapped.length-1;i++){
+    const p0=mapped[Math.max(0,i-1)], p1=mapped[i], p2=mapped[i+1], p3=mapped[Math.min(mapped.length-1,i+2)];
+    const c1x=p1.x+(p2.x-p0.x)/6, c1y=p1.y+(p2.y-p0.y)/6;
+    const c2x=p2.x-(p3.x-p1.x)/6, c2y=p2.y-(p3.y-p1.y)/6;
+    d+=` C${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
+  }
+  return d;
+}
+function drawCFGraph(){
+  const pctl=Number($("percentileSlider").value);
+  $("percentileLabel").textContent=pctl + 'th';
+  const n=cfBins.reduce((a,b)=>a+b.f,0), target=n*pctl/100;
+  const xmin=cfBins[0].lo, xmax=cfBins[cfBins.length-1].hi, ymax=n;
+  const ax=svgAxes(760,520,xmin,xmax,0,ymax,'upper class boundary','cumulative frequency');
+  let g=ax.g, cf=0;
+  const points=[{x:xmin,y:0}];
+  cfBins.forEach(b=>{cf+=b.f; points.push({x:b.hi,y:cf});});
+  const d=smoothPathThrough(points,ax,xmin,xmax,0,ymax);
+  g+=`<path d="${d}" fill="none" stroke="#2364aa" stroke-width="4.5" stroke-linecap="round"/>`;
+  points.forEach(pt=>{const p=mapPlot(pt.x,pt.y,ax,xmin,xmax,0,ymax); g+=`<circle cx="${p.x}" cy="${p.y}" r="5" fill="#2364aa" stroke="white" stroke-width="2"/>`;});
+  const estimate=interpolateCF(target);
+  const pt=mapPlot(estimate,target,ax,xmin,xmax,0,ymax);
+  const yAxis=mapPlot(xmin,target,ax,xmin,xmax,0,ymax);
+  const xAxis=mapPlot(estimate,0,ax,xmin,xmax,0,ymax);
+  g+=`<line x1="${yAxis.x}" y1="${yAxis.y}" x2="${pt.x}" y2="${pt.y}" stroke="#c92a2a" stroke-width="2" stroke-dasharray="7 6"/>`;
+  g+=`<line x1="${pt.x}" y1="${pt.y}" x2="${xAxis.x}" y2="${xAxis.y}" stroke="#c92a2a" stroke-width="2" stroke-dasharray="7 6"/>`;
+  g+=`<circle cx="${pt.x}" cy="${pt.y}" r="7" fill="#c92a2a" stroke="white" stroke-width="2"/>`;
+  $("cfGraph").innerHTML=g;
+  buildCFTable();
+  $("cfReadout").innerHTML=`Total frequency \\(n=${n}\\).<br>${pctl}th percentile is at cumulative frequency \\(${fmt(target)}\\).<br>Estimated value \\(\\approx ${fmt(estimate)}\\).`;
+  rerenderMath();
+}
+function interpolateCF(target){
+  let prevCF=0, prevX=cfBins[0].lo;
+  for(const b of cfBins){
+    const nextCF=prevCF+b.f;
+    if(target<=nextCF){
+      const prop=(target-prevCF)/(nextCF-prevCF || 1);
+      return b.lo+prop*(b.hi-b.lo);
+    }
+    prevCF=nextCF; prevX=b.hi;
+  }
+  return cfBins[cfBins.length-1].hi;
+}
+function buildCFTable(){
+  let html='<table><tr><th>Class interval</th><th>Frequency</th><th>Cumulative frequency</th></tr>', cf=0;
+  cfBins.forEach(b=>{cf+=b.f; html+=`<tr><td>\\(${b.lo}\\le x<${b.hi}\\)</td><td>${b.f}</td><td>${cf}</td></tr>`;});
+  html+='</table>';
+  $("cfTableOutput").innerHTML=html;
+}
+
+/* Boxplots */
+let boxA=[], boxB=[];
+function generateBoxComparison(type){
+  if(type==='similar'){
+    boxA=Array.from({length:38},()=>Math.round(clamp(65+9*randn(),40,90)));
+    boxB=Array.from({length:38},()=>Math.round(clamp(66+10*randn(),40,92)));
+  }else if(type==='spread'){
+    boxA=Array.from({length:38},()=>Math.round(clamp(70+5*randn(),52,85)));
+    boxB=Array.from({length:38},()=>Math.round(clamp(70+16*randn(),30,100)));
+  }else if(type==='skew'){
+    boxA=Array.from({length:42},()=>Math.round(clamp(65+8*randn(),40,90)));
+    boxB=Array.from({length:42},()=>Math.round(clamp(35+Math.exp(3.2+0.45*randn()),35,100)));
+  }else{
+    boxA=Array.from({length:36},()=>Math.round(clamp(62+7*randn(),40,85))).concat([95,98]);
+    boxB=Array.from({length:38},()=>Math.round(clamp(68+8*randn(),45,90))).concat([30]);
+  }
+  drawBoxComparison();
+}
+function boxStatsWithOutliers(data){
+  const q=quartiles(data), iqr=q.q3-q.q1, lower=q.q1-1.5*iqr, upper=q.q3+1.5*iqr;
+  const non=sorted(data).filter(x=>x>=lower && x<=upper);
+  const outs=sorted(data).filter(x=>x<lower || x>upper);
+  return {...q,iqr,lower,upper,whiskerMin:non[0],whiskerMax:non[non.length-1],outs};
+}
+function drawBoxComparison(){
+  const a=boxStatsWithOutliers(boxA), b=boxStatsWithOutliers(boxB);
+  const min=Math.min(a.min,b.min,a.lower,b.lower), max=Math.max(a.max,b.max,a.upper,b.upper);
+  const svg=$("boxGraph");
+  const ax=svgAxes(760,460,Math.floor(min/10)*10,Math.ceil(max/10)*10,0,2,'value','');
+  let g=ax.g;
+  g+=drawBox(a,1.35,ax,Math.floor(min/10)*10,Math.ceil(max/10)*10,'#2364aa','Group A');
+  g+=drawBox(b,0.65,ax,Math.floor(min/10)*10,Math.ceil(max/10)*10,'#0ca678','Group B');
+  svg.innerHTML=g;
+  $("boxAStats").innerHTML=boxText(a);
+  $("boxBStats").innerHTML=boxText(b);
+  const compare= a.median>b.median?'Group A has the higher median.':a.median<b.median?'Group B has the higher median.':'The medians are similar.';
+  const spread= a.iqr<b.iqr?'Group A has the smaller IQR and is more consistent in the middle 50%.':a.iqr>b.iqr?'Group B has the smaller IQR and is more consistent in the middle 50%.':'The IQRs are similar.';
+  $("boxInterpret").innerHTML=`${compare} ${spread} ${a.outs.length||b.outs.length?'Outliers are shown with crosses.':''}`;
+  rerenderMath();
+}
+function drawBox(s,yVal,ax,xmin,xmax,color,label){
+  const y=mapPlot(0,yVal,ax,xmin,xmax,0,2).y, h=42;
+  const sx=x=>mapPlot(x,yVal,ax,xmin,xmax,0,2).x;
+  let g=`<text x="${ax.x0-8}" y="${y+5}" text-anchor="end" font-size="14" font-weight="850" fill="#17212d">${label}</text>`;
+  g+=`<line x1="${sx(s.whiskerMin)}" y1="${y}" x2="${sx(s.whiskerMax)}" y2="${y}" stroke="${color}" stroke-width="3"/>`;
+  g+=`<rect x="${sx(s.q1)}" y="${y-h/2}" width="${sx(s.q3)-sx(s.q1)}" height="${h}" fill="${color}" opacity=".18" stroke="${color}" stroke-width="3"/>`;
+  g+=`<line x1="${sx(s.median)}" y1="${y-h/2}" x2="${sx(s.median)}" y2="${y+h/2}" stroke="#c92a2a" stroke-width="4"/>`;
+  [s.whiskerMin,s.whiskerMax].forEach(x=>g+=`<line x1="${sx(x)}" y1="${y-h/3}" x2="${sx(x)}" y2="${y+h/3}" stroke="${color}" stroke-width="3"/>`);
+  s.outs.forEach(x=>{
+    const xp=sx(x);
+    g+=`<line x1="${xp-7}" y1="${y-7}" x2="${xp+7}" y2="${y+7}" stroke="#c92a2a" stroke-width="3"/>`;
+    g+=`<line x1="${xp-7}" y1="${y+7}" x2="${xp+7}" y2="${y-7}" stroke="#c92a2a" stroke-width="3"/>`;
+  });
+  return g;
+}
+function boxText(s){
+  return `Min \\(=${fmt(s.min)}\\), \\(Q_1=${fmt(s.q1)}\\)<br>Median \\(=${fmt(s.median)}\\), \\(Q_3=${fmt(s.q3)}\\)<br>Max \\(=${fmt(s.max)}\\), IQR \\(=${fmt(s.iqr)}\\)<br>Outliers: ${s.outs.length?s.outs.join(', '):'none'}`;
+}
+
+/* Central */
+function analyseCentral(){
+  const data=parseNumbers($("centralData").value);
+  if(data.length===0) return;
+  const q=quartiles(data), m=mean(data), mo=modes(data);
+  $("centralOutput").className='feedback info';
+  $("centralOutput").innerHTML=`Sorted data: ${q.sorted.join(', ')}<br>Mean \\(=${fmt(m)}\\)<br>Median \\(=${fmt(q.median)}\\)<br>Mode(s): ${mo.join(', ')}`;
+  drawCentral(data,m,q.median);
+  $("centralInterpret").innerHTML = Math.abs(m-q.median)>2 ? 'The mean and median differ noticeably, suggesting skew or an outlier.' : 'The mean and median are close, suggesting a more balanced distribution.';
+  rerenderMath();
+}
+function drawCentral(data,m,med){
+  const min=Math.min(...data,m,med)-2,max=Math.max(...data,m,med)+2;
+  const svg=$("centralGraph");
+  const ax=svgAxes(720,420,min,max,0,10,'value','');
+  let g=ax.g;
+  data.forEach((x,i)=>{
+    const xp=mapPlot(x,0,ax,min,max,0,10).x;
+    const yp=ax.y0-20-(i%7)*12;
+    g+=`<circle cx="${xp}" cy="${yp}" r="5" fill="#2364aa" opacity=".75"/>`;
+  });
+  const xm=mapPlot(m,0,ax,min,max,0,10).x, xmed=mapPlot(med,0,ax,min,max,0,10).x;
+  g+=`<line x1="${xm}" y1="30" x2="${xm}" y2="${ax.y0}" stroke="#c92a2a" stroke-width="3"/><text x="${xm}" y="24" text-anchor="middle" font-weight="900" fill="#8a1717">mean</text>`;
+  g+=`<line x1="${xmed}" y1="55" x2="${xmed}" y2="${ax.y0}" stroke="#0ca678" stroke-width="3"/><text x="${xmed}" y="50" text-anchor="middle" font-weight="900" fill="#087f5b">median</text>`;
+  svg.innerHTML=g;
+}
+const averageItems=[
+  {q:'House prices with a few luxury mansions', ans:'median', explain:'Median is less affected by extreme expensive houses.'},
+  {q:'Average mark on a fairly symmetric test', ans:'mean', explain:'Mean is useful when the distribution is not strongly skewed.'},
+  {q:'Most common shoe size sold by a shop', ans:'mode', explain:'Mode tells the most frequent category/value.'},
+  {q:'Typical salary in a company with one very highly paid CEO', ans:'median', explain:'Median better represents a typical worker than the mean.'}
+];
+function initAverageChecks(){
+  const box=$("averageChecks"); box.innerHTML='';
+  averageItems.forEach((it,i)=>{
+    const div=document.createElement('div'); div.className='tile';
+    div.innerHTML=`<p>${it.q}</p><button onclick="checkAverage(${i},'mean')">Mean</button> <button onclick="checkAverage(${i},'median')">Median</button> <button onclick="checkAverage(${i},'mode')">Mode</button>`;
+    box.appendChild(div);
+  });
+}
+function checkAverage(i,ans){
+  const it=averageItems[i];
+  $("averageFeedback").className='feedback '+(ans===it.ans?'good':'bad');
+  $("averageFeedback").innerHTML=(ans===it.ans?'Correct. ':'Not quite. ')+it.explain;
+}
+
+/* Grouped data */
+let groupedBins=[];
+function newGroupedExample(){
+  const starts=[0,10,20,30,40,50], freqs=shuffle([4,8,14,12,7,3]);
+  groupedBins=starts.map((s,i)=>({lo:s,hi:s+10,f:freqs[i]}));
+  drawGrouped();
+}
+function drawGrouped(){
+  let html='<table><tr><th>Class interval</th><th>Midpoint</th><th>Frequency</th><th>Midpoint × frequency</th></tr>';
+  groupedBins.forEach(b=>{const mid=(b.lo+b.hi)/2; html+=`<tr><td>\\(${b.lo}\\le x<${b.hi}\\)</td><td>${mid}</td><td>${b.f}</td><td>${mid*b.f}</td></tr>`;});
+  html+='</table>';
+  $("groupedTable").innerHTML=html;
+  const maxI=groupedBins.reduce((mi,b,i)=>b.f>groupedBins[mi].f?i:mi,0);
+  drawHistogram('groupedHist',groupedBins,'time / minutes','frequency',maxI);
+  $("modalOutput").innerHTML=`Modal class: \\(${groupedBins[maxI].lo}\\le x<${groupedBins[maxI].hi}\\).`;
+  rerenderMath();
+}
+function analyseGrouped(){
+  const totalF=sum(groupedBins.map(b=>b.f));
+  const totalMF=sum(groupedBins.map(b=>((b.lo+b.hi)/2)*b.f));
+  const est=totalMF/totalF;
+  $("groupedOutput").className='feedback good';
+  $("groupedOutput").innerHTML=`\\(\\sum f=${totalF}\\)<br>\\(\\sum mf=${totalMF}\\)<br>Estimated mean \\(=\\frac{${totalMF}}{${totalF}}=${fmt(est)}\\).`;
+  rerenderMath();
+}
+
+/* Dispersion and transformations */
+let transformBase=[14,15,17,18,18,19,20,21,22,24,27], transformCurrent=[...transformBase];
+function analyseDispersion(){
+  const data=parseNumbers($("dispData").value);
+  const q=quartiles(data), iqr=q.q3-q.q1;
+  $("dispOutput").className='feedback info';
+  $("dispOutput").innerHTML=`Range \\(=${fmt(q.max-q.min)}\\)<br>IQR \\(=${fmt(iqr)}\\)<br>Population variance \\(\\sigma^2=${fmt(variancePop(data))}\\)<br>Population SD \\(\\sigma=${fmt(sdPop(data))}\\)<br>Sample variance \\(S_x^2=${fmt(varianceSample(data))}\\)<br>Sample SD \\(S_x=${fmt(sdSample(data))}\\)`;
+  rerenderMath();
+}
+function transformData(type){
+  if(type==='reset') transformCurrent=[...transformBase];
+  else if(type==='add') transformCurrent=transformCurrent.map(x=>x+Number($("addConst").value));
+  else if(type==='subtract') transformCurrent=transformCurrent.map(x=>x-Number($("addConst").value));
+  else if(type==='multiply') transformCurrent=transformCurrent.map(x=>x*Number($("multConst").value));
+  drawTransform();
+}
+function drawTransform(){
+  const data=transformCurrent, base=transformBase;
+  const min=Math.min(...base,...data)-5,max=Math.max(...base,...data)+5;
+  const svg=$("transformGraph"), ax=svgAxes(720,420,min,max,0,10,'value','');
+  let g=ax.g;
+  base.forEach((x,i)=>{const xp=mapPlot(x,0,ax,min,max,0,10).x; g+=`<circle cx="${xp}" cy="${ax.y0-40-(i%4)*12}" r="5" fill="#adb5bd"/>`;});
+  data.forEach((x,i)=>{const xp=mapPlot(x,0,ax,min,max,0,10).x; g+=`<circle cx="${xp}" cy="${ax.y0-120-(i%4)*12}" r="5" fill="#2364aa"/>`;});
+  g+=`<text x="${ax.x0}" y="${ax.y0-10}" font-weight="900" fill="#64748b">original</text>`;
+  g+=`<text x="${ax.x0}" y="${ax.y0-92}" font-weight="900" fill="#174a7c">transformed</text>`;
+  svg.innerHTML=g;
+  const qm=quartiles(data);
+  $("transformOutput").innerHTML=`Current data: ${data.join(', ')}<br>Mean \\(=${fmt(mean(data))}\\), median \\(=${fmt(qm.median)}\\), IQR \\(=${fmt(qm.q3-qm.q1)}\\), SD \\(=${fmt(sdPop(data))}\\).`;
+  rerenderMath();
+}
+
+/* Practice */
+function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function intRand(a,b){ return Math.floor(a+Math.random()*(b-a+1)); }
+function intervalLabel(lo,hi,v='x'){ return `\(${lo}\le ${v}<${hi}\)`; }
+function generatePractice(type){
+  $("practiceAnswer").classList.remove('show');
+  $("practiceVisual").innerHTML='';
+  let q='',a='';
+  const contexts={
+    hist:['exam scores','daily rainfall amounts','race times','plant heights','commute times'],
+    cf:['exam scores','monthly rainfall values','race times','reaction times','battery lifetimes'],
+    box:['test scores','journey times','crop yields','machine lifetimes','house prices'],
+    centre:['quiz scores','waiting times','book prices','daily sales','training times'],
+    grouped:['commute times','rainfall amounts','reaction times','heights','distances travelled'],
+    spread:['scores','temperatures','delivery times','lengths','sales figures']
+  };
+  if(type==='hist'){
+    const start=choice([0,10,20]);
+    const width=choice([5,10,20]);
+    const f=[intRand(2,8),intRand(6,14),intRand(10,22),intRand(4,16)];
+    const intervals=[0,1,2,3].map(i=>[start+i*width,start+(i+1)*width]);
+    const modalIndex=f.indexOf(Math.max(...f));
+    q=`The ${choice(contexts.hist)} are grouped into intervals ${intervals.map(p=>intervalLabel(p[0],p[1])).join(', ')} with frequencies ${f.join(', ')}. Describe how to draw the histogram and identify the modal class.`;
+    a=`Draw touching bars over the class intervals because the data are grouped continuous data. Since all class intervals have equal width ${width}, use frequency as the bar height. The modal class is ${intervalLabel(intervals[modalIndex][0],intervals[modalIndex][1])}, because it has the highest frequency, ${f[modalIndex]}.`;
+  }else if(type==='cf'){
+    const n=choice([40,60,80,100,120,160]);
+    const p=choice([10,25,50,75,90]);
+    const target=n*p/100;
+    q=`A cumulative frequency graph for ${choice(contexts.cf)} has total frequency \(n=${n}\). At what cumulative frequency would you estimate the ${p}th percentile? Also state the cumulative frequencies for \(Q_1\), the median and \(Q_3\).`;
+    a=`The ${p}th percentile is read at cumulative frequency \(${p}\%\text{ of }${n}=0.${String(p).padStart(2,'0')}\times ${n}=${fmt(target)}\). Also, \(Q_1\) is at \(0.25(${n})=${fmt(0.25*n)}\), the median is at \(0.50(${n})=${fmt(0.5*n)}\), and \(Q_3\) is at \(0.75(${n})=${fmt(0.75*n)}\). Draw across to the smooth cumulative frequency curve, then down to the data axis.`;
+  }else if(type==='box'){
+    const ctx=choice(contexts.box);
+    const aMed=intRand(55,78), bMed=aMed+choice([-8,-5,4,7]);
+    const aIqr=intRand(6,14), bIqr=intRand(10,25);
+    q=`Two boxplots compare ${ctx}. Group A has median ${aMed} and IQR ${aIqr}. Group B has median ${bMed} and IQR ${bIqr}. Compare the distributions in context.`;
+    const higher=aMed>bMed?'Group A':aMed<bMed?'Group B':'Neither group';
+    const smaller=aIqr<bIqr?'Group A':aIqr>bIqr?'Group B':'Neither group';
+    a=`${higher==='Neither group'?'The groups have the same median, so their typical values are similar.':`${higher} has the higher median, so it has the higher typical value.`} ${smaller==='Neither group'?'The IQRs are equal, so the middle 50% have similar spread.':`${smaller} has the smaller IQR, so its middle 50% is less spread out.`} A complete answer should mention the context: ${ctx}.`;
+  }else if(type==='centre'){
+    const base=choice([[4,5,5,6,7,8,40],[12,13,14,14,15,16,17],[3,3,4,5,7,9,30],[21,22,22,23,24,25,60]]);
+    const data=base.join(', '), m=mean(base), med=median(base), mo=modes(base);
+    q=`For the ${choice(contexts.centre)} data \(${data}\), find the mean, median and mode. Which measure best represents a typical value?`;
+    const out=Math.abs(m-med)>3;
+    a=`Mean \(\bar{x}=\frac{${sum(base)}}{${base.length}}\approx ${fmt(m)}\). Median \(=${fmt(med)}\). Mode${mo.length>1?'s':''}: ${mo.join(', ')}. ${out?'The median is probably the better typical value because the extreme value pulls the mean.':'The mean and median are close, so either may be reasonable; use the context to decide.'}`;
+  }else if(type==='grouped'){
+    const start=choice([0,10,20]), width=choice([5,10]);
+    const f=[intRand(3,8),intRand(5,12),intRand(7,16),intRand(4,10)];
+    const bins=f.map((freq,i)=>({lo:start+i*width,hi:start+(i+1)*width,f:freq,mid:start+i*width+width/2}));
+    const totalF=sum(f), totalMF=sum(bins.map(b=>b.mid*b.f)), est=totalMF/totalF;
+    const modal=bins[f.indexOf(Math.max(...f))];
+    q=`Estimate the mean for grouped ${choice(contexts.grouped)} using this table: ${bins.map(b=>`${intervalLabel(b.lo,b.hi)}: ${b.f}`).join(', ')}. Also state the modal class.`;
+    a=`Use class midpoints: ${bins.map(b=>b.mid).join(', ')}. Then \(\sum mf=${bins.map(b=>`${b.mid}(${b.f})`).join('+')}=${fmt(totalMF)}\), and \(\sum f=${totalF}\). Estimated mean \(=\frac{${fmt(totalMF)}}{${totalF}}\approx ${fmt(est)}\). The modal class is ${intervalLabel(modal.lo,modal.hi)}, because it has the highest frequency.`;
+  }else if(type==='spread'){
+    const q1=intRand(10,25), q3=q1+intRand(8,20), min=q1-intRand(3,10), max=q3+intRand(4,14);
+    q=`A data set of ${choice(contexts.spread)} has minimum ${min}, \(Q_1=${q1}\), median ${intRand(q1+1,q3-1)}, \(Q_3=${q3}\), and maximum ${max}. Find the IQR and range.`;
+    a=`IQR \(=Q_3-Q_1=${q3}-${q1}=${q3-q1}\). Range \(=\max-\min=${max}-${min}=${max-min}\). The IQR describes the spread of the middle 50% of the data.`;
+  }else{
+    const oldMean=intRand(8,30), oldSd=intRand(2,8), mult=choice([2,3,4,0.5]), add=choice([-7,-5,4,6,10]);
+    const newMean=oldMean*mult+add, newSd=Math.abs(mult)*oldSd;
+    q=`A data set has mean ${oldMean} and standard deviation ${oldSd}. Each value is multiplied by ${mult} and then ${add>=0?'increased':'decreased'} by ${Math.abs(add)}. Find the new mean and standard deviation.`;
+    a=`Multiplication affects both centre and spread: the mean becomes \(${oldMean}\times ${mult}=${fmt(oldMean*mult)}\), and the standard deviation becomes \(|${mult}|\times ${oldSd}=${fmt(newSd)}\). Adding ${add} changes the mean to \(${fmt(oldMean*mult)}${add>=0?'+':'-'}${Math.abs(add)}=${fmt(newMean)}\), but it does not change the standard deviation. New mean \(=${fmt(newMean)}\), new standard deviation \(=${fmt(newSd)}\).`;
+  }
+  $("practiceQuestion").innerHTML=q;
+  $("practiceAnswer").innerHTML=a;
+  rerenderMath();
+}
+
+/* Init */
+initHistChecks();
+generateDataset('exam');
+buildFrequencyTable();
+loadCFExample('scores');
+generateBoxComparison('spread');
+analyseCentral();
+initAverageChecks();
+newGroupedExample();
+analyseDispersion();
+drawTransform();
+generatePractice('hist');
+</script>
+</body>
+</html>

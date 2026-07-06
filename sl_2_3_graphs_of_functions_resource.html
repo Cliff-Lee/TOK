@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SL 2.3 Graphs of Functions</title>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{--ink:#17212b;--muted:#5e6b7a;--line:#d8e0ea;--soft:#f5f7fb;--accent:#2364aa;--green:#0ca678;--purple:#7048e8;--red:#c92a2a;--orange:#f08c00;--shadow:0 14px 28px rgba(16,24,40,.10);--r:18px}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);line-height:1.45;background:radial-gradient(circle at top left,rgba(35,100,170,.12),transparent 36rem),radial-gradient(circle at top right,rgba(112,72,232,.10),transparent 30rem),linear-gradient(#fff,#f7f9fc 50rem)}
+header,main{max-width:1200px;margin:auto;padding:0 22px} header{padding-top:34px}
+h1{margin:0;font-size:clamp(2rem,5vw,4.2rem);line-height:.95;letter-spacing:-.06em} h1 span{display:block;color:var(--accent)}
+.subtitle{max-width:850px;color:#344054;font-size:1.12rem}.title-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.badge{display:inline-flex;padding:9px 14px;background:white;border:1px solid var(--line);border-radius:999px;box-shadow:0 5px 18px rgba(0,0,0,.06);font-weight:800;color:var(--accent);white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}.card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.span-12{grid-column:span 12}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+@media(max-width:900px){.span-7,.span-6,.span-5,.span-4{grid-column:span 12}}
+h2{margin:0 0 12px;font-size:1.55rem;letter-spacing:-.025em}h3{margin:16px 0 8px}
+.syllabus{display:grid;grid-template-columns:1fr 1fr;border:1px solid #9ca3af;border-radius:14px;overflow:hidden;background:white}
+.syllabus>div{padding:14px 17px;border-bottom:1px solid #9ca3af}.syllabus .head{background:#eef0f2;color:#6b7280;font-weight:850;font-size:1.08rem}.syllabus div:nth-child(odd){border-right:1px solid #9ca3af}.syllabus div:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:720px){.syllabus{grid-template-columns:1fr}.syllabus div:nth-child(odd){border-right:none}.syllabus div:nth-last-child(2){border-bottom:1px solid #9ca3af}}
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.tile{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}.tile h3{margin-top:0}
+.tabs{position:sticky;top:0;z-index:10;margin:18px 0;padding:12px;display:flex;gap:8px;flex-wrap:wrap;background:rgba(247,249,252,.86);border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+button{border:none;border-radius:999px;background:#e9eef6;color:var(--ink);font-weight:800;padding:10px 14px;cursor:pointer;font-size:.95rem}button:hover{transform:translateY(-1px)}button.active{background:var(--accent);color:white;box-shadow:0 8px 18px rgba(35,100,170,.24)}button.secondary{background:#eef2ff;color:#3b2b98}button.good{background:#d3f9d8;color:#1b5e20}button.warn{background:#fff3bf;color:#7c4a00}
+.panel{display:none}.panel.active{display:block;animation:fade .25s ease}@keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+.note{border-left:5px solid var(--accent);background:#edf6ff;padding:12px 14px;border-radius:12px;margin:12px 0}.note.warn{border-color:var(--orange);background:#fff7e6}.note.good{border-color:#2f9e44;background:#ebfbee}
+.steps{counter-reset:s;list-style:none;padding:0;margin:12px 0}.steps li{counter-increment:s;position:relative;margin:10px 0;padding:12px 12px 12px 48px;background:#f8fafc;border:1px solid var(--line);border-radius:14px}.steps li:before{content:counter(s);position:absolute;left:12px;top:12px;width:25px;height:25px;border-radius:50%;background:var(--accent);color:white;display:grid;place-items:center;font-weight:900}
+.eq,.mathline{font-size:1.12rem;padding:12px;border:1px solid var(--line);background:white;border-radius:12px;overflow-x:auto}.label{font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:850;margin-bottom:6px}.box{border:1px solid var(--line);border-radius:14px;background:white;padding:13px;margin:10px 0}
+.feedback{margin-top:10px;padding:12px 14px;border-radius:12px;min-height:48px;background:#f1f5f9}.feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}.feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}.feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+.practice{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin:12px 0}.answer{display:none;margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}.answer.show{display:block}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.tight{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input,select{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:white}label{display:block;margin:8px 0 5px;font-weight:850}.range{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:10px 0}input[type=range]{padding:0}.pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#edf2ff;color:#364fc7;font-size:.82rem;font-weight:850;margin:2px}.pill.green{background:#e6fcf5;color:#087f5b}.pill.red{background:#ffe3e3;color:#8a1717}
+.graphwrap{background:white;border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden}.graph{width:100%;aspect-ratio:1.12/1;max-height:540px;display:block;background:linear-gradient(#fcfdff,#f6fbff);border-radius:12px;overflow:visible}
+table{width:100%;border-collapse:collapse;margin:12px 0;background:white;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}th{background:#eef4fb}
+.nspire{border-radius:22px;background:#202a35;color:white;padding:18px;max-width:360px;margin:auto;box-shadow:inset 0 -8px 0 rgba(0,0,0,.18),0 12px 25px rgba(0,0,0,.2)}.screen{background:#d7f5e3;color:#0f2b19;border:5px solid #101720;border-radius:12px;padding:12px;min-height:145px;font-family:"Courier New",monospace;margin-bottom:14px}.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.key{background:#3b4552;color:white;text-align:center;border-radius:9px;padding:8px 4px;font-weight:850;font-size:.82rem}.key.blue{background:#1d4ed8}.key.orange{background:#b45309}.key.green{background:#087f5b}.key.light{background:#667085}
+.context-svg{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:white}
+@media print{body{background:white}.tabs,button{display:none!important}.panel{display:block!important}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 2.3 <span>Graphs of Functions</span></h1>
+      <p class="subtitle">Explore \(y=f(x)\), sketch and draw graphs, transfer graphs from screen to paper, use TI-Nspire technology, and graph sums and differences of functions.</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Graphs & Technology</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus">
+      <div class="head">Content</div><div class="head">Guidance, clarification and syllabus links</div>
+      <div>The graph of a function; its equation \(y=f(x)\).</div>
+      <div>Students should be aware of the difference between the command terms “draw” and “sketch”.</div>
+      <div>Creating a sketch from information given or a context, including transferring a graph from screen to paper.<br><br>Using technology to graph functions including their sums and differences.</div>
+      <div>All axes and key features should be labelled.<br><br>This may include functions not specifically mentioned in topic 2.</div>
+    </div>
+    <div class="mini" style="margin-top:14px">
+      <div class="tile"><h3>Graph</h3><p>A representation of \(y=f(x)\): input \(x\) horizontally, output \(y\) vertically.</p></div>
+      <div class="tile"><h3>Sketch</h3><p>Show the shape and important features. It may be approximate.</p></div>
+      <div class="tile"><h3>Draw</h3><p>Use accurate plotting, a table, or technology. Scale matters more.</p></div>
+      <div class="tile"><h3>Transfer</h3><p>Use technology to identify features, then reproduce them clearly on paper.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="explore">1. Explore</button>
+  <button class="tab" data-tab="sketchdraw">2. Sketch vs draw</button>
+  <button class="tab" data-tab="features">3. Key features</button>
+  <button class="tab" data-tab="technology">4. TI-Nspire</button>
+  <button class="tab" data-tab="sums">5. Sums & differences</button>
+  <button class="tab" data-tab="contexts">6. Contexts</button>
+  <button class="tab" data-tab="formalise">7. Formalise</button>
+  <button class="tab" data-tab="practice">8. Exam generator</button>
+  <button class="tab" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore first: equation \(\leftrightarrow\) graph</h2>
+      <p>Choose a function family and move the sliders. Notice the shape, intercepts, turning points, endpoints, and asymptotes.</p>
+      <div class="tight">
+        <button onclick="chooseFamily('linear')">Linear</button>
+        <button onclick="chooseFamily('quadratic')">Quadratic</button>
+        <button onclick="chooseFamily('cubic')">Cubic</button>
+        <button onclick="chooseFamily('reciprocal')">Reciprocal</button>
+        <button onclick="chooseFamily('root')">Root</button>
+        <button onclick="chooseFamily('abs')">Absolute value</button>
+      </div>
+      <div class="graphwrap" style="margin-top:12px"><svg id="mainGraph" class="graph" viewBox="0 0 520 450"></svg></div>
+      <div id="paramControls"></div>
+    </div>
+    <div class="card span-5">
+      <h2>Live interpretation</h2>
+      <div class="box"><div class="label">Equation</div><div id="familyEquation" class="mathline"></div></div>
+      <div class="box"><div class="label">Key features to label</div><div id="familyFeatures" class="mathline"></div></div>
+      <div id="familyFeedback" class="feedback info"></div>
+      <h3>Exploration prompts</h3>
+      <ol class="steps">
+        <li>What is the overall shape?</li>
+        <li>Where does it cross the axes?</li>
+        <li>Are there turning points, endpoints, or asymptotes?</li>
+        <li>What calculator window would show all key features?</li>
+      </ol>
+    </div>
+    <div class="card span-12">
+      <h2>Transfer from screen to paper</h2>
+      <div class="mini">
+        <div class="tile"><h3>1. Choose a window</h3><p>Pick axes that show all important features.</p></div>
+        <div class="tile"><h3>2. Mark key points</h3><p>Intercepts, turning points, endpoints, asymptotes, intersections.</p></div>
+        <div class="tile"><h3>3. Draw the shape</h3><p>Connect features with the right curvature and direction.</p></div>
+        <div class="tile"><h3>4. Label clearly</h3><p>Axes, scale, equation, and key coordinates.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sketchdraw" class="panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>“Sketch” means show the structure</h2>
+      <div class="note">A sketch should show the correct shape and labelled key features. It does not have to be perfectly to scale.</div>
+      <div class="graphwrap"><svg id="sketchGraph" class="graph" viewBox="0 0 520 450"></svg></div>
+      <div class="practice">
+        <p><strong>Mini task.</strong> Sketch \(y=(x-2)^2-3\). What must be labelled?</p>
+        <button onclick="toggleAnswer('sketchMini')">Reveal answer</button>
+        <div id="sketchMini" class="answer">Label the axes, equation, vertex \((2,-3)\), \(y\)-intercept \(1\), and \(x\)-intercepts \(x=2\pm\sqrt3\). Show an upward-opening parabola.</div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>“Draw” means more accurate</h2>
+      <div class="note good">A draw command usually expects greater accuracy: plotted points, a scale, and a graph that is close to the real one.</div>
+      <table>
+        <tr><th>Command</th><th>What it requires</th></tr>
+        <tr><td><strong>Sketch</strong></td><td>Shape and key features; approximate scale is acceptable.</td></tr>
+        <tr><td><strong>Draw</strong></td><td>Accurate scale, plotted points, and labelled features.</td></tr>
+        <tr><td><strong>Graph</strong></td><td>May use technology, but final work still needs labels.</td></tr>
+        <tr><td><strong>Interpret</strong></td><td>Explain what the graph means in the context.</td></tr>
+      </table>
+      <div class="note warn">A graph copied from a calculator with no labels is not a complete answer.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Good sketch or poor sketch?</h2>
+      <div id="sketchChecks" class="mini"></div>
+      <div id="sketchFeedback" class="feedback">Choose whether each described sketch is acceptable.</div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Key feature detective</h2>
+      <p>Select a graph. Reveal the features one by one.</p>
+      <div class="tight">
+        <button onclick="chooseFeature('quad')">Quadratic</button>
+        <button onclick="chooseFeature('recip')">Reciprocal</button>
+        <button onclick="chooseFeature('root')">Root</button>
+        <button onclick="chooseFeature('cubic')">Cubic</button>
+      </div>
+      <div class="graphwrap" style="margin-top:12px"><svg id="featureGraph" class="graph" viewBox="0 0 520 450"></svg></div>
+      <div class="tight" style="margin-top:10px">
+        <button onclick="revealFeature('intercepts')">Reveal intercepts</button>
+        <button onclick="revealFeature('turning')">Reveal turning/endpoints</button>
+        <button onclick="revealFeature('asymptotes')">Reveal asymptotes</button>
+        <button onclick="revealFeature('all')">Reveal all</button>
+        <button class="secondary" onclick="chooseFeature(featureType)">Reset</button>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Feature notes</h2>
+      <div class="box"><div class="label">Function</div><div id="featureEq" class="mathline"></div></div>
+      <div class="box"><div class="label">What to label</div><div id="featureNotes" class="mathline"></div></div>
+      <div class="note warn">A graph with no labelled features is usually not enough for an exam-style sketch.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Feature vocabulary</h2>
+      <div class="mini">
+        <div class="tile"><h3>\(x\)-intercept</h3><p>Where \(y=0\). Solve \(f(x)=0\).</p></div>
+        <div class="tile"><h3>\(y\)-intercept</h3><p>Where \(x=0\). Calculate \(f(0)\).</p></div>
+        <div class="tile"><h3>Turning point</h3><p>Where a graph changes direction.</p></div>
+        <div class="tile"><h3>Asymptote</h3><p>A line the graph approaches.</p></div>
+        <div class="tile"><h3>Endpoint</h3><p>Where a restricted graph starts or stops.</p></div>
+        <div class="tile"><h3>Intersection</h3><p>Where two graphs have the same coordinates.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="technology" class="panel">
+  <div class="grid">
+    <div class="card span-5">
+      <h2>TI-Nspire CX: graphing</h2>
+      <div class="nspire">
+        <div class="screen">Graphs<br>f1(x)=x^2-4x+1<br><br>Menu &gt; Window/Zoom<br>Menu &gt; Analyze Graph</div>
+        <div class="keys">
+          <div class="key blue">home</div><div class="key">doc</div><div class="key">menu</div><div class="key">tab</div><div class="key orange">enter</div>
+          <div class="key">ctrl</div><div class="key">esc</div><div class="key">var</div><div class="key">x</div><div class="key green">trace</div>
+          <div class="key light">7</div><div class="key light">8</div><div class="key light">9</div><div class="key">/</div><div class="key">^</div>
+        </div>
+      </div>
+    </div>
+    <div class="card span-7">
+      <h2>Step-by-step TI-Nspire instructions</h2>
+      <ol class="steps">
+        <li>Press <strong>Home</strong> → <strong>New Document</strong> → <strong>Add Graphs</strong>.</li>
+        <li>In the entry line, type a function such as <strong>f1(x)=x^2-4x+1</strong>, then press <strong>Enter</strong>.</li>
+        <li>Set a useful viewing window: <strong>Menu</strong> → <strong>Window/Zoom</strong> → <strong>Window Settings</strong>. Enter \(x\)-min, \(x\)-max, \(y\)-min, \(y\)-max.</li>
+        <li>Trace values: <strong>Menu</strong> → <strong>Trace</strong> → <strong>Graph Trace</strong>.</li>
+        <li>Find a zero: <strong>Menu</strong> → <strong>Analyze Graph</strong> → <strong>Zero</strong>. Set a lower and upper bound around the crossing.</li>
+        <li>Find a minimum or maximum: <strong>Menu</strong> → <strong>Analyze Graph</strong> → <strong>Minimum</strong> or <strong>Maximum</strong>. Set bounds around the turning point.</li>
+        <li>Find an intersection: enter both functions, then use <strong>Menu</strong> → <strong>Analyze Graph</strong> → <strong>Intersection</strong>.</li>
+      </ol>
+    </div>
+    <div class="card span-12">
+      <h2>Graphing sums and differences on TI-Nspire</h2>
+      <div class="mini">
+        <div class="tile"><h3>First function</h3><p>Type <strong>f1(x)=x^2</strong>.</p></div>
+        <div class="tile"><h3>Second function</h3><p>Type <strong>f2(x)=2x+3</strong>.</p></div>
+        <div class="tile"><h3>Sum</h3><p>Type <strong>f3(x)=f1(x)+f2(x)</strong>.</p></div>
+        <div class="tile"><h3>Difference</h3><p>Type <strong>f4(x)=f1(x)-f2(x)</strong>.</p></div>
+      </div>
+      <div class="note good">Use technology to find features, then write a mathematical explanation and label your paper graph.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Screen-to-paper checklist</h2>
+      <table>
+        <tr><th>On calculator</th><th>On paper</th></tr>
+        <tr><td>Window settings</td><td>Use a matching scale and label both axes.</td></tr>
+        <tr><td>Zero / root</td><td>Mark and label the \(x\)-intercept.</td></tr>
+        <tr><td>Minimum / maximum</td><td>Mark and label turning point coordinates.</td></tr>
+        <tr><td>Asymptote or endpoint</td><td>Use dashed asymptotes or clear endpoint markers.</td></tr>
+        <tr><td>Multiple functions</td><td>Label each curve, such as \(f\), \(g\), \(f+g\), \(f-g\).</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="sums" class="panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore sums and differences</h2>
+      <p>The sum or difference graph is made by adding or subtracting the \(y\)-values at the same \(x\)-value.</p>
+      <div class="tight">
+        <button onclick="setSumMode('sum')">Show \(f+g\)</button>
+        <button onclick="setSumMode('diff')">Show \(f-g\)</button>
+        <button onclick="setSumMode('both')">Show both</button>
+      </div>
+      <div class="graphwrap" style="margin-top:12px"><svg id="sumGraph" class="graph" viewBox="0 0 520 450"></svg></div>
+      <div class="range">
+        <div><label for="sumX">Choose an \(x\)-value</label><input id="sumX" type="range" min="-5" max="5" step="0.5" value="1" oninput="drawSum()"></div>
+        <div class="pill" id="sumLabel">x = 1</div>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Functions used</h2>
+      <div class="box"><div class="label">Base functions</div><div class="mathline">\(f(x)=x^2-3\)<br>\(g(x)=2x+1\)</div></div>
+      <div class="box"><div class="label">Combined functions</div><div class="mathline">\((f+g)(x)=x^2+2x-2\)<br>\((f-g)(x)=x^2-2x-4\)</div></div>
+      <div id="sumFeedback" class="feedback info"></div>
+    </div>
+    <div class="card span-12">
+      <h2>Worked technology example</h2>
+      <div class="practice">
+        <p>Graph \(f(x)=x^2-3\), \(g(x)=2x+1\), and \(h(x)=f(x)-g(x)\). Find the \(x\)-intercepts of \(h\).</p>
+        <button onclick="toggleAnswer('sumWorked')">Reveal worked solution</button>
+        <div id="sumWorked" class="answer">
+          \[
+          h(x)=(x^2-3)-(2x+1)=x^2-2x-4.
+          \]
+          The zeros solve \(x^2-2x-4=0\), so
+          \[
+          x=\frac{2\pm\sqrt{20}}{2}=1\pm\sqrt5.
+          \]
+          Thus \(x\approx -1.236\) and \(x\approx 3.236\). On TI-Nspire, graph \(h\), then use <strong>Menu → Analyze Graph → Zero</strong> around each crossing.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contexts" class="panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Context: temperature through a day</h2>
+      <svg class="context-svg" viewBox="0 0 760 420">
+        <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeafe"/><stop offset="1" stop-color="#fff9db"/></linearGradient></defs>
+        <rect width="760" height="420" fill="url(#sky)"/>
+        <line x1="70" y1="350" x2="710" y2="350" stroke="#17212d" stroke-width="3"/><line x1="70" y1="350" x2="70" y2="50" stroke="#17212d" stroke-width="3"/>
+        <text x="365" y="395" font-size="24" font-weight="800">time / hours</text><text x="18" y="190" font-size="22" font-weight="800" transform="rotate(-90 18,190)">temperature / °C</text>
+        <path d="M70 290 C160 250, 220 175, 320 145 C430 110, 540 145, 710 240" fill="none" stroke="#f08c00" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="320" cy="145" r="7" fill="#c92a2a"/><text x="338" y="138" font-size="20" font-weight="800" fill="#8a1717">maximum</text>
+        <text x="85" y="374" font-size="18">0</text><text x="305" y="374" font-size="18">12</text><text x="685" y="374" font-size="18">24</text>
+      </svg>
+      <div class="practice"><p><strong>Task.</strong> Sketch temperature rising, reaching a maximum, then falling.</p><button onclick="toggleAnswer('tempAns')">Reveal guidance</button><div id="tempAns" class="answer">Label time on the horizontal axis and temperature on the vertical axis. Show a rise, one maximum, then a fall.</div></div>
+    </div>
+    <div class="card span-6">
+      <h2>Context: cost and revenue</h2>
+      <svg class="context-svg" viewBox="0 0 760 420">
+        <rect width="760" height="420" fill="#f8fafc"/><line x1="70" y1="350" x2="710" y2="350" stroke="#17212d" stroke-width="3"/><line x1="70" y1="350" x2="70" y2="50" stroke="#17212d" stroke-width="3"/>
+        <text x="350" y="395" font-size="24" font-weight="800">quantity</text><text x="20" y="190" font-size="22" font-weight="800" transform="rotate(-90 20,190)">money</text>
+        <line x1="70" y1="310" x2="705" y2="95" stroke="#2364aa" stroke-width="6"/><line x1="70" y1="350" x2="705" y2="105" stroke="#0ca678" stroke-width="6"/>
+        <circle cx="508" cy="161" r="8" fill="#c92a2a"/><text x="520" y="150" font-size="20" font-weight="800" fill="#8a1717">break-even</text><text x="600" y="115" font-size="20" font-weight="800" fill="#087f5b">revenue</text><text x="600" y="200" font-size="20" font-weight="800" fill="#174a7c">cost</text>
+      </svg>
+      <div class="practice"><p><strong>Task.</strong> Interpret the intersection of cost and revenue graphs.</p><button onclick="toggleAnswer('econAns')">Reveal guidance</button><div id="econAns" class="answer">The intersection is the break-even point, where revenue equals cost.</div></div>
+    </div>
+    <div class="card span-12">
+      <h2>Context-to-sketch question builder</h2>
+      <button onclick="generateContext()">Generate context question</button>
+      <div class="practice"><div id="contextQ" class="mathline">Press the button to generate a context.</div><button onclick="toggleAnswer('contextA')">Reveal sketch guidance</button><div id="contextA" class="answer"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formal sketching method</h2>
+      <ol class="steps">
+        <li>Identify the type of function or relationship.</li>
+        <li>Choose a sensible viewing window or axis scale.</li>
+        <li>Find and label \(f(0)\), the \(y\)-intercept.</li>
+        <li>Solve \(f(x)=0\) for \(x\)-intercepts where possible.</li>
+        <li>Find turning points, endpoints, asymptotes, and intersections.</li>
+        <li>Draw the correct shape through the features.</li>
+      </ol>
+      <div class="note good">A graph is not decoration. It is another representation of the function.</div>
+    </div>
+    <div class="card span-6">
+      <h2>Worked examples</h2>
+      <div class="practice">
+        <p><strong>Example 1.</strong> Sketch \(y=x^2-4x+3\).</p>
+        <button onclick="toggleAnswer('formal1')">Reveal solution</button>
+        <div id="formal1" class="answer">\[
+        y=x^2-4x+3=(x-1)(x-3)
+        \]
+        so the \(x\)-intercepts are \((1,0)\) and \((3,0)\). The \(y\)-intercept is \((0,3)\). Also
+        \[
+        y=(x-2)^2-1
+        \]
+        so the vertex is \((2,-1)\). Sketch an upward-opening parabola through these points.</div>
+      </div>
+      <div class="practice">
+        <p><strong>Example 2.</strong> Sketch \(y=\frac{1}{x-2}+1\).</p>
+        <button onclick="toggleAnswer('formal2')">Reveal solution</button>
+        <div id="formal2" class="answer">The vertical asymptote is \(x=2\). The horizontal asymptote is \(y=1\). The \(y\)-intercept is \(1/2\). The \(x\)-intercept is \(x=1\). Sketch two reciprocal branches approaching the asymptotes.</div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Graphing vocabulary summary</h2>
+      <table>
+        <tr><th>Feature</th><th>How to find it</th><th>How to show it</th></tr>
+        <tr><td>\(y\)-intercept</td><td>Calculate \(f(0)\)</td><td>Mark \((0,f(0))\)</td></tr>
+        <tr><td>\(x\)-intercept</td><td>Solve \(f(x)=0\)</td><td>Mark roots on the \(x\)-axis</td></tr>
+        <tr><td>Turning point</td><td>Use algebra, symmetry, or technology</td><td>Mark coordinate and curve direction</td></tr>
+        <tr><td>Asymptote</td><td>Look for denominator zero or long-term behaviour</td><td>Draw dashed line and label it</td></tr>
+        <tr><td>Intersection</td><td>Solve \(f(x)=g(x)\), or use technology</td><td>Mark crossing coordinate</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Exam-style question generator</h2>
+      <p>Generate a question, attempt it, then reveal the worked solution.</p>
+      <div class="tight">
+        <button onclick="generatePractice('sketch')">Sketch from equation</button>
+        <button onclick="generatePractice('features')">Find key features</button>
+        <button onclick="generatePractice('technology')">Technology / TI-Nspire</button>
+        <button onclick="generatePractice('sumdiff')">Sum or difference</button>
+        <button onclick="generatePractice('context')">Context sketch</button>
+        <button onclick="generatePractice('interpret')">Interpret graph</button>
+      </div>
+      <div class="practice">
+        <div id="practiceQ" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceA')">Reveal worked solution</button>
+        <div id="practiceA" class="answer"></div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Exam sketch checklist</h2>
+      <div class="mini">
+        <div class="tile"><strong>Axes:</strong> labelled with clear scale.</div>
+        <div class="tile"><strong>Equation:</strong> identify which graph is which.</div>
+        <div class="tile"><strong>Features:</strong> intercepts, turning points, asymptotes, endpoints.</div>
+        <div class="tile"><strong>Shape:</strong> correct curvature and direction.</div>
+        <div class="tile"><strong>Technology:</strong> use it to find features, not to avoid explanation.</div>
+        <div class="tile"><strong>Context:</strong> interpret in real-world language.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start with the graph explorer and ask students to describe what changes.</li>
+        <li>Make the distinction between “sketch” and “draw” explicit.</li>
+        <li>Use key-feature detective tasks to train graph annotation.</li>
+        <li>Demonstrate TI-Nspire graphing, zero, minimum, maximum, and intersection tools.</li>
+        <li>Move to sums and differences using technology.</li>
+        <li>Finish with context-to-sketch and exam-generator tasks.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Copying a screen without labels.</td><td>Use the screen-to-paper checklist.</td></tr>
+        <tr><td>Thinking sketch means careless drawing.</td><td>Stress key features and shape accuracy.</td></tr>
+        <tr><td>Using a bad calculator window.</td><td>Ask what features must be visible first.</td></tr>
+        <tr><td>Adding functions by adding \(x\)-values.</td><td>Show \((f+g)(x)\) adds \(y\)-values at the same \(x\).</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini">
+        <div class="tile">Sketch \(y=x^2-6x+5\) and label all intercepts.</div>
+        <div class="tile">Use technology to graph \(y=x^3-3x\). Describe the shape.</div>
+        <div class="tile">Sketch \(y=\frac{1}{x+1}\), including asymptotes.</div>
+        <div class="tile">If \(f(x)=x^2\) and \(g(x)=x+2\), sketch \(f+g\).</div>
+        <div class="tile">Explain the difference between “draw” and “sketch”.</div>
+        <div class="tile">A population rises quickly then levels off. Sketch a possible model.</div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+function mj(){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise();}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');mj();}));
+function fmt(n){return !isFinite(n)?String(n):(Math.abs(n)<1e-10?'0':Number(n.toFixed(5)).toString())}
+function frac(num){if(!isFinite(num))return'undefined';if(Math.abs(num-Math.round(num))<1e-9)return String(Math.round(num));let sign=num<0?-1:1;num=Math.abs(num);let bn=1,bd=1,be=99;for(let d=1;d<=24;d++){let n=Math.round(num*d),e=Math.abs(num-n/d);if(e<be){be=e;bn=n;bd=d}}return be<1e-6?(sign<0?'-':'')+`\\frac{${bn}}{${bd}}`:fmt(sign*num)}
+function P(x,y,w=520,h=450,xmin=-8,xmax=8,ymin=-8,ymax=8){return{x:(x-xmin)/(xmax-xmin)*w,y:h-(y-ymin)/(ymax-ymin)*h}}
+function axes(id,extras='',xmin=-8,xmax=8,ymin=-8,ymax=8){let w=520,h=450,g='';for(let i=Math.ceil(xmin);i<=Math.floor(xmax);i++){let p=P(i,0,w,h,xmin,xmax,ymin,ymax),o=P(0,0,w,h,xmin,xmax,ymin,ymax);g+=`<line x1="${p.x}" y1="0" x2="${p.x}" y2="${h}" stroke="${i==0?'#64748b':'#e2e8f0'}" stroke-width="${i==0?2:1}"/>`;if(i!=0)g+=`<text x="${p.x+3}" y="${o.y-4}" font-size="11" fill="#64748b">${i}</text>`}for(let j=Math.ceil(ymin);j<=Math.floor(ymax);j++){let p=P(0,j,w,h,xmin,xmax,ymin,ymax),o=P(0,0,w,h,xmin,xmax,ymin,ymax);g+=`<line x1="0" y1="${p.y}" x2="${w}" y2="${p.y}" stroke="${j==0?'#64748b':'#e2e8f0'}" stroke-width="${j==0?2:1}"/>`;if(j!=0)g+=`<text x="${o.x+5}" y="${p.y-3}" font-size="11" fill="#64748b">${j}</text>`}g+=`<text x="${w-20}" y="${P(0,0,w,h,xmin,xmax,ymin,ymax).y-8}" font-size="14" font-weight="800">x</text><text x="${P(0,0,w,h,xmin,xmax,ymin,ymax).x+8}" y="18" font-size="14" font-weight="800">y</text>`;$(id).innerHTML=g+extras}
+function path(fn,x1=-8,x2=8,step=.03,color='#2364aa',xmin=-8,xmax=8,ymin=-8,ymax=8,width=4){let d='',s=false;for(let x=x1;x<=x2+1e-9;x+=step){let y=fn(x);if(isFinite(y)&&y>=ymin-1&&y<=ymax+1){let p=P(x,y,520,450,xmin,xmax,ymin,ymax);d+=(s?'L':'M')+p.x+' '+p.y+' ';s=true}else s=false}return`<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`}
+function pt(x,y,label,color='#c92a2a',xmin=-8,xmax=8,ymin=-8,ymax=8){if(x<xmin||x>xmax||y<ymin||y>ymax||!isFinite(x)||!isFinite(y))return'';let p=P(x,y,520,450,xmin,xmax,ymin,ymax);return`<circle cx="${p.x}" cy="${p.y}" r="6" fill="${color}" stroke="white" stroke-width="2"/><text x="${p.x+8}" y="${p.y-8}" font-size="13" fill="${color}" font-weight="800">${label}</text>`}
+function ln(x1,y1,x2,y2,color='#adb5bd',dash=true,xmin=-8,xmax=8,ymin=-8,ymax=8){let a=P(x1,y1,520,450,xmin,xmax,ymin,ymax),b=P(x2,y2,520,450,xmin,xmax,ymin,ymax);return`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="2" ${dash?'stroke-dasharray="7 6"':''}/>`}
+function toggleAnswer(id){$(id).classList.toggle('show');mj()}
+
+// family explorer
+let family='quadratic',par={a:1,h:1,k:-2};
+function chooseFamily(f){family=f;if(f=='linear')par={m:1,c:0};if(f=='quadratic')par={a:1,h:1,k:-2};if(f=='cubic')par={a:1,h:0,k:0};if(f=='reciprocal')par={a:1,h:1,k:0};if(f=='root')par={a:1,h:-2,k:0};if(f=='abs')par={a:1,h:0,k:-1};controls();drawFamily()}
+function slider(k,l,min,max,step){return`<div class="range"><div><label>${l}</label><input type="range" min="${min}" max="${max}" step="${step}" value="${par[k]}" oninput="par['${k}']=Number(this.value);drawFamily()"></div><div class="pill">${k} = <span id="lab_${k}">${par[k]}</span></div></div>`}
+function controls(){let h='';if(family=='linear'){h+=slider('m','Gradient \\(m\\)',-4,4,.5)+slider('c','Intercept \\(c\\)',-6,6,.5)}else if(family=='reciprocal'){h+=slider('a','Scale/reflection \\(a\\)',-4,4,.5)+slider('h','Vertical asymptote \\(x=h\\)',-5,5,.5)+slider('k','Horizontal asymptote \\(y=k\\)',-5,5,.5)}else{h+=slider('a','Stretch/reflection \\(a\\)',-3,3,.5)+slider('h','Horizontal shift \\(h\\)',-5,5,.5)+slider('k','Vertical shift \\(k\\)',-5,5,.5)}$('paramControls').innerHTML=h}
+function F(x){if(family=='linear')return par.m*x+par.c;if(family=='quadratic')return par.a*(x-par.h)**2+par.k;if(family=='cubic')return par.a*(x-par.h)**3+par.k;if(family=='reciprocal')return par.a/(x-par.h)+par.k;if(family=='root')return x<par.h?NaN:par.a*Math.sqrt(x-par.h)+par.k;return par.a*Math.abs(x-par.h)+par.k}
+function eq(){if(family=='linear')return`\\(y=${frac(par.m)}x${par.c>=0?'+':''}${fmt(par.c)}\\)`;if(family=='quadratic')return`\\(y=${frac(par.a)}(x${par.h>=0?'-'+fmt(par.h):'+'+fmt(Math.abs(par.h))})^2${par.k>=0?'+':''}${fmt(par.k)}\\)`;if(family=='cubic')return`\\(y=${frac(par.a)}(x${par.h>=0?'-'+fmt(par.h):'+'+fmt(Math.abs(par.h))})^3${par.k>=0?'+':''}${fmt(par.k)}\\)`;if(family=='reciprocal')return`\\(y=\\frac{${frac(par.a)}}{x${par.h>=0?'-'+fmt(par.h):'+'+fmt(Math.abs(par.h))}}${par.k>=0?'+':''}${fmt(par.k)}\\)`;if(family=='root')return`\\(y=${frac(par.a)}\\sqrt{x${par.h>=0?'-'+fmt(par.h):'+'+fmt(Math.abs(par.h))}}${par.k>=0?'+':''}${fmt(par.k)}\\)`;return`\\(y=${frac(par.a)}|x${par.h>=0?'-'+fmt(par.h):'+'+fmt(Math.abs(par.h))}|${par.k>=0?'+':''}${fmt(par.k)}\\)`}
+function drawFamily(){Object.keys(par).forEach(k=>{if($('lab_'+k))$('lab_'+k).textContent=par[k]});let e=path(F,family=='root'?par.h:-8,8,.03,'#2364aa'),feat='',msg='';if(family=='linear'){e+=pt(0,par.c,`(0,${fmt(par.c)})`,'#0ca678');if(Math.abs(par.m)>1e-9)e+=pt(-par.c/par.m,0,'x-int');feat=`Gradient \\(m=${frac(par.m)}\\); \(y\)-intercept \\((0,${fmt(par.c)})\\).`;msg='For a line, label intercepts and gradient.'}else if(family=='quadratic'){e+=pt(par.h,par.k,`vertex (${fmt(par.h)},${fmt(par.k)})`,'#0ca678');e+=pt(0,F(0),'y-int');feat=`Vertex \\((${fmt(par.h)},${fmt(par.k)})\\); opens ${par.a>=0?'up':'down'}.`;msg='For a parabola, label vertex, intercepts, and shape.'}else if(family=='cubic'){e+=pt(par.h,par.k,'centre/inflection','#0ca678');feat=`Cubic S-shape with centre near \\((${fmt(par.h)},${fmt(par.k)})\\).`;msg='For a cubic, show direction and intercepts.'}else if(family=='reciprocal'){e+=ln(par.h,-8,par.h,8,'#c92a2a')+ln(-8,par.k,8,par.k,'#c92a2a');feat=`Vertical asymptote \\(x=${fmt(par.h)}\\); horizontal asymptote \\(y=${fmt(par.k)}\\).`;msg='For reciprocal graphs, asymptotes are key.'}else if(family=='root'){e+=pt(par.h,par.k,`endpoint (${fmt(par.h)},${fmt(par.k)})`,'#0ca678');feat=`Endpoint \\((${fmt(par.h)},${fmt(par.k)})\\); domain starts at \\(x=${fmt(par.h)}\\).`;msg='For root graphs, label endpoint and branch direction.'}else{e+=pt(par.h,par.k,`vertex (${fmt(par.h)},${fmt(par.k)})`,'#0ca678');feat=`V-shape; vertex \\((${fmt(par.h)},${fmt(par.k)})\\).`;msg='For absolute value, label sharp vertex and arms.'}axes('mainGraph',e);$('familyEquation').innerHTML=eq();$('familyFeatures').innerHTML=feat;$('familyFeedback').innerHTML=msg;mj()}
+
+// sketch checks
+function initSketch(){let e=path(x=>(x-2)**2-3,-2,6,.03,'#2364aa',-4,8,-5,8)+pt(2,-3,'vertex (2,-3)','#0ca678',-4,8,-5,8)+pt(0,1,'y-int','#c92a2a',-4,8,-5,8)+pt(2-Math.sqrt(3),0,'x-int','#c92a2a',-4,8,-5,8)+pt(2+Math.sqrt(3),0,'x-int','#c92a2a',-4,8,-5,8);axes('sketchGraph',e,-4,8,-5,8)}
+const checks=[['A parabola sketch labels the vertex and intercepts but is not perfectly to scale.',true,'That is usually acceptable for a sketch.'],['A graph has the correct shape but no axis labels or scale.',false,'Axes and key features should be labelled.'],['A reciprocal graph shows two branches but no asymptotes.',false,'Asymptotes are key features.'],['A context sketch labels axes and explains the maximum.',true,'This is a meaningful context sketch.']];
+function initChecks(){let b=$('sketchChecks');b.innerHTML='';checks.forEach((it,i)=>{let d=document.createElement('div');d.className='tile';d.innerHTML=`<p>${it[0]}</p><button onclick="checkSketch(${i},true)">Acceptable</button> <button onclick="checkSketch(${i},false)">Needs improvement</button>`;b.appendChild(d)})}
+function checkSketch(i,a){$('sketchFeedback').className='feedback '+(a==checks[i][1]?'good':'bad');$('sketchFeedback').innerHTML=(a==checks[i][1]?'Correct. ':'Not quite. ')+checks[i][2]}
+
+// feature detective
+let featureType='quad',rev={};
+function chooseFeature(t){featureType=t;rev={};drawFeature()}
+function revealFeature(k){if(k=='all')rev={intercepts:true,turning:true,asymptotes:true};else rev[k]=true;drawFeature()}
+function drawFeature(){let e='',q='',n='';if(featureType=='quad'){e+=path(x=>x*x-4*x+3,-2,6,.03,'#2364aa',-4,8,-5,8);if(rev.intercepts)e+=pt(1,0,'(1,0)','#c92a2a',-4,8,-5,8)+pt(3,0,'(3,0)','#c92a2a',-4,8,-5,8)+pt(0,3,'(0,3)','#c92a2a',-4,8,-5,8);if(rev.turning)e+=pt(2,-1,'vertex (2,-1)','#0ca678',-4,8,-5,8);q='\\(y=x^2-4x+3\\)';n='Parabola: label vertex, intercepts, and axis of symmetry.';axes('featureGraph',e,-4,8,-5,8)}else if(featureType=='recip'){e+=path(x=>1/(x-1)+2,-8,.8,.03,'#2364aa')+path(x=>1/(x-1)+2,1.2,8,.03,'#2364aa');if(rev.asymptotes)e+=ln(1,-8,1,8,'#c92a2a')+ln(-8,2,8,2,'#c92a2a');if(rev.intercepts)e+=pt(0,1,'(0,1)')+pt(.5,0,'(0.5,0)');q='\\(y=\\frac{1}{x-1}+2\\)';n='Reciprocal: label asymptotes and intercepts.';axes('featureGraph',e)}else if(featureType=='root'){e+=path(x=>Math.sqrt(x+3)-2,-3,8,.03,'#2364aa');if(rev.turning)e+=pt(-3,-2,'endpoint (-3,-2)','#0ca678');if(rev.intercepts)e+=pt(1,0,'(1,0)')+pt(0,Math.sqrt(3)-2,'y-int');q='\\(y=\\sqrt{x+3}-2\\)';n='Root graph: label endpoint, intercepts, and domain direction.';axes('featureGraph',e)}else{e+=path(x=>x**3-3*x,-3,3,.03,'#2364aa');if(rev.intercepts)e+=pt(-Math.sqrt(3),0,'x-int')+pt(0,0,'(0,0)')+pt(Math.sqrt(3),0,'x-int');if(rev.turning)e+=pt(-1,2,'local max','#0ca678')+pt(1,-2,'local min','#0ca678');q='\\(y=x^3-3x\\)';n='Cubic: show S-shape, intercepts, and local max/min if relevant.';axes('featureGraph',e)}$('featureEq').innerHTML=q;$('featureNotes').innerHTML=n;mj()}
+
+// sums
+let sumMode='sum';function fs(x){return x*x-3}function gs(x){return 2*x+1}function setSumMode(m){sumMode=m;drawSum()}
+function drawSum(){let x=Number($('sumX').value);$('sumLabel').textContent='x = '+x;let e=path(fs,-5,5,.03,'#2364aa',-6,6,-8,12,3)+path(gs,-5,5,.03,'#0ca678',-6,6,-8,12,3);if(sumMode=='sum'||sumMode=='both')e+=path(x=>fs(x)+gs(x),-5,5,.03,'#7048e8',-6,6,-8,12,4);if(sumMode=='diff'||sumMode=='both')e+=path(x=>fs(x)-gs(x),-5,5,.03,'#c92a2a',-6,6,-8,12,4);let yf=fs(x),yg=gs(x),ys=yf+yg,yd=yf-yg;e+=ln(x,-8,x,12,'#adb5bd',true,-6,6,-8,12)+pt(x,yf,'f','#2364aa',-6,6,-8,12)+pt(x,yg,'g','#0ca678',-6,6,-8,12);if(sumMode=='sum'||sumMode=='both')e+=pt(x,ys,'f+g','#7048e8',-6,6,-8,12);if(sumMode=='diff'||sumMode=='both')e+=pt(x,yd,'f-g','#c92a2a',-6,6,-8,12);axes('sumGraph',e,-6,6,-8,12);$('sumFeedback').innerHTML=`At \\(x=${fmt(x)}\\): \\(f(x)=${fmt(yf)}\\), \\(g(x)=${fmt(yg)}\\), \\((f+g)(x)=${fmt(ys)}\\), \\((f-g)(x)=${fmt(yd)}\\).`;mj()}
+
+// contexts and practice
+const ctx=[['A cup of tea cools quickly at first, then more slowly, approaching room temperature. Sketch temperature against time.','Decrease steeply at first, then level off towards a horizontal line for room temperature.'],['A ball is thrown upwards from a balcony. It rises, reaches a maximum, then falls to the ground. Sketch height against time.','Use a downward-opening curve. Label starting height, maximum height, and time when it hits the ground.'],['An app gains users slowly, then rapidly, then growth slows as the market saturates. Sketch users against time.','Use an S-shaped increasing graph that levels off.'],['A taxi charges a fixed fee plus a constant price per km. Sketch cost against distance.','Use a straight line with positive gradient and positive y-intercept.']];
+function generateContext(){let i=Math.floor(Math.random()*ctx.length);$('contextQ').innerHTML=ctx[i][0];$('contextA').innerHTML=ctx[i][1];$('contextA').classList.remove('show');mj()}
+function pgraph(kind){if(kind=='quad'){let e=path(x=>x*x-4*x+3,-2,6,.03,'#2364aa',-4,8,-5,8)+pt(2,-1,'vertex','#0ca678',-4,8,-5,8)+pt(1,0,'(1,0)','#c92a2a',-4,8,-5,8)+pt(3,0,'(3,0)','#c92a2a',-4,8,-5,8);$('practiceVisual').innerHTML='<div class="graphwrap"><svg id="pSVG" class="graph" viewBox="0 0 520 450"></svg></div>';axes('pSVG',e,-4,8,-5,8)}else{$('practiceVisual').innerHTML=''}}
+function generatePractice(t){$('practiceA').classList.remove('show');$('practiceVisual').innerHTML='';let q='',a='';if(t=='sketch'){q='Sketch the graph of \\(y=x^2-4x+3\\), labelling all intercepts and the vertex.';a=`Factorise: \\(y=(x-1)(x-3)\\), so the \(x\)-intercepts are \\((1,0)\\) and \\((3,0)\\). The \(y\)-intercept is \\((0,3)\\). Complete the square: \\(y=(x-2)^2-1\\), so the vertex is \\((2,-1)\\). Sketch an upward-opening parabola through these points.`;pgraph('quad')}else if(t=='features'){q='For \\(y=\\frac{1}{x-1}+2\\), state the asymptotes and intercepts, then sketch the graph.';a=`Vertical asymptote: \\(x=1\\). Horizontal asymptote: \\(y=2\\). \(y\)-intercept: \\((0,1)\\). \(x\)-intercept: solve \\(\\frac{1}{x-1}+2=0\\), giving \\(x=\\frac12\\).`}else if(t=='technology'){q='Use a TI-Nspire to graph \\(y=x^3-3x\\). State how you would find its zeros and turning points.';a=`Enter <strong>f1(x)=x^3-3x</strong> in Graphs. Use a window such as \(x:-3\) to \(3\), \(y:-4\) to \(4\). Find zeros with <strong>Menu → Analyze Graph → Zero</strong>. Find max/min with <strong>Menu → Analyze Graph → Maximum/Minimum</strong>. The zeros are \\(-\\sqrt3,0,\\sqrt3\\).`}else if(t=='sumdiff'){q='Let \\(f(x)=x^2-3\\) and \\(g(x)=2x+1\\). Find and sketch \\((f-g)(x)\\).';a=`\\((f-g)(x)=(x^2-3)-(2x+1)=x^2-2x-4=(x-1)^2-5\\). Vertex: \\((1,-5)\\). \(y\)-intercept: \\(-4\\). \(x\)-intercepts: \\(x=1\\pm\\sqrt5\\).`}else if(t=='context'){q='A company sells tickets. Sales rise quickly after advertising, then slow as the event approaches capacity. Sketch cumulative tickets sold against time.';a='The graph should increase throughout, become steep after advertising, then flatten as it approaches capacity. Label time and cumulative tickets sold.'}else{q='The graph of \\(C(n)=50+8n\\) models production cost. Interpret the gradient and vertical intercept.';a='The vertical intercept 50 is the fixed cost. The gradient 8 means each extra item increases cost by 8 dollars.'}$('practiceQ').innerHTML=q;$('practiceA').innerHTML=a;mj()}
+
+// init
+chooseFamily('quadratic');initSketch();initChecks();chooseFeature('quad');drawSum();generateContext();generatePractice('sketch');
+</script>
+</body>
+</html>

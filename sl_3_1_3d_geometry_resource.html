@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 3.1 3D Geometry Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --ink:#18212d; --muted:#5c6a79; --paper:#fff; --soft:#f5f7fb; --line:#d7dee8;
+  --accent:#2364aa; --accent2:#0ca678; --accent3:#7048e8; --warn:#f08c00;
+  --good:#2f9e44; --bad:#c92a2a; --shadow:0 14px 28px rgba(16,24,40,.10);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+    radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+    linear-gradient(#fff,#f7f9fc 48rem);
+  line-height:1.45;
+}
+header{max-width:1220px;margin:auto;padding:34px 22px 18px}
+.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(2rem,5vw,4.3rem);line-height:.95;letter-spacing:-.06em}
+h1 span{display:block;color:var(--accent)}
+.subtitle{margin:15px 0 0;max-width:930px;color:#344054;font-size:1.12rem}
+.badge{
+  display:inline-flex;align-items:center;gap:.55rem;padding:9px 14px;background:white;
+  border:1px solid var(--line);border-radius:999px;box-shadow:0 5px 18px rgba(0,0,0,.06);
+  font-weight:800;color:var(--accent);white-space:nowrap;
+}
+main{max-width:1220px;margin:0 auto 70px;padding:0 22px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.card{
+  background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+@media(max-width:940px){.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}}
+h2{margin:0 0 12px;font-size:1.55rem;letter-spacing:-.025em}
+h3{margin:16px 0 8px;font-size:1.12rem}
+p{margin:8px 0}
+.syllabus-table{
+  display:grid;grid-template-columns:1fr 1fr;border:1px solid #9ca3af;border-radius:14px;overflow:hidden;background:white;
+}
+.syllabus-table>div{padding:14px 17px;border-bottom:1px solid #9ca3af}
+.syllabus-table .head{background:#eef0f2;color:#6b7280;font-weight:850;font-size:1.08rem}
+.syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+.syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:740px){
+  .syllabus-table{grid-template-columns:1fr}
+  .syllabus-table div:nth-child(odd){border-right:none}
+  .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}
+.tile h3{margin-top:0}
+.tabs{
+  position:sticky;top:0;z-index:10;padding:12px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;
+  background:rgba(247,249,252,.86);border:1px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+button{
+  appearance:none;border:none;border-radius:999px;padding:10px 14px;background:#e9eef6;color:var(--ink);
+  font-weight:800;cursor:pointer;transition:.16s transform,.16s background,.16s color,.16s box-shadow;font-size:.95rem;
+}
+button:hover{transform:translateY(-1px)}
+button.active{background:var(--accent);color:white;box-shadow:0 8px 18px rgba(35,100,170,.24)}
+button.secondary{background:#eef2ff;color:#3b2b98}
+button.good{background:#d3f9d8;color:#1b5e20}
+button.warn{background:#fff3bf;color:#7c4a00}
+button.danger{background:#ffe3e3;color:#8a1717}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+.formula{background:#0f172a;color:white;border-radius:16px;padding:18px;margin:15px 0;overflow-x:auto}
+.note{border-left:5px solid var(--accent);background:#edf6ff;padding:12px 14px;border-radius:12px;margin:12px 0}
+.note.warn{border-color:var(--warn);background:#fff7e6}
+.note.good{border-color:var(--good);background:#ebfbee}
+.steps{counter-reset:step;list-style:none;padding:0;margin:12px 0}
+.steps li{
+  counter-increment:step;position:relative;margin:10px 0;padding:12px 12px 12px 48px;
+  background:#f8fafc;border:1px solid var(--line);border-radius:14px;
+}
+.steps li::before{
+  content:counter(step);position:absolute;left:12px;top:12px;width:25px;height:25px;
+  display:grid;place-items:center;border-radius:50%;background:var(--accent);color:white;font-weight:900;
+}
+.mathline{font-size:1.08rem;padding:12px;border:1px solid var(--line);background:white;border-radius:12px;overflow-x:auto}
+.eq-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px;margin:10px 0}
+.eq-label{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:6px}
+.feedback{margin-top:10px;padding:12px 14px;border-radius:12px;min-height:48px;background:#f1f5f9}
+.feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+.feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+.feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+.practice-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin:12px 0}
+.answer{display:none;margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.answer.show{display:block}
+input, textarea, select{
+  width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:white;
+}
+textarea{min-height:90px;resize:vertical}
+label{display:block;margin:8px 0 5px;font-weight:850}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.range-wrap{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:10px 0}
+input[type=range]{padding:0}
+.graph-wrap{background:white;border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden}
+.svg-graph{
+  width:100%;aspect-ratio:1.45/1;max-height:540px;display:block;
+  background:linear-gradient(#fcfdff,#f6fbff);border-radius:12px;overflow:visible;
+}
+.context-svg{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:white}
+.pill{
+  display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#edf2ff;color:#364fc7;
+  font-size:.82rem;font-weight:850;margin:2px;
+}
+.pill.green{background:#e6fcf5;color:#087f5b}.pill.orange{background:#fff3bf;color:#7c4a00}.pill.red{background:#ffe3e3;color:#8a1717}
+table{width:100%;border-collapse:collapse;margin:12px 0;background:white;border-radius:14px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}
+th{background:#eef4fb}
+.shape-card{border:1px solid var(--line);border-radius:16px;background:white;padding:14px;cursor:pointer}
+.shape-card.selected{outline:3px solid var(--accent);background:#edf6ff}
+.check-cell{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.nspire{
+  border-radius:22px;background:#202a35;color:white;padding:18px;max-width:360px;margin:0 auto;
+  box-shadow:inset 0 -8px 0 rgba(0,0,0,.18),0 12px 25px rgba(0,0,0,.2);
+}
+.nspire-screen{
+  background:#d7f5e3;color:#0f2b19;border:5px solid #101720;border-radius:12px;padding:12px;
+  min-height:155px;font-family:"Courier New",monospace;margin-bottom:14px;
+}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.key{background:#3b4552;color:white;text-align:center;border-radius:9px;padding:8px 4px;font-weight:850;font-size:.82rem}
+.key.blue{background:#1d4ed8}.key.orange{background:#b45309}.key.green{background:#087f5b}.key.light{background:#667085}
+@media print{
+  body{background:white}.tabs,button{display:none!important}.tab-panel{display:block!important}.card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 3.1 <span>3D Geometry, Solids and Right Triangles</span></h1>
+      <p class="subtitle">An interactive resource for distance and midpoint in 3D, volume and surface area of right pyramids, cones, spheres, hemispheres and composite solids, and identifying right-angled triangles inside 3D shapes to find lengths and angles.</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Geometry & Measurement</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus-table">
+      <div class="head">Content</div>
+      <div class="head">Guidance, clarification and syllabus links</div>
+      <div>
+        Distance between two points in three-dimensional space, and their midpoint.<br><br>
+        Volume and surface area of three-dimensional solids including right-pyramid, right cone, sphere, hemisphere and combinations of these solids.<br><br>
+        Size of an angle between two intersecting lines or between a line and a plane.
+      </div>
+      <div>
+        In SL examinations, only right-angled trigonometry questions will be set in reference to three-dimensional shapes.<br><br>
+        Students should identify relevant right-angled triangles in 3D objects and use them to find unknown lengths and angles.<br><br>
+        Contexts: architecture and design; design technology; volumes of stars and inverse square law in physics.<br><br>
+        TOK: What is an axiomatic system? Are axioms self-evident to everybody?
+      </div>
+    </div>
+    <div class="mini-grid" style="margin-top:14px">
+      <div class="tile"><h3>Coordinates</h3><p>Use 3D Pythagoras to find distances and average coordinates for midpoints.</p></div>
+      <div class="tile"><h3>Solids</h3><p>Use volume and surface area formulae for pyramids, cones, spheres and hemispheres.</p></div>
+      <div class="tile"><h3>Hidden triangles</h3><p>Most 3D trig problems reduce to one or two right-angled triangles.</p></div>
+      <div class="tile"><h3>Angles</h3><p>For a line and plane, use the angle between the line and its projection on the plane.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore first</button>
+  <button class="tab-button" data-tab="distance">2. 3D distance & midpoint</button>
+  <button class="tab-button" data-tab="solids">3. Solids formula lab</button>
+  <button class="tab-button" data-tab="surface">4. Surface area & nets</button>
+  <button class="tab-button" data-tab="triangles">5. Hidden right triangles</button>
+  <button class="tab-button" data-tab="angles">6. Angles in 3D</button>
+  <button class="tab-button" data-tab="combined">7. Composite solids</button>
+  <button class="tab-button" data-tab="contexts">8. Contexts</button>
+  <button class="tab-button" data-tab="technology">9. Technology</button>
+  <button class="tab-button" data-tab="formalise">10. Formalise</button>
+  <button class="tab-button" data-tab="practice">11. Question generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore: the hidden triangle inside a box</h2>
+      <p>A 3D diagonal can be found by building two right-angled triangles: first across the base, then up through the height.</p>
+      <div class="range-wrap">
+        <div><label for="boxL">Length \(l\)</label><input id="boxL" type="range" min="1" max="12" step="0.5" value="8" oninput="drawBoxExplorer()"></div>
+        <div class="pill" id="boxLLabel">l = 8</div>
+      </div>
+      <div class="range-wrap">
+        <div><label for="boxW">Width \(w\)</label><input id="boxW" type="range" min="1" max="12" step="0.5" value="5" oninput="drawBoxExplorer()"></div>
+        <div class="pill green" id="boxWLabel">w = 5</div>
+      </div>
+      <div class="range-wrap">
+        <div><label for="boxH">Height \(h\)</label><input id="boxH" type="range" min="1" max="12" step="0.5" value="6" oninput="drawBoxExplorer()"></div>
+        <div class="pill orange" id="boxHLabel">h = 6</div>
+      </div>
+      <div class="graph-wrap">
+        <svg id="boxGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Live calculation</h2>
+      <div class="eq-box"><div class="eq-label">Step 1: base diagonal</div><div id="baseDiagBox" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Step 2: space diagonal</div><div id="spaceDiagBox" class="mathline"></div></div>
+      <div id="boxFeedback" class="feedback info">SL 3D trigonometry questions are built from right-angled triangles.</div>
+      <h3>Observation prompts</h3>
+      <ol class="steps">
+        <li>Which triangle lies flat on the base?</li>
+        <li>Which triangle uses the height?</li>
+        <li>Which angle would you find with \(\tan\), \(\sin\) or \(\cos\)?</li>
+      </ol>
+    </div>
+    <div class="card span-12">
+      <h2>The big idea</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>3D distance</h3><p>Use Pythagoras in three directions: \(x\), \(y\) and \(z\).</p></div>
+        <div class="tile"><h3>3D angles</h3><p>Find or draw the right triangle that contains the angle.</p></div>
+        <div class="tile"><h3>Surface area</h3><p>Think: which surfaces are exposed?</p></div>
+        <div class="tile"><h3>Volume</h3><p>Think: how much space is inside?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="distance" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>3D coordinate explorer</h2>
+      <p>Move points \(A\) and \(B\). The formula compares the changes in \(x\), \(y\) and \(z\).</p>
+      <div class="mini-grid">
+        <div class="tile">
+          <h3>Point \(A\)</h3>
+          <div class="row">
+            <div><label>\(x_1\)</label><input id="ax" value="1" oninput="drawDistance()"></div>
+            <div><label>\(y_1\)</label><input id="ay" value="2" oninput="drawDistance()"></div>
+            <div><label>\(z_1\)</label><input id="az" value="1" oninput="drawDistance()"></div>
+          </div>
+        </div>
+        <div class="tile">
+          <h3>Point \(B\)</h3>
+          <div class="row">
+            <div><label>\(x_2\)</label><input id="bx" value="7" oninput="drawDistance()"></div>
+            <div><label>\(y_2\)</label><input id="by" value="5" oninput="drawDistance()"></div>
+            <div><label>\(z_2\)</label><input id="bz" value="6" oninput="drawDistance()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="graph-wrap">
+        <svg id="distanceGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Distance and midpoint</h2>
+      <div class="formula">
+        \[
+          AB=\sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}
+        \]
+        \[
+          M=\left(\frac{x_1+x_2}{2},\frac{y_1+y_2}{2},\frac{z_1+z_2}{2}\right)
+        \]
+      </div>
+      <div class="eq-box"><div class="eq-label">Current calculation</div><div id="distanceOutput" class="mathline"></div></div>
+      <div class="note">
+        The distance formula is just Pythagoras extended into three perpendicular directions.
+      </div>
+      <div class="practice-card">
+        <p><strong>Worked example.</strong> Find the distance and midpoint between \(A(1,2,3)\) and \(B(5,8,6)\).</p>
+        <button onclick="toggleAnswer('distanceExample')">Reveal solution</button>
+        <div id="distanceExample" class="answer">
+          \[
+            AB=\sqrt{(5-1)^2+(8-2)^2+(6-3)^2}
+            =\sqrt{4^2+6^2+3^2}
+            =\sqrt{61}
+            \approx 7.81.
+          \]
+          \[
+            M=\left(\frac{1+5}{2},\frac{2+8}{2},\frac{3+6}{2}\right)=(3,5,4.5).
+          \]
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="solids" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Solids formula lab</h2>
+      <p>Select a solid, change dimensions, and connect the diagram to the formula.</p>
+      <div class="tight-row">
+        <button onclick="chooseSolid('pyramid')">Right pyramid</button>
+        <button onclick="chooseSolid('cone')">Right cone</button>
+        <button onclick="chooseSolid('sphere')">Sphere</button>
+        <button onclick="chooseSolid('hemisphere')">Hemisphere</button>
+      </div>
+      <div id="solidControls"></div>
+      <div class="graph-wrap">
+        <svg id="solidGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Formula report</h2>
+      <div class="eq-box"><div class="eq-label">Selected solid</div><div id="solidName" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Volume</div><div id="solidVolume" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Surface area</div><div id="solidSurface" class="mathline"></div></div>
+      <div class="note warn">
+        Check whether the question asks for curved surface area, total surface area, or exposed surface area.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Formula memory map</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Right pyramid</h3><p>\(V=\frac13Ah\), where \(A\) is base area. For square base \(s\), \(V=\frac13s^2h\).</p></div>
+        <div class="tile"><h3>Right cone</h3><p>\(V=\frac13\pi r^2h\). Curved surface area \(=\pi r l\), where \(l\) is slant height.</p></div>
+        <div class="tile"><h3>Sphere</h3><p>\(V=\frac43\pi r^3\). Surface area \(=4\pi r^2\).</p></div>
+        <div class="tile"><h3>Hemisphere</h3><p>Volume \(=\frac23\pi r^3\). Curved area \(=2\pi r^2\). Total area \(=3\pi r^2\).</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="surface" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Surface area and nets</h2>
+      <p>Surface area is about exposed faces. A cone and pyramid need slant height, not just vertical height.</p>
+      <div class="tight-row">
+        <button onclick="drawNet('cone')">Cone net</button>
+        <button onclick="drawNet('pyramid')">Square pyramid net</button>
+        <button onclick="drawNet('hemisphere')">Hemisphere surface</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="netGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Slant height matters</h2>
+      <div class="practice-card">
+        <p><strong>Cone.</strong> Radius \(r=5\), vertical height \(h=12\). Find slant height and total surface area.</p>
+        <button onclick="toggleAnswer('coneSAExample')">Reveal solution</button>
+        <div id="coneSAExample" class="answer">
+          First find the slant height:
+          \[
+            l=\sqrt{5^2+12^2}=13.
+          \]
+          Total surface area:
+          \[
+            \pi r^2+\pi rl=25\pi+65\pi=90\pi.
+          \]
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Square pyramid.</strong> Base side \(s=10\), vertical height \(h=12\). Find the slant height of a triangular face.</p>
+        <button onclick="toggleAnswer('pyrSAExample')">Reveal solution</button>
+        <div id="pyrSAExample" class="answer">
+          Use the right triangle from the centre of the base to the midpoint of a side:
+          \[
+            l=\sqrt{12^2+5^2}=13.
+          \]
+          Lateral area is \(4\left(\frac12 \cdot 10\cdot 13\right)=260\). Total surface area is \(260+10^2=360\).
+        </div>
+      </div>
+      <div class="note good">
+        In surface area questions, ask: which pieces of the net are included?
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="triangles" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Hidden right-triangle finder</h2>
+      <p>Pick a 3D object. The diagram highlights a relevant right-angled triangle.</p>
+      <div class="tight-row">
+        <button onclick="chooseTriangle('box')">Cuboid diagonal</button>
+        <button onclick="chooseTriangle('pyramid')">Pyramid slant edge</button>
+        <button onclick="chooseTriangle('cone')">Cone slant height</button>
+        <button onclick="chooseTriangle('lineplane')">Line and plane</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="triangleGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Triangle notes</h2>
+      <div class="eq-box"><div class="eq-label">Hidden triangle</div><div id="triangleNotes" class="mathline"></div></div>
+      <div class="note">
+        The exam skill is often not the trigonometry itself; it is seeing which right triangle to use.
+      </div>
+      <div class="practice-card">
+        <p><strong>Strategy.</strong> Write down the triangle labels before using \(\sin\), \(\cos\), \(\tan\) or Pythagoras.</p>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Right triangle decision guide</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Need a length?</h3><p>Use Pythagoras when two sides of a right triangle are known.</p></div>
+        <div class="tile"><h3>Need an angle?</h3><p>Use \(\sin\), \(\cos\), or \(\tan\) based on opposite, adjacent and hypotenuse.</p></div>
+        <div class="tile"><h3>Line-plane angle?</h3><p>Use the line and its projection on the plane.</p></div>
+        <div class="tile"><h3>Two-stage problem?</h3><p>Often find a base diagonal first, then use a second triangle.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="angles" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Angles in 3D</h2>
+      <p>For the angle between a line and a plane, use the angle between the line and its projection onto the plane.</p>
+      <div class="range-wrap">
+        <div><label for="angleBase">Projection length on plane</label><input id="angleBase" type="range" min="1" max="15" step="0.5" value="8" oninput="drawAngleExplorer()"></div>
+        <div class="pill green" id="angleBaseLabel">projection = 8</div>
+      </div>
+      <div class="range-wrap">
+        <div><label for="angleHeight">Vertical height</label><input id="angleHeight" type="range" min="1" max="15" step="0.5" value="5" oninput="drawAngleExplorer()"></div>
+        <div class="pill orange" id="angleHeightLabel">height = 5</div>
+      </div>
+      <div class="graph-wrap">
+        <svg id="angleGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Angle calculation</h2>
+      <div class="eq-box"><div class="eq-label">Line-plane angle</div><div id="angleOutput" class="mathline"></div></div>
+      <div class="formula">
+        \[
+          \tan\theta=\frac{\text{vertical height}}{\text{projection length}}
+        \]
+      </div>
+      <div class="practice-card">
+        <p><strong>Example.</strong> A support cable runs from the ground to a point 12 m high. Its ground projection is 16 m. Find the angle between the cable and the ground.</p>
+        <button onclick="toggleAnswer('angleExample')">Reveal solution</button>
+        <div id="angleExample" class="answer">
+          The cable, vertical height and ground projection form a right triangle.
+          \[
+            \tan\theta=\frac{12}{16}=0.75
+          \]
+          \[
+            \theta=\tan^{-1}(0.75)\approx36.9^\circ.
+          \]
+        </div>
+      </div>
+      <div class="note warn">
+        Do not confuse the angle with the vertical with the angle with the plane. They are complementary in this right triangle.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="combined" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Composite solids</h2>
+      <p>Break the object into familiar solids. Add volumes. For surface area, subtract hidden/internal faces.</p>
+      <div class="tight-row">
+        <button onclick="chooseComposite('capsule')">Cylinder + hemispheres</button>
+        <button onclick="chooseComposite('tower')">Cone roof + cylinder</button>
+        <button onclick="chooseComposite('dome')">Hemisphere dome + cylinder</button>
+        <button onclick="chooseComposite('icecream')">Cone + hemisphere</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="compositeGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Composite calculation</h2>
+      <div id="compositeControls"></div>
+      <div class="eq-box"><div class="eq-label">Volume idea</div><div id="compositeVolume" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Surface area idea</div><div id="compositeSurface" class="mathline"></div></div>
+      <div class="note good">
+        Always decide whether joining circles/base faces are exposed. Hidden joining surfaces should not be counted in external surface area.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contexts" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Architecture and design</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Architecture pyramid roof">
+        <rect width="760" height="420" fill="#e7f5ff"/>
+        <rect x="110" y="220" width="540" height="130" fill="#f8f9fa" stroke="#495057" stroke-width="4"/>
+        <polygon points="110,220 380,85 650,220" fill="#f08c00" opacity=".78" stroke="#7c4a00" stroke-width="4"/>
+        <line x1="380" y1="85" x2="380" y2="220" stroke="#c92a2a" stroke-width="4" stroke-dasharray="10 8"/>
+        <line x1="380" y1="220" x2="650" y2="220" stroke="#2364aa" stroke-width="5"/>
+        <text x="392" y="156" font-size="20" font-weight="900" fill="#8a1717">height</text>
+        <text x="480" y="212" font-size="20" font-weight="900" fill="#174a7c">half-span</text>
+        <text x="380" y="390" text-anchor="middle" font-size="24" font-weight="900" fill="#17212d">Roof pitch uses a right triangle.</text>
+      </svg>
+    </div>
+    <div class="card span-6">
+      <h2>Design technology: packaging</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Packaging design">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <ellipse cx="380" cy="115" rx="145" ry="42" fill="#d0ebff" stroke="#2364aa" stroke-width="4"/>
+        <rect x="235" y="115" width="290" height="180" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>
+        <ellipse cx="380" cy="295" rx="145" ry="42" fill="#bee3f8" stroke="#2364aa" stroke-width="4"/>
+        <line x1="535" y1="115" x2="535" y2="295" stroke="#c92a2a" stroke-width="4"/>
+        <line x1="380" y1="295" x2="525" y2="295" stroke="#0ca678" stroke-width="5"/>
+        <text x="548" y="210" font-size="21" font-weight="900" fill="#8a1717">height</text>
+        <text x="430" y="285" font-size="21" font-weight="900" fill="#087f5b">radius</text>
+        <text x="380" y="380" text-anchor="middle" font-size="24" font-weight="900">Volume gives capacity; surface area gives material.</text>
+      </svg>
+    </div>
+    <div class="card span-6">
+      <h2>Physics: stars and spheres</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Star sphere inverse square law">
+        <rect width="760" height="420" fill="#0f172a"/>
+        <circle cx="250" cy="210" r="60" fill="#ffd43b"/>
+        <circle cx="250" cy="210" r="120" fill="none" stroke="#ffd43b" stroke-width="2" opacity=".45"/>
+        <circle cx="250" cy="210" r="180" fill="none" stroke="#ffd43b" stroke-width="2" opacity=".25"/>
+        <circle cx="250" cy="210" r="240" fill="none" stroke="#ffd43b" stroke-width="2" opacity=".15"/>
+        <text x="480" y="115" font-size="25" font-weight="900" fill="white">Surface area of sphere</text>
+        <text x="480" y="158" font-size="26" fill="#ffd43b">A = 4πr²</text>
+        <text x="480" y="210" font-size="19" fill="#dbeafe">As distance doubles, the same light spreads over</text>
+        <text x="480" y="240" font-size="19" fill="#dbeafe">four times the spherical surface area.</text>
+      </svg>
+    </div>
+    <div class="card span-6">
+      <h2>TOK: axioms and 3D geometry</h2>
+      <div class="practice-card">
+        <p><strong>TOK prompt.</strong> What is an axiomatic system?</p>
+        <button onclick="toggleAnswer('tokAxiom')">Reveal discussion angles</button>
+        <div id="tokAxiom" class="answer">
+          An axiomatic system begins with accepted starting statements, then builds theorems using logical deduction. In geometry, ideas such as points, lines, planes and distance rely on assumptions about space. The question is whether these starting assumptions are self-evident, chosen for usefulness, or justified by experience.
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Discussion.</strong> Are axioms self-evident to everybody?</p>
+        <button onclick="toggleAnswer('tokSelfEvident')">Reveal discussion angles</button>
+        <div id="tokSelfEvident" class="answer">
+          Euclidean geometry may feel self-evident in everyday architecture and design, but other geometries are useful in navigation, relativity and curved spaces. This suggests that axioms can be intuitive in one context but not universal.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="technology" class="tab-panel">
+  <div class="grid">
+    <div class="card span-5">
+      <h2>Calculator / GDC support</h2>
+      <div class="nspire">
+        <div class="nspire-screen">
+          Calculator page<br>
+          sqrt((x2-x1)^2<br>
+          +(y2-y1)^2<br>
+          +(z2-z1)^2)<br><br>
+          trig: atan(height/base)
+        </div>
+        <div class="keys">
+          <div class="key blue">home</div><div class="key">doc</div><div class="key">menu</div><div class="key">tab</div><div class="key orange">enter</div>
+          <div class="key">ctrl</div><div class="key">esc</div><div class="key">var</div><div class="key">x</div><div class="key green">trig</div>
+          <div class="key light">7</div><div class="key light">8</div><div class="key light">9</div><div class="key">/</div><div class="key">^</div>
+        </div>
+      </div>
+    </div>
+    <div class="card span-7">
+      <h2>Technology instructions</h2>
+      <ol class="steps">
+        <li>For 3D distance, enter \(\sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}\) carefully with brackets.</li>
+        <li>For midpoint, calculate each coordinate separately by averaging: \((x_1+x_2)/2\), \((y_1+y_2)/2\), \((z_1+z_2)/2\).</li>
+        <li>For angles, set the calculator to <strong>degree mode</strong> unless the question asks otherwise.</li>
+        <li>Use inverse trig: \(\tan^{-1}\), \(\sin^{-1}\), or \(\cos^{-1}\) after identifying opposite, adjacent and hypotenuse.</li>
+        <li>For volume and surface area, store repeated values such as \(r\), \(h\) and \(l\) if the calculator allows it.</li>
+        <li>Check units: lengths in cm, areas in cm\(^2\), volumes in cm\(^3\).</li>
+      </ol>
+      <div class="note warn">
+        Many errors in this topic are not calculator errors; they are diagram errors. Label the triangle first.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Calculator expression examples</h2>
+      <table>
+        <tr><th>Task</th><th>Expression</th><th>Meaning</th></tr>
+        <tr><td>Distance between \(A(1,2,3)\), \(B(5,8,6)\)</td><td><code>sqrt((5-1)^2+(8-2)^2+(6-3)^2)</code></td><td>\(\sqrt{61}\)</td></tr>
+        <tr><td>Line-plane angle</td><td><code>atan(height/projection)</code></td><td>\(\theta=\tan^{-1}(h/p)\)</td></tr>
+        <tr><td>Cone slant height</td><td><code>sqrt(r^2+h^2)</code></td><td>\(l=\sqrt{r^2+h^2}\)</td></tr>
+        <tr><td>Sphere volume</td><td><code>4/3*pi*r^3</code></td><td>\(\frac43\pi r^3\)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formal summary</h2>
+      <table>
+        <tr><th>Topic</th><th>Formula / method</th></tr>
+        <tr><td>3D distance</td><td>\(\sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}\)</td></tr>
+        <tr><td>3D midpoint</td><td>\(\left(\frac{x_1+x_2}{2},\frac{y_1+y_2}{2},\frac{z_1+z_2}{2}\right)\)</td></tr>
+        <tr><td>Right pyramid volume</td><td>\(\frac13Ah\)</td></tr>
+        <tr><td>Right cone volume</td><td>\(\frac13\pi r^2h\)</td></tr>
+        <tr><td>Sphere volume/area</td><td>\(\frac43\pi r^3\), \(4\pi r^2\)</td></tr>
+        <tr><td>Hemisphere volume/area</td><td>\(\frac23\pi r^3\), curved area \(2\pi r^2\), total area \(3\pi r^2\)</td></tr>
+        <tr><td>Line-plane angle</td><td>Angle between the line and its projection on the plane</td></tr>
+      </table>
+    </div>
+    <div class="card span-6">
+      <h2>Worked examples</h2>
+      <div class="practice-card">
+        <p><strong>Example 1.</strong> A cuboid has dimensions \(6,8,10\). Find the space diagonal.</p>
+        <button onclick="toggleAnswer('formalEx1')">Reveal solution</button>
+        <div id="formalEx1" class="answer">
+          \[
+            d=\sqrt{6^2+8^2+10^2}=\sqrt{200}=10\sqrt2\approx14.1.
+          \]
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 2.</strong> Find the volume of a cone with \(r=4\), \(h=9\).</p>
+        <button onclick="toggleAnswer('formalEx2')">Reveal solution</button>
+        <div id="formalEx2" class="answer">
+          \[
+            V=\frac13\pi r^2h=\frac13\pi(4^2)(9)=48\pi\approx150.8.
+          \]
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 3.</strong> A line has vertical height \(5\) and projection length \(12\). Find its angle with the plane.</p>
+        <button onclick="toggleAnswer('formalEx3')">Reveal solution</button>
+        <div id="formalEx3" class="answer">
+          \[
+            \tan\theta=\frac{5}{12}
+          \]
+          \[
+            \theta=\tan^{-1}\left(\frac{5}{12}\right)\approx22.6^\circ.
+          \]
+        </div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Problem-solving checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Draw:</strong> sketch or redraw the 3D object.</div>
+        <div class="tile"><strong>Label:</strong> put given lengths on the diagram.</div>
+        <div class="tile"><strong>Find triangle:</strong> identify the right-angled triangle.</div>
+        <div class="tile"><strong>Choose tool:</strong> Pythagoras, trig, volume, or surface area.</div>
+        <div class="tile"><strong>Check units:</strong> length, area, volume or degrees.</div>
+        <div class="tile"><strong>Context:</strong> exposed surface or hidden internal face?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Interactive question generator</h2>
+      <p>Generate a question, attempt it, then reveal the worked solution.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('distance')">Distance & midpoint</button>
+        <button onclick="generatePractice('volume')">Volume</button>
+        <button onclick="generatePractice('surface')">Surface area</button>
+        <button onclick="generatePractice('angle')">3D angle</button>
+        <button onclick="generatePractice('composite')">Composite solid</button>
+        <button onclick="generatePractice('context')">Context problem</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Exam checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>3D coordinates:</strong> subtract matching coordinates.</div>
+        <div class="tile"><strong>Midpoint:</strong> average each coordinate separately.</div>
+        <div class="tile"><strong>SA vs volume:</strong> square units vs cubic units.</div>
+        <div class="tile"><strong>Slant height:</strong> needed for cones and pyramid faces.</div>
+        <div class="tile"><strong>Angle:</strong> use the correct projection or triangle.</div>
+        <div class="tile"><strong>Composite:</strong> add volumes; count only exposed surfaces.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start with the cuboid diagonal explorer to show 3D problems as two right triangles.</li>
+        <li>Move to 3D distance and midpoint using coordinates.</li>
+        <li>Introduce solid formulae with dynamic diagrams and dimensions.</li>
+        <li>Use nets and slant height examples to prevent surface-area errors.</li>
+        <li>Train students to identify hidden right triangles in boxes, cones, pyramids and line-plane angle problems.</li>
+        <li>Use composite solids to practise exposed vs hidden surfaces.</li>
+        <li>Finish with context questions and the interactive question generator.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Using vertical height instead of slant height for surface area.</td><td>Draw the right triangle that creates slant height.</td></tr>
+        <tr><td>Counting hidden joining faces in composite solids.</td><td>Ask which surfaces are visible/exposed.</td></tr>
+        <tr><td>Using 2D distance formula in 3D.</td><td>Include the \(z\)-difference as a third square.</td></tr>
+        <tr><td>Confusing line-plane angle with angle to the vertical.</td><td>Use projection on the plane.</td></tr>
+        <tr><td>Not knowing where the right angle is.</td><td>Mark the right angle before calculating.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">Find the distance between \((1,2,3)\) and \((4,6,15)\).</div>
+        <div class="tile">Find the midpoint of \((-2,5,8)\) and \((6,1,4)\).</div>
+        <div class="tile">A cone has radius 3 and height 4. Find its slant height.</div>
+        <div class="tile">A sphere has radius 5. Find its volume and surface area.</div>
+        <div class="tile">Explain why a line-plane angle uses a projection.</div>
+        <div class="tile">A cylinder has a hemisphere on top. Which circular face is hidden?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function rerenderMath(){ if(window.MathJax && window.MathJax.typesetPromise){ window.MathJax.typesetPromise(); } }
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); $(btn.dataset.tab).classList.add('active'); rerenderMath();
+  });
+});
+function toggleAnswer(id){ $(id).classList.toggle('show'); rerenderMath(); }
+function fmt(x){ if(!isFinite(x)) return String(x); if(Math.abs(x)<1e-10) return '0'; return Number(x.toFixed(3)).toString(); }
+function sq(x){return x*x;}
+function rad(deg){return deg*Math.PI/180;}
+function proj3(x,y,z, scale=26, cx=370, cy=300){
+  return {x:cx + scale*(x + 0.58*y), y:cy + scale*(0.32*y - z)};
+}
+function line(p,q,color='#17212d',w=3,dash=''){
+  return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${color}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round"/>`;
+}
+function poly(points,fill,stroke='#17212d',w=3,opacity=1){
+  return `<polygon points="${points.map(p=>p.x+','+p.y).join(' ')}" fill="${fill}" stroke="${stroke}" stroke-width="${w}" opacity="${opacity}"/>`;
+}
+function text(x,y,t,color='#17212d',size=16,weight=850){
+  return `<text x="${x}" y="${y}" font-size="${size}" font-weight="${weight}" fill="${color}">${t}</text>`;
+}
+function pointSvg(p,label,color='#c92a2a'){
+  return `<circle cx="${p.x}" cy="${p.y}" r="6" fill="${color}" stroke="white" stroke-width="2"/>${label?text(p.x+8,p.y-8,label,color,14,900):''}`;
+}
+
+/* Explore cuboid */
+function drawBoxExplorer(){
+  const l=Number($("boxL").value), w=Number($("boxW").value), h=Number($("boxH").value);
+  $("boxLLabel").textContent='l = '+fmt(l); $("boxWLabel").textContent='w = '+fmt(w); $("boxHLabel").textContent='h = '+fmt(h);
+  const base=Math.sqrt(l*l+w*w), space=Math.sqrt(l*l+w*w+h*h);
+  const A=proj3(0,0,0), B=proj3(l,0,0), C=proj3(l,w,0), D=proj3(0,w,0);
+  const E=proj3(0,0,h), F=proj3(l,0,h), G=proj3(l,w,h), H=proj3(0,w,h);
+  let g=`<rect width="760" height="520" fill="#fcfdff"/>`;
+  g+=poly([A,B,C,D],'#edf6ff','#2364aa',3,.65);
+  g+=poly([E,F,G,H],'#e6fcf5','#0ca678',3,.65);
+  [[A,E],[B,F],[C,G],[D,H],[A,B],[B,C],[C,D],[D,A],[E,F],[F,G],[G,H],[H,E]].forEach(seg=>g+=line(seg[0],seg[1],'#64748b',2));
+  g+=line(A,C,'#7048e8',5);
+  g+=line(A,G,'#c92a2a',5);
+  g+=line(C,G,'#f08c00',4);
+  g+=pointSvg(A,'A','#17212d')+pointSvg(C,'base diagonal','#7048e8')+pointSvg(G,'G','#c92a2a');
+  g+=text(90,60,'Two right triangles: base diagonal, then space diagonal','#17212d',22,900);
+  g+=text(90,96,`base diagonal ≈ ${fmt(base)}`,'#7048e8',18,900);
+  g+=text(90,124,`space diagonal ≈ ${fmt(space)}`,'#c92a2a',18,900);
+  $("boxGraph").innerHTML=g;
+  $("baseDiagBox").innerHTML=`\\(d_b=\\sqrt{${fmt(l)}^2+${fmt(w)}^2}=\\sqrt{${fmt(l*l+w*w)}}=${fmt(base)}\\)`;
+  $("spaceDiagBox").innerHTML=`\\(d=\\sqrt{d_b^2+${fmt(h)}^2}=\\sqrt{${fmt(base*base)}+${fmt(h*h)}}=${fmt(space)}\\)<br>Equivalently: \\(d=\\sqrt{${fmt(l)}^2+${fmt(w)}^2+${fmt(h)}^2}\\).`;
+  rerenderMath();
+}
+
+/* Distance */
+function drawDistance(){
+  const ax=Number($("ax").value), ay=Number($("ay").value), az=Number($("az").value);
+  const bx=Number($("bx").value), by=Number($("by").value), bz=Number($("bz").value);
+  const dx=bx-ax, dy=by-ay, dz=bz-az, dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+  const mx=(ax+bx)/2, my=(ay+by)/2, mz=(az+bz)/2;
+  const origin=proj3(0,0,0,30,300,360);
+  const X=proj3(8,0,0,30,300,360), Y=proj3(0,8,0,30,300,360), Z=proj3(0,0,8,30,300,360);
+  const A=proj3(ax,ay,az,30,300,360), B=proj3(bx,by,bz,30,300,360), M=proj3(mx,my,mz,30,300,360);
+  let g=`<rect width="760" height="520" fill="#fcfdff"/>`;
+  g+=line(origin,X,'#2364aa',3)+line(origin,Y,'#0ca678',3)+line(origin,Z,'#f08c00',3);
+  g+=text(X.x+8,X.y,'x','#2364aa',18,900)+text(Y.x+8,Y.y,'y','#0ca678',18,900)+text(Z.x+8,Z.y,'z','#f08c00',18,900);
+  g+=line(A,B,'#c92a2a',5);
+  g+=line(A,proj3(bx,ay,az,30,300,360),'#7048e8',2,'8 6');
+  g+=line(proj3(bx,ay,az,30,300,360),proj3(bx,by,az,30,300,360),'#7048e8',2,'8 6');
+  g+=line(proj3(bx,by,az,30,300,360),B,'#7048e8',2,'8 6');
+  g+=pointSvg(A,'A','#2364aa')+pointSvg(B,'B','#c92a2a')+pointSvg(M,'M','#0ca678');
+  g+=text(80,60,'3D distance as three perpendicular changes','#17212d',22,900);
+  g+=text(80,95,`Δx=${fmt(dx)}, Δy=${fmt(dy)}, Δz=${fmt(dz)}`,'#7048e8',18,900);
+  $("distanceGraph").innerHTML=g;
+  $("distanceOutput").innerHTML=`\\(A=(${fmt(ax)},${fmt(ay)},${fmt(az)})\\), \\(B=(${fmt(bx)},${fmt(by)},${fmt(bz)})\\)<br>
+  \\(AB=\\sqrt{(${fmt(dx)})^2+(${fmt(dy)})^2+(${fmt(dz)})^2}=\\sqrt{${fmt(dx*dx+dy*dy+dz*dz)}}=${fmt(dist)}\\)<br>
+  \\(M=(${fmt(mx)},${fmt(my)},${fmt(mz)})\\).`;
+  rerenderMath();
+}
+
+/* Solids lab */
+let solid='cone', sd={r:4,h:7,s:6};
+function chooseSolid(type){
+  solid=type;
+  if(type==='pyramid') sd={s:6,h:8,r:4};
+  if(type==='cone') sd={r:4,h:7,s:6};
+  if(type==='sphere') sd={r:5,h:7,s:6};
+  if(type==='hemisphere') sd={r:5,h:7,s:6};
+  buildSolidControls();
+  drawSolid();
+}
+function solidSlider(key,label,min,max,step,value){
+  return `<div class="range-wrap"><div><label>${label}</label><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" oninput="sd['${key}']=Number(this.value); drawSolid();"></div><div class="pill">${key} = ${value}</div></div>`;
+}
+function buildSolidControls(){
+  let html='';
+  if(solid==='pyramid') html+=solidSlider('s','Square base side \(s\)',1,14,0.5,sd.s)+solidSlider('h','Vertical height \(h\)',1,14,0.5,sd.h);
+  if(solid==='cone') html+=solidSlider('r','Radius \(r\)',1,10,0.5,sd.r)+solidSlider('h','Vertical height \(h\)',1,14,0.5,sd.h);
+  if(solid==='sphere' || solid==='hemisphere') html+=solidSlider('r','Radius \(r\)',1,10,0.5,sd.r);
+  $("solidControls").innerHTML=html;
+}
+function drawSolid(){
+  let g=`<rect width="760" height="520" fill="#fcfdff"/>`;
+  let name='', vol='', surf='';
+  if(solid==='pyramid'){
+    const s=sd.s,h=sd.h,l=Math.sqrt(h*h+(s/2)*(s/2)), V=s*s*h/3, SA=s*s+2*s*l;
+    const A=proj3(-s/2,-s/2,0,28,380,340), B=proj3(s/2,-s/2,0,28,380,340), C=proj3(s/2,s/2,0,28,380,340), D=proj3(-s/2,s/2,0,28,380,340), T=proj3(0,0,h,28,380,340), M=proj3(s/2,0,0,28,380,340), O=proj3(0,0,0,28,380,340);
+    g+=poly([A,B,C,D],'#edf6ff','#2364aa',3,.75);
+    [A,B,C,D].forEach(P=>g+=line(P,T,'#64748b',2.5));
+    g+=line(O,T,'#c92a2a',4,'8 6')+line(M,T,'#0ca678',4)+line(O,M,'#7048e8',3,'7 6');
+    g+=pointSvg(T,'apex','#c92a2a')+text(75,70,'Right square pyramid','#17212d',24,900);
+    name='Right square pyramid';
+    vol=`\\(V=\\frac13s^2h=\\frac13(${fmt(s)}^2)(${fmt(h)})=${fmt(V)}\\)`;
+    surf=`Slant height: \\(l=\\sqrt{${fmt(h)}^2+(${fmt(s)}/2)^2}=${fmt(l)}\\)<br>Total surface area: \\(s^2+2sl=${fmt(s*s)}+2(${fmt(s)})(${fmt(l)})=${fmt(SA)}\\).`;
+  }else if(solid==='cone'){
+    const r=sd.r,h=sd.h,l=Math.sqrt(r*r+h*h), V=Math.PI*r*r*h/3, SA=Math.PI*r*r+Math.PI*r*l;
+    g+=`<ellipse cx="380" cy="330" rx="${r*26}" ry="${r*9}" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<path d="M ${380-r*26} 330 L 380 ${330-h*28} L ${380+r*26} 330" fill="#e6fcf5" stroke="#64748b" stroke-width="4" opacity=".88"/>`;
+    g+=`<line x1="380" y1="${330-h*28}" x2="380" y2="330" stroke="#c92a2a" stroke-width="4" stroke-dasharray="8 6"/>`;
+    g+=`<line x1="380" y1="330" x2="${380+r*26}" y2="330" stroke="#7048e8" stroke-width="4"/>`;
+    g+=`<line x1="380" y1="${330-h*28}" x2="${380+r*26}" y2="330" stroke="#0ca678" stroke-width="5"/>`;
+    g+=text(75,70,'Right cone','#17212d',24,900);
+    name='Right cone';
+    vol=`\\(V=\\frac13\\pi r^2h=\\frac13\\pi(${fmt(r)}^2)(${fmt(h)})=${fmt(V)}\\)`;
+    surf=`Slant height: \\(l=\\sqrt{r^2+h^2}=\\sqrt{${fmt(r)}^2+${fmt(h)}^2}=${fmt(l)}\\)<br>Total surface area: \\(\\pi r^2+\\pi rl=${fmt(SA)}\\).`;
+  }else if(solid==='sphere'){
+    const r=sd.r,V=4*Math.PI*r*r*r/3,SA=4*Math.PI*r*r;
+    g+=`<defs><radialGradient id="sphereGrad" cx="35%" cy="30%"><stop offset="0%" stop-color="#ffffff"/><stop offset="55%" stop-color="#d0ebff"/><stop offset="100%" stop-color="#2364aa"/></radialGradient></defs>`;
+    g+=`<circle cx="380" cy="260" r="${r*28}" fill="url(#sphereGrad)" stroke="#174a7c" stroke-width="4"/>`;
+    g+=`<ellipse cx="380" cy="260" rx="${r*28}" ry="${r*9}" fill="none" stroke="#174a7c" stroke-width="3" opacity=".65"/>`;
+    g+=`<line x1="380" y1="260" x2="${380+r*28}" y2="260" stroke="#c92a2a" stroke-width="4"/>`;
+    g+=text(75,70,'Sphere','#17212d',24,900)+text(390,250,'r','#c92a2a',18,900);
+    name='Sphere';
+    vol=`\\(V=\\frac43\\pi r^3=\\frac43\\pi(${fmt(r)}^3)=${fmt(V)}\\)`;
+    surf=`\\(A=4\\pi r^2=4\\pi(${fmt(r)}^2)=${fmt(SA)}\\).`;
+  }else{
+    const r=sd.r,V=2*Math.PI*r*r*r/3,curved=2*Math.PI*r*r,total=3*Math.PI*r*r;
+    g+=`<path d="M ${380-r*30} 290 A ${r*30} ${r*30} 0 0 1 ${380+r*30} 290 Z" fill="#d0ebff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<ellipse cx="380" cy="290" rx="${r*30}" ry="${r*9}" fill="#edf6ff" stroke="#2364aa" stroke-width="3"/>`;
+    g+=`<line x1="380" y1="290" x2="${380+r*30}" y2="290" stroke="#c92a2a" stroke-width="4"/>`;
+    g+=text(75,70,'Hemisphere','#17212d',24,900)+text(390,280,'r','#c92a2a',18,900);
+    name='Hemisphere';
+    vol=`\\(V=\\frac23\\pi r^3=\\frac23\\pi(${fmt(r)}^3)=${fmt(V)}\\)`;
+    surf=`Curved area: \\(2\\pi r^2=${fmt(curved)}\\).<br>Total area including circular base: \\(3\\pi r^2=${fmt(total)}\\).`;
+  }
+  $("solidGraph").innerHTML=g;
+  $("solidName").innerHTML=name;
+  $("solidVolume").innerHTML=vol;
+  $("solidSurface").innerHTML=surf;
+  rerenderMath();
+}
+
+/* Nets */
+function drawNet(type){
+  let g=`<rect width="760" height="520" fill="#fcfdff"/>`;
+  if(type==='cone'){
+    g+=`<path d="M 170 360 A 190 190 0 0 1 505 180 L 330 330 Z" fill="#e6fcf5" stroke="#0ca678" stroke-width="4"/>`;
+    g+=`<circle cx="555" cy="330" r="65" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=text(100,80,'Cone net: sector + circular base','#17212d',24,900);
+    g+=text(250,310,'curved area = πrl','#087f5b',20,900);
+    g+=text(505,410,'base = πr²','#174a7c',20,900);
+  }else if(type==='pyramid'){
+    g+=`<rect x="320" y="220" width="120" height="120" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<polygon points="320,220 440,220 380,100" fill="#fff3bf" stroke="#f08c00" stroke-width="4"/>`;
+    g+=`<polygon points="440,220 560,280 440,340" fill="#fff3bf" stroke="#f08c00" stroke-width="4"/>`;
+    g+=`<polygon points="320,340 440,340 380,460" fill="#fff3bf" stroke="#f08c00" stroke-width="4"/>`;
+    g+=`<polygon points="320,220 200,280 320,340" fill="#fff3bf" stroke="#f08c00" stroke-width="4"/>`;
+    g+=text(100,70,'Square pyramid net: square + four triangles','#17212d',24,900);
+    g+=text(315,205,'base','#174a7c',18,900);
+    g+=text(470,210,'triangular faces','#7c4a00',18,900);
+  }else{
+    g+=`<circle cx="300" cy="260" r="120" fill="#d0ebff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<path d="M 180 260 A 120 120 0 0 0 420 260" fill="none" stroke="#c92a2a" stroke-width="6"/>`;
+    g+=`<ellipse cx="560" cy="260" rx="100" ry="35" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=text(80,70,'Hemisphere surface: curved half-sphere + circular base','#17212d',24,900);
+    g+=text(185,410,'curved area = 2πr²','#8a1717',20,900);
+    g+=text(510,330,'base = πr²','#174a7c',20,900);
+  }
+  $("netGraph").innerHTML=g;
+}
+
+/* Hidden triangles */
+function chooseTriangle(type){
+  let g=`<rect width="760" height="520" fill="#fcfdff"/>`, notes='';
+  if(type==='box'){
+    const A=proj3(0,0,0), B=proj3(8,0,0), C=proj3(8,5,0), G=proj3(8,5,6), E=proj3(0,0,6), F=proj3(8,0,6), H=proj3(0,5,6), D=proj3(0,5,0);
+    [A,B,C,D,E,F,G,H].forEach(()=>{});
+    [[A,B],[B,C],[C,D],[D,A],[E,F],[F,G],[G,H],[H,E],[A,E],[B,F],[C,G],[D,H]].forEach(s=>g+=line(s[0],s[1],'#64748b',2));
+    g+=line(A,C,'#7048e8',5)+line(A,G,'#c92a2a',5)+line(C,G,'#f08c00',5);
+    notes='Cuboid diagonal: first find the base diagonal, then use it with the vertical height to find the space diagonal.';
+  }else if(type==='pyramid'){
+    const s=6,h=7,A=proj3(-s/2,-s/2,0),B=proj3(s/2,-s/2,0),C=proj3(s/2,s/2,0),D=proj3(-s/2,s/2,0),T=proj3(0,0,h),O=proj3(0,0,0),M=proj3(s/2,0,0);
+    g+=poly([A,B,C,D],'#edf6ff','#2364aa',3,.7); [A,B,C,D].forEach(P=>g+=line(P,T,'#64748b',2));
+    g+=line(T,O,'#c92a2a',4,'8 6')+line(O,M,'#7048e8',4)+line(T,M,'#0ca678',5);
+    notes='Pyramid face slant height: use the right triangle from apex to base centre to midpoint of one side.';
+  }else if(type==='cone'){
+    g+=`<ellipse cx="380" cy="340" rx="150" ry="45" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<path d="M 230 340 L 380 120 L 530 340" fill="#e6fcf5" stroke="#64748b" stroke-width="4" opacity=".85"/>`;
+    g+=`<line x1="380" y1="120" x2="380" y2="340" stroke="#c92a2a" stroke-width="5" stroke-dasharray="8 6"/>`;
+    g+=`<line x1="380" y1="340" x2="530" y2="340" stroke="#7048e8" stroke-width="5"/>`;
+    g+=`<line x1="380" y1="120" x2="530" y2="340" stroke="#0ca678" stroke-width="6"/>`;
+    notes='Cone slant height: vertical height, radius and slant height form a right triangle.';
+  }else{
+    g+=`<polygon points="180,340 610,340 520,420 90,420" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<line x1="250" y1="360" x2="540" y2="220" stroke="#c92a2a" stroke-width="6"/>`;
+    g+=`<line x1="250" y1="360" x2="540" y2="360" stroke="#0ca678" stroke-width="5"/>`;
+    g+=`<line x1="540" y1="220" x2="540" y2="360" stroke="#f08c00" stroke-width="5" stroke-dasharray="8 6"/>`;
+    g+=`<path d="M 282 360 A 42 42 0 0 1 318 344" fill="none" stroke="#7048e8" stroke-width="5"/>`;
+    notes='Line-plane angle: the angle is between the line and its projection on the plane, not the angle with the vertical.';
+  }
+  g+=text(80,70,'Highlighted right triangle','#17212d',24,900);
+  $("triangleGraph").innerHTML=g;
+  $("triangleNotes").innerHTML=notes;
+  rerenderMath();
+}
+
+/* Angle explorer */
+function drawAngleExplorer(){
+  const b=Number($("angleBase").value), h=Number($("angleHeight").value);
+  $("angleBaseLabel").textContent='projection = '+fmt(b); $("angleHeightLabel").textContent='height = '+fmt(h);
+  const theta=Math.atan(h/b)*180/Math.PI, lineLen=Math.sqrt(b*b+h*h);
+  let g=`<rect width="760" height="520" fill="#fcfdff"/>`;
+  const A={x:170,y:360}, B={x:170+b*34,y:360}, C={x:170+b*34,y:360-h*24};
+  g+=`<polygon points="110,360 620,360 700,430 190,430" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+  g+=line(A,B,'#0ca678',6)+line(B,C,'#f08c00',5,'8 6')+line(A,C,'#c92a2a',6);
+  g+=`<path d="M ${A.x+45} ${A.y} A 45 45 0 0 1 ${A.x+40} ${A.y-19}" fill="none" stroke="#7048e8" stroke-width="5"/>`;
+  g+=text(A.x+50,A.y-14,`θ ≈ ${fmt(theta)}°`,'#7048e8',18,900);
+  g+=text(80,70,'Line and plane angle','#17212d',24,900);
+  g+=text((A.x+B.x)/2,A.y+35,'projection','#087f5b',18,900);
+  g+=text(B.x+10,(B.y+C.y)/2,'height','#7c4a00',18,900);
+  $("angleGraph").innerHTML=g;
+  $("angleOutput").innerHTML=`\\(\\tan\\theta=\\frac{${fmt(h)}}{${fmt(b)}}\\)<br>\\(\\theta=\\tan^{-1}\\left(\\frac{${fmt(h)}}{${fmt(b)}}\\right)=${fmt(theta)}^\\circ\\)<br>Line length: \\(\\sqrt{${fmt(b)}^2+${fmt(h)}^2}=${fmt(lineLen)}\\).`;
+  rerenderMath();
+}
+
+/* Composite solids */
+let comp='dome', cd={r:4,h:8};
+function chooseComposite(type){
+  comp=type; cd={r:4,h:8}; buildCompositeControls(); drawComposite();
+}
+function buildCompositeControls(){
+  $("compositeControls").innerHTML=`
+    <div class="range-wrap"><div><label>Radius \(r\)</label><input type="range" min="1" max="9" step="0.5" value="${cd.r}" oninput="cd.r=Number(this.value); drawComposite();"></div><div class="pill">r=${cd.r}</div></div>
+    <div class="range-wrap"><div><label>Cylindrical/cone height \(h\)</label><input type="range" min="1" max="14" step="0.5" value="${cd.h}" oninput="cd.h=Number(this.value); drawComposite();"></div><div class="pill green">h=${cd.h}</div></div>`;
+}
+function drawComposite(){
+  const r=cd.r,h=cd.h;
+  let g=`<rect width="760" height="520" fill="#fcfdff"/>`, vol='', surf='';
+  if(comp==='capsule'){
+    const V=Math.PI*r*r*h+4*Math.PI*r*r*r/3, SA=2*Math.PI*r*h+4*Math.PI*r*r;
+    g+=`<rect x="${380-r*28}" y="${220-h*12}" width="${r*56}" height="${h*24}" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<path d="M ${380-r*28} ${220-h*12} A ${r*28} ${r*28} 0 0 1 ${380+r*28} ${220-h*12}" fill="#d0ebff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<path d="M ${380-r*28} ${220+h*12} A ${r*28} ${r*28} 0 0 0 ${380+r*28} ${220+h*12}" fill="#d0ebff" stroke="#2364aa" stroke-width="4"/>`;
+    vol=`Cylinder + two hemispheres = cylinder + one sphere:<br>\\(V=\\pi r^2h+\\frac43\\pi r^3=${fmt(V)}\\).`;
+    surf=`Exposed area = cylinder curved area + sphere area:<br>\\(A=2\\pi rh+4\\pi r^2=${fmt(SA)}\\).`;
+  }else if(comp==='tower'){
+    const l=Math.sqrt(r*r+h*h), V=Math.PI*r*r*h + Math.PI*r*r*(h/2)/3, SA=2*Math.PI*r*h + Math.PI*r*l + Math.PI*r*r;
+    g+=`<rect x="${380-r*28}" y="220" width="${r*56}" height="${h*18}" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<ellipse cx="380" cy="${220+h*18}" rx="${r*28}" ry="${r*9}" fill="#bee3f8" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<path d="M ${380-r*28} 220 L 380 ${220-h*12} L ${380+r*28} 220" fill="#fff3bf" stroke="#f08c00" stroke-width="4"/>`;
+    vol=`Cylinder plus cone roof. If cone height is half the slider height:<br>\\(V=\\pi r^2h+\\frac13\\pi r^2(\\frac h2)=${fmt(V)}\\).`;
+    surf=`External area includes cylinder curved area, cone curved area and bottom circle. The joining circle under the roof is hidden.`;
+  }else if(comp==='dome'){
+    const V=Math.PI*r*r*h+2*Math.PI*r*r*r/3, SA=2*Math.PI*r*h+2*Math.PI*r*r+Math.PI*r*r;
+    g+=`<rect x="${380-r*28}" y="210" width="${r*56}" height="${h*18}" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<path d="M ${380-r*28} 210 A ${r*28} ${r*28} 0 0 1 ${380+r*28} 210 Z" fill="#d0ebff" stroke="#2364aa" stroke-width="4"/>`;
+    g+=`<ellipse cx="380" cy="${210+h*18}" rx="${r*28}" ry="${r*9}" fill="#bee3f8" stroke="#2364aa" stroke-width="4"/>`;
+    vol=`Cylinder + hemisphere:<br>\\(V=\\pi r^2h+\\frac23\\pi r^3=${fmt(V)}\\).`;
+    surf=`External area often includes cylinder curved area + hemisphere curved area + bottom circle:<br>\\(A=2\\pi rh+2\\pi r^2+\\pi r^2=${fmt(SA)}\\).`;
+  }else{
+    const V=Math.PI*r*r*h/3+2*Math.PI*r*r*r/3, l=Math.sqrt(r*r+h*h), SA=Math.PI*r*l+2*Math.PI*r*r;
+    g+=`<path d="M ${380-r*30} 270 L 380 ${270+h*22} L ${380+r*30} 270" fill="#fff3bf" stroke="#f08c00" stroke-width="4"/>`;
+    g+=`<path d="M ${380-r*30} 270 A ${r*30} ${r*30} 0 0 1 ${380+r*30} 270 Z" fill="#d0ebff" stroke="#2364aa" stroke-width="4"/>`;
+    vol=`Cone + hemisphere:<br>\\(V=\\frac13\\pi r^2h+\\frac23\\pi r^3=${fmt(V)}\\).`;
+    surf=`External area = cone curved area + hemisphere curved area:<br>\\(A=\\pi rl+2\\pi r^2=${fmt(SA)}\\), where \\(l=\\sqrt{r^2+h^2}\\).`;
+  }
+  g+=text(80,70,'Composite solid: add pieces, remove hidden surfaces','#17212d',22,900);
+  $("compositeGraph").innerHTML=g;
+  $("compositeVolume").innerHTML=vol;
+  $("compositeSurface").innerHTML=surf;
+  rerenderMath();
+}
+
+/* Practice generator */
+function randomInt(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+function generatePractice(type){
+  $("practiceAnswer").classList.remove('show'); $("practiceVisual").innerHTML='';
+  let q='',a='';
+  if(type==='distance'){
+    const x1=randomInt(-4,4), y1=randomInt(-4,4), z1=randomInt(0,6);
+    const x2=x1+randomInt(2,8), y2=y1+randomInt(2,8), z2=z1+randomInt(2,8);
+    const dx=x2-x1, dy=y2-y1, dz=z2-z1, d2=dx*dx+dy*dy+dz*dz;
+    q=`Find the distance and midpoint between \\(A(${x1},${y1},${z1})\\) and \\(B(${x2},${y2},${z2})\\).`;
+    a=`\\[
+      AB=\\sqrt{(${x2}-${x1})^2+(${y2}-${y1})^2+(${z2}-${z1})^2}
+      =\\sqrt{${dx}^2+${dy}^2+${dz}^2}
+      =\\sqrt{${d2}}\\approx ${fmt(Math.sqrt(d2))}.
+    \\]
+    \\[
+      M=\\left(\\frac{${x1}+${x2}}2,\\frac{${y1}+${y2}}2,\\frac{${z1}+${z2}}2\\right)
+      =(${fmt((x1+x2)/2)},${fmt((y1+y2)/2)},${fmt((z1+z2)/2)}).
+    \\]`;
+  }else if(type==='volume'){
+    const r=randomInt(3,8), h=randomInt(5,12);
+    q=`A right cone has radius \\(${r}\\) cm and vertical height \\(${h}\\) cm. Find its volume.`;
+    a=`\\[
+      V=\\frac13\\pi r^2h=\\frac13\\pi(${r}^2)(${h})=${fmt(Math.PI*r*r*h/3)}\\text{ cm}^3.
+    \\]`;
+  }else if(type==='surface'){
+    const r=randomInt(3,7), h=randomInt(4,12), l=Math.sqrt(r*r+h*h);
+    q=`A cone has radius \\(${r}\\) m and vertical height \\(${h}\\) m. Find its total surface area.`;
+    a=`First find the slant height:
+    \\[
+      l=\\sqrt{${r}^2+${h}^2}=\\sqrt{${r*r+h*h}}=${fmt(l)}.
+    \\]
+    Total surface area:
+    \\[
+      A=\\pi r^2+\\pi rl=\\pi(${r}^2)+\\pi(${r})(${fmt(l)})=${fmt(Math.PI*r*r+Math.PI*r*l)}\\text{ m}^2.
+    \\]`;
+  }else if(type==='angle'){
+    const b=randomInt(6,14), h=randomInt(3,12), theta=Math.atan(h/b)*180/Math.PI;
+    q=`A cable rises vertically by \\(${h}\\) m and its projection on the ground is \\(${b}\\) m. Find the angle between the cable and the ground.`;
+    a=`The cable and its projection form a right triangle:
+    \\[
+      \\tan\\theta=\\frac{${h}}{${b}}.
+    \\]
+    \\[
+      \\theta=\\tan^{-1}\\left(\\frac{${h}}{${b}}\\right)\\approx ${fmt(theta)}^\\circ.
+    \\]`;
+  }else if(type==='composite'){
+    const r=randomInt(3,7), h=randomInt(5,12);
+    q=`A storage tank is a cylinder of radius \\(${r}\\) m and height \\(${h}\\) m with a hemispherical dome on top. Find its volume.`;
+    a=`Add the cylinder volume and hemisphere volume:
+    \\[
+      V=\\pi r^2h+\\frac23\\pi r^3
+      =\\pi(${r}^2)(${h})+\\frac23\\pi(${r}^3)
+      =${fmt(Math.PI*r*r*h+2*Math.PI*r*r*r/3)}\\text{ m}^3.
+    \\]`;
+  }else{
+    q=`An architect designs a square pyramid roof with base side 10 m and vertical height 6 m. Find the slant height of one triangular face and the area of roofing material needed for the four triangular faces.`;
+    a=`The slant height runs from the apex to the midpoint of a side. Use half the base side, 5 m:
+    \\[
+      l=\\sqrt{6^2+5^2}=\\sqrt{61}\\approx7.81\\text{ m}.
+    \\]
+    Area of four triangular faces:
+    \\[
+      4\\left(\\frac12\\cdot 10\\cdot \\sqrt{61}\\right)=20\\sqrt{61}\\approx156.2\\text{ m}^2.
+    \\]`;
+  }
+  $("practiceQuestion").innerHTML=q;
+  $("practiceAnswer").innerHTML=a;
+  rerenderMath();
+}
+
+/* Init */
+function init(){
+  drawBoxExplorer();
+  drawDistance();
+  chooseSolid('cone');
+  drawNet('cone');
+  chooseTriangle('box');
+  drawAngleExplorer();
+  chooseComposite('dome');
+  generatePractice('distance');
+}
+init();
+</script>
+</body>
+</html>

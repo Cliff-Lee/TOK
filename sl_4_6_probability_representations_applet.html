@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SL 4.6 Probability Representations Applet</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --ink:#182032;
+    --muted:#617085;
+    --card:#ffffff;
+    --line:#d8deea;
+    --blue:#2f74ff;
+    --red:#ff5c72;
+    --purple:#8e62ff;
+    --green:#18a058;
+    --amber:#f2a51a;
+    --sl:#1769aa;
+    --shadow:0 12px 34px rgba(24,32,50,.10);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#fbfcff 0%,var(--bg) 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);line-height:1.45}
+  .wrap{max-width:1220px;margin:0 auto;padding:24px}
+  header{background:radial-gradient(circle at top left,#eaf2ff 0%,#ffffff 45%,#fff7ea 100%);border:1px solid var(--line);border-radius:26px;padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  header:after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:rgba(47,116,255,.08)}
+  .badge{display:inline-flex;gap:10px;align-items:center;padding:8px 12px;border-radius:999px;background:#e8f1fb;border:1px solid #cfe1f7;color:var(--sl);font-weight:800;font-size:14px;letter-spacing:.02em}
+  h1{margin:14px 0 8px;font-size:clamp(28px,4vw,48px);line-height:1.05}
+  .sub{max-width:850px;color:var(--muted);font-size:18px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 6px 22px rgba(24,32,50,.06)}
+  .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+  @media(max-width:900px){.span-8,.span-6,.span-4{grid-column:span 12}.wrap{padding:14px}}
+  h2{margin:0 0 12px;font-size:25px} h3{margin:0 0 10px;font-size:19px}.small{font-size:14px;color:var(--muted)}
+  .formula{font-size:22px;font-weight:800;letter-spacing:.01em;background:#f8faff;border:1px solid #dfe8ff;border-radius:14px;padding:14px;margin:10px 0}.formula small{font-size:14px;color:var(--muted);font-weight:600}
+  .btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.btn{border:1px solid var(--line);background:white;color:var(--ink);border-radius:999px;padding:10px 14px;font-weight:750;cursor:pointer;box-shadow:0 3px 10px rgba(24,32,50,.05)}.btn:hover{border-color:#9cb7ff}.btn.active{background:var(--blue);color:white;border-color:var(--blue)}.btn.green{background:var(--green);border-color:var(--green);color:white}.btn.secondary{background:#f4f6fb}.btn.warn{background:#fff6e2;border-color:#ffdd95;color:#7a4c00}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 10px;background:#f4f6fb;border:1px solid var(--line);font-weight:700;font-size:14px}.dot{width:12px;height:12px;border-radius:50%;display:inline-block}.aonly{background:rgba(47,116,255,.72)}.bonly{background:rgba(255,92,114,.72)}.both{background:rgba(142,98,255,.78)}.neither{background:#d9dee9}.ok{color:var(--green);font-weight:850}.warning{color:#9a5b00;font-weight:850}
+  .panel{display:grid;grid-template-columns:1fr 1fr;gap:16px}.visual{min-height:280px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#ffffff,#fbfcff);border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden}.visual svg{max-width:100%;height:auto}.note{background:#f8faff;border-left:5px solid var(--blue);padding:12px;border-radius:12px;color:#31425f}
+  table{border-collapse:collapse;width:100%;font-size:16px}th,td{border:1px solid var(--line);padding:10px;text-align:center}th{background:#f2f5fb;font-weight:850}td.highlight{background:#edf4ff;font-weight:850}.table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--line)}.table-wrap table{border:0}.table-wrap th:first-child,.table-wrap td:first-child{text-align:left;font-weight:800}
+  .steps{display:none;background:#fbfdff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}.steps.show{display:block}.steps ol{margin:8px 0 0 20px;padding:0}.steps li{margin:8px 0}.qbox{background:#ffffff;border:2px solid #e4ebf8;border-radius:18px;padding:18px;min-height:132px}.qtitle{font-weight:900;color:#233250;font-size:18px;margin-bottom:8px}.answer{display:none;margin-top:12px;background:#f1fff6;border:1px solid #c8f1d7;border-radius:14px;padding:12px}.answer.show{display:block}.checkline{margin-top:10px;font-size:14px;color:var(--muted)}
+  .mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.mini{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfcff}.mini strong{display:block;margin-bottom:5px}
+  .sliderbox{display:grid;grid-template-columns:1fr 90px;gap:10px;align-items:center;margin:8px 0}.sliderbox input{width:100%}.num{font-variant-numeric:tabular-nums;font-weight:850;background:#f4f6fb;border:1px solid var(--line);border-radius:10px;padding:7px;text-align:center}.footer{margin:24px 0;color:var(--muted);font-size:14px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.hide{display:none!important}.casino{background:linear-gradient(120deg,#fff8e9,#ffffff);border:1px solid #f2d496}.casino .formula{background:#fffaf0;border-color:#f2d496}
+  .legend-title{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900;margin:0 0 8px}.two-col{columns:2;column-gap:28px}.two-col li{break-inside:avoid;margin-bottom:8px}@media(max-width:720px){.panel{grid-template-columns:1fr}.mini-grid{grid-template-columns:1fr}.two-col{columns:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="badge">IB Mathematics: applications and interpretation • SL 4.6</div>
+  <h1>Probability Representations Lab</h1>
+  <p class="sub">Use <b>Venn diagrams</b>, <b>tree diagrams</b>, <b>sample spaces</b> and <b>tables of outcomes</b> to calculate probabilities. The same probability is shown in several visual forms so students can see why the formula works rather than just memorising it.</p>
+  <div class="pillrow" aria-label="Syllabus checklist">
+    <span class="pill"><span class="dot aonly"></span>Combined events</span>
+    <span class="pill"><span class="dot both"></span>Conditional probability</span>
+    <span class="pill"><span class="dot bonly"></span>Independent events</span>
+    <span class="pill"><span class="dot neither"></span>With and without replacement</span>
+  </div>
+</header>
+
+<section class="grid">
+  <div class="card span-12">
+    <h2>1. One situation, four visual representations</h2>
+    <p class="small">Press <b>New checked data</b> to change the numbers. The applet checks that all four regions are non-negative, the total matches, and all denominators used in conditional probabilities are valid.</p>
+    <div class="btns">
+      <button class="btn green" id="newDataBtn">New checked data</button>
+      <button class="btn secondary" id="toggleFocusBtn">Teacher focus: hide/show explanations</button>
+    </div>
+    <div id="dataSummary" class="pillrow"></div>
+    <div class="grid">
+      <div class="card span-6">
+        <h3>Venn diagram: where does the overlap go?</h3>
+        <div class="visual" id="vennVisual"></div>
+      </div>
+      <div class="card span-6">
+        <h3>Sample space diagram: every student as one square</h3>
+        <div class="visual" id="gridVisual"></div>
+      </div>
+      <div class="card span-6">
+        <h3>Two-way table: the same four regions as counts</h3>
+        <div id="tableVisual" class="table-wrap"></div>
+      </div>
+      <div class="card span-6">
+        <h3>Tree diagram: first split by A, then by B</h3>
+        <div class="visual" id="treeVisual"></div>
+      </div>
+    </div>
+    <div class="grid explainer">
+      <div class="card span-4">
+        <div class="legend-title">Combined events</div>
+        <div class="formula">P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</div>
+        <p>The word <b>or</b> is usually inclusive. Count A, count B, but subtract the overlap because it was counted twice.</p>
+      </div>
+      <div class="card span-4">
+        <div class="legend-title">Conditional probability</div>
+        <div class="formula">P(A | B) = P(A ∩ B) / P(B)</div>
+        <p>Once B is known, the denominator is no longer the whole sample space. The new mini-universe is just B.</p>
+      </div>
+      <div class="card span-4">
+        <div class="legend-title">Independence</div>
+        <div class="formula">P(A ∩ B) = P(A)P(B)</div>
+        <p>Independent means knowing one event has happened does not change the probability of the other.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-12">
+    <h2>2. Representation switcher: calculate without starting from a formula</h2>
+    <p class="small">The buttons keep the same underlying counts but change what students see first. This supports the syllabus note that problems can be solved using diagrams or tables without explicit use of formulae.</p>
+    <div class="btns" id="repButtons">
+      <button class="btn active" data-rep="venn">Venn first</button>
+      <button class="btn" data-rep="grid">Sample space first</button>
+      <button class="btn" data-rep="table">Table first</button>
+      <button class="btn" data-rep="tree">Tree first</button>
+    </div>
+    <div class="panel">
+      <div class="visual" id="switchVisual"></div>
+      <div>
+        <div id="switchQuestion" class="qbox"></div>
+        <div class="btns">
+          <button class="btn" id="switchHintBtn">Show hint</button>
+          <button class="btn green" id="switchAnswerBtn">Show answer</button>
+        </div>
+        <div id="switchHint" class="steps"></div>
+        <div id="switchAnswer" class="answer"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-8">
+    <h2>3. With or without replacement: tree diagram lab</h2>
+    <p class="small">Use the same bag to compare why replacement changes the second branch probabilities.</p>
+    <div class="btns" id="replacementButtons">
+      <button class="btn active" data-mode="without">Without replacement</button>
+      <button class="btn" data-mode="with">With replacement</button>
+      <button class="btn green" id="newBagBtn">New checked bag</button>
+    </div>
+    <div id="bagSummary" class="pillrow"></div>
+    <div class="panel">
+      <div class="visual" id="bagTreeVisual"></div>
+      <div>
+        <div class="formula" id="replacementFormula"></div>
+        <div class="note" id="replacementNote"></div>
+        <div id="bagTable" class="table-wrap" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4 casino">
+    <h2>Aim 8 / TOK link</h2>
+    <p><b>The gambling issue:</b> probability is powerful in casinos because the same event can be represented by outcomes, trees, tables, or formulas.</p>
+    <div class="formula">Expected thinking:<br><small>Who benefits from knowing the model?</small></div>
+    <p><b>TOK prompt:</b> Can calculating gambling probabilities be considered an ethical application of mathematics? Are mathematicians responsible for how their work is used?</p>
+  </div>
+
+  <div class="card span-12">
+    <h2>4. Checked question generator</h2>
+    <p class="small">Choose a question type, then press <b>Regenerate with new numbers</b>. The generator only uses cases that pass internal checks: valid totals, non-negative regions, possible overlaps, non-zero conditional denominators, and valid replacement branches.</p>
+    <div class="btns" id="qTypeButtons">
+      <button class="btn active" data-q="combined">Combined events</button>
+      <button class="btn" data-q="conditional">Conditional probability</button>
+      <button class="btn" data-q="independent">Independent events</button>
+      <button class="btn" data-q="mutual">Mutually exclusive</button>
+      <button class="btn" data-q="tree">Tree: replacement</button>
+      <button class="btn" data-q="mixed">Mixed exam-style</button>
+    </div>
+    <div class="btns">
+      <button class="btn green" id="newQuestionBtn">Regenerate with new numbers</button>
+      <button class="btn" id="showSolutionBtn">Show worked solution</button>
+    </div>
+    <div class="panel">
+      <div class="qbox" id="questionBox"></div>
+      <div class="visual" id="questionVisual"></div>
+    </div>
+    <div id="solutionBox" class="answer"></div>
+    <div id="generatorCheck" class="checkline"></div>
+  </div>
+
+  <div class="card span-12 explainer">
+    <h2>Teacher notes: the learning sequence</h2>
+    <ol class="two-col">
+      <li>Start with a sample space grid: every square is one equally likely outcome or one person in a survey.</li>
+      <li>Group the squares into four regions: A only, B only, both, neither.</li>
+      <li>Move the same four numbers into a Venn diagram.</li>
+      <li>Move the same four numbers into a two-way table.</li>
+      <li>Use the table to build a tree: first split by A, then split each branch by B.</li>
+      <li>Only after this, write the formulas. They become summaries of the diagrams.</li>
+    </ol>
+  </div>
+</section>
+<div class="footer">Self-contained HTML applet. No external libraries required.</div>
+</div>
+<script>
+(function(){
+  "use strict";
+  const COLORS={a:"rgba(47,116,255,.72)",b:"rgba(255,92,114,.72)",both:"rgba(142,98,255,.78)",neither:"#d9dee9",line:"#31425f"};
+  const names={A:"studies Music",B:"plays Sport"};
+  let vennData=null, currentRep="venn", replacementMode="without", bagData=null, qType="combined", currentQuestion=null, focusHidden=false;
+
+  function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+  function choice(arr){return arr[Math.floor(Math.random()*arr.length)];}
+  function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a||1;}
+  function frac(n,d){ if(d===0) return "undefined"; const g=gcd(n,d); n/=g; d/=g; if(d===1) return String(n); return `${n}/${d}`; }
+  function pct(n,d){return d?`${(100*n/d).toFixed(1)}%`:"undefined";}
+  function prob(n,d){return `${frac(n,d)} = ${pct(n,d)}`;}
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));}
+
+  function buildVennFromRegions(aOnly,bOnly,both,neither){
+    const total=aOnly+bOnly+both+neither;
+    return {aOnly,bOnly,both,neither,total,A:aOnly+both,B:bOnly+both,notA:bOnly+neither,notB:aOnly+neither};
+  }
+  function validateVenn(d){
+    if(!d) return false;
+    const vals=[d.aOnly,d.bOnly,d.both,d.neither,d.total,d.A,d.B];
+    if(vals.some(x=>!Number.isInteger(x)||x<0)) return false;
+    if(d.total!==d.aOnly+d.bOnly+d.both+d.neither) return false;
+    if(d.A!==d.aOnly+d.both || d.B!==d.bOnly+d.both) return false;
+    if(d.total<=0 || d.A<d.both || d.B<d.both) return false;
+    if(d.A===0 || d.B===0 || d.notA===0 || d.notB===0) return false;
+    return true;
+  }
+  function generateVennData(){
+    for(let tries=0;tries<1000;tries++){
+      const total=choice([36,40,48,50,60,64,72,80,90,96,100,120]);
+      const both=randInt(Math.max(2,Math.floor(total*.08)),Math.max(4,Math.floor(total*.25)));
+      const aOnly=randInt(Math.max(3,Math.floor(total*.10)),Math.max(5,Math.floor(total*.36)));
+      const bOnly=randInt(Math.max(3,Math.floor(total*.10)),Math.max(5,Math.floor(total*.36)));
+      const neither=total-aOnly-bOnly-both;
+      const d=buildVennFromRegions(aOnly,bOnly,both,neither);
+      if(validateVenn(d) && neither>=3 && d.A<total && d.B<total) return d;
+    }
+    return buildVennFromRegions(18,14,8,20);
+  }
+
+  function svgText(x,y,text,size=16,weight=700,anchor="middle",fill="#182032"){
+    return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${fill}" font-family="Inter, Arial, sans-serif">${text}</text>`;
+  }
+  function vennSVG(d,opts={}){
+    const title=opts.title || "Class survey";
+    const Aname=opts.Aname || "A";
+    const Bname=opts.Bname || "B";
+    // The overlap is now drawn with real SVG clipping rather than a hand-made lens path.
+    // This keeps A only, B only and A ∩ B visually aligned with the two circles.
+    return `<svg viewBox="0 0 560 340" role="img" aria-label="Venn diagram">
+      <defs>
+        <clipPath id="clipA"><circle cx="220" cy="170" r="105"/></clipPath>
+        <clipPath id="clipB"><circle cx="340" cy="170" r="105"/></clipPath>
+      </defs>
+      <rect x="10" y="10" width="540" height="320" rx="20" fill="#fbfcff" stroke="#d8deea"/>
+      ${svgText(280,42,title,18,850)}
+
+      <circle cx="220" cy="170" r="105" fill="rgba(47,116,255,.55)" stroke="#2458c9" stroke-width="2.5"/>
+      <circle cx="340" cy="170" r="105" fill="rgba(255,92,114,.55)" stroke="#c63a4d" stroke-width="2.5"/>
+      <g clip-path="url(#clipA)">
+        <circle cx="340" cy="170" r="105" fill="${COLORS.both}" fill-opacity=".88"/>
+      </g>
+
+      ${svgText(175,78,Aname,17,900)} ${svgText(385,78,Bname,17,900)}
+      <rect x="24" y="288" width="150" height="28" rx="10" fill="#eef3ff"/>${svgText(99,308,`Total = ${d.total}`,15,850)}
+      ${svgText(185,172,d.aOnly,30,900)}
+      ${svgText(280,172,d.both,30,900,"middle","#fff")}
+      ${svgText(375,172,d.bOnly,30,900)}
+      ${svgText(485,300,d.neither,24,900)}
+      ${svgText(185,205,"A only",13,750)}
+      ${svgText(280,205,"A ∩ B",13,750,"middle","#fff")}
+      ${svgText(375,205,"B only",13,750)}
+      ${svgText(485,268,"neither",13,750)}
+    </svg>`;
+  }
+
+  function gridSVG(d){
+    const cells=[];
+    for(let i=0;i<d.aOnly;i++) cells.push("a");
+    for(let i=0;i<d.both;i++) cells.push("both");
+    for(let i=0;i<d.bOnly;i++) cells.push("b");
+    for(let i=0;i<d.neither;i++) cells.push("neither");
+    // grouped, not shuffled, so the four regions can be seen clearly
+    const cols=Math.ceil(Math.sqrt(d.total));
+    const rows=Math.ceil(d.total/cols);
+    const size=Math.max(12,Math.min(22,250/cols));
+    const gap=3, left=30, top=44;
+    const width=left*2+cols*(size+gap), height=top+rows*(size+gap)+52;
+    let rects="";
+    cells.forEach((c,i)=>{
+      const x=left+(i%cols)*(size+gap), y=top+Math.floor(i/cols)*(size+gap);
+      const fill=c==="a"?COLORS.a:c==="b"?COLORS.b:c==="both"?COLORS.both:COLORS.neither;
+      rects += `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="4" fill="${fill}" stroke="#ffffff" stroke-width="1"/>`;
+    });
+    return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="sample space grid">
+      ${svgText(width/2,24,"Sample space: one square = one outcome",16,850)}
+      ${rects}
+      <g transform="translate(18 ${height-34})">
+        <rect x="0" y="0" width="14" height="14" rx="3" fill="${COLORS.a}"/><text x="20" y="12" font-size="12" font-weight="700">A only ${d.aOnly}</text>
+        <rect x="105" y="0" width="14" height="14" rx="3" fill="${COLORS.both}"/><text x="125" y="12" font-size="12" font-weight="700">Both ${d.both}</text>
+        <rect x="210" y="0" width="14" height="14" rx="3" fill="${COLORS.b}"/><text x="230" y="12" font-size="12" font-weight="700">B only ${d.bOnly}</text>
+        <rect x="315" y="0" width="14" height="14" rx="3" fill="${COLORS.neither}"/><text x="335" y="12" font-size="12" font-weight="700">Neither ${d.neither}</text>
+      </g>
+    </svg>`;
+  }
+  function tableHTML(d){
+    return `<table aria-label="two way table">
+      <thead><tr><th></th><th>B</th><th>not B</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>A</td><td class="highlight">${d.both}</td><td>${d.aOnly}</td><td>${d.A}</td></tr>
+        <tr><td>not A</td><td>${d.bOnly}</td><td>${d.neither}</td><td>${d.notA}</td></tr>
+        <tr><td>Total</td><td>${d.B}</td><td>${d.notB}</td><td>${d.total}</td></tr>
+      </tbody>
+    </table>`;
+  }
+  function tableSVG(d){
+    return `<foreignObject x="0" y="0" width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="padding:8px;font-family:Inter,Arial,sans-serif">${tableHTML(d)}</div></foreignObject>`;
+  }
+  function conditionalTreeSVG(d){
+    const pA=frac(d.A,d.total), pnA=frac(d.notA,d.total), pBA=frac(d.both,d.A), pnBA=frac(d.aOnly,d.A), pBnA=frac(d.bOnly,d.notA), pnBnA=frac(d.neither,d.notA);
+    return `<svg viewBox="0 0 620 350" role="img" aria-label="tree diagram">
+      ${svgText(310,28,"Tree from the same table",18,850)}
+      <circle cx="55" cy="175" r="8" fill="#31425f"/>
+      <line x1="65" y1="175" x2="220" y2="85" stroke="#31425f" stroke-width="3"/><line x1="65" y1="175" x2="220" y2="265" stroke="#31425f" stroke-width="3"/>
+      ${svgText(143,112,`P(A)=${pA}`,14,800)}${svgText(143,255,`P(not A)=${pnA}`,14,800)}
+      <rect x="220" y="66" width="88" height="38" rx="12" fill="#eaf2ff" stroke="#bfd3ff"/>${svgText(264,91,`A (${d.A})`,15,900)}
+      <rect x="220" y="246" width="88" height="38" rx="12" fill="#f4f6fb" stroke="#d8deea"/>${svgText(264,271,`not A (${d.notA})`,15,900)}
+      <line x1="310" y1="85" x2="500" y2="50" stroke="#31425f" stroke-width="3"/><line x1="310" y1="85" x2="500" y2="122" stroke="#31425f" stroke-width="3"/>
+      <line x1="310" y1="265" x2="500" y2="228" stroke="#31425f" stroke-width="3"/><line x1="310" y1="265" x2="500" y2="303" stroke="#31425f" stroke-width="3"/>
+      ${svgText(405,55,`P(B|A)=${pBA}`,13,800)}${svgText(405,128,`P(not B|A)=${pnBA}`,13,800)}
+      ${svgText(405,232,`P(B|not A)=${pBnA}`,13,800)}${svgText(405,309,`P(not B|not A)=${pnBnA}`,13,800)}
+      <rect x="500" y="32" width="84" height="36" rx="10" fill="#f1eaff" stroke="#cbb8ff"/>${svgText(542,55,`B ${d.both}`,14,900)}
+      <rect x="500" y="104" width="84" height="36" rx="10" fill="#eaf2ff" stroke="#bfd3ff"/>${svgText(542,127,`not B ${d.aOnly}`,14,900)}
+      <rect x="500" y="210" width="84" height="36" rx="10" fill="#ffecef" stroke="#ffc2cb"/>${svgText(542,233,`B ${d.bOnly}`,14,900)}
+      <rect x="500" y="285" width="84" height="36" rx="10" fill="#f4f6fb" stroke="#d8deea"/>${svgText(542,308,`not B ${d.neither}`,14,900)}
+    </svg>`;
+  }
+  function bagTreeSVG(bag,mode){
+    const r=bag.red, bl=bag.blue, total=r+bl;
+    const withRep=mode==="with";
+    const denom2R=withRep?total:total-1;
+    const rrNum2=withRep?r:r-1;
+    const rbNum2=withRep?bl:bl;
+    const brNum2=withRep?r:r;
+    const bbNum2=withRep?bl:bl-1;
+    const pR=frac(r,total), pB=frac(bl,total);
+    const rr=frac(rrNum2,denom2R), rb=frac(rbNum2,denom2R), br=frac(brNum2,denom2R), bb=frac(bbNum2,denom2R);
+    return `<svg viewBox="0 0 660 370" role="img" aria-label="replacement tree diagram">
+      ${svgText(330,28,withRep?"With replacement: put the counter back":"Without replacement: the bag changes",18,850)}
+      <circle cx="55" cy="185" r="8" fill="#31425f"/>
+      <line x1="65" y1="185" x2="230" y2="95" stroke="#31425f" stroke-width="3"/><line x1="65" y1="185" x2="230" y2="275" stroke="#31425f" stroke-width="3"/>
+      ${svgText(150,117,`R: ${pR}`,15,850)}${svgText(150,260,`B: ${pB}`,15,850)}
+      <rect x="230" y="75" width="95" height="42" rx="12" fill="#ffecef" stroke="#ffc2cb"/>${svgText(277,102,`Red`,16,900)}
+      <rect x="230" y="255" width="95" height="42" rx="12" fill="#eaf2ff" stroke="#bfd3ff"/>${svgText(277,282,`Blue`,16,900)}
+      <line x1="326" y1="95" x2="535" y2="55" stroke="#31425f" stroke-width="3"/><line x1="326" y1="95" x2="535" y2="136" stroke="#31425f" stroke-width="3"/>
+      <line x1="326" y1="275" x2="535" y2="232" stroke="#31425f" stroke-width="3"/><line x1="326" y1="275" x2="535" y2="315" stroke="#31425f" stroke-width="3"/>
+      ${svgText(430,57,`R: ${rr}`,14,850)}${svgText(430,142,`B: ${rb}`,14,850)}
+      ${svgText(430,237,`R: ${br}`,14,850)}${svgText(430,320,`B: ${bb}`,14,850)}
+      <rect x="535" y="37" width="75" height="36" rx="10" fill="#ffecef" stroke="#ffc2cb"/>${svgText(572,60,"RR",14,900)}
+      <rect x="535" y="118" width="75" height="36" rx="10" fill="#f1eaff" stroke="#cbb8ff"/>${svgText(572,141,"RB",14,900)}
+      <rect x="535" y="214" width="75" height="36" rx="10" fill="#f1eaff" stroke="#cbb8ff"/>${svgText(572,237,"BR",14,900)}
+      <rect x="535" y="297" width="75" height="36" rx="10" fill="#eaf2ff" stroke="#bfd3ff"/>${svgText(572,320,"BB",14,900)}
+    </svg>`;
+  }
+  function bagOutcomeTableHTML(bag,mode){
+    const r=bag.red, b=bag.blue, total=r+b, withRep=mode==="with", denom2=withRep?total:total-1;
+    const rrNum=r*(withRep?r:r-1), rbNum=r*b, brNum=b*r, bbNum=b*(withRep?b:b-1), denom=total*denom2;
+    return `<table><thead><tr><th>Outcome</th><th>Calculation</th><th>Probability</th></tr></thead><tbody>
+      <tr><td>RR</td><td>${r}/${total} × ${(withRep?r:r-1)}/${denom2}</td><td>${prob(rrNum,denom)}</td></tr>
+      <tr><td>RB</td><td>${r}/${total} × ${b}/${denom2}</td><td>${prob(rbNum,denom)}</td></tr>
+      <tr><td>BR</td><td>${b}/${total} × ${r}/${denom2}</td><td>${prob(brNum,denom)}</td></tr>
+      <tr><td>BB</td><td>${b}/${total} × ${(withRep?b:b-1)}/${denom2}</td><td>${prob(bbNum,denom)}</td></tr>
+    </tbody></table>`;
+  }
+  function validateBag(b){return b && Number.isInteger(b.red) && Number.isInteger(b.blue) && b.red>=3 && b.blue>=3 && b.red+b.blue>=7;}
+  function generateBag(){let b; do{b={red:randInt(4,9),blue:randInt(4,9)}}while(!validateBag(b)); return b;}
+
+  function renderMain(){
+    document.getElementById("dataSummary").innerHTML=`
+      <span class="pill"><span class="dot aonly"></span>A only: ${vennData.aOnly}</span>
+      <span class="pill"><span class="dot both"></span>A ∩ B: ${vennData.both}</span>
+      <span class="pill"><span class="dot bonly"></span>B only: ${vennData.bOnly}</span>
+      <span class="pill"><span class="dot neither"></span>Neither: ${vennData.neither}</span>
+      <span class="pill ok">✓ checked total: ${vennData.total}</span>`;
+    document.getElementById("vennVisual").innerHTML=vennSVG(vennData,{Aname:"A: Music",Bname:"B: Sport"});
+    document.getElementById("gridVisual").innerHTML=gridSVG(vennData);
+    document.getElementById("tableVisual").innerHTML=tableHTML(vennData);
+    document.getElementById("treeVisual").innerHTML=conditionalTreeSVG(vennData);
+    renderSwitcher();
+  }
+  function renderSwitcher(){
+    const visual=document.getElementById("switchVisual");
+    if(currentRep==="venn") visual.innerHTML=vennSVG(vennData,{Aname:"A",Bname:"B"});
+    if(currentRep==="grid") visual.innerHTML=gridSVG(vennData);
+    if(currentRep==="table") visual.innerHTML=`<svg viewBox="0 0 520 260">${tableSVG(vennData)}</svg>`;
+    if(currentRep==="tree") visual.innerHTML=conditionalTreeSVG(vennData);
+    document.getElementById("switchQuestion").innerHTML=`<div class="qtitle">Question using the current data</div>
+      In a group of <b>${vennData.total}</b> students, event A and event B are shown in the diagram. Find:<br>
+      <b>a)</b> P(A ∪ B) &nbsp;&nbsp; <b>b)</b> P(A | B) &nbsp;&nbsp; <b>c)</b> Decide whether A and B are independent.`;
+    document.getElementById("switchHint").classList.remove("show");
+    document.getElementById("switchAnswer").classList.remove("show");
+    document.getElementById("switchHint").innerHTML=`<ol>
+      <li>For A ∪ B, count everything inside at least one circle: A only + B only + both.</li>
+      <li>For A | B, restrict attention to the B column or B circle. The denominator is B.</li>
+      <li>For independence, compare P(A | B) with P(A), or compare P(A ∩ B) with P(A)P(B).</li>
+    </ol>`;
+    const union=vennData.aOnly+vennData.bOnly+vennData.both;
+    const indepLeft=vennData.both*vennData.total;
+    const indepRight=vennData.A*vennData.B;
+    const independent=indepLeft===indepRight;
+    document.getElementById("switchAnswer").innerHTML=`
+      <b>a)</b> P(A ∪ B) = (${vennData.aOnly} + ${vennData.both} + ${vennData.bOnly})/${vennData.total} = <b>${prob(union,vennData.total)}</b><br>
+      <b>b)</b> P(A | B) = ${vennData.both}/${vennData.B} = <b>${prob(vennData.both,vennData.B)}</b><br>
+      <b>c)</b> P(A ∩ B) = ${prob(vennData.both,vennData.total)}. P(A)P(B) = ${frac(vennData.A,vennData.total)} × ${frac(vennData.B,vennData.total)}. ${independent?"These match, so A and B are independent.":"These do not match, so A and B are not independent."}`;
+  }
+  function renderReplacement(){
+    document.getElementById("bagSummary").innerHTML=`<span class="pill"><span class="dot bonly"></span>Red counters: ${bagData.red}</span><span class="pill"><span class="dot aonly"></span>Blue counters: ${bagData.blue}</span><span class="pill ok">✓ checked for both replacement modes</span>`;
+    document.getElementById("bagTreeVisual").innerHTML=bagTreeSVG(bagData,replacementMode);
+    const r=bagData.red,b=bagData.blue,total=r+b,withRep=replacementMode==="with",denom2=withRep?total:total-1;
+    const rrNum=r*(withRep?r:r-1), bbNum=b*(withRep?b:b-1), denom=total*denom2;
+    document.getElementById("replacementFormula").innerHTML=`P(same colour) = P(RR) + P(BB)<br><small>= ${prob(rrNum,denom)} + ${prob(bbNum,denom)} = <b>${prob(rrNum+bbNum,denom)}</b></small>`;
+    document.getElementById("replacementNote").innerHTML=withRep?`Because the counter is replaced, the second draw has the same denominator: ${total}. The first draw does not change the bag.`:`Because the counter is not replaced, the second draw has denominator ${total-1}. After a red, there are ${r-1} reds left; after a blue, there are ${b-1} blues left.`;
+    document.getElementById("bagTable").innerHTML=bagOutcomeTableHTML(bagData,replacementMode);
+  }
+
+  function qCombined(){
+    const d=generateVennData();
+    const union=d.aOnly+d.bOnly+d.both;
+    return {kind:"Combined events", data:d, visual:vennSVG(d,{Aname:"A",Bname:"B"}), question:`A survey of <b>${d.total}</b> students gives the Venn diagram shown. <br>Find <b>P(A ∪ B)</b>, the probability that a randomly chosen student is in A or B.`, solution:`A ∪ B means A only, both, or B only.<br><br>P(A ∪ B) = (${d.aOnly} + ${d.both} + ${d.bOnly})/${d.total} = ${union}/${d.total} = <b>${prob(union,d.total)}</b>.<br><br>Formula check: P(A)+P(B)−P(A∩B) = ${d.A}/${d.total}+${d.B}/${d.total}−${d.both}/${d.total} = ${union}/${d.total}.`, check:`✓ Checked: regions are ${d.aOnly}, ${d.both}, ${d.bOnly}, ${d.neither}; total ${d.total}; no negative counts.`};
+  }
+  function qConditional(){
+    const d=generateVennData();
+    return {kind:"Conditional probability", data:d, visual:`<svg viewBox="0 0 520 260">${tableSVG(d)}</svg>`, question:`The two-way table shows events A and B for <b>${d.total}</b> students. <br>Find <b>P(A | B)</b>.`, solution:`The condition is B, so only use the B column. In the B column there are ${d.B} students. Of these, ${d.both} are also in A.<br><br>P(A | B) = ${d.both}/${d.B} = <b>${prob(d.both,d.B)}</b>.<br><br>Alternate form check: P(A ∩ B) = P(B)P(A | B) = ${d.B}/${d.total} × ${frac(d.both,d.B)} = ${d.both}/${d.total}.`, check:`✓ Checked: P(B) denominator is ${d.B}, which is non-zero.`};
+  }
+  function qIndependent(){
+    const den=choice([20,24,30,36,40,48,60]);
+    const pA=choice([5,6,8,10,12,15,18]);
+    const pB=choice([4,5,6,8,9,10,12,15]);
+    // make a guaranteed independent table by using product counts with a rectangular grid
+    const aTotal=Math.min(den-4,Math.max(4,pA));
+    const bTotal=Math.min(den-4,Math.max(4,pB));
+    let both=Math.round(aTotal*bTotal/den);
+    // require exact independence as integer relation; generate from factors if this fails
+    let d=null;
+    for(let tries=0;tries<500;tries++){
+      const rows=choice([4,5,6,8,10,12]);
+      const cols=choice([4,5,6,8,10,12]);
+      const Arows=randInt(1,rows-1), Bcols=randInt(1,cols-1);
+      const total=rows*cols;
+      both=Arows*Bcols;
+      const aOnly=Arows*(cols-Bcols), bOnly=(rows-Arows)*Bcols, neither=(rows-Arows)*(cols-Bcols);
+      d=buildVennFromRegions(aOnly,bOnly,both,neither);
+      if(validateVenn(d) && both>0 && aOnly>0 && bOnly>0 && neither>0) break;
+    }
+    return {kind:"Independent events", data:d, visual:gridSVG(d), question:`A sample space has <b>${d.total}</b> equally likely outcomes, shown in the grid. Event A contains ${d.A} outcomes and event B contains ${d.B} outcomes. Their overlap contains ${d.both} outcomes. <br>Are A and B independent?`, solution:`Check whether P(A ∩ B) = P(A)P(B).<br><br>P(A ∩ B) = ${d.both}/${d.total} = ${frac(d.both,d.total)}.<br>P(A)P(B) = ${d.A}/${d.total} × ${d.B}/${d.total} = ${frac(d.A*d.B,d.total*d.total)}.<br><br>These are equal, so <b>A and B are independent</b>. You can also check P(A | B) = ${frac(d.both,d.B)} and P(A) = ${frac(d.A,d.total)}; they match.`, check:`✓ Checked: generated from a rectangular grid, so the independence equality is exact.`};
+  }
+  function qMutual(){
+    const total=choice([30,36,40,45,50,60,72,80,90,100]);
+    let a=randInt(5,Math.floor(total*.4));
+    let b=randInt(5,Math.floor(total*.4));
+    if(a+b>total-5){b=total-a-5;}
+    const d=buildVennFromRegions(a,b,0,total-a-b);
+    return {kind:"Mutually exclusive events", data:d, visual:vennSVG(d,{Aname:"A",Bname:"B",title:"No overlap: mutually exclusive"}), question:`Events A and B are mutually exclusive. In a sample space of <b>${total}</b> outcomes, A has ${a} outcomes and B has ${b} outcomes. <br>Find <b>P(A ∪ B)</b>.`, solution:`Mutually exclusive means P(A ∩ B)=0, so there is no overlap to subtract.<br><br>P(A ∪ B) = P(A)+P(B) = ${a}/${total}+${b}/${total} = ${a+b}/${total} = <b>${prob(a+b,total)}</b>.`, check:`✓ Checked: overlap is exactly 0 and A+B=${a+b} ≤ total ${total}.`};
+  }
+  function qTree(){
+    const bag=generateBag();
+    const mode=choice(["with","without"]);
+    const r=bag.red,b=bag.blue,total=r+b,withRep=mode==="with",denom2=withRep?total:total-1;
+    const rbNum=r*b, brNum=b*r, denom=total*denom2;
+    const target=choice(["different","same","redThenBlue"]);
+    let question,solution;
+    if(target==="different"){
+      question=`A bag contains <b>${r}</b> red counters and <b>${b}</b> blue counters. Two counters are drawn ${withRep?"<b>with replacement</b>":"<b>without replacement</b>"}. Find the probability of getting <b>different colours</b>.`;
+      solution=`Different colours means RB or BR.<br><br>P(RB)=${r}/${total} × ${b}/${denom2} = ${frac(rbNum,denom)}.<br>P(BR)=${b}/${total} × ${r}/${denom2} = ${frac(brNum,denom)}.<br><br>P(different) = ${frac(rbNum,denom)} + ${frac(brNum,denom)} = <b>${prob(rbNum+brNum,denom)}</b>.`;
+    } else if(target==="same"){
+      const rrNum=r*(withRep?r:r-1), bbNum=b*(withRep?b:b-1);
+      question=`A bag contains <b>${r}</b> red counters and <b>${b}</b> blue counters. Two counters are drawn ${withRep?"<b>with replacement</b>":"<b>without replacement</b>"}. Find the probability of getting <b>the same colour</b>.`;
+      solution=`Same colour means RR or BB.<br><br>P(RR)=${r}/${total} × ${(withRep?r:r-1)}/${denom2} = ${frac(rrNum,denom)}.<br>P(BB)=${b}/${total} × ${(withRep?b:b-1)}/${denom2} = ${frac(bbNum,denom)}.<br><br>P(same) = <b>${prob(rrNum+bbNum,denom)}</b>.`;
+    } else {
+      question=`A bag contains <b>${r}</b> red counters and <b>${b}</b> blue counters. Two counters are drawn ${withRep?"<b>with replacement</b>":"<b>without replacement</b>"}. Find <b>P(red then blue)</b>.`;
+      solution=`P(red then blue) = ${r}/${total} × ${b}/${denom2} = <b>${prob(rbNum,denom)}</b>.`;
+    }
+    return {kind:"Tree diagram", data:bag, visual:bagTreeSVG(bag,mode), question, solution, check:`✓ Checked: bag has at least 3 of each colour; second denominator is ${denom2}, so all branches are valid.`};
+  }
+  function qMixed(){
+    return choice([qCombined,qConditional,qIndependent,qMutual,qTree])();
+  }
+  const qFns={combined:qCombined,conditional:qConditional,independent:qIndependent,mutual:qMutual,tree:qTree,mixed:qMixed};
+  function renderQuestion(){
+    currentQuestion=qFns[qType]();
+    document.getElementById("questionBox").innerHTML=`<div class="qtitle">${currentQuestion.kind}</div>${currentQuestion.question}`;
+    document.getElementById("questionVisual").innerHTML=currentQuestion.visual;
+    document.getElementById("solutionBox").classList.remove("show");
+    document.getElementById("solutionBox").innerHTML=currentQuestion.solution;
+    document.getElementById("generatorCheck").innerHTML=`<span class="ok">${currentQuestion.check}</span>`;
+  }
+  function initEvents(){
+    document.getElementById("newDataBtn").addEventListener("click",()=>{vennData=generateVennData();renderMain();});
+    document.getElementById("toggleFocusBtn").addEventListener("click",()=>{focusHidden=!focusHidden;document.querySelectorAll(".explainer").forEach(el=>el.classList.toggle("hide",focusHidden));});
+    document.getElementById("repButtons").addEventListener("click",e=>{const b=e.target.closest("button[data-rep]");if(!b)return;currentRep=b.dataset.rep;document.querySelectorAll("#repButtons .btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderSwitcher();});
+    document.getElementById("switchHintBtn").addEventListener("click",()=>document.getElementById("switchHint").classList.toggle("show"));
+    document.getElementById("switchAnswerBtn").addEventListener("click",()=>document.getElementById("switchAnswer").classList.toggle("show"));
+    document.getElementById("replacementButtons").addEventListener("click",e=>{const b=e.target.closest("button[data-mode]");if(!b)return;replacementMode=b.dataset.mode;document.querySelectorAll("#replacementButtons button[data-mode]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderReplacement();});
+    document.getElementById("newBagBtn").addEventListener("click",()=>{bagData=generateBag();renderReplacement();});
+    document.getElementById("qTypeButtons").addEventListener("click",e=>{const b=e.target.closest("button[data-q]");if(!b)return;qType=b.dataset.q;document.querySelectorAll("#qTypeButtons .btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderQuestion();});
+    document.getElementById("newQuestionBtn").addEventListener("click",renderQuestion);
+    document.getElementById("showSolutionBtn").addEventListener("click",()=>document.getElementById("solutionBox").classList.toggle("show"));
+  }
+  function boot(){
+    vennData=generateVennData(); bagData=generateBag(); initEvents(); renderMain(); renderReplacement(); renderQuestion();
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 4.5 Probability Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --ink:#18212d; --muted:#5c6a79; --paper:#fff; --soft:#f5f7fb; --line:#d7dee8;
+  --accent:#2364aa; --accent2:#0ca678; --accent3:#7048e8; --warn:#f08c00;
+  --good:#2f9e44; --bad:#c92a2a; --shadow:0 14px 28px rgba(16,24,40,.10);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+    radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+    linear-gradient(#fff,#f7f9fc 48rem);
+  line-height:1.45;
+}
+header{max-width:1220px;margin:auto;padding:34px 22px 18px}
+.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(2rem,5vw,4.3rem);line-height:.95;letter-spacing:-.06em}
+h1 span{display:block;color:var(--accent)}
+.subtitle{margin:15px 0 0;max-width:900px;color:#344054;font-size:1.12rem}
+.badge{
+  display:inline-flex;align-items:center;gap:.55rem;padding:9px 14px;background:white;
+  border:1px solid var(--line);border-radius:999px;box-shadow:0 5px 18px rgba(0,0,0,.06);
+  font-weight:800;color:var(--accent);white-space:nowrap;
+}
+main{max-width:1220px;margin:0 auto 70px;padding:0 22px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.card{
+  background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+@media(max-width:940px){.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}}
+h2{margin:0 0 12px;font-size:1.55rem;letter-spacing:-.025em}
+h3{margin:16px 0 8px;font-size:1.12rem}
+p{margin:8px 0}
+.syllabus-table{
+  display:grid;grid-template-columns:1fr 1fr;border:1px solid #9ca3af;border-radius:14px;overflow:hidden;background:white;
+}
+.syllabus-table>div{padding:14px 17px;border-bottom:1px solid #9ca3af}
+.syllabus-table .head{background:#eef0f2;color:#6b7280;font-weight:850;font-size:1.08rem}
+.syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+.syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:740px){
+  .syllabus-table{grid-template-columns:1fr}
+  .syllabus-table div:nth-child(odd){border-right:none}
+  .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}
+.tile h3{margin-top:0}
+.tabs{
+  position:sticky;top:0;z-index:10;padding:12px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;
+  background:rgba(247,249,252,.86);border:1px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+button{
+  appearance:none;border:none;border-radius:999px;padding:10px 14px;background:#e9eef6;color:var(--ink);
+  font-weight:800;cursor:pointer;transition:.16s transform,.16s background,.16s color,.16s box-shadow;font-size:.95rem;
+}
+button:hover{transform:translateY(-1px)}
+button.active{background:var(--accent);color:white;box-shadow:0 8px 18px rgba(35,100,170,.24)}
+button.secondary{background:#eef2ff;color:#3b2b98}
+button.good{background:#d3f9d8;color:#1b5e20}
+button.warn{background:#fff3bf;color:#7c4a00}
+button.danger{background:#ffe3e3;color:#8a1717}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+.formula{background:#0f172a;color:white;border-radius:16px;padding:18px;margin:15px 0;overflow-x:auto}
+.note{border-left:5px solid var(--accent);background:#edf6ff;padding:12px 14px;border-radius:12px;margin:12px 0}
+.note.warn{border-color:var(--warn);background:#fff7e6}
+.note.good{border-color:var(--good);background:#ebfbee}
+.steps{counter-reset:step;list-style:none;padding:0;margin:12px 0}
+.steps li{
+  counter-increment:step;position:relative;margin:10px 0;padding:12px 12px 12px 48px;
+  background:#f8fafc;border:1px solid var(--line);border-radius:14px;
+}
+.steps li::before{
+  content:counter(step);position:absolute;left:12px;top:12px;width:25px;height:25px;
+  display:grid;place-items:center;border-radius:50%;background:var(--accent);color:white;font-weight:900;
+}
+.mathline{font-size:1.08rem;padding:12px;border:1px solid var(--line);background:white;border-radius:12px;overflow-x:auto}
+.eq-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px;margin:10px 0}
+.eq-label{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:6px}
+.feedback{margin-top:10px;padding:12px 14px;border-radius:12px;min-height:48px;background:#f1f5f9}
+.feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+.feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+.feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+.practice-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin:12px 0}
+.answer{display:none;margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.answer.show{display:block}
+input, textarea, select{
+  width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:white;
+}
+textarea{min-height:90px;resize:vertical}
+label{display:block;margin:8px 0 5px;font-weight:850}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.graph-wrap{background:white;border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden}
+.svg-graph{
+  width:100%;aspect-ratio:1.45/1;max-height:540px;display:block;
+  background:linear-gradient(#fcfdff,#f6fbff);border-radius:12px;overflow:visible;
+}
+.context-svg{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:white}
+.pill{
+  display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#edf2ff;color:#364fc7;
+  font-size:.82rem;font-weight:850;margin:2px;
+}
+.pill.green{background:#e6fcf5;color:#087f5b}.pill.orange{background:#fff3bf;color:#7c4a00}.pill.red{background:#ffe3e3;color:#8a1717}
+table{width:100%;border-collapse:collapse;margin:12px 0;background:white;border-radius:14px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}
+th{background:#eef4fb}
+.event-chip{
+  display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:38px;border-radius:12px;
+  background:#edf2ff;border:1px solid #cdd7ff;color:#174a7c;font-weight:900;margin:3px;
+}
+.event-chip.good{background:#d3f9d8;color:#1b5e20;border-color:#b2f2bb}
+.event-chip.bad{background:#ffe3e3;color:#8a1717;border-color:#ffc9c9}
+.dice{
+  display:inline-grid;place-items:center;width:54px;height:54px;border-radius:14px;background:#fff;
+  border:2px solid #17212d;box-shadow:0 6px 12px rgba(0,0,0,.08);font-size:1.45rem;font-weight:900;margin:4px;
+}
+.coin{
+  display:inline-grid;place-items:center;width:54px;height:54px;border-radius:50%;background:#ffd43b;
+  border:3px solid #f08c00;box-shadow:0 6px 12px rgba(0,0,0,.08);font-size:1.2rem;font-weight:900;margin:4px;
+}
+.card-mini{
+  display:inline-grid;place-items:center;width:48px;height:66px;border-radius:8px;background:white;
+  border:2px solid #17212d;box-shadow:0 6px 12px rgba(0,0,0,.08);font-size:1.05rem;font-weight:900;margin:4px;
+}
+.card-mini.red{color:#c92a2a}
+.sample-table td{text-align:center}
+.sample-table .hit{background:#d3f9d8;font-weight:900;color:#1b5e20}
+.sample-table .miss{background:#fff}
+.risk-meter{
+  height:18px;border-radius:999px;background:#e9eef6;overflow:hidden;margin:10px 0;
+}
+.risk-bar{height:100%;background:linear-gradient(90deg,var(--accent2),var(--warn),var(--bad));width:0%;transition:width .25s}
+@media print{
+  body{background:white}.tabs,button{display:none!important}.tab-panel{display:block!important}.card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 4.5 <span>Probability</span></h1>
+      <p class="subtitle">An interactive resource for trials, outcomes, equally likely outcomes, relative frequency, sample spaces, events, complements, theoretical probability, simulations and expected number of occurrences.</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Probability</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus-table">
+      <div class="head">Content</div>
+      <div class="head">Guidance, clarification and syllabus links</div>
+      <div>
+        Concepts of trial, outcome, equally likely outcomes, relative frequency, sample space \(U\) and event.<br><br>
+        \[
+          P(A)=\frac{n(A)}{n(U)}
+        \]
+        Complementary events \(A\) and \(A'\).<br><br>
+        Expected number of occurrences.
+      </div>
+      <div>
+        Sample spaces can be represented in many ways, such as a table or list.<br><br>
+        Experiments using coins, dice, cards and simulations enhance the distinction between experimental relative frequency and theoretical probability.<br><br>
+        Example: if there are 128 students and the probability of absence is 0.1, the expected number absent is 12.8.
+      </div>
+    </div>
+    <div class="mini-grid" style="margin-top:14px">
+      <div class="tile"><h3>Trial</h3><p>One repetition of a probability experiment, such as rolling a die once.</p></div>
+      <div class="tile"><h3>Outcome</h3><p>A possible result of a trial, such as rolling a 4.</p></div>
+      <div class="tile"><h3>Sample space \(U\)</h3><p>The set of all possible outcomes.</p></div>
+      <div class="tile"><h3>Event \(A\)</h3><p>A subset of the sample space, such as “rolling an even number”.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore first</button>
+  <button class="tab-button" data-tab="vocab">2. Vocabulary</button>
+  <button class="tab-button" data-tab="sampleSpaces">3. Sample spaces</button>
+  <button class="tab-button" data-tab="theory">4. Theoretical probability</button>
+  <button class="tab-button" data-tab="relative">5. Relative frequency</button>
+  <button class="tab-button" data-tab="complements">6. Complements</button>
+  <button class="tab-button" data-tab="expected">7. Expected number</button>
+  <button class="tab-button" data-tab="simulations">8. Simulations</button>
+  <button class="tab-button" data-tab="contexts">9. Contexts, ethics & TOK</button>
+  <button class="tab-button" data-tab="formalise">10. Formalise</button>
+  <button class="tab-button" data-tab="practice">11. Exam generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore: experimental probability settles down</h2>
+      <p>Choose an experiment and an event. Run trials and watch the relative frequency move toward the theoretical probability.</p>
+      <div class="row">
+        <div>
+          <label for="experimentSelect">Experiment</label>
+          <select id="experimentSelect" onchange="resetExperiment()">
+            <option value="coin">Flip a fair coin</option>
+            <option value="die">Roll a fair die</option>
+            <option value="twodice">Roll two fair dice</option>
+            <option value="cards">Draw one card from a standard deck</option>
+          </select>
+        </div>
+        <div>
+          <label for="eventSelect">Event</label>
+          <select id="eventSelect" onchange="resetExperiment()"></select>
+        </div>
+      </div>
+      <div class="tight-row" style="margin-top:10px">
+        <button onclick="runTrials(1)">Run 1 trial</button>
+        <button onclick="runTrials(10)">Run 10</button>
+        <button onclick="runTrials(100)">Run 100</button>
+        <button onclick="runTrials(1000)">Run 1000</button>
+        <button class="secondary" onclick="resetExperiment()">Reset</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="freqGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div id="lastOutcomes" class="mathline">Run trials to see outcomes.</div>
+    </div>
+    <div class="card span-5">
+      <h2>Live result</h2>
+      <div class="eq-box"><div class="eq-label">Theoretical probability</div><div id="theoryBox" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Experimental result</div><div id="experimentBox" class="mathline">No trials yet.</div></div>
+      <div id="experimentFeedback" class="feedback info">Small samples can be noisy. Large numbers of trials usually produce more stable relative frequencies.</div>
+      <h3>Key distinction</h3>
+      <div class="mini-grid">
+        <div class="tile"><strong>Theoretical probability</strong><br>Calculated from a model/sample space.</div>
+        <div class="tile"><strong>Experimental probability</strong><br>Observed from trials: relative frequency.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="vocab" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Probability vocabulary</h2>
+      <table>
+        <tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td>Trial</td><td>One run of an experiment</td><td>Roll one die once</td></tr>
+        <tr><td>Outcome</td><td>A result of a trial</td><td>Rolling a 5</td></tr>
+        <tr><td>Equally likely</td><td>Each outcome has the same chance</td><td>A fair die has 6 equally likely faces</td></tr>
+        <tr><td>Sample space \(U\)</td><td>All possible outcomes</td><td>\(\{1,2,3,4,5,6\}\)</td></tr>
+        <tr><td>Event \(A\)</td><td>A set of outcomes</td><td>Rolling an even number: \(\{2,4,6\}\)</td></tr>
+        <tr><td>Relative frequency</td><td>Observed proportion</td><td>Heads in 37 of 100 flips: \(0.37\)</td></tr>
+      </table>
+    </div>
+    <div class="card span-6">
+      <h2>Vocabulary sorting activity</h2>
+      <div id="vocabQuestions" class="mini-grid"></div>
+      <div id="vocabFeedback" class="feedback">Choose the matching term.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Probability scale</h2>
+      <svg class="context-svg" viewBox="0 0 1000 280" aria-label="Probability scale">
+        <defs>
+          <linearGradient id="probGrad" x1="0" x2="1">
+            <stop offset="0" stop-color="#c92a2a"/>
+            <stop offset=".5" stop-color="#f08c00"/>
+            <stop offset="1" stop-color="#0ca678"/>
+          </linearGradient>
+        </defs>
+        <rect width="1000" height="280" fill="#f8fafc"/>
+        <line x1="100" y1="140" x2="900" y2="140" stroke="url(#probGrad)" stroke-width="18" stroke-linecap="round"/>
+        <g font-weight="900" fill="#17212d" font-size="22">
+          <text x="100" y="195" text-anchor="middle">0</text>
+          <text x="500" y="195" text-anchor="middle">0.5</text>
+          <text x="900" y="195" text-anchor="middle">1</text>
+          <text x="100" y="85" text-anchor="middle">impossible</text>
+          <text x="500" y="85" text-anchor="middle">even chance</text>
+          <text x="900" y="85" text-anchor="middle">certain</text>
+        </g>
+        <circle cx="100" cy="140" r="18" fill="#fff" stroke="#c92a2a" stroke-width="5"/>
+        <circle cx="500" cy="140" r="18" fill="#fff" stroke="#f08c00" stroke-width="5"/>
+        <circle cx="900" cy="140" r="18" fill="#fff" stroke="#0ca678" stroke-width="5"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="sampleSpaces" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Sample space builder</h2>
+      <p>Choose a sample space representation. Events can be shown as highlighted outcomes.</p>
+      <div class="tight-row">
+        <button onclick="showSampleSpace('coin2')">Two coins</button>
+        <button onclick="showSampleSpace('die')">One die</button>
+        <button onclick="showSampleSpace('twodice')">Two dice table</button>
+        <button onclick="showSampleSpace('cards')">Card suits</button>
+      </div>
+      <div id="sampleSpaceOutput" style="margin-top:12px"></div>
+    </div>
+    <div class="card span-5">
+      <h2>Event controls</h2>
+      <div id="sampleSpaceControls"></div>
+      <div class="eq-box"><div class="eq-label">Calculation</div><div id="sampleSpaceCalc" class="mathline"></div></div>
+      <div class="note">
+        For equally likely outcomes, probability is the number of successful outcomes divided by the number of possible outcomes.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Sample spaces can be represented in different ways</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>List</h3><p>\(U=\{H,T\}\) or \(U=\{1,2,3,4,5,6\}\)</p></div>
+        <div class="tile"><h3>Table</h3><p>Useful for two-stage experiments such as rolling two dice.</p></div>
+        <div class="tile"><h3>Tree idea</h3><p>Useful for repeated trials like coin flips or genetics.</p></div>
+        <div class="tile"><h3>Diagram</h3><p>Useful for visualising event and complement.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="theory" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Theoretical probability</h2>
+      <div class="formula">
+        \[
+          P(A)=\frac{n(A)}{n(U)}
+        \]
+      </div>
+      <p>This formula applies when the outcomes in the sample space are equally likely.</p>
+      <div class="practice-card">
+        <p><strong>Example.</strong> Roll a fair die. Let \(A\) be the event “roll a prime number”.</p>
+        <button onclick="toggleAnswer('theoryExample')">Reveal solution</button>
+        <div id="theoryExample" class="answer">
+          The sample space is \(U=\{1,2,3,4,5,6\}\), so \(n(U)=6\). Prime outcomes are \(A=\{2,3,5\}\), so \(n(A)=3\).
+          \[
+            P(A)=\frac{3}{6}=\frac12.
+          \]
+        </div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Quick probability calculator</h2>
+      <div class="row">
+        <div><label for="favInput">Successful outcomes \(n(A)\)</label><input id="favInput" value="3"></div>
+        <div><label for="totalInput">Total outcomes \(n(U)\)</label><input id="totalInput" value="6"></div>
+      </div>
+      <button onclick="probCalc()">Calculate probability</button>
+      <div id="probCalcOutput" class="feedback info">Enter values and calculate.</div>
+      <div class="note warn">
+        This calculator assumes outcomes are equally likely. If outcomes are not equally likely, this simple count formula may not apply.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Are the outcomes equally likely?</h2>
+      <div id="equalChecks" class="mini-grid"></div>
+      <div id="equalFeedback" class="feedback">Decide whether the outcomes are equally likely.</div>
+    </div>
+  </div>
+</section>
+
+<section id="relative" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Relative frequency simulation</h2>
+      <p>Relative frequency is the experimental probability after a number of trials.</p>
+      <div class="formula">
+        \[
+          \text{relative frequency}=\frac{\text{number of times event occurs}}{\text{number of trials}}
+        \]
+      </div>
+      <div class="graph-wrap">
+        <svg id="relativeGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div class="tight-row" style="margin-top:10px">
+        <button onclick="relativeRun(10)">10 coin flips</button>
+        <button onclick="relativeRun(100)">100 coin flips</button>
+        <button onclick="relativeRun(1000)">1000 coin flips</button>
+        <button onclick="relativeReset()">Reset</button>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Relative frequency notes</h2>
+      <div class="eq-box"><div class="eq-label">Current result</div><div id="relativeStats" class="mathline">No flips yet.</div></div>
+      <div id="relativeFeedback" class="feedback info">After a small number of trials, the relative frequency may be far from the theoretical probability.</div>
+      <div class="note good">
+        This is the long-run idea: experimental results tend to become more stable with many trials, but they are not guaranteed to equal the theoretical probability exactly.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Experimental vs theoretical</h2>
+      <table>
+        <tr><th>Question</th><th>Theoretical probability</th><th>Experimental probability</th></tr>
+        <tr><td>Where does it come from?</td><td>A model or sample space</td><td>Actual trials or simulation</td></tr>
+        <tr><td>Can it change?</td><td>Not if the model is fixed</td><td>Yes, as more trials are performed</td></tr>
+        <tr><td>Example</td><td>\(P(H)=0.5\) for a fair coin</td><td>47 heads in 100 flips gives \(0.47\)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="complements" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Complementary events</h2>
+      <div class="formula">
+        \[
+          P(A')=1-P(A)
+        \]
+      </div>
+      <p>The complement \(A'\) means “not \(A\)”. Together, \(A\) and \(A'\) cover the whole sample space.</p>
+      <div class="practice-card">
+        <label for="compSelect">Choose event</label>
+        <select id="compSelect" onchange="drawComplement()">
+          <option value="even">Die roll is even</option>
+          <option value="greater4">Die roll is greater than 4</option>
+          <option value="heart">Card is a heart</option>
+          <option value="absent">Student is absent</option>
+        </select>
+        <div id="complementVisual" class="mathline" style="margin-top:10px"></div>
+      </div>
+      <div id="complementOutput" class="feedback info">Choose an event.</div>
+    </div>
+    <div class="card span-6">
+      <h2>Complement shortcut</h2>
+      <div class="practice-card">
+        <p><strong>Question.</strong> A spinner has 20 equal sectors. 3 sectors are red. What is the probability it is not red?</p>
+        <button onclick="toggleAnswer('compWorked')">Reveal solution</button>
+        <div id="compWorked" class="answer">
+          \[
+            P(\text{red})=\frac{3}{20}
+          \]
+          Therefore
+          \[
+            P(\text{not red})=1-\frac{3}{20}=\frac{17}{20}.
+          \]
+        </div>
+      </div>
+      <div class="note">
+        Complements are useful when “not happening” is easier to count than “happening”.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Complement practice</h2>
+      <div id="compQuestions" class="mini-grid"></div>
+      <div id="compFeedback" class="feedback">Choose the complement statement.</div>
+    </div>
+  </div>
+</section>
+
+<section id="expected" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Expected number of occurrences</h2>
+      <div class="formula">
+        \[
+          \text{expected number}=n\times p
+        \]
+      </div>
+      <p>If an event has probability \(p\) and there are \(n\) trials or individuals, the expected number of occurrences is \(np\).</p>
+      <div class="practice-card">
+        <div class="row">
+          <div><label for="expectedN">Number of trials/people \(n\)</label><input id="expectedN" value="128"></div>
+          <div><label for="expectedP">Probability \(p\)</label><input id="expectedP" value="0.1"></div>
+        </div>
+        <button onclick="expectedCalc()">Calculate expected number</button>
+        <div id="expectedOutput" class="feedback info">Enter values and calculate.</div>
+      </div>
+      <div class="note warn">
+        Expected number does not have to be a whole number. It is an average over many repeated situations.
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Expected value intuition</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Expected absences visual">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <text x="380" y="45" text-anchor="middle" font-size="28" font-weight="900" fill="#17212d">Expected absences</text>
+        <g id="studentGrid"></g>
+        <rect x="80" y="330" width="600" height="48" rx="18" fill="#edf6ff" stroke="#2364aa" stroke-width="3"/>
+        <text x="380" y="362" text-anchor="middle" font-size="22" font-weight="850" fill="#174a7c">128 students × 0.1 = 12.8 expected absent</text>
+      </svg>
+      <div class="note">
+        In one particular class, you cannot have 12.8 absent students. But across many days/classes, the average may be about 12.8.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Expected number contexts</h2>
+      <div id="expectedQuestions" class="mini-grid"></div>
+      <div id="expectedFeedback" class="feedback">Choose or calculate the expected number.</div>
+    </div>
+  </div>
+</section>
+
+<section id="simulations" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Monte Carlo simulation: estimate \(\pi\)</h2>
+      <p>Random points are thrown into a square. The proportion inside the circle estimates the area ratio, which can estimate \(\pi\).</p>
+      <div class="tight-row">
+        <button onclick="mcRun(100)">Add 100 points</button>
+        <button onclick="mcRun(1000)">Add 1000 points</button>
+        <button onclick="mcReset()">Reset</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="mcGraph" class="svg-graph" viewBox="0 0 520 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Monte Carlo result</h2>
+      <div class="eq-box"><div class="eq-label">Estimate</div><div id="mcStats" class="mathline">No points yet.</div></div>
+      <div class="note">
+        Monte Carlo methods use randomness to estimate numerical quantities. The estimate improves in a long-run sense, but random variation remains.
+      </div>
+      <div class="note warn">
+        This is an enrichment simulation; the syllabus point only requires awareness that simulations can enhance probability.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Simulation design questions</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>What is one trial?</strong><br>Define one repetition clearly.</div>
+        <div class="tile"><strong>What counts as success?</strong><br>Define the event being counted.</div>
+        <div class="tile"><strong>How many trials?</strong><br>Larger simulations usually produce more stable estimates.</div>
+        <div class="tile"><strong>What assumption?</strong><br>Fair coin, fair die, random point, independent trials?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contexts" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Biology: Punnett square</h2>
+      <p>Probability links to theoretical genetics when offspring genotypes are modelled as equally likely combinations.</p>
+      <div class="practice-card">
+        <label for="parentSelect">Parents</label>
+        <select id="parentSelect" onchange="drawPunnett()">
+          <option value="Aa,Aa">Aa × Aa</option>
+          <option value="Aa,aa">Aa × aa</option>
+          <option value="AA,Aa">AA × Aa</option>
+        </select>
+        <div id="punnettOutput"></div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Physics: particle position</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Particle probability visual">
+        <defs>
+          <linearGradient id="particleGrad" x1="0" x2="1">
+            <stop offset="0" stop-color="#edf2ff"/>
+            <stop offset=".5" stop-color="#d0ebff"/>
+            <stop offset="1" stop-color="#e6fcf5"/>
+          </linearGradient>
+        </defs>
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <rect x="80" y="165" width="600" height="90" rx="40" fill="url(#particleGrad)" stroke="#2364aa" stroke-width="4"/>
+        <circle cx="220" cy="210" r="18" fill="#7048e8" opacity=".85"/>
+        <circle cx="350" cy="210" r="28" fill="#7048e8" opacity=".55"/>
+        <circle cx="520" cy="210" r="14" fill="#7048e8" opacity=".75"/>
+        <text x="380" y="80" text-anchor="middle" font-size="28" font-weight="900" fill="#17212d">Probability of position</text>
+        <text x="380" y="315" text-anchor="middle" font-size="22" fill="#344054">A probability model can describe uncertain location.</text>
+      </svg>
+      <div class="note">
+        Probability can model uncertainty about where something is, not just games of chance.
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Actuarial and planning contexts</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Insurance</h3><p>Life span probabilities affect premiums and risk pools.</p></div>
+        <div class="tile"><h3>Government planning</h3><p>Expected numbers help plan hospitals, transport and schools.</p></div>
+        <div class="tile"><h3>Medicine</h3><p>Risk communication matters because emotion affects perception.</p></div>
+        <div class="tile"><h3>Travel safety</h3><p>Rare events may feel more likely when they are vivid or heavily reported.</p></div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Ethics, gambling and risk perception</h2>
+      <div class="practice-card">
+        <p><strong>Aim 8:</strong> What is ethically questionable about gambling products based on probability?</p>
+        <button onclick="toggleAnswer('gamblingEthics')">Reveal discussion angles</button>
+        <div id="gamblingEthics" class="answer">
+          Casinos and betting companies may use mathematically negative expected value games while exploiting emotion, near-misses, addiction, and misunderstanding of probability. The ethical issue is not just that people lose money, but that the design may manipulate risk perception.
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>TOK:</strong> What role does emotion play in our perception of risk?</p>
+        <button onclick="toggleAnswer('tokRisk')">Reveal discussion angles</button>
+        <div id="tokRisk" class="answer">
+          People may overestimate dramatic, memorable risks and underestimate familiar or slow-moving risks. Theoretical probability gives a model, but emotion affects attention, trust and action.
+        </div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>International-mindedness: St Petersburg paradox</h2>
+      <div class="note">
+        The St Petersburg paradox is a famous problem about expected value and how people actually value risky games. It shows that mathematical expectation and human decision-making are not always the same thing.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formal summary</h2>
+      <table>
+        <tr><th>Idea</th><th>Meaning</th></tr>
+        <tr><td>Trial</td><td>One repetition of an experiment.</td></tr>
+        <tr><td>Outcome</td><td>A possible result of one trial.</td></tr>
+        <tr><td>Sample space \(U\)</td><td>The set of all possible outcomes.</td></tr>
+        <tr><td>Event \(A\)</td><td>A subset of the sample space.</td></tr>
+        <tr><td>Complement \(A'\)</td><td>The event that \(A\) does not occur.</td></tr>
+        <tr><td>Relative frequency</td><td>Experimental proportion after trials.</td></tr>
+      </table>
+    </div>
+    <div class="card span-6">
+      <h2>Core formulae</h2>
+      <div class="formula">
+        \[
+          P(A)=\frac{n(A)}{n(U)}
+        \]
+        \[
+          P(A')=1-P(A)
+        \]
+        \[
+          \text{relative frequency}=\frac{\text{event frequency}}{\text{number of trials}}
+        \]
+        \[
+          \text{expected number}=np
+        \]
+      </div>
+      <div class="note warn">
+        The formula \(P(A)=n(A)/n(U)\) assumes equally likely outcomes.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Worked examples</h2>
+      <div class="mini-grid">
+        <div class="practice-card">
+          <p><strong>Example 1.</strong> Two fair dice are rolled. Find \(P(\text{sum is }7)\).</p>
+          <button onclick="toggleAnswer('formalEx1')">Reveal solution</button>
+          <div id="formalEx1" class="answer">
+            There are \(36\) equally likely ordered outcomes. The successful outcomes are \((1,6),(2,5),(3,4),(4,3),(5,2),(6,1)\), so \(n(A)=6\).
+            \[
+              P(A)=\frac{6}{36}=\frac16.
+            \]
+          </div>
+        </div>
+        <div class="practice-card">
+          <p><strong>Example 2.</strong> \(P(A)=0.23\). Find \(P(A')\).</p>
+          <button onclick="toggleAnswer('formalEx2')">Reveal solution</button>
+          <div id="formalEx2" class="answer">
+            \[
+              P(A')=1-P(A)=1-0.23=0.77.
+            \]
+          </div>
+        </div>
+        <div class="practice-card">
+          <p><strong>Example 3.</strong> A machine has probability \(0.04\) of producing a faulty item. In 500 items, how many faulty items are expected?</p>
+          <button onclick="toggleAnswer('formalEx3')">Reveal solution</button>
+          <div id="formalEx3" class="answer">
+            \[
+              \text{expected number}=np=500(0.04)=20.
+            \]
+            About 20 faulty items are expected.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Exam-style question generator</h2>
+      <p>Generate a question, attempt it, then reveal the worked solution.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('vocab')">Vocabulary</button>
+        <button onclick="generatePractice('sample')">Sample space</button>
+        <button onclick="generatePractice('theory')">Theoretical probability</button>
+        <button onclick="generatePractice('complement')">Complement</button>
+        <button onclick="generatePractice('relative')">Relative frequency</button>
+        <button onclick="generatePractice('expected')">Expected number</button>
+        <button onclick="generatePractice('context')">Context interpretation</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Exam checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Define \(U\):</strong> what are all possible outcomes?</div>
+        <div class="tile"><strong>Define \(A\):</strong> what outcomes count as success?</div>
+        <div class="tile"><strong>Check equally likely:</strong> can you use \(n(A)/n(U)\)?</div>
+        <div class="tile"><strong>Use complements:</strong> \(P(A')=1-P(A)\).</div>
+        <div class="tile"><strong>Relative frequency:</strong> experimental successes divided by trials.</div>
+        <div class="tile"><strong>Expected number:</strong> multiply \(n\) by \(p\), and interpret in context.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Begin with the experimental simulator and let students see noisy relative frequency.</li>
+        <li>Introduce vocabulary using one familiar experiment such as a die roll.</li>
+        <li>Build sample spaces as lists and tables, especially for two dice.</li>
+        <li>Formalise \(P(A)=n(A)/n(U)\) only after students understand equally likely outcomes.</li>
+        <li>Use complements as an efficient counting strategy.</li>
+        <li>Introduce expected number as \(np\), stressing that it can be non-integer.</li>
+        <li>Finish with simulations, contexts, ethics of gambling and risk-perception discussion.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Experimental probability must equal theoretical probability.</td><td>Use simulations with small and large samples.</td></tr>
+        <tr><td>All listed outcomes are equally likely.</td><td>Compare “sum of two dice” outcomes with ordered pair outcomes.</td></tr>
+        <tr><td>Expected number must be a whole number.</td><td>Use class absence example: 12.8 is a long-run average.</td></tr>
+        <tr><td>\(A'\) means inverse or reciprocal.</td><td>Stress complement: “not \(A\)”.</td></tr>
+        <tr><td>A streak changes the next fair coin flip.</td><td>Discuss independence informally and the gambler’s fallacy.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">List the sample space for flipping two coins.</div>
+        <div class="tile">Roll a die. What is the event “not prime”?</div>
+        <div class="tile">A die is rolled 60 times and six appears 8 times. Find the relative frequency.</div>
+        <div class="tile">Two dice are rolled. Why are sums not equally likely?</div>
+        <div class="tile">If \(P(A)=0.37\), find \(P(A')\).</div>
+        <div class="tile">If \(p=0.08\) and \(n=250\), find the expected number.</div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function rerenderMath(){ if(window.MathJax && window.MathJax.typesetPromise){ window.MathJax.typesetPromise(); } }
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); $(btn.dataset.tab).classList.add('active'); rerenderMath();
+  });
+});
+function toggleAnswer(id){ $(id).classList.toggle('show'); rerenderMath(); }
+function fmt(x){ if(!isFinite(x)) return String(x); if(Math.abs(x)<1e-10) return '0'; return Number(x.toFixed(4)).toString(); }
+function gcd(a,b){a=Math.abs(Math.round(a)); b=Math.abs(Math.round(b)); while(b){[a,b]=[b,a%b]} return a||1;}
+function frac(n,d){const g=gcd(n,d); n/=g; d/=g; return d===1?String(n):`\\frac{${n}}{${d}}`;}
+
+/* Explore simulation */
+let sim={trials:0,success:0,history:[],last:[]};
+const eventOptions={
+  coin:[
+    ['heads','Heads'],
+    ['tails','Tails']
+  ],
+  die:[
+    ['even','Even number'],
+    ['prime','Prime number'],
+    ['greater4','Greater than 4'],
+    ['six','A six']
+  ],
+  twodice:[
+    ['sum7','Sum is 7'],
+    ['double','Double'],
+    ['sumGreater9','Sum greater than 9'],
+    ['atLeastOne6','At least one 6']
+  ],
+  cards:[
+    ['heart','Heart'],
+    ['red','Red card'],
+    ['ace','Ace'],
+    ['face','Face card']
+  ]
+};
+function resetExperiment(){
+  const exp=$("experimentSelect").value;
+  const sel=$("eventSelect");
+  sel.innerHTML=eventOptions[exp].map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+  sim={trials:0,success:0,history:[],last:[]};
+  updateTheoryBox();
+  drawFreqGraph();
+  $("experimentBox").innerHTML='No trials yet.';
+  $("lastOutcomes").innerHTML='Run trials to see outcomes.';
+  $("experimentFeedback").className='feedback info';
+  $("experimentFeedback").innerHTML='Small samples can be noisy. Large numbers of trials usually produce more stable relative frequencies.';
+  rerenderMath();
+}
+function randomOutcome(exp){
+  if(exp==='coin') return Math.random()<0.5?'H':'T';
+  if(exp==='die') return 1+Math.floor(Math.random()*6);
+  if(exp==='twodice') return [1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)];
+  const suits=['♥','♦','♣','♠'], ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  return {suit:suits[Math.floor(Math.random()*4)], rank:ranks[Math.floor(Math.random()*13)]};
+}
+function isSuccess(exp,event,o){
+  if(exp==='coin') return (event==='heads'&&o==='H')||(event==='tails'&&o==='T');
+  if(exp==='die'){
+    if(event==='even') return o%2===0;
+    if(event==='prime') return [2,3,5].includes(o);
+    if(event==='greater4') return o>4;
+    if(event==='six') return o===6;
+  }
+  if(exp==='twodice'){
+    const [a,b]=o;
+    if(event==='sum7') return a+b===7;
+    if(event==='double') return a===b;
+    if(event==='sumGreater9') return a+b>9;
+    if(event==='atLeastOne6') return a===6||b===6;
+  }
+  if(exp==='cards'){
+    if(event==='heart') return o.suit==='♥';
+    if(event==='red') return o.suit==='♥'||o.suit==='♦';
+    if(event==='ace') return o.rank==='A';
+    if(event==='face') return ['J','Q','K'].includes(o.rank);
+  }
+  return false;
+}
+function theoryProb(exp,event){
+  if(exp==='coin') return {nA:1,nU:2};
+  if(exp==='die'){
+    if(event==='even') return {nA:3,nU:6};
+    if(event==='prime') return {nA:3,nU:6};
+    if(event==='greater4') return {nA:2,nU:6};
+    if(event==='six') return {nA:1,nU:6};
+  }
+  if(exp==='twodice'){
+    if(event==='sum7') return {nA:6,nU:36};
+    if(event==='double') return {nA:6,nU:36};
+    if(event==='sumGreater9') return {nA:6,nU:36};
+    if(event==='atLeastOne6') return {nA:11,nU:36};
+  }
+  if(exp==='cards'){
+    if(event==='heart') return {nA:13,nU:52};
+    if(event==='red') return {nA:26,nU:52};
+    if(event==='ace') return {nA:4,nU:52};
+    if(event==='face') return {nA:12,nU:52};
+  }
+  return {nA:0,nU:1};
+}
+function updateTheoryBox(){
+  const exp=$("experimentSelect").value, event=$("eventSelect").value || eventOptions[exp][0][0];
+  const p=theoryProb(exp,event);
+  $("theoryBox").innerHTML=`\\(n(A)=${p.nA}\\), \\(n(U)=${p.nU}\\)<br>\\(P(A)=${frac(p.nA,p.nU)}\\approx ${fmt(p.nA/p.nU)}\\)`;
+}
+function formatOutcome(exp,o){
+  if(exp==='coin') return `<span class="coin">${o}</span>`;
+  if(exp==='die') return `<span class="dice">${o}</span>`;
+  if(exp==='twodice') return `<span class="dice">${o[0]}</span><span class="dice">${o[1]}</span>`;
+  return `<span class="card-mini ${o.suit==='♥'||o.suit==='♦'?'red':''}">${o.rank}${o.suit}</span>`;
+}
+function runTrials(n){
+  const exp=$("experimentSelect").value, event=$("eventSelect").value;
+  const last=[];
+  for(let i=0;i<n;i++){
+    const o=randomOutcome(exp);
+    const hit=isSuccess(exp,event,o);
+    sim.trials++; if(hit) sim.success++;
+    if(i<20) last.push({o,hit});
+    if(sim.trials<=300 || sim.trials%Math.max(1,Math.floor(n/100))===0){
+      sim.history.push({x:sim.trials,y:sim.success/sim.trials});
+    }
+  }
+  sim.last=last;
+  drawFreqGraph();
+  $("experimentBox").innerHTML=`Trials: \\(${sim.trials}\\)<br>Successes: \\(${sim.success}\\)<br>Relative frequency: \\(${fmt(sim.success/sim.trials)}\\)`;
+  $("lastOutcomes").innerHTML=last.map(v=>`<span style="${v.hit?'outline:3px solid #2f9e44;border-radius:12px;display:inline-block':'display:inline-block'}">${formatOutcome(exp,v.o)}</span>`).join(' ');
+  const p=theoryProb(exp,event); const theo=p.nA/p.nU;
+  $("experimentFeedback").className='feedback '+(Math.abs(sim.success/sim.trials-theo)<0.03?'good':'info');
+  $("experimentFeedback").innerHTML=`The theoretical probability is \\(${fmt(theo)}\\). The experimental probability after \\(${sim.trials}\\) trials is \\(${fmt(sim.success/sim.trials)}\\).`;
+  rerenderMath();
+}
+function drawFreqGraph(){
+  const svg=$("freqGraph"), p=theoryProb($("experimentSelect").value,$("eventSelect").value||'heads');
+  const theo=p.nA/p.nU;
+  const w=760,h=520,x0=60,y0=455,plotW=660,plotH=380;
+  let g=`<rect width="${w}" height="${h}" fill="#fcfdff"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0+plotW}" y2="${y0}" stroke="#17212d" stroke-width="2"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-plotH}" stroke="#17212d" stroke-width="2"/>`;
+  for(let i=0;i<=5;i++){
+    const y=i/5, yp=y0-y*plotH;
+    g+=`<line x1="${x0-6}" y1="${yp}" x2="${x0}" y2="${yp}" stroke="#64748b"/><text x="${x0-10}" y="${yp+4}" text-anchor="end" font-size="12" fill="#64748b">${fmt(y)}</text>`;
+    if(i>0) g+=`<line x1="${x0}" y1="${yp}" x2="${x0+plotW}" y2="${yp}" stroke="#e2e8f0"/>`;
+  }
+  const maxX=Math.max(10,sim.trials);
+  for(let i=0;i<=5;i++){
+    const xp=x0+i/5*plotW, xv=Math.round(maxX*i/5);
+    g+=`<line x1="${xp}" y1="${y0}" x2="${xp}" y2="${y0+7}" stroke="#64748b"/><text x="${xp}" y="${y0+24}" text-anchor="middle" font-size="12" fill="#64748b">${xv}</text>`;
+  }
+  const ty=y0-theo*plotH;
+  g+=`<line x1="${x0}" y1="${ty}" x2="${x0+plotW}" y2="${ty}" stroke="#c92a2a" stroke-width="3" stroke-dasharray="8 6"/><text x="${x0+plotW-5}" y="${ty-8}" text-anchor="end" font-size="14" font-weight="900" fill="#8a1717">theoretical</text>`;
+  if(sim.history.length){
+    let d='';
+    sim.history.forEach((pt,i)=>{
+      const xp=x0+(pt.x/maxX)*plotW, yp=y0-pt.y*plotH;
+      d+=(i?'L':'M')+xp+' '+yp+' ';
+    });
+    g+=`<path d="${d}" fill="none" stroke="#2364aa" stroke-width="4" stroke-linecap="round"/>`;
+  }
+  g+=`<text x="${x0+plotW/2}" y="${h-16}" text-anchor="middle" font-size="15" font-weight="850">number of trials</text>`;
+  g+=`<text x="20" y="${y0-plotH/2}" transform="rotate(-90 20 ${y0-plotH/2})" text-anchor="middle" font-size="15" font-weight="850">relative frequency</text>`;
+  svg.innerHTML=g;
+}
+
+/* Vocab */
+const vocabItems=[
+  {q:'Rolling a die once', ans:'trial', explain:'One repetition of the experiment is a trial.'},
+  {q:'Getting a 4 when the die is rolled', ans:'outcome', explain:'A result of a trial is an outcome.'},
+  {q:'\\(\\{1,2,3,4,5,6\\}\\) for a die', ans:'sample space', explain:'This is the set of all possible outcomes.'},
+  {q:'Rolling an even number', ans:'event', explain:'An event is a set of outcomes, here \\(\\{2,4,6\\}\\).'},
+  {q:'Heads occurred 48 times in 100 flips', ans:'relative frequency', explain:'The observed proportion is relative frequency.'}
+];
+function initVocab(){
+  const box=$("vocabQuestions"); box.innerHTML='';
+  vocabItems.forEach((it,i)=>{
+    const div=document.createElement('div'); div.className='tile';
+    div.innerHTML=`<p>${it.q}</p><button onclick="checkVocab(${i},'trial')">Trial</button> <button onclick="checkVocab(${i},'outcome')">Outcome</button> <button onclick="checkVocab(${i},'sample space')">Sample space</button> <button onclick="checkVocab(${i},'event')">Event</button> <button onclick="checkVocab(${i},'relative frequency')">Relative frequency</button>`;
+    box.appendChild(div);
+  });
+}
+function checkVocab(i,ans){
+  const it=vocabItems[i];
+  $("vocabFeedback").className='feedback '+(ans===it.ans?'good':'bad');
+  $("vocabFeedback").innerHTML=(ans===it.ans?'Correct. ':'Not quite. ')+it.explain;
+  rerenderMath();
+}
+
+/* Sample spaces */
+let ssType='twodice', ssEvent='sum7';
+function showSampleSpace(type){
+  ssType=type;
+  const controls={
+    coin2:[['atLeastOneH','At least one head'],['same','Same result'],['exactlyOneT','Exactly one tail']],
+    die:[['even','Even'],['prime','Prime'],['not6','Not 6']],
+    twodice:[['sum7','Sum 7'],['double','Double'],['sumGreater9','Sum > 9']],
+    cards:[['red','Red suit'],['black','Black suit'],['heart','Heart']]
+  }[type];
+  ssEvent=controls[0][0];
+  $("sampleSpaceControls").innerHTML=`<label for="ssEvent">Event</label><select id="ssEvent" onchange="ssEvent=this.value; drawSampleSpace();">${controls.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join('')}</select>`;
+  drawSampleSpace();
+}
+function drawSampleSpace(){
+  const out=$("sampleSpaceOutput");
+  let html='', nA=0,nU=0, desc='';
+  if(ssType==='coin2'){
+    const outcomes=['HH','HT','TH','TT']; nU=4;
+    html='<div class="mathline">';
+    outcomes.forEach(o=>{
+      const hit=(ssEvent==='atLeastOneH'&&o.includes('H'))||(ssEvent==='same'&&(o==='HH'||o==='TT'))||(ssEvent==='exactlyOneT'&&(o==='HT'||o==='TH'));
+      if(hit)nA++;
+      html+=`<span class="event-chip ${hit?'good':''}">${o}</span>`;
+    });
+    html+='</div>'; desc='Two coin flips shown as a list.';
+  }else if(ssType==='die'){
+    const outcomes=[1,2,3,4,5,6]; nU=6;
+    html='<div class="mathline">';
+    outcomes.forEach(o=>{
+      const hit=(ssEvent==='even'&&o%2===0)||(ssEvent==='prime'&&[2,3,5].includes(o))||(ssEvent==='not6'&&o!==6);
+      if(hit)nA++;
+      html+=`<span class="event-chip ${hit?'good':''}">${o}</span>`;
+    });
+    html+='</div>'; desc='One die shown as a list.';
+  }else if(ssType==='twodice'){
+    nU=36;
+    html='<table class="sample-table"><tr><th>Die 1 \\ Die 2</th>';
+    for(let j=1;j<=6;j++) html+=`<th>${j}</th>`;
+    html+='</tr>';
+    for(let i=1;i<=6;i++){
+      html+=`<tr><th>${i}</th>`;
+      for(let j=1;j<=6;j++){
+        const hit=(ssEvent==='sum7'&&i+j===7)||(ssEvent==='double'&&i===j)||(ssEvent==='sumGreater9'&&i+j>9);
+        if(hit)nA++;
+        html+=`<td class="${hit?'hit':'miss'}">(${i},${j})</td>`;
+      }
+      html+='</tr>';
+    }
+    html+='</table>'; desc='Two dice shown as a 6 by 6 table of ordered pairs.';
+  }else{
+    const suits=['♥','♦','♣','♠']; nU=4;
+    html='<div class="mathline">';
+    suits.forEach(s=>{
+      const hit=(ssEvent==='red'&&(s==='♥'||s==='♦'))||(ssEvent==='black'&&(s==='♣'||s==='♠'))||(ssEvent==='heart'&&s==='♥');
+      if(hit)nA++;
+      html+=`<span class="event-chip ${hit?'good':''}">${s}</span>`;
+    });
+    html+='</div>'; desc='Suit sample space. A full deck has 52 cards, but suits can be represented as four equally likely categories.';
+  }
+  out.innerHTML=`<div class="eq-box"><div class="eq-label">${desc}</div>${html}</div>`;
+  $("sampleSpaceCalc").innerHTML=`\\(n(A)=${nA}\\), \\(n(U)=${nU}\\)<br>\\(P(A)=\\frac{${nA}}{${nU}}=${frac(nA,nU)}\\approx ${fmt(nA/nU)}\\)`;
+  rerenderMath();
+}
+
+/* Theory */
+function probCalc(){
+  const fav=Number($("favInput").value), total=Number($("totalInput").value);
+  if(!Number.isFinite(fav)||!Number.isFinite(total)||total<=0||fav<0||fav>total){
+    $("probCalcOutput").className='feedback bad';
+    $("probCalcOutput").innerHTML='Enter valid values with \(0\\le n(A)\\le n(U)\).';
+  }else{
+    $("probCalcOutput").className='feedback good';
+    $("probCalcOutput").innerHTML=`\\(P(A)=\\frac{${fav}}{${total}}=${frac(fav,total)}\\approx ${fmt(fav/total)}\\)`;
+  }
+  rerenderMath();
+}
+const equalItems=[
+  {q:'The six faces of a fair die', ans:'yes', explain:'A fair die has equally likely faces.'},
+  {q:'The possible sums when rolling two dice: 2, 3, 4, ..., 12', ans:'no', explain:'Sums are not equally likely. For example, 7 occurs more often than 2.'},
+  {q:'The 52 individual cards in a well-shuffled deck', ans:'yes', explain:'Each individual card is equally likely.'},
+  {q:'Students arriving late: 0 late, 1 late, 2 late, 3 late...', ans:'no', explain:'These count outcomes are usually not equally likely.'}
+];
+function initEqual(){
+  const box=$("equalChecks"); box.innerHTML='';
+  equalItems.forEach((it,i)=>{
+    const div=document.createElement('div'); div.className='tile';
+    div.innerHTML=`<p>${it.q}</p><button onclick="checkEqual(${i},'yes')">Equally likely</button> <button onclick="checkEqual(${i},'no')">Not equally likely</button>`;
+    box.appendChild(div);
+  });
+}
+function checkEqual(i,ans){
+  const it=equalItems[i];
+  $("equalFeedback").className='feedback '+(ans===it.ans?'good':'bad');
+  $("equalFeedback").innerHTML=(ans===it.ans?'Correct. ':'Not quite. ')+it.explain;
+}
+
+/* Relative frequency */
+let rel={trials:0,heads:0,history:[]};
+function relativeRun(n){
+  for(let i=0;i<n;i++){
+    rel.trials++;
+    if(Math.random()<0.5) rel.heads++;
+    if(rel.trials<=300 || rel.trials%Math.max(1,Math.floor(n/100))===0) rel.history.push({x:rel.trials,y:rel.heads/rel.trials});
+  }
+  drawRelative();
+}
+function relativeReset(){ rel={trials:0,heads:0,history:[]}; drawRelative(); }
+function drawRelative(){
+  const svg=$("relativeGraph"), w=760,h=520,x0=60,y0=455,plotW=660,plotH=380,maxX=Math.max(10,rel.trials);
+  let g=`<rect width="${w}" height="${h}" fill="#fcfdff"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0+plotW}" y2="${y0}" stroke="#17212d" stroke-width="2"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-plotH}" stroke="#17212d" stroke-width="2"/>`;
+  for(let i=0;i<=5;i++){
+    const y=i/5, yp=y0-y*plotH;
+    g+=`<text x="${x0-10}" y="${yp+4}" text-anchor="end" font-size="12" fill="#64748b">${fmt(y)}</text><line x1="${x0}" y1="${yp}" x2="${x0+plotW}" y2="${yp}" stroke="${i===0?'#17212d':'#e2e8f0'}"/>`;
+    const xp=x0+i/5*plotW, xv=Math.round(maxX*i/5);
+    g+=`<text x="${xp}" y="${y0+24}" text-anchor="middle" font-size="12" fill="#64748b">${xv}</text>`;
+  }
+  const ty=y0-0.5*plotH;
+  g+=`<line x1="${x0}" y1="${ty}" x2="${x0+plotW}" y2="${ty}" stroke="#c92a2a" stroke-width="3" stroke-dasharray="8 6"/>`;
+  if(rel.history.length){
+    let d='';
+    rel.history.forEach((pt,i)=>{const xp=x0+pt.x/maxX*plotW, yp=y0-pt.y*plotH; d+=(i?'L':'M')+xp+' '+yp+' ';});
+    g+=`<path d="${d}" fill="none" stroke="#2364aa" stroke-width="4"/>`;
+  }
+  svg.innerHTML=g;
+  if(rel.trials) $("relativeStats").innerHTML=`Flips: \\(${rel.trials}\\)<br>Heads: \\(${rel.heads}\\)<br>Relative frequency: \\(${fmt(rel.heads/rel.trials)}\\)`;
+  else $("relativeStats").innerHTML='No flips yet.';
+  rerenderMath();
+}
+
+/* Complements */
+function drawComplement(){
+  const v=$("compSelect").value;
+  let pA=0, nA=0,nU=0, visual='', event='', comp='';
+  if(v==='even'){nA=3;nU=6;event='even';comp='odd'; visual=[1,2,3,4,5,6].map(x=>`<span class="event-chip ${x%2===0?'good':'bad'}">${x}</span>`).join('');}
+  if(v==='greater4'){nA=2;nU=6;event='greater than 4';comp='not greater than 4'; visual=[1,2,3,4,5,6].map(x=>`<span class="event-chip ${x>4?'good':'bad'}">${x}</span>`).join('');}
+  if(v==='heart'){nA=13;nU=52;event='heart';comp='not heart'; visual='♥ highlighted; ♦ ♣ ♠ are complement.';}
+  if(v==='absent'){pA=0.1;nA=1;nU=10;event='absent';comp='not absent'; visual=Array.from({length:10},(_,i)=>`<span class="event-chip ${i===0?'good':'bad'}">${i===0?'A':'P'}</span>`).join('');}
+  if(v!=='absent') pA=nA/nU;
+  $("complementVisual").innerHTML=visual;
+  $("complementOutput").innerHTML=`If \(A\) is “${event}”, then \(A'\) is “${comp}”.<br>\\(P(A)=${fmt(pA)}\\), so \\(P(A')=1-${fmt(pA)}=${fmt(1-pA)}\\).`;
+  rerenderMath();
+}
+const compItems=[
+  {q:'Complement of “roll a 6”', ans:'not6', explain:'The complement is “do not roll a 6”.'},
+  {q:'Complement of “card is red”', ans:'black', explain:'In a standard deck, not red means black.'},
+  {q:'Complement of “student is absent”', ans:'present', explain:'Not absent means present, assuming the only options are absent/present.'}
+];
+function initComp(){
+  const box=$("compQuestions"); box.innerHTML='';
+  compItems.forEach((it,i)=>{
+    const div=document.createElement('div'); div.className='tile';
+    div.innerHTML=`<p>${it.q}</p><button onclick="checkComp(${i},'not6')">not 6</button> <button onclick="checkComp(${i},'black')">black</button> <button onclick="checkComp(${i},'present')">present</button>`;
+    box.appendChild(div);
+  });
+}
+function checkComp(i,ans){
+  const it=compItems[i];
+  $("compFeedback").className='feedback '+(ans===it.ans?'good':'bad');
+  $("compFeedback").innerHTML=(ans===it.ans?'Correct. ':'Not quite. ')+it.explain;
+}
+
+/* Expected number */
+function expectedCalc(){
+  const n=Number($("expectedN").value), p=Number($("expectedP").value);
+  if(!isFinite(n)||!isFinite(p)||n<0||p<0||p>1){
+    $("expectedOutput").className='feedback bad';
+    $("expectedOutput").innerHTML='Enter valid values with \(n\\ge0\) and \(0\\le p\\le1\).';
+  }else{
+    $("expectedOutput").className='feedback good';
+    $("expectedOutput").innerHTML=`Expected number \\(=np=${fmt(n)}\\times ${fmt(p)}=${fmt(n*p)}\\).`;
+  }
+  rerenderMath();
+}
+function drawStudents(){
+  const g=$("studentGrid");
+  let s='';
+  for(let r=0;r<8;r++){
+    for(let c=0;c<16;c++){
+      const idx=r*16+c;
+      const x=95+c*36, y=105+r*24;
+      s+=`<circle cx="${x}" cy="${y}" r="8" fill="${idx<13?'#c92a2a':'#2364aa'}" opacity=".85"/>`;
+    }
+  }
+  g.innerHTML=s;
+}
+const expectedItems=[
+  {q:'200 seeds, probability of germination 0.85', ans:170, explain:'Expected number \\(=200(0.85)=170\\).'},
+  {q:'500 items, probability faulty 0.04', ans:20, explain:'Expected number \\(=500(0.04)=20\\).'},
+  {q:'80 patients, probability of side effect 0.15', ans:12, explain:'Expected number \\(=80(0.15)=12\\).'}
+];
+function initExpectedQuestions(){
+  const box=$("expectedQuestions"); box.innerHTML='';
+  expectedItems.forEach((it,i)=>{
+    const div=document.createElement('div'); div.className='tile';
+    div.innerHTML=`<p>${it.q}</p><button onclick="checkExpected(${i},${it.ans})">${it.ans}</button> <button onclick="checkExpected(${i},${Math.round(it.ans/2)})">${Math.round(it.ans/2)}</button> <button onclick="checkExpected(${i},${it.ans+10})">${it.ans+10}</button>`;
+    box.appendChild(div);
+  });
+}
+function checkExpected(i,ans){
+  const it=expectedItems[i];
+  $("expectedFeedback").className='feedback '+(ans===it.ans?'good':'bad');
+  $("expectedFeedback").innerHTML=(ans===it.ans?'Correct. ':'Not quite. ')+it.explain;
+  rerenderMath();
+}
+
+/* Monte Carlo */
+let mc={inside:0,total:0,points:[]};
+function mcReset(){ mc={inside:0,total:0,points:[]}; drawMC(); }
+function mcRun(n){
+  for(let i=0;i<n;i++){
+    const x=Math.random()*2-1, y=Math.random()*2-1, inside=x*x+y*y<=1;
+    mc.total++; if(inside)mc.inside++;
+    if(mc.points.length<2500) mc.points.push({x,y,inside});
+  }
+  drawMC();
+}
+function drawMC(){
+  const svg=$("mcGraph"), w=520,h=520;
+  let g=`<rect width="${w}" height="${h}" fill="#fcfdff"/><rect x="40" y="40" width="440" height="440" fill="#fff" stroke="#17212d" stroke-width="3"/><circle cx="260" cy="260" r="220" fill="#edf6ff" stroke="#2364aa" stroke-width="3"/>`;
+  mc.points.forEach(p=>{
+    const x=260+p.x*220, y=260-p.y*220;
+    g+=`<circle cx="${x}" cy="${y}" r="2.2" fill="${p.inside?'#0ca678':'#c92a2a'}" opacity=".7"/>`;
+  });
+  svg.innerHTML=g;
+  if(mc.total){
+    const pi=4*mc.inside/mc.total;
+    $("mcStats").innerHTML=`Points: \\(${mc.total}\\)<br>Inside circle: \\(${mc.inside}\\)<br>Estimated \\(\\pi\\approx 4\\times\\frac{${mc.inside}}{${mc.total}}=${fmt(pi)}\\)`;
+  }else $("mcStats").innerHTML='No points yet.';
+  rerenderMath();
+}
+
+/* Punnett */
+function drawPunnett(){
+  const [p1,p2]=$("parentSelect").value.split(',');
+  const gametes=s=>s.split('');
+  const g1=gametes(p1), g2=gametes(p2);
+  const combos=[];
+  let html='<table class="sample-table"><tr><th></th>'+g2.map(g=>`<th>${g}</th>`).join('')+'</tr>';
+  g1.forEach(a=>{
+    html+=`<tr><th>${a}</th>`;
+    g2.forEach(b=>{
+      const c=(a+b).split('').sort((x,y)=>x==='A'?-1:1).join('');
+      combos.push(c);
+      html+=`<td>${c}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</table>';
+  const dominant=combos.filter(c=>c.includes('A')).length;
+  html+=`<div class="feedback info">Dominant phenotype probability \\(=\\frac{${dominant}}{4}=${frac(dominant,4)}\\). Recessive phenotype probability \\(=\\frac{${4-dominant}}{4}=${frac(4-dominant,4)}\\).</div>`;
+  $("punnettOutput").innerHTML=html;
+  rerenderMath();
+}
+
+/* Practice */
+function generatePractice(type){
+  $("practiceAnswer").classList.remove('show'); $("practiceVisual").innerHTML='';
+  let q='',a='';
+  if(type==='vocab'){
+    q='A fair die is rolled once. Identify the trial, one possible outcome, the sample space, and the event “roll an odd number”.';
+    a='The trial is rolling the die once. One possible outcome is 4, for example. The sample space is \(U=\\{1,2,3,4,5,6\\}\). The event “roll an odd number” is \(A=\\{1,3,5\\}\).';
+  }else if(type==='sample'){
+    q='Two fair coins are flipped. List the sample space and find the probability of getting exactly one head.';
+    a='The sample space is \(U=\\{HH,HT,TH,TT\\}\). Exactly one head occurs in \(HT\) and \(TH\), so \(n(A)=2\) and \(n(U)=4\). Therefore \(P(A)=2/4=1/2\).';
+  }else if(type==='theory'){
+    q='Two fair dice are rolled. Find the probability that the sum is greater than 9.';
+    a='There are \(36\) equally likely ordered outcomes. Sums greater than 9 are 10, 11 and 12. The successful outcomes are \((4,6),(5,5),(6,4),(5,6),(6,5),(6,6)\), so there are 6. Therefore \(P=6/36=1/6\).';
+  }else if(type==='complement'){
+    q='The probability that a randomly selected student studies music is 0.18. Find the probability that a randomly selected student does not study music.';
+    a='This is the complement: \(P(A\')=1-P(A)=1-0.18=0.82\).';
+  }else if(type==='relative'){
+    q='A coin is flipped 250 times and lands heads 132 times. Find the relative frequency of heads. How does this compare with the theoretical probability for a fair coin?';
+    a='Relative frequency \(=132/250=0.528\). The theoretical probability is \(0.5\). The experimental result is close but not exactly equal, which is normal for a finite number of trials.';
+  }else if(type==='expected'){
+    q='A school has 960 students. On a particular day, the probability that a student is absent is estimated as 0.07. Find the expected number of absent students.';
+    a='Expected number \(=np=960(0.07)=67.2\). This does not mean exactly 67.2 students are absent on one day; it is a long-run expected value.';
+  }else{
+    q='A lottery advertises that “someone has to win”. Explain why this statement may mislead people about individual probability.';
+    a='The statement focuses on the event that at least one person wins, not the probability that a particular individual wins. The individual probability may be extremely small. This is an example of how emotion and framing can affect risk perception.';
+  }
+  $("practiceQuestion").innerHTML=q; $("practiceAnswer").innerHTML=a; rerenderMath();
+}
+
+/* Init */
+function init(){
+  resetExperiment();
+  initVocab();
+  showSampleSpace('twodice');
+  probCalc();
+  initEqual();
+  relativeReset();
+  drawComplement();
+  initComp();
+  expectedCalc();
+  drawStudents();
+  initExpectedQuestions();
+  mcReset();
+  drawPunnett();
+  generatePractice('sample');
+}
+init();
+</script>
+</body>
+</html>

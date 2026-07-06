@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 1.1 Scientific Notation Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --ink:#17212b;
+    --muted:#5d6b7a;
+    --paper:#ffffff;
+    --soft:#f4f7fb;
+    --line:#d8e0ea;
+    --accent:#2364aa;
+    --accent2:#4a9d8f;
+    --warn:#f59f00;
+    --bad:#c92a2a;
+    --good:#2f9e44;
+    --purple:#7048e8;
+    --shadow:0 14px 30px rgba(16,24,40,.10);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at top left, rgba(35,100,170,.12), transparent 34rem),
+      radial-gradient(circle at top right, rgba(74,157,143,.12), transparent 30rem),
+      linear-gradient(#fff,#f7f9fc 48rem);
+    line-height:1.45;
+  }
+  header{
+    padding:34px 22px 20px;
+    max-width:1180px;
+    margin:auto;
+  }
+  .title-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(2rem,5vw,4.3rem);
+    letter-spacing:-.06em;
+    line-height:.95;
+  }
+  h1 span{
+    display:block;
+    color:var(--accent);
+  }
+  .subtitle{
+    margin:16px 0 0;
+    max-width:780px;
+    font-size:1.15rem;
+    color:#344054;
+  }
+  .badge{
+    display:inline-flex;
+    gap:.5rem;
+    align-items:center;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background:white;
+    padding:9px 14px;
+    font-weight:750;
+    color:var(--accent);
+    box-shadow:0 5px 18px rgba(0,0,0,.06);
+    white-space:nowrap;
+  }
+  main{
+    max-width:1180px;
+    margin:0 auto 60px;
+    padding:0 22px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:18px;
+  }
+  .card{
+    background:rgba(255,255,255,.92);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
+  .span-12{grid-column:span 12}
+  .span-8{grid-column:span 8}
+  .span-6{grid-column:span 6}
+  .span-4{grid-column:span 4}
+  @media (max-width:880px){
+    .span-8,.span-6,.span-4{grid-column:span 12}
+  }
+  h2{
+    margin:0 0 12px;
+    font-size:1.55rem;
+    letter-spacing:-.025em;
+  }
+  h3{
+    margin:18px 0 8px;
+    font-size:1.12rem;
+  }
+  p{margin:8px 0}
+  .syllabus-table{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border:1px solid #9ca3af;
+    overflow:hidden;
+    border-radius:14px;
+    background:white;
+  }
+  .syllabus-table > div{
+    padding:15px 17px;
+    border-bottom:1px solid #9ca3af;
+  }
+  .syllabus-table .head{
+    background:#eef0f2;
+    font-weight:850;
+    color:#6b7280;
+    font-size:1.08rem;
+  }
+  .syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+  .syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+  @media(max-width:720px){
+    .syllabus-table{grid-template-columns:1fr}
+    .syllabus-table div:nth-child(odd){border-right:none}
+    .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+  }
+  .formula{
+    background:#0f172a;
+    color:white;
+    border-radius:16px;
+    padding:18px;
+    margin:15px 0;
+    font-size:1.15rem;
+  }
+  .formula strong{color:#a5d8ff}
+  .note{
+    border-left:5px solid var(--accent);
+    padding:12px 14px;
+    background:#edf6ff;
+    border-radius:12px;
+    margin:12px 0;
+  }
+  .warning{
+    border-left:5px solid var(--warn);
+    background:#fff7e6;
+  }
+  .success{
+    border-left:5px solid var(--good);
+    background:#ebfbee;
+  }
+  .tabs{
+    position:sticky;
+    top:0;
+    z-index:10;
+    padding:12px;
+    background:rgba(247,249,252,.86);
+    backdrop-filter:blur(12px);
+    border:1px solid var(--line);
+    border-radius:18px;
+    margin:18px 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  button, .button{
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    background:#e9eef6;
+    color:#17212b;
+    font-weight:800;
+    padding:10px 14px;
+    cursor:pointer;
+    transition:.16s transform, .16s background, .16s color, .16s box-shadow;
+    font-size:.95rem;
+  }
+  button:hover{transform:translateY(-1px)}
+  button.active{
+    background:var(--accent);
+    color:white;
+    box-shadow:0 8px 18px rgba(35,100,170,.25);
+  }
+  button.secondary{background:#eef2ff;color:#3b2b98}
+  button.good{background:#d3f9d8;color:#1b5e20}
+  button.warn{background:#fff3bf;color:#7c4a00}
+  button.danger{background:#ffe3e3;color:#8a1717}
+  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+  }
+  .tile{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:var(--soft);
+    padding:15px;
+  }
+  .tile h3{margin-top:0}
+  .example{
+    padding:12px;
+    border-radius:14px;
+    border:1px dashed #b6c2d2;
+    background:white;
+    margin:10px 0;
+  }
+  .steps{
+    counter-reset:step;
+    padding:0;
+    margin:12px 0;
+    list-style:none;
+  }
+  .steps li{
+    counter-increment:step;
+    margin:10px 0;
+    padding:12px 12px 12px 48px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:14px;
+    position:relative;
+  }
+  .steps li:before{
+    content:counter(step);
+    position:absolute;
+    left:12px;top:12px;
+    width:25px;height:25px;border-radius:50%;
+    background:var(--accent);color:white;
+    display:grid;place-items:center;font-weight:900;
+  }
+  input, select{
+    width:100%;
+    padding:12px 13px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    font:inherit;
+    background:white;
+  }
+  label{font-weight:850;display:block;margin:8px 0 5px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  .tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .tight-row > *{flex:unset}
+  .feedback{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:#f1f5f9;
+    min-height:48px;
+  }
+  .feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+  .feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+  .feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+  .mathline{
+    font-size:1.15rem;
+    padding:12px;
+    background:white;
+    border-radius:12px;
+    border:1px solid var(--line);
+    overflow-x:auto;
+  }
+  .practice-card{
+    border:1px solid var(--line);
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    margin:12px 0;
+  }
+  .answer{
+    display:none;
+    margin-top:10px;
+    padding:12px;
+    background:#f8fafc;
+    border-radius:12px;
+    border:1px solid var(--line);
+  }
+  .answer.show{display:block}
+  .drag-zone{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media(max-width:800px){.drag-zone{grid-template-columns:1fr}}
+  .item-bank,.order-list{
+    min-height:280px;
+    padding:12px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:16px;
+  }
+  .real-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px;
+    margin:8px 0;
+    border:1px solid #cfd8e3;
+    background:white;
+    border-radius:14px;
+    cursor:grab;
+    user-select:none;
+  }
+  .real-item:active{cursor:grabbing}
+  .real-item .emoji{font-size:1.45rem}
+  .real-item .name{font-weight:850}
+  .real-item .value{
+    margin-left:auto;
+    color:var(--accent);
+    font-weight:900;
+    display:none;
+    white-space:nowrap;
+  }
+  .real-item.reveal .value{display:block}
+  .drop-placeholder{
+    border:2px dashed #9db4ce;
+    min-height:44px;
+    border-radius:12px;
+    margin:8px 0;
+  }
+  .numline{
+    width:100%;
+    min-height:180px;
+    background:linear-gradient(180deg,#ffffff,#f6fbff);
+    border-radius:18px;
+    border:1px solid var(--line);
+    overflow:hidden;
+  }
+  .svg-label{font-family:inherit;font-weight:800;fill:#17212b}
+  .svg-small{font-family:inherit;font-size:12px;fill:#5d6b7a}
+  .calculator{
+    background:#1f2937;
+    color:white;
+    border-radius:22px;
+    padding:16px;
+    max-width:310px;
+    margin:8px auto;
+    box-shadow:inset 0 -7px 0 rgba(0,0,0,.18), 0 12px 25px rgba(0,0,0,.2);
+  }
+  .screen{
+    background:#c7ead4;
+    color:#0f2b19;
+    padding:12px;
+    border-radius:10px;
+    font-family:"Courier New",monospace;
+    min-height:66px;
+    margin-bottom:12px;
+    border:4px solid #111827;
+  }
+  .keys{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+  }
+  .key{
+    padding:10px;
+    border-radius:10px;
+    background:#374151;
+    color:white;
+    text-align:center;
+    font-weight:850;
+  }
+  .key.orange{background:#b45309}
+  .key.blue{background:#1d4ed8}
+  .key.bad{background:#991b1b}
+  .context-img{
+    width:100%;
+    display:block;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:white;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:12px 0;
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:11px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th{background:#eef4fb}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#edf2ff;
+    color:#364fc7;
+    font-size:.82rem;
+    font-weight:850;
+    margin:2px;
+  }
+  .hidden-text{
+    filter:blur(4px);
+    user-select:none;
+  }
+  .progress{
+    height:12px;
+    background:#e9eef6;
+    border-radius:999px;
+    overflow:hidden;
+    margin:10px 0;
+  }
+  .bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:width .25s;
+  }
+  .print-only{display:none}
+  @media print{
+    body{background:white}
+    .tabs,button,.no-print{display:none!important}
+    .tab-panel{display:block!important}
+    .card{box-shadow:none;break-inside:avoid}
+    .print-only{display:block}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 1.1 <span>Scientific Notation</span></h1>
+      <p class="subtitle">A complete interactive resource for operating with numbers in the form \(a\times10^k\), converting between ordinary form and scientific form, and using real-world scales from atoms to astronomy.</p>
+    </div>
+    <div class="badge">IB DP AI/AA SL • Number & Algebra</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus-table">
+      <div class="head">Content</div>
+      <div class="head">Guidance, clarification and syllabus links</div>
+      <div>Operations with numbers in the form \(a\times10^k\), where \(1\leq a&lt;10\) and \(k\) is an integer.</div>
+      <div>Calculator or computer notation is <strong>not acceptable</strong>. For example, <strong>5.2E30</strong> should be written as \(5.2\times10^{30}\).</div>
+    </div>
+    <div class="mini-grid" style="margin-top:14px">
+      <div class="tile"><h3>Know</h3><p>The coefficient \(a\) must be from 1 up to, but not including, 10.</p></div>
+      <div class="tile"><h3>Convert</h3><p>Move the decimal point and count the places to find the power of 10.</p></div>
+      <div class="tile"><h3>Operate</h3><p>Use index laws to multiply, divide, add, subtract, and compare sizes.</p></div>
+      <div class="tile"><h3>Communicate</h3><p>Write \(5.2\times10^{30}\), not calculator notation such as 5.2E30.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs no-print" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="bigidea">1. Big idea</button>
+  <button class="tab-button" data-tab="convert">2. Convert</button>
+  <button class="tab-button" data-tab="operate">3. Operate</button>
+  <button class="tab-button" data-tab="order">4. Order challenge</button>
+  <button class="tab-button" data-tab="real">5. Real contexts</button>
+  <button class="tab-button" data-tab="practice">6. Exam practice</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="bigidea" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-8">
+      <h2>The big idea: a number plus a scale</h2>
+      <p>Scientific notation separates a number into two parts:</p>
+      <div class="formula">
+        \[
+          \underbrace{a}_{\text{between 1 and 10}}
+          \times
+          \underbrace{10^k}_{\text{scale}}
+        \]
+        <p><strong>Example:</strong> \(6.02\times10^{23}\) means \(6.02\) scaled up by \(10^{23}\).</p>
+      </div>
+      <div class="note">
+        <strong>Memory hook:</strong> positive powers make big numbers. Negative powers make small decimals.
+      </div>
+      <svg class="numline" viewBox="0 0 900 230" role="img" aria-label="Scale from tiny to huge">
+        <defs>
+          <linearGradient id="scaleGrad" x1="0" x2="1">
+            <stop offset="0" stop-color="#7048e8"/>
+            <stop offset="0.5" stop-color="#2364aa"/>
+            <stop offset="1" stop-color="#4a9d8f"/>
+          </linearGradient>
+          <filter id="softShadow"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity=".18"/></filter>
+        </defs>
+        <rect x="40" y="96" width="820" height="16" rx="8" fill="url(#scaleGrad)"/>
+        <g class="ticks">
+          <line x1="95" y1="82" x2="95" y2="130" stroke="#7048e8" stroke-width="3"/>
+          <line x1="245" y1="82" x2="245" y2="130" stroke="#6154c7" stroke-width="3"/>
+          <line x1="450" y1="82" x2="450" y2="130" stroke="#2364aa" stroke-width="3"/>
+          <line x1="665" y1="82" x2="665" y2="130" stroke="#27858d" stroke-width="3"/>
+          <line x1="810" y1="82" x2="810" y2="130" stroke="#4a9d8f" stroke-width="3"/>
+        </g>
+        <g filter="url(#softShadow)">
+          <circle cx="95" cy="56" r="28" fill="#f3f0ff" stroke="#7048e8" stroke-width="3"/>
+          <text x="95" y="65" text-anchor="middle" font-size="28">⚛</text>
+          <circle cx="245" cy="156" r="28" fill="#edf2ff" stroke="#5f3dc4" stroke-width="3"/>
+          <text x="245" y="165" text-anchor="middle" font-size="28">🦠</text>
+          <circle cx="450" cy="56" r="28" fill="#e7f5ff" stroke="#2364aa" stroke-width="3"/>
+          <text x="450" y="65" text-anchor="middle" font-size="28">👤</text>
+          <circle cx="665" cy="156" r="28" fill="#e6fcf5" stroke="#0ca678" stroke-width="3"/>
+          <text x="665" y="165" text-anchor="middle" font-size="28">🌍</text>
+          <circle cx="810" cy="56" r="28" fill="#e3fafc" stroke="#1098ad" stroke-width="3"/>
+          <text x="810" y="65" text-anchor="middle" font-size="28">☀️</text>
+        </g>
+        <text class="svg-label" x="95" y="146" text-anchor="middle">atom</text>
+        <text class="svg-small" x="95" y="168" text-anchor="middle">about \(10^{-10}\) m</text>
+        <text class="svg-label" x="245" y="205" text-anchor="middle">bacterium</text>
+        <text class="svg-small" x="245" y="224" text-anchor="middle">about \(10^{-6}\) m</text>
+        <text class="svg-label" x="450" y="146" text-anchor="middle">human</text>
+        <text class="svg-small" x="450" y="168" text-anchor="middle">about \(10^{0}\) m</text>
+        <text class="svg-label" x="665" y="205" text-anchor="middle">Earth</text>
+        <text class="svg-small" x="665" y="224" text-anchor="middle">about \(10^{7}\) m wide</text>
+        <text class="svg-label" x="810" y="146" text-anchor="middle">Sun distance</text>
+        <text class="svg-small" x="810" y="168" text-anchor="middle">about \(10^{11}\) m</text>
+      </svg>
+      <p class="note warning"><strong>Important:</strong> \(52\times10^{29}\) is not in scientific form because \(52\) is too large. Write it as \(5.2\times10^{30}\).</p>
+    </div>
+
+    <div class="card span-4">
+      <h2>Calculator notation trap</h2>
+      <div class="calculator" aria-label="calculator illustration">
+        <div class="screen">5.2E30<br><span style="color:#721c24">Not final notation</span></div>
+        <div class="keys">
+          <div class="key">7</div><div class="key">8</div><div class="key">9</div><div class="key orange">EXP</div>
+          <div class="key">4</div><div class="key">5</div><div class="key">6</div><div class="key blue">×10^</div>
+          <div class="key">1</div><div class="key">2</div><div class="key">3</div><div class="key bad">E</div>
+          <div class="key">0</div><div class="key">.</div><div class="key">=</div><div class="key">AC</div>
+        </div>
+      </div>
+      <div class="example">
+        <p><strong>Calculator display:</strong> 3.45E-7</p>
+        <p><strong>Written answer:</strong> \(3.45\times10^{-7}\)</p>
+      </div>
+      <button onclick="randomNotationTrap()">Generate notation trap</button>
+      <div id="trapBox" class="feedback info">Press the button for a quick calculator-notation conversion.</div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Quick check: is it scientific form?</h2>
+      <div class="mini-grid" id="sfCheck"></div>
+      <div id="sfFeedback" class="feedback">Choose whether each number is in correct scientific form.</div>
+    </div>
+  </div>
+</section>
+
+<section id="convert" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Ordinary form → scientific form</h2>
+      <ol class="steps">
+        <li>Place the decimal after the first non-zero digit.</li>
+        <li>Count how many places the decimal moved.</li>
+        <li>If the original number was greater than 10, use a positive power.</li>
+        <li>If the original number was between 0 and 1, use a negative power.</li>
+      </ol>
+      <div class="example">
+        <p>\(72\,400\,000 = 7.24\times10^7\)</p>
+        <p>\(0.000\,000\,82 = 8.2\times10^{-7}\)</p>
+      </div>
+      <h3>Interactive converter</h3>
+      <label for="ordinaryInput">Type an ordinary number</label>
+      <input id="ordinaryInput" placeholder="e.g. 0.00000042 or 72400000" />
+      <button onclick="ordinaryToSci()">Convert</button>
+      <div id="ordinaryOutput" class="feedback info">Enter a number and press convert.</div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Scientific form → ordinary form</h2>
+      <ol class="steps">
+        <li>Start with the coefficient \(a\).</li>
+        <li>If \(k\) is positive, move the decimal right.</li>
+        <li>If \(k\) is negative, move the decimal left.</li>
+        <li>Add zeros as placeholders when needed.</li>
+      </ol>
+      <div class="example">
+        <p>\(4.7\times10^5 = 470\,000\)</p>
+        <p>\(4.7\times10^{-5}=0.000047\)</p>
+      </div>
+      <h3>Interactive converter</h3>
+      <div class="row">
+        <div><label for="coeffInput">Coefficient \(a\)</label><input id="coeffInput" placeholder="e.g. 4.7" /></div>
+        <div><label for="powerInput">Power \(k\)</label><input id="powerInput" placeholder="e.g. -5" /></div>
+      </div>
+      <button onclick="sciToOrdinary()">Convert</button>
+      <div id="sciOutput" class="feedback info">Enter \(a\) and \(k\), then press convert.</div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Conversion practice generator</h2>
+      <div class="tight-row">
+        <button onclick="newConvertQuestion('ordinary')">Ordinary → scientific</button>
+        <button onclick="newConvertQuestion('scientific')">Scientific → ordinary</button>
+        <button onclick="newConvertQuestion('mixed')">Mixed</button>
+      </div>
+      <div class="practice-card">
+        <div id="convertQuestion" class="mathline">Press a button to generate a question.</div>
+        <label for="convertAnswer">Your answer</label>
+        <input id="convertAnswer" placeholder="Use e.g. 3.4x10^5 or 0.00034" />
+        <button onclick="checkConvertAnswer()">Check</button>
+        <button class="secondary" onclick="revealConvertAnswer()">Reveal worked solution</button>
+        <div id="convertFeedback" class="feedback">No question yet.</div>
+        <div id="convertSolution" class="answer"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="operate" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Multiplying and dividing</h2>
+      <div class="formula">
+        \[
+        (a\times10^m)(b\times10^n)=ab\times10^{m+n}
+        \]
+        \[
+        \frac{a\times10^m}{b\times10^n}=\frac{a}{b}\times10^{m-n}
+        \]
+      </div>
+      <p>After multiplying or dividing, adjust the coefficient so it is between 1 and 10.</p>
+      <div class="example">
+        <p>\((3\times10^5)(4\times10^7)=12\times10^{12}=1.2\times10^{13}\)</p>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Adding and subtracting</h2>
+      <p>For addition and subtraction, first rewrite the numbers with the same power of 10.</p>
+      <div class="example">
+        <p>\(4.8\times10^6+3.1\times10^5\)</p>
+        <p>\(=4.8\times10^6+0.31\times10^6\)</p>
+        <p>\(=5.11\times10^6\)</p>
+      </div>
+      <div class="note warning">
+        Do not add powers: \(10^6+10^5\neq10^{11}\).
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Operations question generator</h2>
+      <div class="tight-row">
+        <button onclick="newOperationQuestion('multiply')">Multiply</button>
+        <button onclick="newOperationQuestion('divide')">Divide</button>
+        <button onclick="newOperationQuestion('add')">Add</button>
+        <button onclick="newOperationQuestion('subtract')">Subtract</button>
+        <button onclick="newOperationQuestion('context')">Real context</button>
+      </div>
+      <div class="practice-card">
+        <div id="operationQuestion" class="mathline">Choose a question type.</div>
+        <label for="operationAnswer">Your answer in scientific notation</label>
+        <input id="operationAnswer" placeholder="e.g. 1.23x10^8" />
+        <button onclick="checkOperationAnswer()">Check</button>
+        <button class="secondary" onclick="revealOperationSolution()">Reveal worked solution</button>
+        <div id="operationFeedback" class="feedback">No question yet.</div>
+        <div id="operationSolution" class="answer"></div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Common mistakes clinic</h2>
+      <table>
+        <tr><th>Mistake</th><th>Why it is wrong</th><th>Correction</th></tr>
+        <tr><td>\(27\times10^4\)</td><td>The coefficient is not between 1 and 10.</td><td>\(2.7\times10^5\)</td></tr>
+        <tr><td>\((3\times10^5)(4\times10^7)=12\times10^{35}\)</td><td>When multiplying powers of 10, add exponents: \(5+7=12\).</td><td>\(1.2\times10^{13}\)</td></tr>
+        <tr><td>\(5.2E30\)</td><td>Calculator notation is not accepted in written answers.</td><td>\(5.2\times10^{30}\)</td></tr>
+        <tr><td>\(6\times10^{-3}=6000\)</td><td>A negative exponent makes a small number.</td><td>\(0.006\)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="order" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Ordering activity: from tiny to huge</h2>
+      <p>Drag the real-world objects into the right-hand box from <strong>smallest to largest</strong>. When the order is correct, reveal the actual approximate values in scientific notation.</p>
+      <div class="tight-row">
+        <button onclick="resetOrderGame()">Reset game</button>
+        <button onclick="checkOrderGame()">Check order</button>
+        <button class="secondary" id="revealOrderBtn" onclick="revealOrderValues()" disabled>Reveal actual values</button>
+      </div>
+      <div class="progress"><div class="bar" id="orderProgress"></div></div>
+      <div class="drag-zone">
+        <div>
+          <h3>Item bank</h3>
+          <div id="itemBank" class="item-bank"></div>
+        </div>
+        <div>
+          <h3>Your order: smallest → largest</h3>
+          <div id="orderList" class="order-list"></div>
+        </div>
+      </div>
+      <div id="orderFeedback" class="feedback">Move the cards into the right-hand box.</div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Scale picture</h2>
+      <svg class="context-img" viewBox="0 0 1000 360" role="img" aria-label="Scientific notation size comparison">
+        <defs>
+          <linearGradient id="space" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#09111f"/>
+            <stop offset="1" stop-color="#1d3557"/>
+          </linearGradient>
+          <radialGradient id="planet" cx=".35" cy=".35">
+            <stop offset="0" stop-color="#88d8ff"/>
+            <stop offset=".65" stop-color="#2475a9"/>
+            <stop offset="1" stop-color="#0b3d5c"/>
+          </radialGradient>
+        </defs>
+        <rect width="1000" height="360" fill="url(#space)"/>
+        <g opacity=".75">
+          <circle cx="75" cy="55" r="2" fill="white"/><circle cx="190" cy="120" r="1.5" fill="white"/><circle cx="420" cy="70" r="2" fill="white"/><circle cx="840" cy="110" r="1.7" fill="white"/><circle cx="730" cy="40" r="2.5" fill="white"/><circle cx="570" cy="145" r="1.5" fill="white"/>
+        </g>
+        <circle cx="860" cy="182" r="76" fill="#ffd43b"/>
+        <circle cx="830" cy="150" r="22" fill="#fff3bf" opacity=".55"/>
+        <circle cx="595" cy="197" r="42" fill="url(#planet)"/>
+        <path d="M570 198c28 15 59 12 82-7" stroke="#51cf66" stroke-width="8" fill="none" opacity=".75"/>
+        <circle cx="448" cy="211" r="17" fill="#adb5bd"/>
+        <circle cx="245" cy="218" r="10" fill="#69db7c"/>
+        <circle cx="116" cy="222" r="4" fill="#b197fc"/>
+        <text x="85" y="285" fill="white" font-size="18" font-weight="800">Virus</text>
+        <text x="210" y="285" fill="white" font-size="18" font-weight="800">Cell</text>
+        <text x="397" y="285" fill="white" font-size="18" font-weight="800">Human</text>
+        <text x="540" y="285" fill="white" font-size="18" font-weight="800">Earth</text>
+        <text x="785" y="285" fill="white" font-size="18" font-weight="800">Sun</text>
+        <text x="32" y="330" fill="#dbeafe" font-size="20" font-weight="800">A change of one in the exponent means “ten times bigger” or “ten times smaller”.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="real" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Real-world scientific notation gallery</h2>
+      <p>Values are approximate. The aim is not to memorise them, but to learn how scientific notation makes huge and tiny numbers readable.</p>
+      <div class="mini-grid" id="realGallery"></div>
+    </div>
+    <div class="card span-6">
+      <h2>Context questions: large numbers</h2>
+      <div class="practice-card">
+        <p><strong>1.</strong> The distance from Earth to the Sun is about \(1.496\times10^8\) km. Light travels about \(3.0\times10^5\) km/s. Estimate the time light takes to travel from the Sun to Earth.</p>
+        <button onclick="toggleAnswer('realA1')">Reveal solution</button>
+        <div id="realA1" class="answer">\[
+          \frac{1.496\times10^8}{3.0\times10^5}
+          =0.4987\times10^3
+          =4.987\times10^2\text{ s}
+        \]
+        This is about \(499\) seconds, or about \(8.3\) minutes.</div>
+      </div>
+      <div class="practice-card">
+        <p><strong>2.</strong> A country has a population of about \(6.8\times10^7\). If each person used \(1.5\times10^2\) litres of water per day, estimate the total daily use.</p>
+        <button onclick="toggleAnswer('realA2')">Reveal solution</button>
+        <div id="realA2" class="answer">\[
+          (6.8\times10^7)(1.5\times10^2)=10.2\times10^9=1.02\times10^{10}
+        \]
+        The total is about \(1.02\times10^{10}\) litres per day.</div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Context questions: small numbers</h2>
+      <div class="practice-card">
+        <p><strong>3.</strong> A red blood cell is about \(7.5\times10^{-6}\) m across. A bacterium is about \(1.0\times10^{-6}\) m across. About how many bacteria lengths fit across one red blood cell?</p>
+        <button onclick="toggleAnswer('realA3')">Reveal solution</button>
+        <div id="realA3" class="answer">\[
+          \frac{7.5\times10^{-6}}{1.0\times10^{-6}}
+          =7.5\times10^0
+          =7.5
+        \]
+        About \(7.5\) bacteria lengths.</div>
+      </div>
+      <div class="practice-card">
+        <p><strong>4.</strong> A grain of fine sand has diameter \(2.0\times10^{-4}\) m. A human hair has diameter \(7.0\times10^{-5}\) m. Which is larger, and by what factor?</p>
+        <button onclick="toggleAnswer('realA4')">Reveal solution</button>
+        <div id="realA4" class="answer">\[
+          \frac{2.0\times10^{-4}}{7.0\times10^{-5}}
+          =\frac{2.0}{7.0}\times10^{1}
+          \approx2.86
+        \]
+        The grain of sand is about \(2.9\) times wider.</div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>TOK / language prompt</h2>
+      <div class="note">
+        Some numbers have names: million, billion, trillion, googol, googolplex. Others are usually written as powers of ten. 
+        <strong>Discussion:</strong> Do names change how real a number feels? Does \(10^{100}\) feel different from “a googol”?
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Exam-style practice</h2>
+      <p>Use correct mathematical notation. Avoid calculator notation such as E or EE in final answers.</p>
+      <div class="tight-row">
+        <button onclick="generateExamSet()">Generate new set</button>
+        <button class="secondary" onclick="revealAllExam()">Reveal all solutions</button>
+      </div>
+      <div id="examSet"></div>
+    </div>
+    <div class="card span-12">
+      <h2>Mini-checklist before submitting</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Coefficient:</strong> is \(1\leq a&lt;10\)?</div>
+        <div class="tile"><strong>Power:</strong> is \(k\) an integer?</div>
+        <div class="tile"><strong>Notation:</strong> did you write \(\times10^k\), not E notation?</div>
+        <div class="tile"><strong>Meaning:</strong> does your answer have the right size?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start with the scale image and ask: “Which numbers are too annoying to write in ordinary form?”</li>
+        <li>Introduce \(a\times10^k\) as a compressed way of writing place value.</li>
+        <li>Use the conversion tab for teacher modelling, then quick whiteboard practice.</li>
+        <li>Run the ordering game in pairs. Students must justify the order before revealing values.</li>
+        <li>Move to operations only after students can interpret the size of answers.</li>
+        <li>Finish with exam-style notation checks: calculator notation is not accepted.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Negative exponent means negative number.</td><td>Use \(10^{-3}=1/1000=0.001\).</td></tr>
+        <tr><td>Coefficient can be any number.</td><td>Ask: “Is the front number between 1 and 10?”</td></tr>
+        <tr><td>Addition means add powers.</td><td>Rewrite using ordinary form or common powers.</td></tr>
+        <tr><td>E notation is acceptable.</td><td>Make students translate calculator output to mathematical notation.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Printable starter questions</h2>
+      <div class="mini-grid">
+        <div class="tile">Write \(56\,000\,000\) in scientific notation.</div>
+        <div class="tile">Write \(0.000\,072\) in scientific notation.</div>
+        <div class="tile">Convert \(3.8\times10^6\) to ordinary form.</div>
+        <div class="tile">Convert \(9.1\times10^{-4}\) to ordinary form.</div>
+        <div class="tile">Calculate \((2.4\times10^5)(3.0\times10^7)\).</div>
+        <div class="tile">Calculate \((6.3\times10^{-4})/(9.0\times10^2)\).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+function rerenderMath(){
+  if(window.MathJax && window.MathJax.typesetPromise){
+    window.MathJax.typesetPromise();
+  }
+}
+
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.tab).classList.add('active');
+    rerenderMath();
+  });
+});
+
+function sciString(a,k, latex=true){
+  const coeff = Number(a.toPrecision(8)).toString();
+  return latex ? `\\(${coeff}\\times10^{${k}}\\)` : `${coeff}×10^${k}`;
+}
+function prettyOrdinary(num){
+  if(!isFinite(num)) return String(num);
+  if(num === 0) return "0";
+  const abs = Math.abs(num);
+  if(abs >= 1e7 || abs < 1e-6) return num.toExponential(10).replace(/0+e/,'e');
+  let s = num.toLocaleString('en-US', {maximumFractionDigits:12});
+  if(s.includes('.')) s = s.replace(/0+$/,'').replace(/\.$/,'');
+  return s;
+}
+function normalizeSci(a,k){
+  if(a === 0) return {a:0,k:0};
+  let sign = Math.sign(a);
+  a = Math.abs(a);
+  while(a >= 10){a /= 10; k += 1;}
+  while(a < 1){a *= 10; k -= 1;}
+  return {a: sign * a, k};
+}
+function ordinaryToSciParts(num){
+  if(num === 0) return {a:0,k:0};
+  const k = Math.floor(Math.log10(Math.abs(num)));
+  const a = num / Math.pow(10,k);
+  return normalizeSci(a,k);
+}
+function parseAnswerToNumber(s){
+  if(!s) return NaN;
+  let t = s.trim().toLowerCase();
+  t = t.replace(/,/g,'');
+  t = t.replace(/×/g,'x');
+  t = t.replace(/\s+/g,'');
+  t = t.replace(/\^/g,'**');
+  t = t.replace(/x10/g,'*10');
+  t = t.replace(/e/g,'*10**');
+  try{
+    if(!/^[0-9+\-.*()]+$/.test(t)) return NaN;
+    return Function('"use strict";return ('+t+')')();
+  } catch(e){ return NaN; }
+}
+function approxEqual(x,y,rel=1e-7){
+  return Math.abs(x-y) <= Math.max(1, Math.abs(y))*rel;
+}
+function toggleAnswer(id){
+  $(id).classList.toggle('show');
+  rerenderMath();
+}
+
+/* Big idea quick check */
+const sfItems = [
+  {s:"\\(4.2\\times10^8\\)", ok:true, why:"Yes. 4.2 is between 1 and 10."},
+  {s:"\\(42\\times10^7\\)", ok:false, why:"No. 42 is too large. It should be \\(4.2\\times10^8\\)."},
+  {s:"\\(0.42\\times10^9\\)", ok:false, why:"No. 0.42 is less than 1. It should be \\(4.2\\times10^8\\)."},
+  {s:"\\(9.99\\times10^{-4}\\)", ok:true, why:"Yes. 9.99 is less than 10 and at least 1."},
+  {s:"\\(10\\times10^3\\)", ok:false, why:"No. 10 is not less than 10. It should be \\(1\\times10^4\\)."},
+  {s:"\\(1.0\\times10^{-12}\\)", ok:true, why:"Yes. 1.0 is allowed."}
+];
+function initSfCheck(){
+  const box = $("sfCheck");
+  box.innerHTML = "";
+  sfItems.forEach((it,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    div.innerHTML=`<div class="mathline">${it.s}</div>
+      <div class="tight-row" style="margin-top:10px">
+        <button onclick="checkSf(${i},true)">Scientific form</button>
+        <button onclick="checkSf(${i},false)">Not scientific form</button>
+      </div>`;
+    box.appendChild(div);
+  });
+}
+function checkSf(i, ans){
+  const it=sfItems[i];
+  $("sfFeedback").className = "feedback " + (ans===it.ok ? "good" : "bad");
+  $("sfFeedback").innerHTML = (ans===it.ok ? "Correct. " : "Not quite. ") + it.why;
+  rerenderMath();
+}
+function randomNotationTrap(){
+  const vals = [
+    ["5.2E30", "\\(5.2\\times10^{30}\\)"],
+    ["3.45E-7", "\\(3.45\\times10^{-7}\\)"],
+    ["8.01E12", "\\(8.01\\times10^{12}\\)"],
+    ["1.6E-19", "\\(1.6\\times10^{-19}\\)"],
+    ["9.81E0", "\\(9.81\\times10^0\\), usually just \\(9.81\\)"]
+  ];
+  const v = vals[Math.floor(Math.random()*vals.length)];
+  $("trapBox").innerHTML = `<strong>Calculator:</strong> ${v[0]}<br><strong>Write:</strong> ${v[1]}`;
+  rerenderMath();
+}
+
+/* Converters */
+function ordinaryToSci(){
+  const raw = $("ordinaryInput").value.replace(/,/g,'');
+  const num = Number(raw);
+  if(!isFinite(num) || raw.trim()===""){
+    $("ordinaryOutput").className="feedback bad";
+    $("ordinaryOutput").innerHTML="Please enter a valid ordinary number.";
+    return;
+  }
+  const p = ordinaryToSciParts(num);
+  $("ordinaryOutput").className="feedback good";
+  if(num===0){
+    $("ordinaryOutput").innerHTML="0 is normally just written as \\(0\\), not in scientific notation.";
+  }else{
+    $("ordinaryOutput").innerHTML=`\\(${prettyOrdinary(num)} = ${Number(p.a.toPrecision(8))}\\times10^{${p.k}}\\)<br>
+      The decimal point moved ${Math.abs(p.k)} place${Math.abs(p.k)===1?'':'s'} ${p.k>0?'left':'right'}.`;
+  }
+  rerenderMath();
+}
+function sciToOrdinary(){
+  const a = Number($("coeffInput").value);
+  const k = Number($("powerInput").value);
+  if(!isFinite(a) || !Number.isInteger(k)){
+    $("sciOutput").className="feedback bad";
+    $("sciOutput").innerHTML="Please enter a valid coefficient and an integer power.";
+    return;
+  }
+  const value = a * Math.pow(10,k);
+  const valid = Math.abs(a)>=1 && Math.abs(a)<10;
+  $("sciOutput").className=valid?"feedback good":"feedback bad";
+  $("sciOutput").innerHTML=`\\(${a}\\times10^{${k}} = ${prettyOrdinary(value)}\\)<br>`+
+    (valid ? "This is valid scientific notation." : "This value converts, but the coefficient is not in scientific form because it is not between 1 and 10.");
+  rerenderMath();
+}
+
+/* Conversion generator */
+let convertState = null;
+function makeOrdinaryQuestion(){
+  const k = Math.floor(Math.random()*18)-9;
+  const a = (Math.floor(Math.random()*89)+10)/10;
+  const p = normalizeSci(a,k);
+  const value = p.a*Math.pow(10,p.k);
+  return {
+    mode:"ordinary",
+    value,
+    answer:value,
+    question:`Write \\(${prettyOrdinary(value)}\\) in scientific notation.`,
+    solution:`Move the decimal point to make a number between 1 and 10: \\(${prettyOrdinary(value)}=${Number(p.a.toPrecision(6))}\\times10^{${p.k}}\\).`
+  };
+}
+function makeScientificQuestion(){
+  const k = Math.floor(Math.random()*18)-9;
+  const a = (Math.floor(Math.random()*89)+10)/10;
+  const p = normalizeSci(a,k);
+  const value = p.a*Math.pow(10,p.k);
+  return {
+    mode:"scientific",
+    value,
+    answer:value,
+    question:`Write \\(${Number(p.a.toPrecision(6))}\\times10^{${p.k}}\\) in ordinary form.`,
+    solution:`Move the decimal ${p.k>=0?'right':'left'} by \\(${Math.abs(p.k)}\\) place${Math.abs(p.k)===1?'':'s'}: \\(${Number(p.a.toPrecision(6))}\\times10^{${p.k}}=${prettyOrdinary(value)}\\).`
+  };
+}
+function newConvertQuestion(type){
+  if(type==="ordinary") convertState = makeOrdinaryQuestion();
+  else if(type==="scientific") convertState = makeScientificQuestion();
+  else convertState = Math.random()<.5 ? makeOrdinaryQuestion() : makeScientificQuestion();
+  $("convertQuestion").innerHTML = convertState.question;
+  $("convertAnswer").value = "";
+  $("convertFeedback").className="feedback";
+  $("convertFeedback").innerHTML="Type your answer, then check.";
+  $("convertSolution").className="answer";
+  $("convertSolution").innerHTML="";
+  rerenderMath();
+}
+function checkConvertAnswer(){
+  if(!convertState){ $("convertFeedback").innerHTML="Generate a question first."; return; }
+  const val = parseAnswerToNumber($("convertAnswer").value);
+  if(!isFinite(val)){
+    $("convertFeedback").className="feedback bad";
+    $("convertFeedback").innerHTML="I could not read that. Try forms like 3.4x10^5 or 340000.";
+  }else if(approxEqual(val, convertState.answer, 1e-6)){
+    $("convertFeedback").className="feedback good";
+    $("convertFeedback").innerHTML="Correct.";
+  }else{
+    $("convertFeedback").className="feedback bad";
+    $("convertFeedback").innerHTML=`Not quite. Your answer has value ${prettyOrdinary(val)}.`;
+  }
+}
+function revealConvertAnswer(){
+  if(!convertState) return;
+  $("convertSolution").className="answer show";
+  $("convertSolution").innerHTML=convertState.solution;
+  rerenderMath();
+}
+
+/* Operations */
+let opState=null;
+function randSci(kmin=-8,kmax=9){
+  const a = (Math.floor(Math.random()*80)+12)/10;
+  const k = Math.floor(Math.random()*(kmax-kmin+1))+kmin;
+  return normalizeSci(a,k);
+}
+function newOperationQuestion(type){
+  let A = randSci(), B = randSci();
+  let val, q, sol;
+  if(type==="multiply"){
+    val = A.a*Math.pow(10,A.k)*B.a*Math.pow(10,B.k);
+    const rawA = A.a*B.a, rawK = A.k+B.k, norm=normalizeSci(rawA,rawK);
+    q = `Calculate \\((${Number(A.a.toPrecision(5))}\\times10^{${A.k}})(${Number(B.a.toPrecision(5))}\\times10^{${B.k}})\\).`;
+    sol = `Multiply coefficients and add powers: \\(${Number(A.a.toPrecision(5))}\\times${Number(B.a.toPrecision(5))}=${Number(rawA.toPrecision(5))}\\), and \\(${A.k}+${B.k}=${rawK}\\). So \\(${Number(rawA.toPrecision(5))}\\times10^{${rawK}}=${Number(norm.a.toPrecision(5))}\\times10^{${norm.k}}\\).`;
+  }else if(type==="divide"){
+    val = (A.a*Math.pow(10,A.k))/(B.a*Math.pow(10,B.k));
+    const rawA = A.a/B.a, rawK = A.k-B.k, norm=normalizeSci(rawA,rawK);
+    q = `Calculate \\(\\frac{${Number(A.a.toPrecision(5))}\\times10^{${A.k}}}{${Number(B.a.toPrecision(5))}\\times10^{${B.k}}}\\).`;
+    sol = `Divide coefficients and subtract powers: \\(${Number(A.a.toPrecision(5))}\\div${Number(B.a.toPrecision(5))}\\approx${Number(rawA.toPrecision(5))}\\), and \\(${A.k}-(${B.k})=${rawK}\\). So the answer is \\(${Number(norm.a.toPrecision(5))}\\times10^{${norm.k}}\\).`;
+  }else if(type==="add" || type==="subtract"){
+    A = randSci(2,9); B = randSci(1,8);
+    const sign = type==="add" ? 1 : -1;
+    val = A.a*Math.pow(10,A.k) + sign*B.a*Math.pow(10,B.k);
+    if(val<=0){return newOperationQuestion(type);}
+    const norm=ordinaryToSciParts(val);
+    q = `Calculate \\(${Number(A.a.toPrecision(5))}\\times10^{${A.k}} ${type==="add"?"+":"-"} ${Number(B.a.toPrecision(5))}\\times10^{${B.k}}\\).`;
+    sol = `One safe method is to convert or rewrite with a common power. The value is \\(${prettyOrdinary(val)}\\), which is \\(${Number(norm.a.toPrecision(6))}\\times10^{${norm.k}}\\).`;
+  }else{
+    const contexts=[
+      {
+        q:`A phone stores \\(2.4\\times10^4\\) photos. Each photo uses about \\(3.5\\times10^6\\) bytes. Estimate the total storage used in bytes.`,
+        val:2.4e4*3.5e6,
+        sol:`\\((2.4\\times10^4)(3.5\\times10^6)=8.4\\times10^{10}\\) bytes.`
+      },
+      {
+        q:`A lake contains about \\(1.8\\times10^{12}\\) litres of water. If \\(6.0\\times10^6\\) litres are used each day, estimate the number of days before that amount is used.`,
+        val:1.8e12/6.0e6,
+        sol:`\\((1.8\\times10^{12})/(6.0\\times10^6)=0.3\\times10^6=3.0\\times10^5\\) days.`
+      },
+      {
+        q:`A bacterium is \\(1.2\\times10^{-6}\\) m long. A microscope image magnifies it by \\(5.0\\times10^4\\). What is its image length in metres?`,
+        val:1.2e-6*5.0e4,
+        sol:`\\((1.2\\times10^{-6})(5.0\\times10^4)=6.0\\times10^{-2}\\) m.`
+      }
+    ];
+    const c=contexts[Math.floor(Math.random()*contexts.length)];
+    val=c.val; q=c.q; sol=c.sol;
+  }
+  const ans = ordinaryToSciParts(val);
+  opState={value:val, ans, solution:sol};
+  $("operationQuestion").innerHTML=q;
+  $("operationAnswer").value="";
+  $("operationFeedback").className="feedback";
+  $("operationFeedback").innerHTML="Type your answer in scientific notation.";
+  $("operationSolution").className="answer";
+  $("operationSolution").innerHTML="";
+  rerenderMath();
+}
+function checkOperationAnswer(){
+  if(!opState){$("operationFeedback").innerHTML="Generate a question first.";return;}
+  const val=parseAnswerToNumber($("operationAnswer").value);
+  if(!isFinite(val)){
+    $("operationFeedback").className="feedback bad";
+    $("operationFeedback").innerHTML="I could not read that. Try e.g. 1.2x10^13.";
+  }else if(approxEqual(val,opState.value,1e-5)){
+    const p=ordinaryToSciParts(val);
+    const valid = Math.abs(p.a)>=1 && Math.abs(p.a)<10;
+    $("operationFeedback").className="feedback good";
+    $("operationFeedback").innerHTML=`Correct. A suitable final form is \\(${Number(opState.ans.a.toPrecision(6))}\\times10^{${opState.ans.k}}\\).`;
+  }else{
+    $("operationFeedback").className="feedback bad";
+    $("operationFeedback").innerHTML=`Not quite. Your answer has value ${prettyOrdinary(val)}.`;
+  }
+  rerenderMath();
+}
+function revealOperationSolution(){
+  if(!opState)return;
+  $("operationSolution").className="answer show";
+  $("operationSolution").innerHTML=opState.solution;
+  rerenderMath();
+}
+
+/* Ordering game */
+const realItems = [
+  {name:"Hydrogen atom diameter", emoji:"⚛️", value:1.06e-10, sci:"\\(1.06\\times10^{-10}\\) m"},
+  {name:"Influenza virus diameter", emoji:"🦠", value:1.0e-7, sci:"\\(1.0\\times10^{-7}\\) m"},
+  {name:"Red blood cell diameter", emoji:"🩸", value:7.5e-6, sci:"\\(7.5\\times10^{-6}\\) m"},
+  {name:"Fine sand grain", emoji:"🏖️", value:2.0e-4, sci:"\\(2.0\\times10^{-4}\\) m"},
+  {name:"Football pitch length", emoji:"⚽", value:1.05e2, sci:"\\(1.05\\times10^{2}\\) m"},
+  {name:"Mount Everest height", emoji:"🏔️", value:8.849e3, sci:"\\(8.849\\times10^{3}\\) m"},
+  {name:"Earth diameter", emoji:"🌍", value:1.2742e7, sci:"\\(1.2742\\times10^{7}\\) m"},
+  {name:"Earth to Sun distance", emoji:"☀️", value:1.496e11, sci:"\\(1.496\\times10^{11}\\) m"}
+];
+let dragId=null;
+function makeOrderCard(item, idx){
+  const div=document.createElement('div');
+  div.className='real-item';
+  div.draggable=true;
+  div.dataset.idx=idx;
+  div.innerHTML=`<span class="emoji">${item.emoji}</span><span class="name">${item.name}</span><span class="value">${item.sci}</span>`;
+  div.addEventListener('dragstart',e=>{dragId=idx; e.dataTransfer.setData('text/plain',idx);});
+  return div;
+}
+function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);}
+function setupDrop(zone){
+  zone.addEventListener('dragover',e=>{e.preventDefault();});
+  zone.addEventListener('drop',e=>{
+    e.preventDefault();
+    const idx=e.dataTransfer.getData('text/plain') || dragId;
+    const card=document.querySelector(`.real-item[data-idx="${idx}"]`);
+    if(!card) return;
+    const after = getDragAfterElement(zone, e.clientY);
+    if(after==null) zone.appendChild(card);
+    else zone.insertBefore(card, after);
+    updateOrderProgress();
+  });
+}
+function getDragAfterElement(container, y){
+  const els=[...container.querySelectorAll('.real-item:not(.dragging)')];
+  return els.reduce((closest,child)=>{
+    const box=child.getBoundingClientRect();
+    const offset=y-box.top-box.height/2;
+    if(offset<0 && offset>closest.offset) return {offset,element:child};
+    else return closest;
+  },{offset:Number.NEGATIVE_INFINITY}).element;
+}
+function resetOrderGame(){
+  const bank=$("itemBank"), list=$("orderList");
+  bank.innerHTML=""; list.innerHTML="";
+  shuffle(realItems.map((_,i)=>i)).forEach(i=>bank.appendChild(makeOrderCard(realItems[i],i)));
+  $("revealOrderBtn").disabled=true;
+  $("orderFeedback").className="feedback";
+  $("orderFeedback").innerHTML="Move the cards into the right-hand box.";
+  $("orderProgress").style.width="0%";
+  rerenderMath();
+}
+function updateOrderProgress(){
+  const n=$("orderList").querySelectorAll('.real-item').length;
+  $("orderProgress").style.width=(n/realItems.length*100)+"%";
+}
+function checkOrderGame(){
+  const cards=[...$("orderList").querySelectorAll('.real-item')];
+  if(cards.length!==realItems.length){
+    $("orderFeedback").className="feedback bad";
+    $("orderFeedback").innerHTML=`You have ordered ${cards.length}/${realItems.length}. Move all cards into the right-hand box.`;
+    return;
+  }
+  const vals=cards.map(c=>realItems[Number(c.dataset.idx)].value);
+  let ok=true;
+  for(let i=1;i<vals.length;i++) if(vals[i]<vals[i-1]) ok=false;
+  if(ok){
+    $("orderFeedback").className="feedback good";
+    $("orderFeedback").innerHTML="Correct. You have built a scale from tiny to huge. Now reveal the scientific notation values.";
+    $("revealOrderBtn").disabled=false;
+  }else{
+    $("orderFeedback").className="feedback bad";
+    $("orderFeedback").innerHTML="Not yet. Look for the first pair that feels out of order. Compare exponents first.";
+  }
+}
+function revealOrderValues(){
+  document.querySelectorAll('#orderList .real-item').forEach(c=>c.classList.add('reveal'));
+  rerenderMath();
+}
+
+/* Real gallery */
+function initRealGallery(){
+  const data=[
+    ["⚛️","Hydrogen atom diameter","\\(1.06\\times10^{-10}\\) m","Small numbers need negative powers."],
+    ["🧬","DNA width","\\(2.0\\times10^{-9}\\) m","A few nanometres wide."],
+    ["🩸","Red blood cell diameter","\\(7.5\\times10^{-6}\\) m","Microscopic but much larger than atoms."],
+    ["📱","Phone storage, 256 GB","\\(2.56\\times10^{11}\\) bytes","Huge count of bytes."],
+    ["🌍","Earth diameter","\\(1.2742\\times10^{7}\\) m","About 12,742 km."],
+    ["☀️","Earth-Sun distance","\\(1.496\\times10^{11}\\) m","Astronomical distances need powers."],
+    ["🧪","Avogadro constant","\\(6.022\\times10^{23}\\)","Particles per mole."],
+    ["🔭","Observable universe diameter","\\(8.8\\times10^{26}\\) m","A scale beyond ordinary intuition."]
+  ];
+  const box=$("realGallery");
+  box.innerHTML="";
+  data.forEach(d=>{
+    const div=document.createElement('div');
+    div.className="tile";
+    div.innerHTML=`<div style="font-size:2rem">${d[0]}</div><h3>${d[1]}</h3><p class="mathline">${d[2]}</p><p>${d[3]}</p>`;
+    box.appendChild(div);
+  });
+}
+
+/* Exam set */
+const examBank = [
+  {
+    q:"Write \\(0.000000091\\) in scientific notation.",
+    a:"\\(9.1\\times10^{-8}\\)",
+    s:"Move the decimal 8 places right to make 9.1, so the exponent is \\(-8\\)."
+  },
+  {
+    q:"Write \\(73\\,500\\,000\\) in scientific notation.",
+    a:"\\(7.35\\times10^{7}\\)",
+    s:"Move the decimal 7 places left to make 7.35."
+  },
+  {
+    q:"Write \\(4.06\\times10^{-5}\\) in ordinary form.",
+    a:"\\(0.0000406\\)",
+    s:"Move the decimal 5 places left."
+  },
+  {
+    q:"Write \\(8.92\\times10^{6}\\) in ordinary form.",
+    a:"\\(8\\,920\\,000\\)",
+    s:"Move the decimal 6 places right."
+  },
+  {
+    q:"Calculate \\((3.2\\times10^4)(5.0\\times10^7)\\).",
+    a:"\\(1.6\\times10^{12}\\)",
+    s:"\\(3.2\\times5.0=16\\), \\(10^4\\times10^7=10^{11}\\). So \\(16\\times10^{11}=1.6\\times10^{12}\\)."
+  },
+  {
+    q:"Calculate \\(\\frac{7.2\\times10^{-3}}{2.4\\times10^5}\\).",
+    a:"\\(3.0\\times10^{-8}\\)",
+    s:"\\(7.2/2.4=3.0\\), and \\(-3-5=-8\\)."
+  },
+  {
+    q:"The mass of a dust particle is \\(4.5\\times10^{-9}\\) kg. Estimate the mass of \\(2.0\\times10^6\\) such particles.",
+    a:"\\(9.0\\times10^{-3}\\) kg",
+    s:"\\((4.5\\times10^{-9})(2.0\\times10^6)=9.0\\times10^{-3}\\)."
+  },
+  {
+    q:"A data centre stores \\(6.4\\times10^{15}\\) bytes. Each file is \\(8.0\\times10^6\\) bytes. Estimate the number of files.",
+    a:"\\(8.0\\times10^8\\) files",
+    s:"\\((6.4\\times10^{15})/(8.0\\times10^6)=0.8\\times10^9=8.0\\times10^8\\)."
+  }
+];
+function generateExamSet(){
+  const chosen=shuffle(examBank).slice(0,6);
+  const box=$("examSet");
+  box.innerHTML="";
+  chosen.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className="practice-card";
+    div.innerHTML=`<p><strong>Question ${i+1}.</strong> ${item.q}</p>
+      <button onclick="toggleAnswer('examAns${i}')">Reveal solution</button>
+      <div id="examAns${i}" class="answer"><p><strong>Answer:</strong> ${item.a}</p><p>${item.s}</p></div>`;
+    box.appendChild(div);
+  });
+  rerenderMath();
+}
+function revealAllExam(){
+  document.querySelectorAll('#examSet .answer').forEach(a=>a.classList.add('show'));
+  rerenderMath();
+}
+
+/* Init */
+initSfCheck();
+setupDrop($("itemBank"));
+setupDrop($("orderList"));
+resetOrderGame();
+initRealGallery();
+generateExamSet();
+</script>
+</body>
+</html>

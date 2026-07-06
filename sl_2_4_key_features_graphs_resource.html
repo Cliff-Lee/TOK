@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 2.4 Key Features of Graphs Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --ink:#18212d; --muted:#5c6a79; --paper:#fff; --soft:#f5f7fb; --line:#d7dee8;
+  --accent:#2364aa; --accent2:#0ca678; --accent3:#7048e8; --warn:#f08c00;
+  --good:#2f9e44; --bad:#c92a2a; --shadow:0 14px 28px rgba(16,24,40,.10);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+    radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+    linear-gradient(#fff,#f7f9fc 48rem);
+  line-height:1.45;
+}
+header{max-width:1220px;margin:auto;padding:34px 22px 18px}
+.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(2rem,5vw,4.3rem);line-height:.95;letter-spacing:-.06em}
+h1 span{display:block;color:var(--accent)}
+.subtitle{margin:15px 0 0;max-width:920px;color:#344054;font-size:1.12rem}
+.badge{
+  display:inline-flex;align-items:center;gap:.55rem;padding:9px 14px;background:white;
+  border:1px solid var(--line);border-radius:999px;box-shadow:0 5px 18px rgba(0,0,0,.06);
+  font-weight:800;color:var(--accent);white-space:nowrap;
+}
+main{max-width:1220px;margin:0 auto 70px;padding:0 22px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.card{
+  background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+@media(max-width:940px){.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}}
+h2{margin:0 0 12px;font-size:1.55rem;letter-spacing:-.025em}
+h3{margin:16px 0 8px;font-size:1.12rem}
+p{margin:8px 0}
+.syllabus-table{
+  display:grid;grid-template-columns:1fr 1fr;border:1px solid #9ca3af;border-radius:14px;overflow:hidden;background:white;
+}
+.syllabus-table>div{padding:14px 17px;border-bottom:1px solid #9ca3af}
+.syllabus-table .head{background:#eef0f2;color:#6b7280;font-weight:850;font-size:1.08rem}
+.syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+.syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:740px){
+  .syllabus-table{grid-template-columns:1fr}
+  .syllabus-table div:nth-child(odd){border-right:none}
+  .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}
+.tile h3{margin-top:0}
+.tabs{
+  position:sticky;top:0;z-index:10;padding:12px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;
+  background:rgba(247,249,252,.86);border:1px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+button{
+  appearance:none;border:none;border-radius:999px;padding:10px 14px;background:#e9eef6;color:var(--ink);
+  font-weight:800;cursor:pointer;transition:.16s transform,.16s background,.16s color,.16s box-shadow;font-size:.95rem;
+}
+button:hover{transform:translateY(-1px)}
+button.active{background:var(--accent);color:white;box-shadow:0 8px 18px rgba(35,100,170,.24)}
+button.secondary{background:#eef2ff;color:#3b2b98}
+button.good{background:#d3f9d8;color:#1b5e20}
+button.warn{background:#fff3bf;color:#7c4a00}
+button.danger{background:#ffe3e3;color:#8a1717}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+.formula{background:#0f172a;color:white;border-radius:16px;padding:18px;margin:15px 0;overflow-x:auto}
+.note{border-left:5px solid var(--accent);background:#edf6ff;padding:12px 14px;border-radius:12px;margin:12px 0}
+.note.warn{border-color:var(--warn);background:#fff7e6}
+.note.good{border-color:var(--good);background:#ebfbee}
+.steps{counter-reset:step;list-style:none;padding:0;margin:12px 0}
+.steps li{
+  counter-increment:step;position:relative;margin:10px 0;padding:12px 12px 12px 48px;
+  background:#f8fafc;border:1px solid var(--line);border-radius:14px;
+}
+.steps li::before{
+  content:counter(step);position:absolute;left:12px;top:12px;width:25px;height:25px;
+  display:grid;place-items:center;border-radius:50%;background:var(--accent);color:white;font-weight:900;
+}
+.mathline{font-size:1.08rem;padding:12px;border:1px solid var(--line);background:white;border-radius:12px;overflow-x:auto}
+.eq-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px;margin:10px 0}
+.eq-label{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:6px}
+.feedback{margin-top:10px;padding:12px 14px;border-radius:12px;min-height:48px;background:#f1f5f9}
+.feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+.feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+.feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+.practice-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin:12px 0}
+.answer{display:none;margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.answer.show{display:block}
+input, textarea, select{
+  width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:white;
+}
+textarea{min-height:90px;resize:vertical}
+label{display:block;margin:8px 0 5px;font-weight:850}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.range-wrap{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:10px 0}
+input[type=range]{padding:0}
+.graph-wrap{background:white;border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden}
+.svg-graph{
+  width:100%;aspect-ratio:1.45/1;max-height:540px;display:block;
+  background:linear-gradient(#fcfdff,#f6fbff);border-radius:12px;overflow:visible;
+}
+.context-svg{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:white}
+.pill{
+  display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#edf2ff;color:#364fc7;
+  font-size:.82rem;font-weight:850;margin:2px;
+}
+.pill.green{background:#e6fcf5;color:#087f5b}.pill.orange{background:#fff3bf;color:#7c4a00}.pill.red{background:#ffe3e3;color:#8a1717}
+table{width:100%;border-collapse:collapse;margin:12px 0;background:white;border-radius:14px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}
+th{background:#eef4fb}
+.feature-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;
+  background:#f8fafc;border:1px solid var(--line);font-weight:850;font-size:.9rem;margin:3px;
+}
+.feature-pill::before{content:"";width:10px;height:10px;border-radius:50%;background:#2364aa}
+.feature-pill.root::before{background:#c92a2a}.feature-pill.turn::before{background:#0ca678}.feature-pill.asym::before{background:#f08c00}.feature-pill.inter::before{background:#7048e8}
+.nspire{
+  border-radius:22px;background:#202a35;color:white;padding:18px;max-width:360px;margin:0 auto;
+  box-shadow:inset 0 -8px 0 rgba(0,0,0,.18),0 12px 25px rgba(0,0,0,.2);
+}
+.nspire-screen{
+  background:#d7f5e3;color:#0f2b19;border:5px solid #101720;border-radius:12px;padding:12px;
+  min-height:155px;font-family:"Courier New",monospace;margin-bottom:14px;
+}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.key{background:#3b4552;color:white;text-align:center;border-radius:9px;padding:8px 4px;font-weight:850;font-size:.82rem}
+.key.blue{background:#1d4ed8}.key.orange{background:#b45309}.key.green{background:#087f5b}.key.light{background:#667085}
+@media print{
+  body{background:white}.tabs,button{display:none!important}.tab-panel{display:block!important}.card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 2.4 <span>Key Features of Graphs</span></h1>
+      <p class="subtitle">An interactive resource for finding and interpreting maximum and minimum values, intercepts, symmetry, vertices, zeros/roots, asymptotes, and intersections using graphing technology, sliders and contextual examples.</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Functions & Graphs</div>
+  </div>
+</header>
+
+<main>
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore first</button>
+  <button class="tab-button" data-tab="features">2. Feature detective</button>
+  <button class="tab-button" data-tab="roots">3. Roots & intercepts</button>
+  <button class="tab-button" data-tab="turning">4. Max/min, vertex & symmetry</button>
+  <button class="tab-button" data-tab="asymptotes">5. Asymptotes</button>
+  <button class="tab-button" data-tab="intersections">6. Intersections</button>
+  <button class="tab-button" data-tab="gdc">7. GDC instructions</button>
+  <button class="tab-button" data-tab="contexts">8. Contexts</button>
+  <button class="tab-button" data-tab="formalise">9. Formalise</button>
+  <button class="tab-button" data-tab="practice">10. Question generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore: sliders change key features</h2>
+      <p>Use sliders to change the graph. Do not just watch the shape; watch what happens to the vertex, intercepts, symmetry and roots.</p>
+      <div class="tight-row">
+        <button onclick="chooseExplore('quadratic')">Quadratic</button>
+        <button onclick="chooseExplore('cubic')">Cubic</button>
+        <button onclick="chooseExplore('reciprocal')">Reciprocal</button>
+        <button onclick="chooseExplore('absolute')">Absolute value</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="exploreGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div id="sliderControls"></div>
+    </div>
+    <div class="card span-5">
+      <h2>Live feature report</h2>
+      <div class="eq-box"><div class="eq-label">Function</div><div id="exploreFunction" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Features</div><div id="exploreFeatures" class="mathline"></div></div>
+      <div id="exploreFeedback" class="feedback info">Begin with visual changes, then attach mathematical language.</div>
+      <h3>Observation prompts</h3>
+      <ol class="steps">
+        <li>What feature is fixed by the sliders?</li>
+        <li>Which features move?</li>
+        <li>Which features appear or disappear?</li>
+        <li>What would you ask a GDC to find exactly?</li>
+      </ol>
+    </div>
+    <div class="card span-12">
+      <h2>SL 2.4 feature vocabulary</h2>
+      <div class="mini-grid">
+        <div class="tile"><span class="feature-pill root">Zero/root</span><p>Where \(f(x)=0\). On a graph, this is an \(x\)-intercept.</p></div>
+        <div class="tile"><span class="feature-pill turn">Maximum/minimum</span><p>Where the graph reaches a local or global high/low value.</p></div>
+        <div class="tile"><span class="feature-pill turn">Vertex</span><p>The turning point of a parabola or the corner of an absolute value graph.</p></div>
+        <div class="tile"><span class="feature-pill asym">Asymptote</span><p>A line the graph approaches, such as \(x=a\) or \(y=b\).</p></div>
+        <div class="tile"><span class="feature-pill inter">Intersection</span><p>Where two graphs have the same \(x\) and \(y\) values.</p></div>
+        <div class="tile"><span class="feature-pill">Symmetry</span><p>A line or point that reflects/rotates the graph onto itself.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Feature detective</h2>
+      <p>Pick a graph, then reveal the key features one by one.</p>
+      <div class="tight-row">
+        <button onclick="chooseDetective('quad')">Parabola</button>
+        <button onclick="chooseDetective('cubic')">Cubic</button>
+        <button onclick="chooseDetective('recip')">Rational</button>
+        <button onclick="chooseDetective('exp')">Exponential</button>
+        <button onclick="chooseDetective('log')">Logarithmic</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="detectiveGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div class="tight-row" style="margin-top:10px">
+        <button onclick="revealDetective('intercepts')">Reveal intercepts</button>
+        <button onclick="revealDetective('turning')">Reveal max/min/vertex</button>
+        <button onclick="revealDetective('symmetry')">Reveal symmetry</button>
+        <button onclick="revealDetective('asymptotes')">Reveal asymptotes</button>
+        <button onclick="revealDetective('all')">Reveal all</button>
+        <button class="secondary" onclick="chooseDetective(detectiveType)">Reset</button>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Feature notes</h2>
+      <div class="eq-box"><div class="eq-label">Current graph</div><div id="detectiveEq" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Features found</div><div id="detectiveNotes" class="mathline">Choose a graph.</div></div>
+      <div class="note warn">
+        A GDC can find features numerically, but you still need to decide which feature is meaningful in context.
+      </div>
+      <div class="practice-card">
+        <p><strong>Mini-task:</strong> Which features would be most useful for sketching this graph accurately?</p>
+        <button onclick="toggleAnswer('detectiveMini')">Reveal answer</button>
+        <div id="detectiveMini" class="answer">
+          Usually: intercepts, turning points or vertex, asymptotes if present, symmetry if present, and a sensible viewing window.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="roots" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Zeros, roots and intercepts</h2>
+      <div class="formula">
+        \[
+          \text{zero/root: } f(x)=0
+        \]
+        \[
+          x\text{-intercept: }(x,0)
+        \]
+        \[
+          y\text{-intercept: }(0,f(0))
+        \]
+      </div>
+      <p>Roots and zeros are \(x\)-values. Intercepts are points on the graph.</p>
+      <div class="practice-card">
+        <p><strong>Example.</strong> For \(f(x)=x^2-5x+6\), find the zeros and intercepts.</p>
+        <button onclick="toggleAnswer('rootsExample')">Reveal solution</button>
+        <div id="rootsExample" class="answer">
+          Factorise:
+          \[
+            x^2-5x+6=(x-2)(x-3)
+          \]
+          The zeros are \(x=2\) and \(x=3\). The \(x\)-intercepts are \((2,0)\) and \((3,0)\). The \(y\)-intercept is \(f(0)=6\), so \((0,6)\).
+        </div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Interactive root finder</h2>
+      <div class="row">
+        <div><label for="rootA">\(a\) in \(ax^2+bx+c\)</label><input id="rootA" value="1"></div>
+        <div><label for="rootB">\(b\)</label><input id="rootB" value="-5"></div>
+        <div><label for="rootC">\(c\)</label><input id="rootC" value="6"></div>
+      </div>
+      <button onclick="drawRootFinder()">Update graph</button>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="rootGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div id="rootOutput" class="feedback info">Update the graph to find roots and intercepts.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Root interpretation</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Science</h3><p>A root might represent when height reaches ground level.</p></div>
+        <div class="tile"><h3>Economics</h3><p>A root might represent break-even profit \(P(x)=0\).</p></div>
+        <div class="tile"><h3>Geography</h3><p>An intercept might represent an initial value, such as population at time \(0\).</p></div>
+        <div class="tile"><h3>Warning</h3><p>Not every mathematical root makes sense in context, especially negative time or negative quantity.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="turning" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Maximum, minimum, vertex and symmetry</h2>
+      <p>For a quadratic in vertex form \(f(x)=a(x-h)^2+k\), the vertex is \((h,k)\). If \(a>0\), it is a minimum. If \(a<0\), it is a maximum.</p>
+      <div class="range-wrap">
+        <div><label for="turnA">Stretch/reflection \(a\)</label><input id="turnA" type="range" min="-4" max="4" step="0.5" value="1" oninput="drawTurning()"></div>
+        <div class="pill" id="turnALabel">a = 1</div>
+      </div>
+      <div class="range-wrap">
+        <div><label for="turnH">Vertex \(x\)-coordinate \(h\)</label><input id="turnH" type="range" min="-6" max="6" step="0.5" value="2" oninput="drawTurning()"></div>
+        <div class="pill green" id="turnHLabel">h = 2</div>
+      </div>
+      <div class="range-wrap">
+        <div><label for="turnK">Vertex \(y\)-coordinate \(k\)</label><input id="turnK" type="range" min="-6" max="6" step="0.5" value="-3" oninput="drawTurning()"></div>
+        <div class="pill orange" id="turnKLabel">k = -3</div>
+      </div>
+      <div class="graph-wrap">
+        <svg id="turnGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Feature report</h2>
+      <div class="eq-box"><div class="eq-label">Function</div><div id="turnEq" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Vertex and symmetry</div><div id="turnFeatures" class="mathline"></div></div>
+      <div class="note good">
+        On a GDC, use minimum or maximum tools to find the vertex numerically.
+      </div>
+      <div class="practice-card">
+        <p><strong>Example.</strong> A ball has height \(h(t)=-5(t-2)^2+21\). Interpret the vertex.</p>
+        <button onclick="toggleAnswer('turningExample')">Reveal solution</button>
+        <div id="turningExample" class="answer">
+          The vertex is \((2,21)\). Since the coefficient is negative, this is a maximum. The ball reaches a maximum height of 21 m after 2 seconds.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="asymptotes" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Vertical and horizontal asymptotes</h2>
+      <p>For \(f(x)=\dfrac{a}{x-h}+k\), the vertical asymptote is \(x=h\), and the horizontal asymptote is \(y=k\).</p>
+      <div class="range-wrap">
+        <div><label for="asymA">Scale/reflection \(a\)</label><input id="asymA" type="range" min="-6" max="6" step="0.5" value="2" oninput="drawAsymptotes()"></div>
+        <div class="pill" id="asymALabel">a = 2</div>
+      </div>
+      <div class="range-wrap">
+        <div><label for="asymH">Vertical asymptote \(x=h\)</label><input id="asymH" type="range" min="-6" max="6" step="0.5" value="1" oninput="drawAsymptotes()"></div>
+        <div class="pill red" id="asymHLabel">h = 1</div>
+      </div>
+      <div class="range-wrap">
+        <div><label for="asymK">Horizontal asymptote \(y=k\)</label><input id="asymK" type="range" min="-6" max="6" step="0.5" value="-2" oninput="drawAsymptotes()"></div>
+        <div class="pill orange" id="asymKLabel">k = -2</div>
+      </div>
+      <div class="graph-wrap">
+        <svg id="asymGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Asymptote interpretation</h2>
+      <div class="eq-box"><div class="eq-label">Function</div><div id="asymEq" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Asymptotes</div><div id="asymFeatures" class="mathline"></div></div>
+      <div class="note warn">
+        A graph may look like it touches an asymptote on a small screen. Zooming helps reveal the behaviour.
+      </div>
+      <div class="practice-card">
+        <p><strong>GDC task.</strong> Graph \(f(x)=\frac{3}{x-2}+1\). Identify the asymptotes.</p>
+        <button onclick="toggleAnswer('asymExample')">Reveal answer</button>
+        <div id="asymExample" class="answer">
+          The vertical asymptote is \(x=2\), and the horizontal asymptote is \(y=1\). On a GDC, zoom near \(x=2\) and use the table or trace to see the values become very large in magnitude.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="intersections" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Intersections solve equations</h2>
+      <p>Where \(f(x)=g(x)\), the graphs intersect. This is often the easiest way to solve equations with technology.</p>
+      <div class="tight-row">
+        <button onclick="chooseIntersection('linequad')">Line and quadratic</button>
+        <button onclick="chooseIntersection('supply')">Supply and demand</button>
+        <button onclick="chooseIntersection('expLine')">Exponential and line</button>
+        <button onclick="chooseIntersection('twoLines')">Two lines</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="interGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Intersection report</h2>
+      <div class="eq-box"><div class="eq-label">Functions</div><div id="interFunctions" class="mathline"></div></div>
+      <div class="eq-box"><div class="eq-label">Intersection points</div><div id="interOutput" class="mathline"></div></div>
+      <div class="note good">
+        In a contextual problem, the intersection often means equal cost, equal population, market equilibrium, or break-even point.
+      </div>
+      <div class="practice-card">
+        <p><strong>Technology idea.</strong> On a GDC, graph both functions, then use the intersection command. Always check the viewing window includes the crossing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gdc" class="tab-panel">
+  <div class="grid">
+    <div class="card span-5">
+      <h2>GDC screen mental model</h2>
+      <div class="nspire">
+        <div class="nspire-screen">
+          Graphs<br>
+          f1(x)=x^2-4x+1<br>
+          f2(x)=2x-5<br><br>
+          Menu > Analyze Graph<br>
+          Zero / Minimum / Maximum<br>
+          Intersection
+        </div>
+        <div class="keys">
+          <div class="key blue">home</div><div class="key">doc</div><div class="key">menu</div><div class="key">tab</div><div class="key orange">enter</div>
+          <div class="key">ctrl</div><div class="key">esc</div><div class="key">var</div><div class="key">x</div><div class="key green">trace</div>
+          <div class="key light">7</div><div class="key light">8</div><div class="key light">9</div><div class="key">/</div><div class="key">^</div>
+        </div>
+      </div>
+    </div>
+    <div class="card span-7">
+      <h2>TI-Nspire CX / CX II instructions</h2>
+      <ol class="steps">
+        <li>Press <strong>Home</strong> → <strong>New Document</strong> → <strong>Add Graphs</strong>.</li>
+        <li>Type the function, for example <strong>f1(x)=x^2-4x+1</strong>, then press <strong>Enter</strong>.</li>
+        <li>Change the window if needed: <strong>Menu</strong> → <strong>Window/Zoom</strong> → <strong>Window Settings</strong>. Choose \(x\)-min, \(x\)-max, \(y\)-min and \(y\)-max.</li>
+        <li>Find a zero/root: <strong>Menu</strong> → <strong>Analyze Graph</strong> → <strong>Zero</strong>. Move to a lower bound, press <strong>Enter</strong>; move to an upper bound, press <strong>Enter</strong>.</li>
+        <li>Find a minimum or maximum: <strong>Menu</strong> → <strong>Analyze Graph</strong> → <strong>Minimum</strong> or <strong>Maximum</strong>. Select a lower and upper bound around the turning point.</li>
+        <li>Find an intersection: graph both functions, then <strong>Menu</strong> → <strong>Analyze Graph</strong> → <strong>Intersection</strong>. Select lower and upper bounds around the crossing.</li>
+        <li>Use <strong>Graph Trace</strong> to inspect approximate points: <strong>Menu</strong> → <strong>Trace</strong> → <strong>Graph Trace</strong>.</li>
+      </ol>
+      <div class="note good">
+        Good exam style: write the function, state the feature requested, give the GDC result to appropriate accuracy, and interpret it in context.
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Casio ClassWiz / fx-CG style instructions</h2>
+      <ol class="steps">
+        <li>Open <strong>Graph</strong> mode.</li>
+        <li>Enter the function as \(Y_1\). Enter a second function as \(Y_2\) if finding intersections.</li>
+        <li>Set a suitable viewing window using <strong>V-Window</strong>.</li>
+        <li>Use <strong>G-Solve</strong> or equivalent tools for <strong>Root</strong>, <strong>Max</strong>, <strong>Min</strong>, \(y\)-intercept and <strong>Intersection</strong>.</li>
+        <li>If the feature is not visible, adjust the window and try again.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>General GDC strategy</h2>
+      <ol class="steps">
+        <li><strong>Graph first:</strong> check the whole shape and likely number of features.</li>
+        <li><strong>Window second:</strong> adjust zoom so the feature is visible.</li>
+        <li><strong>Use the correct command:</strong> zero, minimum, maximum, intersection, trace/table.</li>
+        <li><strong>Check reasonableness:</strong> a GDC can return a local feature you did not intend.</li>
+        <li><strong>Interpret:</strong> answer in the original context, with units where relevant.</li>
+      </ol>
+    </div>
+    <div class="card span-12">
+      <h2>GDC command table</h2>
+      <table>
+        <tr><th>Feature wanted</th><th>Mathematical meaning</th><th>GDC command</th><th>Exam wording</th></tr>
+        <tr><td>Root / zero</td><td>\(f(x)=0\)</td><td>Zero / root</td><td>“The root is \(x=\ldots\)” or “The \(x\)-intercept is \((\ldots,0)\)”</td></tr>
+        <tr><td>\(y\)-intercept</td><td>\(f(0)\)</td><td>Trace/table at \(x=0\)</td><td>“The initial value is…”</td></tr>
+        <tr><td>Maximum</td><td>Highest local/global value</td><td>Maximum</td><td>“The maximum value is…”</td></tr>
+        <tr><td>Minimum</td><td>Lowest local/global value</td><td>Minimum</td><td>“The minimum value is…”</td></tr>
+        <tr><td>Intersection</td><td>\(f(x)=g(x)\)</td><td>Intersection</td><td>“The models are equal when…”</td></tr>
+        <tr><td>Asymptote</td><td>Approached line</td><td>Graph, table, trace, zoom</td><td>“The graph approaches \(x=a\) / \(y=b\)”</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="contexts" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Economics: market equilibrium</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Market equilibrium graph">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <line x1="90" y1="340" x2="700" y2="340" stroke="#17212d" stroke-width="3"/>
+        <line x1="90" y1="340" x2="90" y2="55" stroke="#17212d" stroke-width="3"/>
+        <text x="395" y="390" text-anchor="middle" font-size="24" font-weight="900">quantity</text>
+        <text x="30" y="200" transform="rotate(-90 30 200)" text-anchor="middle" font-size="24" font-weight="900">price</text>
+        <line x1="140" y1="300" x2="650" y2="85" stroke="#0ca678" stroke-width="7" stroke-linecap="round"/>
+        <line x1="140" y1="85" x2="650" y2="300" stroke="#2364aa" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="395" cy="192" r="9" fill="#c92a2a"/>
+        <text x="410" y="183" font-size="22" font-weight="900" fill="#8a1717">equilibrium</text>
+        <text x="600" y="100" font-size="22" font-weight="900" fill="#087f5b">supply</text>
+        <text x="600" y="300" font-size="22" font-weight="900" fill="#174a7c">demand</text>
+      </svg>
+      <div class="practice-card">
+        <p><strong>Interpretation.</strong> The intersection of supply and demand models is the market equilibrium price and quantity.</p>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Science: projectile height</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Projectile graph">
+        <rect width="760" height="420" fill="#e7f5ff"/>
+        <line x1="80" y1="350" x2="710" y2="350" stroke="#17212d" stroke-width="3"/>
+        <line x1="80" y1="350" x2="80" y2="60" stroke="#17212d" stroke-width="3"/>
+        <path d="M90 330 C230 100, 380 30, 670 350" fill="none" stroke="#7048e8" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="375" cy="92" r="9" fill="#0ca678"/>
+        <circle cx="670" cy="350" r="9" fill="#c92a2a"/>
+        <text x="390" y="80" font-size="22" font-weight="900" fill="#087f5b">maximum height</text>
+        <text x="560" y="335" font-size="22" font-weight="900" fill="#8a1717">ground hit</text>
+        <text x="395" y="392" text-anchor="middle" font-size="23" font-weight="900">time</text>
+        <text x="30" y="205" transform="rotate(-90 30 205)" text-anchor="middle" font-size="23" font-weight="900">height</text>
+      </svg>
+      <div class="practice-card">
+        <p><strong>Interpretation.</strong> The maximum gives greatest height. The positive root gives when the object hits the ground.</p>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Geography: population model</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Population graph">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <line x1="80" y1="350" x2="710" y2="350" stroke="#17212d" stroke-width="3"/>
+        <line x1="80" y1="350" x2="80" y2="60" stroke="#17212d" stroke-width="3"/>
+        <path d="M90 320 C170 300, 250 250, 330 165 C430 60, 550 80, 690 95" fill="none" stroke="#0ca678" stroke-width="8" stroke-linecap="round"/>
+        <line x1="80" y1="95" x2="710" y2="95" stroke="#f08c00" stroke-width="4" stroke-dasharray="12 8"/>
+        <text x="545" y="82" font-size="22" font-weight="900" fill="#7c4a00">carrying capacity</text>
+        <text x="390" y="392" text-anchor="middle" font-size="23" font-weight="900">time</text>
+        <text x="30" y="205" transform="rotate(-90 30 205)" text-anchor="middle" font-size="23" font-weight="900">population</text>
+      </svg>
+      <div class="practice-card">
+        <p><strong>Interpretation.</strong> A horizontal asymptote can model a limiting population or carrying capacity.</p>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>International-mindedness: visual vs analytical</h2>
+      <div class="practice-card">
+        <p><strong>Bourbaki-style question:</strong> What can be gained from a formal analytical approach?</p>
+        <button onclick="toggleAnswer('bourbaki')">Reveal discussion angles</button>
+        <div id="bourbaki" class="answer">
+          A formal analytical approach gives precision, generality and proof. It can show why a feature must exist, not just where it appears on one graph.
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Mandelbrot-style question:</strong> What can be gained from a visual approach?</p>
+        <button onclick="toggleAnswer('mandelbrot')">Reveal discussion angles</button>
+        <div id="mandelbrot" class="answer">
+          A visual approach can reveal patterns, structure, irregularity and intuition before formal proof. Graphing technology supports this by making features visible and explorable.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formal feature summary</h2>
+      <table>
+        <tr><th>Feature</th><th>How to find</th><th>Meaning</th></tr>
+        <tr><td>\(x\)-intercept/root/zero</td><td>Solve \(f(x)=0\), or use GDC zero/root</td><td>Where graph crosses/touches \(x\)-axis</td></tr>
+        <tr><td>\(y\)-intercept</td><td>Evaluate \(f(0)\)</td><td>Initial value in many contexts</td></tr>
+        <tr><td>Maximum</td><td>GDC maximum or analysis</td><td>Greatest local/global output value</td></tr>
+        <tr><td>Minimum</td><td>GDC minimum or analysis</td><td>Least local/global output value</td></tr>
+        <tr><td>Vertex</td><td>Turning point of parabola / corner of absolute value graph</td><td>Often max/min and symmetry centre</td></tr>
+        <tr><td>Asymptote</td><td>Graph/table/technology; inspect behaviour</td><td>Line approached by graph</td></tr>
+        <tr><td>Intersection</td><td>Use GDC intersection or solve \(f(x)=g(x)\)</td><td>Where two models agree</td></tr>
+      </table>
+    </div>
+    <div class="card span-6">
+      <h2>Worked examples</h2>
+      <div class="practice-card">
+        <p><strong>Example 1.</strong> Use technology to find the roots and vertex of \(f(x)=x^2-4x+1\).</p>
+        <button onclick="toggleAnswer('formalEx1')">Reveal solution</button>
+        <div id="formalEx1" class="answer">
+          Graph \(f(x)=x^2-4x+1\). Using a GDC zero/root command gives
+          \[
+            x\approx0.268,\quad x\approx3.732.
+          \]
+          Using minimum gives the vertex \((2,-3)\). Since the parabola opens upward, this is a minimum value of \(-3\).
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 2.</strong> Find the intersection of \(f(x)=x^2\) and \(g(x)=2x+3\).</p>
+        <button onclick="toggleAnswer('formalEx2')">Reveal solution</button>
+        <div id="formalEx2" class="answer">
+          Graph both functions and use the intersection command, or solve:
+          \[
+            x^2=2x+3
+          \]
+          \[
+            x^2-2x-3=0=(x-3)(x+1)
+          \]
+          So \(x=3\) or \(x=-1\). The points are \((3,9)\) and \((-1,1)\).
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 3.</strong> Identify the asymptotes of \(f(x)=\frac{2}{x+1}-3\).</p>
+        <button onclick="toggleAnswer('formalEx3')">Reveal solution</button>
+        <div id="formalEx3" class="answer">
+          The vertical asymptote occurs where the denominator is zero:
+          \[
+            x+1=0\Rightarrow x=-1.
+          \]
+          The horizontal asymptote is \(y=-3\), because the fraction approaches \(0\) as \(x\) becomes very large or very small.
+        </div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Method checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>1. Sketch/graph</strong><br>Choose a window that shows the feature.</div>
+        <div class="tile"><strong>2. Identify feature</strong><br>Root, max, min, asymptote or intersection?</div>
+        <div class="tile"><strong>3. Use GDC command</strong><br>Zero, min, max, intersection, trace/table.</div>
+        <div class="tile"><strong>4. Check reasonableness</strong><br>Does the answer match the graph?</div>
+        <div class="tile"><strong>5. State in context</strong><br>Use units and meaningful language.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Interactive question generator</h2>
+      <p>Generate a question, attempt it, then reveal the worked solution. Some questions are designed for GDC use.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('roots')">Roots/intercepts</button>
+        <button onclick="generatePractice('turning')">Maximum/minimum</button>
+        <button onclick="generatePractice('asymptote')">Asymptotes</button>
+        <button onclick="generatePractice('intersection')">Intersection</button>
+        <button onclick="generatePractice('context')">Context interpretation</button>
+        <button onclick="generatePractice('gdc')">GDC method</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Exam checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>State the function</strong> you graphed.</div>
+        <div class="tile"><strong>Use the right GDC command</strong> for the feature.</div>
+        <div class="tile"><strong>Give coordinates</strong> for points, not just \(x\)-values.</div>
+        <div class="tile"><strong>Distinguish root from intercept:</strong> \(x=2\) vs \((2,0)\).</div>
+        <div class="tile"><strong>Use appropriate accuracy</strong> and units.</div>
+        <div class="tile"><strong>Interpret in context</strong> when the graph represents a real situation.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start with slider exploration so students connect parameter changes to graph features.</li>
+        <li>Use the feature detective tab to build vocabulary and visual recognition.</li>
+        <li>Separate roots, zeros and intercepts carefully.</li>
+        <li>Use GDC demonstrations for zeros, min/max and intersections.</li>
+        <li>Introduce asymptotes visually with zoom and table checks.</li>
+        <li>Move to contexts: projectile maximum, market equilibrium, population asymptote.</li>
+        <li>Finish with the question generator and revealable worked solutions.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Root and \(x\)-intercept are identical words.</td><td>Root is an \(x\)-value; intercept is a coordinate point.</td></tr>
+        <tr><td>Every maximum/minimum is global.</td><td>Discuss local vs global features visually.</td></tr>
+        <tr><td>Asymptote means “line never touched”.</td><td>Stress “approaches”; some graphs can cross horizontal asymptotes.</td></tr>
+        <tr><td>GDC answer is automatically meaningful.</td><td>Always interpret and check the viewing window.</td></tr>
+        <tr><td>Intersection means crossing only.</td><td>Intersections can include tangency: same point, same value.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">What is the difference between a zero and an \(x\)-intercept?</div>
+        <div class="tile">Find the vertex of \(y=(x-3)^2+2\).</div>
+        <div class="tile">What GDC command finds where \(f(x)=g(x)\)?</div>
+        <div class="tile">State the asymptotes of \(y=\frac{1}{x-4}+2\).</div>
+        <div class="tile">A profit graph has roots at \(x=20\) and \(x=80\). Interpret them.</div>
+        <div class="tile">Why might a poor window hide a graph feature?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function rerenderMath(){ if(window.MathJax && window.MathJax.typesetPromise){ window.MathJax.typesetPromise(); } }
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); $(btn.dataset.tab).classList.add('active'); rerenderMath();
+  });
+});
+function toggleAnswer(id){ $(id).classList.toggle('show'); rerenderMath(); }
+function fmt(x){ if(!isFinite(x)) return String(x); if(Math.abs(x)<1e-10) return '0'; return Number(x.toFixed(3)).toString(); }
+function signNum(x){ return x>=0?`+${fmt(x)}`:`${fmt(x)}`; }
+function fracish(x){ if(Math.abs(x-Math.round(x))<1e-9) return String(Math.round(x)); return fmt(x); }
+
+/* SVG graph utilities */
+function axes(svgId, xmin=-10,xmax=10,ymin=-10,ymax=10, w=760,h=520){
+  const x0=60, y0=h-58, plotW=w-95, plotH=h-95;
+  const xAxisY = (ymin <= 0 && ymax >= 0) ? mapY(0) : y0;
+  const yAxisX = (xmin <= 0 && xmax >= 0) ? mapX(0) : x0;
+  function mapX(x){ return x0+(x-xmin)/(xmax-xmin)*plotW; }
+  function mapY(y){ return y0-(y-ymin)/(ymax-ymin)*plotH; }
+
+  let g=`<rect width="${w}" height="${h}" fill="#fcfdff"/>`;
+
+  // light grid and ticks
+  for(let i=0;i<=10;i++){
+    const xv=xmin+(xmax-xmin)*i/10, xp=mapX(xv);
+    const yv=ymin+(ymax-ymin)*i/10, yp=mapY(yv);
+    g+=`<line x1="${xp}" y1="${y0}" x2="${xp}" y2="${y0-plotH}" stroke="#e2e8f0" stroke-width="1"/>`;
+    g+=`<line x1="${x0}" y1="${yp}" x2="${x0+plotW}" y2="${yp}" stroke="#e2e8f0" stroke-width="1"/>`;
+    g+=`<line x1="${xp}" y1="${xAxisY-5}" x2="${xp}" y2="${xAxisY+5}" stroke="#64748b"/>`;
+    g+=`<line x1="${yAxisX-5}" y1="${yp}" x2="${yAxisX+5}" y2="${yp}" stroke="#64748b"/>`;
+    if(i%2===0){
+      const xLabelY = Math.min(h-22, Math.max(18, xAxisY+22));
+      const yLabelX = Math.max(24, Math.min(w-24, yAxisX-12));
+      g+=`<text x="${xp}" y="${xLabelY}" text-anchor="middle" font-size="12" fill="#475569">${fmt(xv)}</text>`;
+      if(Math.abs(yv)>1e-9){
+        g+=`<text x="${yLabelX}" y="${yp+4}" text-anchor="end" font-size="12" fill="#475569">${fmt(yv)}</text>`;
+      }
+    }
+  }
+
+  // bold coordinate axes through the origin when visible
+  g+=`<line x1="${x0}" y1="${xAxisY}" x2="${x0+plotW}" y2="${xAxisY}" stroke="#111827" stroke-width="3"/>`;
+  g+=`<line x1="${yAxisX}" y1="${y0}" x2="${yAxisX}" y2="${y0-plotH}" stroke="#111827" stroke-width="3"/>`;
+  g+=`<text x="${x0+plotW/2}" y="${h-16}" text-anchor="middle" font-size="15" font-weight="850">x</text>`;
+  g+=`<text x="20" y="${y0-plotH/2}" transform="rotate(-90 20 ${y0-plotH/2})" text-anchor="middle" font-size="15" font-weight="850">y</text>`;
+  return {g,x0,y0,plotW,plotH,xmin,xmax,ymin,ymax,w,h};
+}
+function map(ax,x,y){ return {x:ax.x0+(x-ax.xmin)/(ax.xmax-ax.xmin)*ax.plotW, y:ax.y0-(y-ax.ymin)/(ax.ymax-ax.ymin)*ax.plotH}; }
+function pathFor(ax,fn,x1=ax.xmin,x2=ax.xmax,step=(ax.xmax-ax.xmin)/600,color='#2364aa',width=4){
+  let d='', started=false;
+  for(let x=x1;x<=x2+1e-9;x+=step){
+    const y=fn(x);
+    if(isFinite(y) && y>=ax.ymin-2 && y<=ax.ymax+2){
+      const p=map(ax,x,y);
+      d+=(started?'L':'M')+p.x+' '+p.y+' ';
+      started=true;
+    }else started=false;
+  }
+  return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;
+}
+function point(ax,x,y,label,color='#c92a2a'){
+  if(!isFinite(x)||!isFinite(y)||x<ax.xmin||x>ax.xmax||y<ax.ymin||y>ax.ymax) return '';
+  const p=map(ax,x,y);
+  return `<circle cx="${p.x}" cy="${p.y}" r="6.5" fill="${color}" stroke="white" stroke-width="2"/><text x="${p.x+8}" y="${p.y-8}" font-size="13" font-weight="900" fill="${color}">${label}</text>`;
+}
+function vline(ax,x,label,color='#f08c00'){
+  if(x<ax.xmin||x>ax.xmax) return '';
+  const p1=map(ax,x,ax.ymin), p2=map(ax,x,ax.ymax);
+  return `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="2.5" stroke-dasharray="8 6"/><text x="${p1.x+6}" y="${p2.y+20}" font-size="13" font-weight="900" fill="${color}">${label}</text>`;
+}
+function hline(ax,y,label,color='#f08c00'){
+  if(y<ax.ymin||y>ax.ymax) return '';
+  const p1=map(ax,ax.xmin,y), p2=map(ax,ax.xmax,y);
+  return `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="2.5" stroke-dasharray="8 6"/><text x="${p2.x-80}" y="${p1.y-7}" font-size="13" font-weight="900" fill="${color}">${label}</text>`;
+}
+function rootsQuadratic(a,b,c){
+  if(Math.abs(a)<1e-10){
+    if(Math.abs(b)<1e-10) return [];
+    return [-c/b];
+  }
+  const disc=b*b-4*a*c;
+  if(disc<-1e-10) return [];
+  if(Math.abs(disc)<1e-10) return [-b/(2*a)];
+  return [(-b-Math.sqrt(disc))/(2*a),(-b+Math.sqrt(disc))/(2*a)];
+}
+function sampleIntersections(f,g,xmin=-10,xmax=10){
+  const roots=[];
+  const step=(xmax-xmin)/1000;
+  let prevX=xmin, prevY=f(prevX)-g(prevX);
+  for(let x=xmin+step;x<=xmax+1e-9;x+=step){
+    const y=f(x)-g(x);
+    if(isFinite(y)&&isFinite(prevY)){
+      if(Math.abs(y)<1e-4) roots.push(x);
+      else if(y*prevY<0){
+        let lo=prevX, hi=x;
+        for(let i=0;i<40;i++){
+          const mid=(lo+hi)/2, fm=f(mid)-g(mid), flo=f(lo)-g(lo);
+          if(flo*fm<=0) hi=mid; else lo=mid;
+        }
+        roots.push((lo+hi)/2);
+      }
+    }
+    prevX=x; prevY=y;
+  }
+  const unique=[];
+  roots.forEach(r=>{ if(!unique.some(u=>Math.abs(u-r)<0.03)) unique.push(r); });
+  return unique;
+}
+
+/* Explore sliders */
+let exploreType='quadratic', ex={a:1,h:1,k:-2};
+function chooseExplore(type){
+  exploreType=type;
+  if(type==='quadratic') ex={a:1,h:1,k:-2};
+  if(type==='cubic') ex={a:1,h:0,k:0};
+  if(type==='reciprocal') ex={a:2,h:1,k:-1};
+  if(type==='absolute') ex={a:1,h:-2,k:1};
+  buildExploreSliders();
+  drawExplore();
+}
+function buildExploreSliders(){
+  let html='';
+  html+=slider('a','Parameter \(a\)',-4,4,0.5,ex.a);
+  html+=slider('h','Horizontal parameter \(h\)',-6,6,0.5,ex.h);
+  html+=slider('k','Vertical parameter \(k\)',-6,6,0.5,ex.k);
+  $("sliderControls").innerHTML=html;
+}
+function slider(key,label,min,max,step,value){
+  return `<div class="range-wrap"><div><label for="ex_${key}">${label}</label><input id="ex_${key}" type="range" min="${min}" max="${max}" step="${step}" value="${value}" oninput="ex['${key}']=Number(this.value); drawExplore();"></div><div class="pill" id="ex_${key}_label">${key}=${value}</div></div>`;
+}
+function drawExplore(){
+  ['a','h','k'].forEach(key=>{const lab=$(`ex_${key}_label`); if(lab) lab.textContent=`${key}=${ex[key]}`;});
+  const ax=axes('exploreGraph',-10,10,-10,10);
+  let fn, eq='', features='', g=ax.g;
+  if(exploreType==='quadratic'){
+    fn=x=>ex.a*(x-ex.h)*(x-ex.h)+ex.k;
+    eq=`\\(f(x)=${fracish(ex.a)}(x${ex.h>=0?'-'+fmt(ex.h):'+'+fmt(Math.abs(ex.h))})^2${signNum(ex.k)}\\)`;
+    g+=pathFor(ax,fn,-10,10,0.03,'#2364aa');
+    g+=point(ax,ex.h,ex.k,`vertex (${fmt(ex.h)},${fmt(ex.k)})`,'#0ca678');
+    g+=vline(ax,ex.h,`x=${fmt(ex.h)}`,'#7048e8');
+    const roots=rootsQuadratic(ex.a,-2*ex.a*ex.h,ex.a*ex.h*ex.h+ex.k);
+    roots.forEach(r=>g+=point(ax,r,0,`root ${fmt(r)}`,'#c92a2a'));
+    g+=point(ax,0,fn(0),'y-int','#f08c00');
+    features=`Vertex \\((${fmt(ex.h)},${fmt(ex.k)})\\); axis of symmetry \\(x=${fmt(ex.h)}\\); ${ex.a>0?'minimum':'maximum'} value \\(${fmt(ex.k)}\\). Roots: ${roots.length?roots.map(fmt).join(', '):'none visible/real'}.`;
+  }else if(exploreType==='cubic'){
+    fn=x=>ex.a*Math.pow(x-ex.h,3)+ex.k;
+    eq=`\\(f(x)=${fracish(ex.a)}(x${ex.h>=0?'-'+fmt(ex.h):'+'+fmt(Math.abs(ex.h))})^3${signNum(ex.k)}\\)`;
+    g+=pathFor(ax,fn,-10,10,0.03,'#2364aa');
+    g+=point(ax,ex.h,ex.k,`centre (${fmt(ex.h)},${fmt(ex.k)})`,'#0ca678');
+    const root=ex.h+Math.cbrt(-ex.k/ex.a);
+    g+=point(ax,root,0,`root ${fmt(root)}`,'#c92a2a');
+    features=`Point symmetry about \\((${fmt(ex.h)},${fmt(ex.k)})\\). One real root at approximately \\(x=${fmt(root)}\\).`;
+  }else if(exploreType==='reciprocal'){
+    fn=x=>ex.a/(x-ex.h)+ex.k;
+    eq=`\\(f(x)=\\frac{${fracish(ex.a)}}{x${ex.h>=0?'-'+fmt(ex.h):'+'+fmt(Math.abs(ex.h))}}${signNum(ex.k)}\\)`;
+    g+=pathFor(ax,fn,-10,ex.h-0.08,0.02,'#2364aa');
+    g+=pathFor(ax,fn,ex.h+0.08,10,0.02,'#2364aa');
+    g+=vline(ax,ex.h,`x=${fmt(ex.h)}`,'#f08c00');
+    g+=hline(ax,ex.k,`y=${fmt(ex.k)}`,'#f08c00');
+    if(Math.abs(ex.k)>1e-10){ const root=ex.h-ex.a/ex.k; g+=point(ax,root,0,`root ${fmt(root)}`,'#c92a2a'); }
+    g+=point(ax,0,fn(0),'y-int','#0ca678');
+    features=`Vertical asymptote \\(x=${fmt(ex.h)}\\); horizontal asymptote \\(y=${fmt(ex.k)}\\).`;
+  }else{
+    fn=x=>ex.a*Math.abs(x-ex.h)+ex.k;
+    eq=`\\(f(x)=${fracish(ex.a)}|x${ex.h>=0?'-'+fmt(ex.h):'+'+fmt(Math.abs(ex.h))}|${signNum(ex.k)}\\)`;
+    g+=pathFor(ax,fn,-10,10,0.03,'#2364aa');
+    g+=point(ax,ex.h,ex.k,`vertex (${fmt(ex.h)},${fmt(ex.k)})`,'#0ca678');
+    g+=vline(ax,ex.h,`x=${fmt(ex.h)}`,'#7048e8');
+    const roots=[];
+    if(Math.abs(ex.a)>1e-10 && -ex.k/ex.a>=0){
+      roots.push(ex.h-(-ex.k/ex.a), ex.h+(-ex.k/ex.a));
+    }
+    roots.forEach(r=>g+=point(ax,r,0,`root ${fmt(r)}`,'#c92a2a'));
+    features=`Vertex \\((${fmt(ex.h)},${fmt(ex.k)})\\); axis of symmetry \\(x=${fmt(ex.h)}\\); ${ex.a>0?'minimum':'maximum'} at the vertex.`;
+  }
+  $("exploreGraph").innerHTML=g;
+  $("exploreFunction").innerHTML=eq;
+  $("exploreFeatures").innerHTML=features;
+  rerenderMath();
+}
+
+/* Detective */
+let detectiveType='quad';
+let detectiveReveal={intercepts:false,turning:false,symmetry:false,asymptotes:false};
+function chooseDetective(type){
+  detectiveType=type;
+  detectiveReveal={intercepts:false,turning:false,symmetry:false,asymptotes:false};
+  drawDetective();
+}
+function revealDetective(kind){
+  if(kind==='all') detectiveReveal={intercepts:true,turning:true,symmetry:true,asymptotes:true};
+  else detectiveReveal[kind]=true;
+  drawDetective();
+}
+function drawDetective(){
+  let ax=axes('detectiveGraph',-8,8,-8,8), g=ax.g, eq='', notes=[];
+  if(detectiveType==='quad'){
+    const f=x=>(x-2)*(x-2)-3;
+    g+=pathFor(ax,f,-8,8,0.03,'#2364aa');
+    eq='\\(f(x)=(x-2)^2-3\\)';
+    if(detectiveReveal.turning){g+=point(ax,2,-3,'vertex/min','#0ca678'); notes.push('Minimum/vertex: \\((2,-3)\\).');}
+    if(detectiveReveal.symmetry){g+=vline(ax,2,'symmetry x=2','#7048e8'); notes.push('Axis of symmetry: \\(x=2\\).');}
+    if(detectiveReveal.intercepts){
+      g+=point(ax,2-Math.sqrt(3),0,'root','#c92a2a'); g+=point(ax,2+Math.sqrt(3),0,'root','#c92a2a'); g+=point(ax,0,1,'y-int','#f08c00');
+      notes.push('\\(x\\)-intercepts: \\((2-\\sqrt3,0)\\), \\((2+\\sqrt3,0)\\). \\(y\\)-intercept: \\((0,1)\\).');
+    }
+  }else if(detectiveType==='cubic'){
+    const f=x=>x*x*x-3*x;
+    g+=pathFor(ax,f,-3,3,0.02,'#2364aa');
+    eq='\\(f(x)=x^3-3x\\)';
+    if(detectiveReveal.turning){g+=point(ax,-1,2,'local max','#0ca678'); g+=point(ax,1,-2,'local min','#0ca678'); notes.push('Local maximum near \\((-1,2)\\); local minimum near \\((1,-2)\\).');}
+    if(detectiveReveal.intercepts){[-Math.sqrt(3),0,Math.sqrt(3)].forEach(r=>g+=point(ax,r,0,'root','#c92a2a')); notes.push('Roots: \\(x=-\\sqrt3,0,\\sqrt3\\).');}
+    if(detectiveReveal.symmetry){g+=point(ax,0,0,'centre','#7048e8'); notes.push('Point symmetry about the origin.');}
+  }else if(detectiveType==='recip'){
+    const f=x=>2/(x-1)+1;
+    g+=pathFor(ax,f,-8,0.9,0.02,'#2364aa'); g+=pathFor(ax,f,1.1,8,0.02,'#2364aa');
+    eq='\\(f(x)=\\frac{2}{x-1}+1\\)';
+    if(detectiveReveal.asymptotes){g+=vline(ax,1,'x=1','#f08c00'); g+=hline(ax,1,'y=1','#f08c00'); notes.push('Asymptotes: \\(x=1\\), \\(y=1\\).');}
+    if(detectiveReveal.intercepts){g+=point(ax,-1,0,'root','#c92a2a'); g+=point(ax,0,-1,'y-int','#0ca678'); notes.push('\\(x\\)-intercept: \\((-1,0)\\); \\(y\\)-intercept: \\((0,-1)\\).');}
+    if(detectiveReveal.symmetry){g+=point(ax,1,1,'centre','#7048e8'); notes.push('The graph has rotational symmetry about \\((1,1)\\).');}
+  }else if(detectiveType==='exp'){
+    const f=x=>Math.pow(2,x)-3;
+    g+=pathFor(ax,f,-8,5,0.02,'#2364aa');
+    eq='\\(f(x)=2^x-3\\)';
+    if(detectiveReveal.asymptotes){g+=hline(ax,-3,'y=-3','#f08c00'); notes.push('Horizontal asymptote: \\(y=-3\\).');}
+    if(detectiveReveal.intercepts){g+=point(ax,Math.log2(3),0,'root','#c92a2a'); g+=point(ax,0,-2,'y-int','#0ca678'); notes.push('Root \\(x=\\log_2 3\\approx1.585\\); \\(y\\)-intercept \\((0,-2)\\).');}
+  }else{
+    const f=x=>Math.log(x+3)-1;
+    g+=pathFor(ax,f,-2.95,8,0.02,'#2364aa');
+    eq='\\(f(x)=\\ln(x+3)-1\\)';
+    if(detectiveReveal.asymptotes){g+=vline(ax,-3,'x=-3','#f08c00'); notes.push('Vertical asymptote: \\(x=-3\\).');}
+    if(detectiveReveal.intercepts){g+=point(ax,Math.E-3,0,'root','#c92a2a'); g+=point(ax,0,Math.log(3)-1,'y-int','#0ca678'); notes.push('Root \\(x=e-3\\approx-0.282\\); \\(y\\)-intercept \\((0,\\ln3-1)\\).');}
+  }
+  $("detectiveGraph").innerHTML=g;
+  $("detectiveEq").innerHTML=eq;
+  $("detectiveNotes").innerHTML=notes.length?notes.join('<br>'):'No features revealed yet.';
+  rerenderMath();
+}
+
+/* Root finder */
+function drawRootFinder(){
+  const a=Number($("rootA").value), b=Number($("rootB").value), c=Number($("rootC").value);
+  const f=x=>a*x*x+b*x+c;
+  const ax=axes('rootGraph',-10,10,-10,10);
+  let g=ax.g+pathFor(ax,f,-10,10,0.03,'#2364aa');
+  const roots=rootsQuadratic(a,b,c);
+  roots.forEach(r=>g+=point(ax,r,0,`(${fmt(r)},0)`,'#c92a2a'));
+  g+=point(ax,0,c,`(0,${fmt(c)})`,'#0ca678');
+  $("rootGraph").innerHTML=g;
+  $("rootOutput").className='feedback info';
+  $("rootOutput").innerHTML=`Function: \\(f(x)=${fmt(a)}x^2${b>=0?'+':''}${fmt(b)}x${c>=0?'+':''}${fmt(c)}\\)<br>Zeros: ${roots.length?roots.map(r=>`\\(x=${fmt(r)}\\)`).join(', '):'no real zeros'}<br>\\(y\\)-intercept: \\((0,${fmt(c)})\\).`;
+  rerenderMath();
+}
+
+/* Turning */
+function drawTurning(){
+  let a=Number($("turnA").value); if(Math.abs(a)<0.0001) a=0.5;
+  const h=Number($("turnH").value), k=Number($("turnK").value);
+  $("turnALabel").textContent='a = '+fmt(a); $("turnHLabel").textContent='h = '+fmt(h); $("turnKLabel").textContent='k = '+fmt(k);
+  const f=x=>a*(x-h)*(x-h)+k;
+  const ax=axes('turnGraph',-10,10,-10,10);
+  let g=ax.g+pathFor(ax,f,-10,10,0.03,'#2364aa');
+  g+=point(ax,h,k,`vertex (${fmt(h)},${fmt(k)})`,'#0ca678');
+  g+=vline(ax,h,`x=${fmt(h)}`,'#7048e8');
+  $("turnGraph").innerHTML=g;
+  $("turnEq").innerHTML=`\\(f(x)=${fracish(a)}(x${h>=0?'-'+fmt(h):'+'+fmt(Math.abs(h))})^2${signNum(k)}\\)`;
+  $("turnFeatures").innerHTML=`Vertex: \\((${fmt(h)},${fmt(k)})\\). Axis of symmetry: \\(x=${fmt(h)}\\). Since \\(a${a>0?'>':'<'}0\\), the vertex is a ${a>0?'minimum':'maximum'}.`;
+  rerenderMath();
+}
+
+/* Asymptotes */
+function drawAsymptotes(){
+  let a=Number($("asymA").value); if(Math.abs(a)<0.0001) a=0.5;
+  const h=Number($("asymH").value), k=Number($("asymK").value);
+  $("asymALabel").textContent='a = '+fmt(a); $("asymHLabel").textContent='h = '+fmt(h); $("asymKLabel").textContent='k = '+fmt(k);
+  const f=x=>a/(x-h)+k;
+  const ax=axes('asymGraph',-10,10,-10,10);
+  let g=ax.g+pathFor(ax,f,-10,h-0.08,0.02,'#2364aa')+pathFor(ax,f,h+0.08,10,0.02,'#2364aa');
+  g+=vline(ax,h,`x=${fmt(h)}`,'#f08c00');
+  g+=hline(ax,k,`y=${fmt(k)}`,'#f08c00');
+  if(Math.abs(k)>1e-10) g+=point(ax,h-a/k,0,'root','#c92a2a');
+  g+=point(ax,0,f(0),'y-int','#0ca678');
+  $("asymGraph").innerHTML=g;
+  $("asymEq").innerHTML=`\\(f(x)=\\frac{${fracish(a)}}{x${h>=0?'-'+fmt(h):'+'+fmt(Math.abs(h))}}${signNum(k)}\\)`;
+  $("asymFeatures").innerHTML=`Vertical asymptote: \\(x=${fmt(h)}\\).<br>Horizontal asymptote: \\(y=${fmt(k)}\\).`;
+  rerenderMath();
+}
+
+/* Intersections */
+let interType='linequad';
+function chooseIntersection(type){ interType=type; drawIntersection(); }
+function drawIntersection(){
+  let f,gfun, ftext='', gtext='', xmin=-10,xmax=10,ymin=-10,ymax=10;
+  if(interType==='linequad'){
+    f=x=>x*x-4; gfun=x=>x+2; ftext='\\(f(x)=x^2-4\\)'; gtext='\\(g(x)=x+2\\)';
+  }else if(interType==='supply'){
+    xmin=0;xmax=20;ymin=0;ymax=50;
+    f=x=>2*x+8; gfun=x=>48-1.5*x; ftext='Supply: \\(S(q)=2q+8\\)'; gtext='Demand: \\(D(q)=48-1.5q\\)';
+  }else if(interType==='expLine'){
+    xmin=-2;xmax=6;ymin=-2;ymax=20;
+    f=x=>Math.pow(2,x); gfun=x=>3*x+1; ftext='\\(f(x)=2^x\\)'; gtext='\\(g(x)=3x+1\\)';
+  }else{
+    f=x=>2*x+1; gfun=x=>-x+7; ftext='\\(f(x)=2x+1\\)'; gtext='\\(g(x)=-x+7\\)';
+  }
+  const ax=axes('interGraph',xmin,xmax,ymin,ymax);
+  let draw=ax.g+pathFor(ax,f,xmin,xmax,(xmax-xmin)/600,'#2364aa')+pathFor(ax,gfun,xmin,xmax,(xmax-xmin)/600,'#0ca678');
+  const roots=sampleIntersections(f,gfun,xmin,xmax);
+  roots.forEach(r=>draw+=point(ax,r,f(r),`(${fmt(r)},${fmt(f(r))})`,'#7048e8'));
+  $("interGraph").innerHTML=draw;
+  $("interFunctions").innerHTML=`${ftext}<br>${gtext}`;
+  $("interOutput").innerHTML=roots.length?roots.map(r=>`\\((${fmt(r)},${fmt(f(r))})\\)`).join('<br>'):'No intersection visible in this window.';
+  rerenderMath();
+}
+
+/* Practice generator */
+function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function gdcNote(){ return String.raw`Use a graphing window that clearly shows the feature before using the zero, minimum, maximum or intersection command.`; }
+function generatePractice(type){
+  $("practiceAnswer").classList.remove('show');
+  $("practiceVisual").innerHTML='';
+  const qs=[];
+
+  if(type==='roots'){
+    const rootBank=[
+      {r1:1,r2:5,c:5}, {r1:-2,r2:4,c:-8}, {r1:3,r2:7,c:21}, {r1:-1,r2:6,c:-6}, {r1:-4,r2:2,c:-8}
+    ];
+    rootBank.forEach(o=>{
+      const b=-(o.r1+o.r2), c=o.r1*o.r2;
+      qs.push({
+        q:String.raw`Find the zeros, the \(x\)-intercepts and the \(y\)-intercept of \(f(x)=x^2${signNum(b)}x${signNum(c)}\).`,
+        a:String.raw`Factorise \(f(x)=(x${o.r1>=0?'-'+o.r1:'+'+Math.abs(o.r1)})(x${o.r2>=0?'-'+o.r2:'+'+Math.abs(o.r2)})\). The zeros are \(x=${o.r1}\) and \(x=${o.r2}\). The \(x\)-intercepts are \((${o.r1},0)\) and \((${o.r2},0)\). The \(y\)-intercept is \((0,${c})\).`
+      });
+    });
+    qs.push({
+      q:String.raw`A company's profit, in thousands of dollars, is modelled by \(P(x)=(x-12)(x-48)\). Interpret the roots.`,
+      a:String.raw`The roots are \(x=12\) and \(x=48\). They are break-even values: the profit is zero at those production levels. The intercept points are \((12,0)\) and \((48,0)\).`
+    });
+    qs.push({
+      q:String.raw`A projectile has height \(h(t)=-5t^2+30t+20\). Use technology to find the positive root and interpret it.`,
+      a:String.raw`The positive root is where \(h(t)=0\), so it represents when the projectile reaches ground level. A GDC zero command gives \(t\approx6.61\) seconds. The negative root is not meaningful in this context.`
+    });
+  }
+
+  if(type==='turning'){
+    const turnBank=[
+      {name:'profit', f:'P(x)', a:-2,h:6,k:72, unit:'maximum profit is 72 units when x=6'},
+      {name:'height', f:'h(t)', a:-4.9,h:2,k:21.6, unit:'maximum height is 21.6 m after 2 s'},
+      {name:'cost', f:'C(x)', a:1.5,h:8,k:14, unit:'minimum cost is 14 units when x=8'},
+      {name:'temperature difference', f:'D(t)', a:-0.5,h:10,k:18, unit:'maximum difference is 18 when t=10'}
+    ];
+    turnBank.forEach(o=>qs.push({
+      q:String.raw`The ${o.name} model is \(${o.f}=${o.a}(x${o.h>=0?'-'+o.h:'+'+Math.abs(o.h)})^2${signNum(o.k)}\). Find and interpret the ${o.a>0?'minimum':'maximum'} value.`,
+      a:String.raw`The function is in vertex form, so the vertex is \((${o.h},${o.k})\). Since \(a${o.a>0?'>':'<'}0\), this is a ${o.a>0?'minimum':'maximum'}. In context, the ${o.unit}.`
+    }));
+    qs.push({
+      q:String.raw`Use graphing technology to find the local maximum and local minimum of \(f(x)=x^3-3x\).`,
+      a:String.raw`A GDC maximum/minimum command gives a local maximum at approximately \((-1,2)\) and a local minimum at approximately \((1,-2)\). These are local features, not global maximum/minimum values.`
+    });
+  }
+
+  if(type==='asymptote'){
+    const asymBank=[
+      {a:5,h:-3,k:-2}, {a:3,h:2,k:1}, {a:-4,h:-1,k:3}, {a:2,h:4,k:-5}, {a:6,h:0,k:2}
+    ];
+    asymBank.forEach(o=>qs.push({
+      q:String.raw`Use graphing technology to identify the vertical and horizontal asymptotes of \(f(x)=\frac{${o.a}}{x${o.h>=0?'-'+o.h:'+'+Math.abs(o.h)}}${signNum(o.k)}\).`,
+      a:String.raw`The denominator is zero when \(x=${o.h}\), so the vertical asymptote is \(x=${o.h}\). As \(x\) becomes very large in magnitude, the fraction approaches 0, so the horizontal asymptote is \(y=${o.k}\).`
+    }));
+    qs.push({
+      q:String.raw`A population model approaches \(y=5000\) as time increases. What graph feature is this, and what does it mean?`,
+      a:String.raw`This is a horizontal asymptote. It means the model predicts the population approaches 5000 as a limiting value, often called a carrying capacity.`
+    });
+  }
+
+  if(type==='intersection'){
+    qs.push(
+      {q:String.raw`Find the points of intersection of \(f(x)=x^2\) and \(g(x)=3x+4\).`, a:String.raw`Solve \(x^2=3x+4\), so \(x^2-3x-4=0=(x-4)(x+1)\). Thus \(x=4\) or \(x=-1\). The intersection points are \((4,16)\) and \((-1,1)\).`},
+      {q:String.raw`Supply is modelled by \(S(q)=2q+8\), and demand by \(D(q)=48-1.5q\). Find and interpret the intersection.`, a:String.raw`Set \(2q+8=48-1.5q\). Then \(3.5q=40\), so \(q\approx11.43\). The price is \(S(11.43)\approx30.86\). The intersection is the market equilibrium: about \((11.43,30.86)\).`},
+      {q:String.raw`Use graphing technology to solve \(2^x=3x+1\). Explain what the intersections represent.`, a:String.raw`Graph \(f(x)=2^x\) and \(g(x)=3x+1\), then use the intersection command. The intersection \(x\)-values are the solutions to the equation because both expressions have the same output there.`},
+      {q:String.raw`Two plans cost \(A(x)=25+4x\) and \(B(x)=10+7x\). Find the intersection and interpret it.`, a:String.raw`Solve \(25+4x=10+7x\). Then \(15=3x\), so \(x=5\). The cost is \(45\). The point \((5,45)\) means both plans cost the same after 5 units.`}
+    );
+  }
+
+  if(type==='context'){
+    qs.push(
+      {q:String.raw`The height of a projectile is modelled by \(h(t)=-4.9t^2+19.6t+2\). Explain what the maximum and positive root represent.`, a:String.raw`The maximum represents the greatest height. A GDC maximum command gives approximately \((2,21.6)\), so the object reaches about 21.6 m after 2 s. The positive root represents when the object reaches ground level, because \(h(t)=0\).`},
+      {q:String.raw`A profit graph has roots at \(x=20\) and \(x=80\), with a maximum at \((50,900)\). Interpret these features.`, a:String.raw`The roots are break-even points. The company makes zero profit at \(x=20\) and \(x=80\). The maximum means the greatest predicted profit is 900 units when \(x=50\).`},
+      {q:String.raw`A demand and supply graph intersect at \((120,18)\). Interpret the point in context.`, a:String.raw`The market equilibrium occurs when quantity is 120 and price is 18. At this point, the supply and demand models predict the same price.`},
+      {q:String.raw`A cooling model has horizontal asymptote \(y=22\). Interpret the asymptote.`, a:String.raw`The temperature approaches 22 degrees over time. In context, 22 is likely the surrounding room temperature or long-term limiting value.`},
+      {q:String.raw`A graph showing distance from home has a \(y\)-intercept of \((0,15)\). Interpret the intercept.`, a:String.raw`At time \(0\), the distance from home is 15 units. The \(y\)-intercept often represents the initial value.`}
+    );
+  }
+
+  if(type==='gdc'){
+    qs.push(
+      {q:String.raw`Describe how to use a GDC to find the zeros of \(f(x)=x^2-4x-1\).`, a:String.raw`Graph \(f(x)=x^2-4x-1\). Adjust the window so both crossings with the \(x\)-axis are visible. Use Menu / Analyze Graph / Zero, selecting a lower and upper bound around each crossing. Report roots as \(x\)-values and intercepts as coordinate points. ${gdcNote()}`},
+      {q:String.raw`Describe how to use a GDC to find the vertex of \(f(x)=-3(x-2)^2+12\).`, a:String.raw`Graph the function. Because the parabola opens downward, use the Maximum command. Select bounds on either side of the turning point. The vertex is \((2,12)\), and the maximum value is \(12\).`},
+      {q:String.raw`Describe how to use a GDC to find intersections of \(y=x^2-2\) and \(y=2x+1\).`, a:String.raw`Enter the two functions on the same graph page. Choose a window where both intersections are visible. Use the Intersection command with bounds around one crossing, then repeat for the other. State each answer as a coordinate pair.`},
+      {q:String.raw`A student cannot see the roots of a graph on their GDC. Give two possible fixes.`, a:String.raw`First, adjust the viewing window so the \(x\)-axis and the likely crossings are visible. Second, use trace/table values or zoom out to check whether the graph actually crosses the \(x\)-axis. A graph may have no real roots.`}
+    );
+  }
+
+  const item=choice(qs);
+  $("practiceQuestion").innerHTML=item.q;
+  $("practiceAnswer").innerHTML=item.a;
+  rerenderMath();
+}
+
+/* Init *//* Init */
+function init(){
+  chooseExplore('quadratic');
+  chooseDetective('quad');
+  drawRootFinder();
+  drawTurning();
+  drawAsymptotes();
+  chooseIntersection('linequad');
+  generatePractice('roots');
+}
+init();
+</script>
+</body>
+</html>

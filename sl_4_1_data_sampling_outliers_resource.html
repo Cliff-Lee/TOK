@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 4.1 Data, Sampling and Outliers Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --ink:#18212d;
+    --muted:#5c6a79;
+    --paper:#ffffff;
+    --soft:#f5f7fb;
+    --line:#d7dee8;
+    --accent:#2364aa;
+    --accent2:#0ca678;
+    --accent3:#7048e8;
+    --warn:#f08c00;
+    --good:#2f9e44;
+    --bad:#c92a2a;
+    --shadow:0 14px 28px rgba(16,24,40,.10);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+      radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+      linear-gradient(#fff,#f7f9fc 48rem);
+    line-height:1.45;
+  }
+  header{
+    max-width:1200px;
+    margin:auto;
+    padding:34px 22px 18px;
+  }
+  .title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(2rem,5vw,4.3rem);
+    line-height:.95;
+    letter-spacing:-.06em;
+  }
+  h1 span{display:block;color:var(--accent)}
+  .subtitle{
+    margin:15px 0 0;
+    max-width:860px;
+    color:#344054;
+    font-size:1.12rem;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.55rem;
+    padding:9px 14px;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:999px;
+    box-shadow:0 5px 18px rgba(0,0,0,.06);
+    font-weight:800;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  main{
+    max-width:1200px;
+    margin:0 auto 70px;
+    padding:0 22px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:18px;
+  }
+  .card{
+    background:rgba(255,255,255,.93);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
+  .span-12{grid-column:span 12}
+  .span-8{grid-column:span 8}
+  .span-7{grid-column:span 7}
+  .span-6{grid-column:span 6}
+  .span-5{grid-column:span 5}
+  .span-4{grid-column:span 4}
+  @media(max-width:920px){
+    .span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
+  }
+  h2{
+    margin:0 0 12px;
+    font-size:1.55rem;
+    letter-spacing:-.025em;
+  }
+  h3{
+    margin:16px 0 8px;
+    font-size:1.12rem;
+  }
+  p{margin:8px 0}
+  .syllabus-table{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border:1px solid #9ca3af;
+    border-radius:14px;
+    overflow:hidden;
+    background:white;
+  }
+  .syllabus-table > div{
+    padding:14px 17px;
+    border-bottom:1px solid #9ca3af;
+  }
+  .syllabus-table .head{
+    background:#eef0f2;
+    color:#6b7280;
+    font-weight:850;
+    font-size:1.08rem;
+  }
+  .syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+  .syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+  @media(max-width:740px){
+    .syllabus-table{grid-template-columns:1fr}
+    .syllabus-table div:nth-child(odd){border-right:none}
+    .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+  }
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+  }
+  .tile{
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px;
+  }
+  .tile h3{margin-top:0}
+  .tabs{
+    position:sticky;
+    top:0;
+    z-index:10;
+    padding:12px;
+    margin:18px 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    background:rgba(247,249,252,.85);
+    border:1px solid var(--line);
+    border-radius:18px;
+    backdrop-filter:blur(12px);
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  button{
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    padding:10px 14px;
+    background:#e9eef6;
+    color:var(--ink);
+    font-weight:800;
+    cursor:pointer;
+    transition:.16s transform,.16s background,.16s color,.16s box-shadow;
+    font-size:.95rem;
+  }
+  button:hover{transform:translateY(-1px)}
+  button.active{background:var(--accent); color:white; box-shadow:0 8px 18px rgba(35,100,170,.24)}
+  button.secondary{background:#eef2ff;color:#3b2b98}
+  button.good{background:#d3f9d8;color:#1b5e20}
+  button.warn{background:#fff3bf;color:#7c4a00}
+  button.danger{background:#ffe3e3;color:#8a1717}
+  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block; animation:fade .25s ease}
+  @keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .formula{
+    background:#0f172a;
+    color:white;
+    border-radius:16px;
+    padding:18px;
+    margin:15px 0;
+    overflow-x:auto;
+  }
+  .note{
+    border-left:5px solid var(--accent);
+    background:#edf6ff;
+    padding:12px 14px;
+    border-radius:12px;
+    margin:12px 0;
+  }
+  .note.warn{border-color:var(--warn);background:#fff7e6}
+  .note.good{border-color:var(--good);background:#ebfbee}
+  .steps{
+    counter-reset:step;
+    list-style:none;
+    padding:0;
+    margin:12px 0;
+  }
+  .steps li{
+    counter-increment:step;
+    position:relative;
+    margin:10px 0;
+    padding:12px 12px 12px 48px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .steps li::before{
+    content:counter(step);
+    position:absolute;
+    left:12px; top:12px;
+    width:25px; height:25px;
+    display:grid; place-items:center;
+    border-radius:50%;
+    background:var(--accent); color:white; font-weight:900;
+  }
+  .mathline{
+    font-size:1.12rem;
+    padding:12px;
+    border:1px solid var(--line);
+    background:white;
+    border-radius:12px;
+    overflow-x:auto;
+  }
+  .eq-box{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+    padding:13px;
+    margin:10px 0;
+  }
+  .eq-label{
+    font-size:.85rem;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    font-weight:800;
+    margin-bottom:6px;
+  }
+  .feedback{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    min-height:48px;
+    background:#f1f5f9;
+  }
+  .feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+  .feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+  .feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+  .practice-card{
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    background:white;
+    margin:12px 0;
+  }
+  .answer{
+    display:none;
+    margin-top:10px;
+    padding:12px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+  }
+  .answer.show{display:block}
+  input, textarea, select{
+    width:100%;
+    padding:12px 13px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    font:inherit;
+    background:white;
+  }
+  textarea{min-height:90px;resize:vertical}
+  label{display:block;margin:8px 0 5px;font-weight:850}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  .tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .graph-wrap{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px;
+    overflow:hidden;
+  }
+  .svg-graph{
+    width:100%;
+    aspect-ratio:1.45/1;
+    max-height:520px;
+    display:block;
+    background:linear-gradient(#fcfdff,#f6fbff);
+    border-radius:12px;
+    overflow:visible;
+  }
+  .range-wrap{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+    margin:10px 0;
+  }
+  input[type=range]{padding:0}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#edf2ff;
+    color:#364fc7;
+    font-size:.82rem;
+    font-weight:850;
+    margin:2px;
+  }
+  .pill.green{background:#e6fcf5;color:#087f5b}
+  .pill.orange{background:#fff3bf;color:#7c4a00}
+  .pill.red{background:#ffe3e3;color:#8a1717}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:12px 0;
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:11px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th{background:#eef4fb}
+  .dot{
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  .sample-board{
+    position:relative;
+    height:420px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:
+      linear-gradient(90deg,rgba(35,100,170,.06) 0 25%, transparent 25% 50%, rgba(12,166,120,.06) 50% 75%, transparent 75%),
+      #fff;
+    overflow:hidden;
+  }
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:10px 0;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 10px;
+    font-weight:750;
+    font-size:.9rem;
+  }
+  .swatch{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    display:inline-block;
+  }
+  .sample-dot{
+    stroke:#111827;
+    stroke-width:2;
+  }
+  .outlier-line{
+    height:96px;
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:white;
+    position:relative;
+    overflow:hidden;
+  }
+  .number-dot{
+    position:absolute;
+    top:42px;
+    width:11px;
+    height:11px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:var(--accent);
+  }
+  .number-dot.out{background:var(--bad)}
+  .axis-tick{
+    position:absolute;
+    top:58px;
+    width:1px;
+    height:10px;
+    background:#64748b;
+  }
+  .axis-label{
+    position:absolute;
+    top:70px;
+    transform:translateX(-50%);
+    font-size:.78rem;
+    color:#64748b;
+  }
+  .context-svg{
+    width:100%;
+    display:block;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:white;
+  }
+  @media print{
+    body{background:white}
+    .tabs,button{display:none!important}
+    .tab-panel{display:block!important}
+    .card{box-shadow:none;break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 4.1 <span>Data, Sampling and Outliers</span></h1>
+      <p class="subtitle">An interactive resource for understanding populations, samples, random samples, data types, data quality, bias, outliers using the \(1.5\times\mathrm{IQR}\) rule, and the effectiveness of different sampling techniques.</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Statistics</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus-table">
+      <div class="head">Content</div>
+      <div class="head">Guidance, clarification and syllabus links</div>
+      <div>
+        Concepts of population, sample, random sample, discrete and continuous data.<br><br>
+        Reliability of data sources and bias in sampling.<br><br>
+        Interpretation of outliers.<br><br>
+        Sampling techniques and their effectiveness.
+      </div>
+      <div>
+        Key questions students should ask when they see a data set or analysis.<br><br>
+        Dealing with missing data and recording errors.<br><br>
+        An outlier is more than \(1.5\times\mathrm{IQR}\) from the nearest quartile.<br><br>
+        Some outliers are valid parts of the sample; others may be errors.<br><br>
+        Simple random, convenience, systematic, quota and stratified sampling methods.
+      </div>
+    </div>
+    <div class="mini-grid" style="margin-top:14px">
+      <div class="tile"><h3>Population</h3><p>The whole group we want to know about.</p></div>
+      <div class="tile"><h3>Sample</h3><p>The smaller group we actually collect data from.</p></div>
+      <div class="tile"><h3>Bias</h3><p>A systematic problem that pushes results away from the truth.</p></div>
+      <div class="tile"><h3>Outlier</h3><p>A value unusually far from the rest: check whether it is meaningful or an error.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore first</button>
+  <button class="tab-button" data-tab="datatypes">2. Data types</button>
+  <button class="tab-button" data-tab="sampling">3. Sampling methods</button>
+  <button class="tab-button" data-tab="bias">4. Reliability & bias</button>
+  <button class="tab-button" data-tab="missing">5. Missing data & errors</button>
+  <button class="tab-button" data-tab="outliers">6. Outliers & IQR</button>
+  <button class="tab-button" data-tab="contexts">7. Famous problems</button>
+  <button class="tab-button" data-tab="formalise">8. Formalise</button>
+  <button class="tab-button" data-tab="practice">9. Exam generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore: can a sample mislead us?</h2>
+      <p>The dots are a population. Colour represents group membership. The vertical position represents a numerical variable, such as test score, height, waiting time, or income. Try different sampling methods and compare the sample mean to the true population mean.</p>
+      <div class="tight-row">
+        <button onclick="newPopulation()">New population</button>
+        <button onclick="takeSample('random')">Simple random</button>
+        <button onclick="takeSample('convenience')">Convenience</button>
+        <button onclick="takeSample('systematic')">Systematic</button>
+        <button onclick="takeSample('stratified')">Stratified</button>
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="swatch" style="background:#2364aa"></span>Group A</span>
+        <span class="legend-item"><span class="swatch" style="background:#0ca678"></span>Group B</span>
+        <span class="legend-item"><span class="swatch" style="background:#7048e8"></span>Group C</span>
+        <span class="legend-item"><span class="swatch" style="background:#f08c00"></span>Group D</span>
+        <span class="legend-item"><span class="swatch" style="background:#111827"></span>selected sample outline</span>
+      </div>
+      <div class="sample-board" id="populationBoard"></div>
+    </div>
+
+    <div class="card span-5">
+      <h2>Sampling result</h2>
+      <div class="eq-box">
+        <div class="eq-label">Population</div>
+        <div id="popStats" class="mathline">Generate a population.</div>
+      </div>
+      <div class="eq-box">
+        <div class="eq-label">Sample</div>
+        <div id="sampleStats" class="mathline">Take a sample.</div>
+      </div>
+      <div id="sampleFeedback" class="feedback info">A good sample is not just “large”; it should be representative of the population.</div>
+      <h3>Key questions</h3>
+      <ol class="steps">
+        <li>Who is in the population?</li>
+        <li>Who was actually sampled?</li>
+        <li>How were they chosen?</li>
+        <li>Who might be missing?</li>
+        <li>Could the data source or method be biased?</li>
+      </ol>
+    </div>
+
+    <div class="card span-12">
+      <h2>First intuition: sample or population?</h2>
+      <div id="popSampleChecks" class="mini-grid"></div>
+      <div id="popSampleFeedback" class="feedback">Classify each situation.</div>
+    </div>
+  </div>
+</section>
+
+<section id="datatypes" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Discrete and continuous data</h2>
+      <div class="formula">
+        \[
+          \text{Discrete: counted values} \qquad
+          \text{Continuous: measured values}
+        \]
+      </div>
+      <p><strong>Discrete data</strong> usually comes from counting. <strong>Continuous data</strong> usually comes from measuring, and can in principle take any value in an interval.</p>
+      <div class="mini-grid">
+        <div class="tile"><h3>Discrete</h3><p>Number of siblings, goals scored, books borrowed, students in a class.</p></div>
+        <div class="tile"><h3>Continuous</h3><p>Height, time, temperature, mass, distance, speed.</p></div>
+      </div>
+      <div class="note warn">
+        Context matters. “Age in years” may be recorded as discrete whole numbers, even though time itself is continuous.
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Classifier activity</h2>
+      <p>Decide whether each variable is discrete or continuous.</p>
+      <div id="typeQuestions" class="mini-grid"></div>
+      <div id="typeFeedback" class="feedback">Choose an answer for each variable.</div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Variable map</h2>
+      <svg class="context-svg" viewBox="0 0 1000 360" aria-label="Discrete continuous map">
+        <defs>
+          <linearGradient id="mapGrad" x1="0" x2="1">
+            <stop offset="0" stop-color="#edf2ff"/>
+            <stop offset="1" stop-color="#e6fcf5"/>
+          </linearGradient>
+        </defs>
+        <rect width="1000" height="360" fill="url(#mapGrad)"/>
+        <line x1="120" y1="180" x2="880" y2="180" stroke="#17212d" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="250" cy="180" r="55" fill="#2364aa" opacity=".18" stroke="#2364aa" stroke-width="4"/>
+        <circle cx="750" cy="180" r="55" fill="#0ca678" opacity=".18" stroke="#0ca678" stroke-width="4"/>
+        <text x="250" y="170" text-anchor="middle" font-size="28" font-weight="900" fill="#174a7c">count</text>
+        <text x="250" y="205" text-anchor="middle" font-size="20" fill="#174a7c">0, 1, 2, 3...</text>
+        <text x="750" y="170" text-anchor="middle" font-size="28" font-weight="900" fill="#087f5b">measure</text>
+        <text x="750" y="205" text-anchor="middle" font-size="20" fill="#087f5b">any value in a range</text>
+        <text x="190" y="295" font-size="24" font-weight="850">Discrete data</text>
+        <text x="660" y="295" font-size="24" font-weight="850">Continuous data</text>
+        <text x="330" y="70" font-size="24" font-weight="850" fill="#17212d">Ask: was it counted or measured?</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="sampling" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Sampling techniques</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Simple random</h3><p>Every member has an equal chance of being selected. Often needs a complete list and a random number generator.</p></div>
+        <div class="tile"><h3>Convenience</h3><p>Choose whoever is easiest to reach. Quick, but often biased.</p></div>
+        <div class="tile"><h3>Systematic</h3><p>Choose every \(k\)th member after a random start. Efficient, but patterns in the list can cause bias.</p></div>
+        <div class="tile"><h3>Quota</h3><p>Fill fixed numbers from different groups, but selection inside groups may not be random.</p></div>
+        <div class="tile"><h3>Stratified</h3><p>Split population into strata, then randomly sample from each in proportion to the population.</p></div>
+      </div>
+    </div>
+
+    <div class="card span-7">
+      <h2>Sampling method simulator</h2>
+      <p>Use the same population from the first tab, or generate a new one. Compare representativeness.</p>
+      <div class="tight-row">
+        <button onclick="newPopulation()">New population</button>
+        <button onclick="takeSample('random')">Random</button>
+        <button onclick="takeSample('convenience')">Convenience</button>
+        <button onclick="takeSample('systematic')">Systematic</button>
+        <button onclick="takeSample('quota')">Quota</button>
+        <button onclick="takeSample('stratified')">Stratified</button>
+      </div>
+      <div class="sample-board" id="samplingBoard"></div>
+    </div>
+
+    <div class="card span-5">
+      <h2>Effectiveness</h2>
+      <div class="eq-box">
+        <div class="eq-label">Group representation</div>
+        <div id="groupStats" class="mathline">Take a sample to compare proportions.</div>
+      </div>
+      <div class="eq-box">
+        <div class="eq-label">Method judgement</div>
+        <div id="methodJudgement" class="mathline">No method chosen yet.</div>
+      </div>
+      <div class="note good">
+        Stratified sampling is often strong when the population has important subgroups that must be represented.
+      </div>
+      <div class="note warn">
+        Convenience sampling can be useful for a quick pilot, but weak for making general claims.
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Which method is it?</h2>
+      <div id="methodQuestions" class="mini-grid"></div>
+      <div id="methodFeedback" class="feedback">Classify the sampling method.</div>
+    </div>
+  </div>
+</section>
+
+<section id="bias" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Reliability of data sources</h2>
+      <p>Before analysing the data, ask whether the source is trustworthy and relevant.</p>
+      <ol class="steps">
+        <li>Who collected the data?</li>
+        <li>Why was the data collected?</li>
+        <li>How was the sample chosen?</li>
+        <li>How large was the sample?</li>
+        <li>Who or what might be missing?</li>
+        <li>Could people have misunderstood, lied, or responded selectively?</li>
+      </ol>
+      <div class="note">
+        A mathematically correct calculation can still support a misleading conclusion if the data source is poor.
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Bias detector</h2>
+      <p>Read the scenario and identify the main source of bias.</p>
+      <div class="practice-card">
+        <div id="biasScenario" class="mathline">Press generate.</div>
+        <div class="tight-row" style="margin-top:10px">
+          <button onclick="generateBiasScenario()">Generate scenario</button>
+          <button onclick="answerBias('selection')">Selection bias</button>
+          <button onclick="answerBias('response')">Response bias</button>
+          <button onclick="answerBias('nonresponse')">Non-response bias</button>
+          <button onclick="answerBias('measurement')">Measurement error</button>
+        </div>
+        <div id="biasFeedback" class="feedback">Choose the likely issue.</div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Misleading statistics flowchart</h2>
+      <svg class="context-svg" viewBox="0 0 1100 420" aria-label="Misleading statistics flowchart">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+          </marker>
+        </defs>
+        <rect width="1100" height="420" fill="#f8fafc"/>
+        <g font-family="Inter, Arial" font-weight="850">
+          <rect x="50" y="80" width="190" height="90" rx="18" fill="#edf2ff" stroke="#2364aa" stroke-width="3"/>
+          <text x="145" y="118" text-anchor="middle" font-size="22" fill="#174a7c">Bad sample</text>
+          <text x="145" y="148" text-anchor="middle" font-size="16" fill="#174a7c">not representative</text>
+          <line x1="240" y1="125" x2="340" y2="125" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+          <rect x="340" y="80" width="190" height="90" rx="18" fill="#fff3bf" stroke="#f08c00" stroke-width="3"/>
+          <text x="435" y="118" text-anchor="middle" font-size="22" fill="#7c4a00">Biased data</text>
+          <text x="435" y="148" text-anchor="middle" font-size="16" fill="#7c4a00">distorted picture</text>
+          <line x1="530" y1="125" x2="630" y2="125" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+          <rect x="630" y="80" width="190" height="90" rx="18" fill="#ffe3e3" stroke="#c92a2a" stroke-width="3"/>
+          <text x="725" y="118" text-anchor="middle" font-size="22" fill="#8a1717">Wrong claim</text>
+          <text x="725" y="148" text-anchor="middle" font-size="16" fill="#8a1717">overgeneralised</text>
+          <line x1="820" y1="125" x2="920" y2="125" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+          <rect x="920" y="80" width="130" height="90" rx="18" fill="#f1f3f5" stroke="#495057" stroke-width="3"/>
+          <text x="985" y="118" text-anchor="middle" font-size="22" fill="#343a40">Bad</text>
+          <text x="985" y="148" text-anchor="middle" font-size="22" fill="#343a40">decision</text>
+        </g>
+        <text x="70" y="250" font-size="24" font-weight="850" fill="#17212d">Statistics question:</text>
+        <text x="70" y="292" font-size="22" fill="#344054">Is the issue the calculation, the graph, the data source, or the sampling method?</text>
+        <text x="70" y="335" font-size="22" fill="#344054">Good statistical thinking starts before any calculation.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="missing" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Missing data and recording errors</h2>
+      <p>Missing data is not just an inconvenience. It can change the conclusion, especially if it is not missing randomly.</p>
+      <div class="mini-grid">
+        <div class="tile"><h3>Missing completely at random</h3><p>Data missing for reasons unrelated to the value.</p></div>
+        <div class="tile"><h3>Systematic missingness</h3><p>A certain group is more likely to be missing.</p></div>
+        <div class="tile"><h3>Recording error</h3><p>A value was typed or measured incorrectly.</p></div>
+        <div class="tile"><h3>Impossible value</h3><p>A value violates context, such as negative height.</p></div>
+      </div>
+      <div class="note warn">
+        Do not automatically delete unusual values. First ask whether they are errors or valid extreme cases.
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Data cleaning activity</h2>
+      <p>Inspect this data set of student journey times to school, in minutes.</p>
+      <div class="mathline">12, 15, 18, 20, 21, 24, 25, 27, missing, 30, 32, 33, 180, 28, 0</div>
+      <div class="tight-row" style="margin-top:10px">
+        <button onclick="cleanChoice('missing')">Missing value</button>
+        <button onclick="cleanChoice('outlier')">180 minutes</button>
+        <button onclick="cleanChoice('zero')">0 minutes</button>
+        <button onclick="cleanChoice('all')">Overall judgement</button>
+      </div>
+      <div id="cleanFeedback" class="feedback">Choose a feature of the data set.</div>
+    </div>
+
+    <div class="card span-12">
+      <h2>What should we do?</h2>
+      <table>
+        <tr><th>Issue</th><th>Bad response</th><th>Better response</th></tr>
+        <tr><td>Missing value</td><td>Ignore it without comment.</td><td>State how many values are missing and consider whether missingness is biased.</td></tr>
+        <tr><td>Typing error</td><td>Treat it as real data.</td><td>Check against original records if possible.</td></tr>
+        <tr><td>Valid extreme value</td><td>Delete because it is inconvenient.</td><td>Keep it, but discuss its effect on the analysis.</td></tr>
+        <tr><td>Impossible value</td><td>Leave it in because “it is in the spreadsheet”.</td><td>Flag it as an error and investigate or remove with justification.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="outliers" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Outlier calculator: \(1.5\times\mathrm{IQR}\) rule</h2>
+      <p>Enter numerical data separated by commas. The tool sorts the data, finds quartiles, calculates the IQR, and identifies outliers.</p>
+      <label for="outlierData">Data set</label>
+      <textarea id="outlierData">12, 15, 18, 20, 21, 24, 25, 27, 28, 30, 32, 33, 180</textarea>
+      <div class="tight-row">
+        <button onclick="analyseOutliers()">Analyse data</button>
+        <button onclick="loadOutlierExample('valid')">Valid extreme example</button>
+        <button onclick="loadOutlierExample('error')">Likely error example</button>
+        <button onclick="loadOutlierExample('none')">No outlier example</button>
+      </div>
+      <div class="outlier-line" id="outlierLine"></div>
+      <div id="outlierOutput" class="feedback info">Press analyse.</div>
+    </div>
+
+    <div class="card span-5">
+      <h2>Definition</h2>
+      <div class="formula">
+        \[
+          \mathrm{IQR}=Q_3-Q_1
+        \]
+        \[
+          \text{lower fence}=Q_1-1.5\mathrm{IQR}
+        \]
+        \[
+          \text{upper fence}=Q_3+1.5\mathrm{IQR}
+        \]
+      </div>
+      <p>A value is an outlier if it is below the lower fence or above the upper fence.</p>
+      <div class="note">
+        The rule identifies unusual values. It does not automatically decide whether the value is wrong.
+      </div>
+      <div class="note warn">
+        In context, an outlier might be a valid part of the sample, or it might be a recording error.
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Interpret the outlier</h2>
+      <div class="mini-grid" id="outlierJudgements"></div>
+      <div id="outlierJudgeFeedback" class="feedback">Decide whether the outlier is probably valid or suspicious.</div>
+    </div>
+  </div>
+</section>
+
+<section id="contexts" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Famous cautionary stories</h2>
+      <p>These examples are useful because they show that bad sampling or missing groups can defeat impressive-looking analysis.</p>
+      <div class="mini-grid">
+        <div class="tile"><h3>Literary Digest vs Gallup</h3><p>A huge but biased survey can be worse than a smaller representative sample.</p></div>
+        <div class="tile"><h3>Google Flu Trends</h3><p>Big data can still mislead if the model confuses search behaviour with real-world illness.</p></div>
+        <div class="tile"><h3>Boston pothole app</h3><p>App-based reporting can miss people who do not own or use the relevant technology.</p></div>
+        <div class="tile"><h3>Kinsey report</h3><p>Famous research that raises questions about sampling techniques and representativeness.</p></div>
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Misleading sample picture</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Biased sample illustration">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <rect x="60" y="70" width="640" height="260" rx="22" fill="#fff" stroke="#d7dee8" stroke-width="3"/>
+        <text x="380" y="45" text-anchor="middle" font-size="28" font-weight="900">Population</text>
+        <g opacity=".95">
+          <circle cx="130" cy="120" r="14" fill="#2364aa"/><circle cx="190" cy="120" r="14" fill="#2364aa"/><circle cx="250" cy="120" r="14" fill="#2364aa"/><circle cx="310" cy="120" r="14" fill="#2364aa"/>
+          <circle cx="130" cy="180" r="14" fill="#0ca678"/><circle cx="190" cy="180" r="14" fill="#0ca678"/><circle cx="250" cy="180" r="14" fill="#0ca678"/><circle cx="310" cy="180" r="14" fill="#0ca678"/>
+          <circle cx="460" cy="120" r="14" fill="#7048e8"/><circle cx="520" cy="120" r="14" fill="#7048e8"/><circle cx="580" cy="120" r="14" fill="#7048e8"/><circle cx="640" cy="120" r="14" fill="#7048e8"/>
+          <circle cx="460" cy="180" r="14" fill="#f08c00"/><circle cx="520" cy="180" r="14" fill="#f08c00"/><circle cx="580" cy="180" r="14" fill="#f08c00"/><circle cx="640" cy="180" r="14" fill="#f08c00"/>
+          <circle cx="130" cy="250" r="14" fill="#2364aa"/><circle cx="190" cy="250" r="14" fill="#0ca678"/><circle cx="250" cy="250" r="14" fill="#7048e8"/><circle cx="310" cy="250" r="14" fill="#f08c00"/>
+          <circle cx="460" cy="250" r="14" fill="#2364aa"/><circle cx="520" cy="250" r="14" fill="#0ca678"/><circle cx="580" cy="250" r="14" fill="#7048e8"/><circle cx="640" cy="250" r="14" fill="#f08c00"/>
+        </g>
+        <rect x="96" y="92" width="240" height="180" rx="20" fill="none" stroke="#c92a2a" stroke-width="6" stroke-dasharray="12 8"/>
+        <text x="217" y="365" text-anchor="middle" font-size="24" font-weight="900" fill="#8a1717">Convenience sample</text>
+        <text x="560" y="365" text-anchor="middle" font-size="24" font-weight="900" fill="#087f5b">Groups missed</text>
+      </svg>
+    </div>
+
+    <div class="card span-6">
+      <h2>TOK and Aim 8 prompts</h2>
+      <div class="practice-card">
+        <p><strong>TOK:</strong> How easy is it to be misled by statistics?</p>
+        <button onclick="toggleAnswer('tok1')">Reveal discussion angles</button>
+        <div id="tok1" class="answer">
+          Statistics can mislead through biased samples, selective reporting, misleading graphs, poor definitions, missing data, and confusing correlation with causation. The mathematics may be correct while the conclusion is still unreliable.
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Aim 8:</strong> Is it ever justifiable to purposely use statistics to mislead others?</p>
+        <button onclick="toggleAnswer('tok2')">Reveal discussion angles</button>
+        <div id="tok2" class="answer">
+          This raises ethical questions about persuasion, public policy, advertising, medical decisions, and trust. A useful distinction is between simplifying for communication and distorting evidence to manipulate decisions.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formal definitions</h2>
+      <table>
+        <tr><th>Term</th><th>Meaning</th></tr>
+        <tr><td>Population</td><td>The whole group of individuals or items being studied.</td></tr>
+        <tr><td>Sample</td><td>A subset of the population from which data is collected.</td></tr>
+        <tr><td>Random sample</td><td>A sample chosen using chance, ideally so each member has a known chance of selection.</td></tr>
+        <tr><td>Discrete data</td><td>Data that takes countable separate values.</td></tr>
+        <tr><td>Continuous data</td><td>Data that is measured and can take any value in an interval.</td></tr>
+        <tr><td>Bias</td><td>A systematic distortion in the way data is collected, recorded, or interpreted.</td></tr>
+      </table>
+    </div>
+
+    <div class="card span-6">
+      <h2>Worked examples</h2>
+      <div class="practice-card">
+        <p><strong>Example 1.</strong> A school wants to know the average sleep time of all Grade 11 students. A teacher asks the first 20 students entering the library.</p>
+        <button onclick="toggleAnswer('formalEx1')">Reveal solution</button>
+        <div id="formalEx1" class="answer">
+          The population is all Grade 11 students. The sample is the 20 students entering the library. This is convenience sampling, not a random sample. It may be biased if library users have different routines from other students.
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 2.</strong> A data set has \(Q_1=18\), \(Q_3=30\). Find the outlier fences.</p>
+        <button onclick="toggleAnswer('formalEx2')">Reveal solution</button>
+        <div id="formalEx2" class="answer">
+          \[
+            \mathrm{IQR}=30-18=12
+          \]
+          \[
+            1.5\times \mathrm{IQR}=1.5\times12=18
+          \]
+          Lower fence:
+          \[
+            18-18=0
+          \]
+          Upper fence:
+          \[
+            30+18=48
+          \]
+          Values below 0 or above 48 are outliers.
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 3.</strong> A phone app collects reports of potholes. What might be biased?</p>
+        <button onclick="toggleAnswer('formalEx3')">Reveal solution</button>
+        <div id="formalEx3" class="answer">
+          The app may overrepresent people with smartphones, people who know about the app, and neighbourhoods where users are more likely to report. Areas with fewer app users may appear to have fewer potholes even if they do not.
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Data-analysis question checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Population:</strong> who or what is the claim about?</div>
+        <div class="tile"><strong>Sample:</strong> who or what was actually measured?</div>
+        <div class="tile"><strong>Method:</strong> how were sample members chosen?</div>
+        <div class="tile"><strong>Variables:</strong> are they discrete or continuous?</div>
+        <div class="tile"><strong>Quality:</strong> are there missing values or recording errors?</div>
+        <div class="tile"><strong>Outliers:</strong> are they valid extremes or mistakes?</div>
+        <div class="tile"><strong>Bias:</strong> who is overrepresented or missing?</div>
+        <div class="tile"><strong>Conclusion:</strong> does the claim go beyond the evidence?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Exam-style question generator</h2>
+      <p>Generate a question, attempt it, then reveal the worked solution.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('population')">Population/sample</button>
+        <button onclick="generatePractice('datatype')">Data type</button>
+        <button onclick="generatePractice('sampling')">Sampling method</button>
+        <button onclick="generatePractice('bias')">Bias critique</button>
+        <button onclick="generatePractice('outlier')">Outlier calculation</button>
+        <button onclick="generatePractice('missing')">Missing/error interpretation</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Exam checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Name the population</strong> exactly, not vaguely.</div>
+        <div class="tile"><strong>Name the sample</strong> as the group actually measured.</div>
+        <div class="tile"><strong>Identify the method</strong> and one strength or weakness.</div>
+        <div class="tile"><strong>Show IQR working</strong> for outlier questions.</div>
+        <div class="tile"><strong>Use context</strong> to judge whether an outlier might be valid.</div>
+        <div class="tile"><strong>Do not overclaim</strong> from a biased or small sample.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Begin with the sampling simulator: show that different samples from the same population can produce different conclusions.</li>
+        <li>Clarify population, sample, random sample, and representativeness.</li>
+        <li>Sort variables into discrete and continuous, stressing context.</li>
+        <li>Compare sampling techniques and ask when each might be effective or biased.</li>
+        <li>Use the missing/error tab before the outlier rule so students do not treat data cleaning as mechanical.</li>
+        <li>Introduce the \(1.5\times\mathrm{IQR}\) rule, then discuss whether outliers are valid or suspicious.</li>
+        <li>Finish with famous misleading-statistics examples and exam-style practice.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>“Large sample” automatically means “good sample”.</td><td>Use biased sample examples to show representativeness matters.</td></tr>
+        <tr><td>Random means “whatever happens”.</td><td>Stress a deliberate chance method such as random numbers.</td></tr>
+        <tr><td>Outlier means wrong.</td><td>Separate statistical unusualness from contextual error.</td></tr>
+        <tr><td>Delete missing data without comment.</td><td>Ask whether missingness is random or systematic.</td></tr>
+        <tr><td>Confusing stratified and quota.</td><td>Stratified uses random samples within strata; quota fills target numbers but may not be random.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">A survey asks only students in the cafeteria. Identify the sample and possible bias.</div>
+        <div class="tile">Classify: number of books read last month; time spent reading.</div>
+        <div class="tile">Explain why a convenience sample may be useful but weak.</div>
+        <div class="tile">Find outlier fences when \(Q_1=14\), \(Q_3=26\).</div>
+        <div class="tile">Give an example of a valid outlier in sports data.</div>
+        <div class="tile">Describe a stratified sample for a school with Grades 9–12.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function rerenderMath(){
+  if(window.MathJax && window.MathJax.typesetPromise){
+    window.MathJax.typesetPromise();
+  }
+}
+
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.tab).classList.add('active');
+    rerenderMath();
+  });
+});
+
+function toggleAnswer(id){
+  $(id).classList.toggle('show');
+  rerenderMath();
+}
+function fmt(x){
+  if(!isFinite(x)) return String(x);
+  if(Math.abs(x) < 1e-10) return '0';
+  return Number(x.toFixed(3)).toString();
+}
+function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
+function shuffle(arr){return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);}
+
+/* Population simulator */
+let population=[];
+let selectedIds=new Set();
+const groupColours={A:'#2364aa',B:'#0ca678',C:'#7048e8',D:'#f08c00'};
+function newPopulation(){
+  population=[];
+  selectedIds=new Set();
+  const groups=[
+    {name:'A',n:42,base:55,x0:12,x1:40},
+    {name:'B',n:34,base:65,x0:36,x1:62},
+    {name:'C',n:28,base:72,x0:58,x1:82},
+    {name:'D',n:16,base:82,x0:76,x1:96}
+  ];
+  let id=0;
+  groups.forEach(g=>{
+    for(let i=0;i<g.n;i++){
+      const x=g.x0 + Math.random()*(g.x1-g.x0);
+      const value=Math.max(20,Math.min(100,g.base + (Math.random()-.5)*24));
+      const y=100 - value;
+      population.push({id:id++, group:g.name, x, y:8+y*.84, value});
+    }
+  });
+  renderPopulationBoards();
+  updatePopulationStats();
+  $("sampleStats").innerHTML='Take a sample.';
+  $("sampleFeedback").className='feedback info';
+  $("sampleFeedback").innerHTML='Try a sample method. A representative sample should have group proportions similar to the population.';
+  $("groupStats").innerHTML='Take a sample to compare proportions.';
+  $("methodJudgement").innerHTML='No method chosen yet.';
+}
+function renderDots(boardId){
+  const board=$(boardId);
+  if(!board) return;
+  board.innerHTML='';
+  population.forEach(p=>{
+    const dot=document.createElement('div');
+    dot.className='dot';
+    dot.style.left=p.x+'%';
+    dot.style.top=p.y+'%';
+    dot.style.background=groupColours[p.group];
+    dot.style.border=selectedIds.has(p.id)?'3px solid #111827':'1px solid white';
+    dot.style.width=selectedIds.has(p.id)?'15px':'10px';
+    dot.style.height=selectedIds.has(p.id)?'15px':'10px';
+    dot.title=`Group ${p.group}, value ${fmt(p.value)}`;
+    board.appendChild(dot);
+  });
+}
+function renderPopulationBoards(){
+  renderDots('populationBoard');
+  renderDots('samplingBoard');
+}
+function updatePopulationStats(){
+  const m=mean(population.map(p=>p.value));
+  const counts=groupCounts(population);
+  $("popStats").innerHTML=`Population size: \\(N=${population.length}\\)<br>True mean: \\(${fmt(m)}\\)<br>Groups: A ${counts.A}, B ${counts.B}, C ${counts.C}, D ${counts.D}`;
+  rerenderMath();
+}
+function groupCounts(arr){
+  return {A:arr.filter(p=>p.group==='A').length,B:arr.filter(p=>p.group==='B').length,C:arr.filter(p=>p.group==='C').length,D:arr.filter(p=>p.group==='D').length};
+}
+function takeSample(method){
+  if(population.length===0) newPopulation();
+  const n=24;
+  let sample=[];
+  if(method==='random'){
+    sample=shuffle(population).slice(0,n);
+  } else if(method==='convenience'){
+    sample=population.filter(p=>p.x<48).sort((a,b)=>a.x-b.x).slice(0,n);
+  } else if(method==='systematic'){
+    const ordered=[...population].sort((a,b)=>a.x-b.x);
+    const k=Math.floor(ordered.length/n);
+    const start=Math.floor(Math.random()*k);
+    for(let i=start;i<ordered.length && sample.length<n;i+=k) sample.push(ordered[i]);
+  } else if(method==='quota'){
+    const quotas={A:6,B:6,C:6,D:6};
+    Object.keys(quotas).forEach(g=>{
+      sample.push(...population.filter(p=>p.group===g).sort((a,b)=>a.x-b.x).slice(0,quotas[g]));
+    });
+  } else if(method==='stratified'){
+    const counts=groupCounts(population);
+    Object.keys(counts).forEach(g=>{
+      const take=Math.round(counts[g]/population.length*n);
+      sample.push(...shuffle(population.filter(p=>p.group===g)).slice(0,take));
+    });
+    sample=sample.slice(0,n);
+  }
+  selectedIds=new Set(sample.map(p=>p.id));
+  renderPopulationBoards();
+  const popMean=mean(population.map(p=>p.value));
+  const sm=mean(sample.map(p=>p.value));
+  const diff=sm-popMean;
+  const counts=groupCounts(sample);
+  $("sampleStats").innerHTML=`Method: <strong>${methodName(method)}</strong><br>Sample size: \\(n=${sample.length}\\)<br>Sample mean: \\(${fmt(sm)}\\)<br>Difference from population mean: \\(${fmt(diff)}\\)`;
+  const cls=Math.abs(diff)<3?'good':Math.abs(diff)<7?'info':'bad';
+  $("sampleFeedback").className='feedback '+cls;
+  $("sampleFeedback").innerHTML=feedbackForMethod(method,diff);
+  $("groupStats").innerHTML=`Sample groups: A ${counts.A}, B ${counts.B}, C ${counts.C}, D ${counts.D}<br>Compare with population proportions, not just the sample mean.`;
+  $("methodJudgement").innerHTML=methodJudgement(method);
+  rerenderMath();
+}
+function methodName(method){
+  return {
+    random:'Simple random',
+    convenience:'Convenience',
+    systematic:'Systematic',
+    quota:'Quota',
+    stratified:'Stratified'
+  }[method];
+}
+function feedbackForMethod(method,diff){
+  const base=`This sample mean is ${Math.abs(diff)<3?'close to':'different from'} the population mean. `;
+  if(method==='random') return base + 'Random sampling reduces selection bias, though any one sample can still vary by chance.';
+  if(method==='convenience') return base + 'Convenience sampling is easy but can overrepresent the easiest-to-reach part of the population.';
+  if(method==='systematic') return base + 'Systematic sampling is efficient, but can be biased if the list has a repeating pattern.';
+  if(method==='quota') return base + 'Quota sampling ensures target group numbers, but selection within groups may still be non-random.';
+  return base + 'Stratified sampling preserves important subgroups and is often more representative.';
+}
+function methodJudgement(method){
+  if(method==='random') return 'Strong if there is a complete sampling frame and the random process is genuine.';
+  if(method==='convenience') return 'Fast and cheap, but weak for making general conclusions.';
+  if(method==='systematic') return 'Good for ordered lists, unless there is a hidden periodic pattern.';
+  if(method==='quota') return 'Can match known group sizes, but may still rely on convenience within each quota.';
+  return 'Usually strong when strata are relevant and random sampling is used within each stratum.';
+}
+
+/* population/sample checks */
+const popSampleItems=[
+  {q:'A teacher records the heights of every student in Grade 9.', options:['population','sample'], ok:'population', explain:'Every member of the target group was measured.'},
+  {q:'A company surveys 500 customers to estimate satisfaction among all customers.', options:['population','sample'], ok:'sample', explain:'The 500 customers are a subset of all customers.'},
+  {q:'A random number generator selects 40 names from the school roll.', options:['random sample','convenience sample'], ok:'random sample', explain:'A chance method was used from a list.'},
+  {q:'A student asks the first 20 friends who reply to a message.', options:['random sample','convenience sample'], ok:'convenience sample', explain:'The easiest people to reach were used.'}
+];
+function initPopSampleChecks(){
+  const box=$("popSampleChecks");
+  box.innerHTML='';
+  popSampleItems.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    div.innerHTML=`<p>${item.q}</p>${item.options.map(o=>`<button onclick="checkPopSample(${i},'${o}')">${o}</button>`).join(' ')}`;
+    box.appendChild(div);
+  });
+}
+function checkPopSample(i,ans){
+  const item=popSampleItems[i];
+  $("popSampleFeedback").className='feedback '+(ans===item.ok?'good':'bad');
+  $("popSampleFeedback").innerHTML=(ans===item.ok?'Correct. ':'Not quite. ')+item.explain;
+}
+
+/* Data types */
+const typeItems=[
+  {q:'Number of goals scored in a match', ok:'discrete', explain:'Goals are counted whole numbers.'},
+  {q:'Time to run 100 m', ok:'continuous', explain:'Time is measured and can take decimal values.'},
+  {q:'Temperature in a classroom', ok:'continuous', explain:'Temperature is measured.'},
+  {q:'Number of messages sent in one day', ok:'discrete', explain:'Messages are counted.'},
+  {q:'Mass of a backpack', ok:'continuous', explain:'Mass is measured.'},
+  {q:'Number of defective items in a batch', ok:'discrete', explain:'Defects are counted.'}
+];
+function initTypeQuestions(){
+  const box=$("typeQuestions");
+  box.innerHTML='';
+  typeItems.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    div.innerHTML=`<p>${item.q}</p><button onclick="checkType(${i},'discrete')">Discrete</button> <button onclick="checkType(${i},'continuous')">Continuous</button>`;
+    box.appendChild(div);
+  });
+}
+function checkType(i,ans){
+  const item=typeItems[i];
+  $("typeFeedback").className='feedback '+(ans===item.ok?'good':'bad');
+  $("typeFeedback").innerHTML=(ans===item.ok?'Correct. ':'Not quite. ')+item.explain;
+}
+
+/* Sampling method questions */
+const methodItems=[
+  {q:'A researcher numbers all students and uses a random number generator to select 60.', ok:'Simple random', explain:'Chance is used from the full list.'},
+  {q:'A researcher asks people who happen to be in the school entrance at lunchtime.', ok:'Convenience', explain:'The easiest people to reach are selected.'},
+  {q:'From an alphabetical list, a researcher randomly chooses a start and then selects every 10th name.', ok:'Systematic', explain:'Every kth member is selected after a starting point.'},
+  {q:'A sample is chosen randomly from each grade in proportion to the grade sizes.', ok:'Stratified', explain:'The population is split into strata and sampled proportionally.'},
+  {q:'A researcher decides to ask 20 boys and 20 girls, choosing whoever agrees first in each group.', ok:'Quota', explain:'Target numbers are filled, but selection within groups is not necessarily random.'}
+];
+function initMethodQuestions(){
+  const box=$("methodQuestions");
+  box.innerHTML='';
+  methodItems.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    div.innerHTML=`<p>${item.q}</p>
+      <button onclick="checkMethod(${i},'Simple random')">Simple random</button>
+      <button onclick="checkMethod(${i},'Convenience')">Convenience</button>
+      <button onclick="checkMethod(${i},'Systematic')">Systematic</button>
+      <button onclick="checkMethod(${i},'Quota')">Quota</button>
+      <button onclick="checkMethod(${i},'Stratified')">Stratified</button>`;
+    box.appendChild(div);
+  });
+}
+function checkMethod(i,ans){
+  const item=methodItems[i];
+  $("methodFeedback").className='feedback '+(ans===item.ok?'good':'bad');
+  $("methodFeedback").innerHTML=(ans===item.ok?'Correct. ':'Not quite. ')+item.explain;
+}
+
+/* Bias */
+const biasScenarios=[
+  {q:'A sports website asks visitors whether they watch sport every day.', ans:'selection', explain:'Visitors to a sports website are not representative of the general population.'},
+  {q:'A survey asks: “Do you agree that the new healthy lunch menu is much better?”', ans:'response', explain:'The wording is leading and may influence responses.'},
+  {q:'A survey is emailed to 1000 people, but only 80 reply.', ans:'nonresponse', explain:'The people who respond may differ from those who ignore it.'},
+  {q:'A scale is incorrectly calibrated and adds 2 kg to every measurement.', ans:'measurement', explain:'The measuring instrument introduces a systematic error.'}
+];
+let currentBias=null;
+function generateBiasScenario(){
+  currentBias=biasScenarios[Math.floor(Math.random()*biasScenarios.length)];
+  $("biasScenario").innerHTML=currentBias.q;
+  $("biasFeedback").className='feedback';
+  $("biasFeedback").innerHTML='Choose the likely issue.';
+}
+function answerBias(ans){
+  if(!currentBias) generateBiasScenario();
+  $("biasFeedback").className='feedback '+(ans===currentBias.ans?'good':'bad');
+  $("biasFeedback").innerHTML=(ans===currentBias.ans?'Correct. ':'Not quite. ')+currentBias.explain;
+}
+
+/* Missing data */
+function cleanChoice(which){
+  let text='';
+  if(which==='missing'){
+    text='The missing value should be reported. If many values are missing, ask whether they are missing randomly. One missing journey time may be manageable, but it should not be hidden.';
+  } else if(which==='outlier'){
+    text='180 minutes is an outlier candidate, but it might be valid: perhaps a student commutes from far away. Check the context before removing it.';
+  } else if(which==='zero'){
+    text='0 minutes may be valid if a student lives on campus, or it may be a recording error. The context matters.';
+  } else {
+    text='A good analysis would flag the missing value, investigate the 180 and 0 values, state any assumptions, and possibly compare results with and without the questionable values.';
+  }
+  $("cleanFeedback").className='feedback info';
+  $("cleanFeedback").innerHTML=text;
+}
+
+/* Outliers */
+function parseData(){
+  return $("outlierData").value.split(/[,\s]+/).map(s=>s.trim()).filter(Boolean).map(Number).filter(x=>isFinite(x));
+}
+function median(arr){
+  const n=arr.length;
+  if(n===0) return NaN;
+  if(n%2===1) return arr[(n-1)/2];
+  return (arr[n/2-1]+arr[n/2])/2;
+}
+function quartiles(data){
+  const sorted=[...data].sort((a,b)=>a-b);
+  const n=sorted.length;
+  const med=median(sorted);
+  let lower, upper;
+  if(n%2===0){
+    lower=sorted.slice(0,n/2);
+    upper=sorted.slice(n/2);
+  } else {
+    lower=sorted.slice(0,(n-1)/2);
+    upper=sorted.slice((n+1)/2);
+  }
+  return {sorted, q1:median(lower), q2:med, q3:median(upper)};
+}
+function analyseOutliers(){
+  const data=parseData();
+  if(data.length<4){
+    $("outlierOutput").className='feedback bad';
+    $("outlierOutput").innerHTML='Enter at least four numerical values.';
+    return;
+  }
+  const q=quartiles(data);
+  const iqr=q.q3-q.q1;
+  const lower=q.q1-1.5*iqr;
+  const upper=q.q3+1.5*iqr;
+  const outs=q.sorted.filter(x=>x<lower || x>upper);
+  drawNumberLine(q.sorted, lower, upper, outs);
+  $("outlierOutput").className='feedback '+(outs.length?'bad':'good');
+  $("outlierOutput").innerHTML=`Sorted data: ${q.sorted.join(', ')}<br>
+    \\(Q_1=${fmt(q.q1)}\\), \\(Q_2=${fmt(q.q2)}\\), \\(Q_3=${fmt(q.q3)}\\)<br>
+    \\(\\mathrm{IQR}=Q_3-Q_1=${fmt(iqr)}\\)<br>
+    Lower fence: \\(${fmt(q.q1)}-1.5(${fmt(iqr)})=${fmt(lower)}\\)<br>
+    Upper fence: \\(${fmt(q.q3)}+1.5(${fmt(iqr)})=${fmt(upper)}\\)<br>
+    ${outs.length?`Outlier(s): <strong>${outs.join(', ')}</strong>`:'No outliers using the 1.5×IQR rule.'}`;
+  rerenderMath();
+}
+function drawNumberLine(data, lower, upper, outs){
+  const box=$("outlierLine");
+  box.innerHTML='';
+  const min=Math.min(...data, lower);
+  const max=Math.max(...data, upper);
+  const range=max-min || 1;
+  for(let t=0;t<=4;t++){
+    const val=min+t*range/4;
+    const left=(val-min)/range*100;
+    const tick=document.createElement('div');
+    tick.className='axis-tick';
+    tick.style.left=left+'%';
+    const lab=document.createElement('div');
+    lab.className='axis-label';
+    lab.style.left=left+'%';
+    lab.textContent=fmt(val);
+    box.appendChild(tick);
+    box.appendChild(lab);
+  }
+  data.forEach(x=>{
+    const d=document.createElement('div');
+    d.className='number-dot '+(outs.includes(x)?'out':'');
+    d.style.left=((x-min)/range*100)+'%';
+    d.title=x;
+    box.appendChild(d);
+  });
+  [{v:lower,label:'lower fence'},{v:upper,label:'upper fence'}].forEach(f=>{
+    const line=document.createElement('div');
+    line.style.position='absolute';
+    line.style.left=((f.v-min)/range*100)+'%';
+    line.style.top='8px';
+    line.style.height='80px';
+    line.style.borderLeft='2px dashed #c92a2a';
+    line.title=f.label;
+    box.appendChild(line);
+  });
+}
+function loadOutlierExample(type){
+  if(type==='valid') $("outlierData").value='9, 10, 10, 11, 12, 13, 13, 14, 15, 42';
+  if(type==='error') $("outlierData").value='151, 153, 156, 160, 162, 165, 167, 170, 1690';
+  if(type==='none') $("outlierData").value='14, 15, 17, 18, 20, 21, 22, 24, 25, 27';
+  analyseOutliers();
+}
+const outlierJudgeItems=[
+  {q:'A marathon data set has one runner taking much longer than the rest.', ans:'valid', explain:'This could be valid: runners vary widely, injuries happen, and finishing slowly is still real data.'},
+  {q:'Student heights are mostly 150–185 cm, but one value is 1650 cm.', ans:'error', explain:'This is likely a recording error, perhaps 165.0 cm typed wrongly.'},
+  {q:'A house-price data set includes one luxury mansion far above the rest.', ans:'valid', explain:'It may be a valid extreme value, though it will affect the mean.'},
+  {q:'A temperature data set in Celsius has one classroom value of 230.', ans:'error', explain:'That is not realistic for a classroom and is likely a recording or unit error.'}
+];
+function initOutlierJudgements(){
+  const box=$("outlierJudgements");
+  box.innerHTML='';
+  outlierJudgeItems.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    div.innerHTML=`<p>${item.q}</p><button onclick="judgeOutlier(${i},'valid')">Probably valid</button> <button onclick="judgeOutlier(${i},'error')">Suspicious/error</button>`;
+    box.appendChild(div);
+  });
+}
+function judgeOutlier(i,ans){
+  const item=outlierJudgeItems[i];
+  $("outlierJudgeFeedback").className='feedback '+(ans===item.ans?'good':'bad');
+  $("outlierJudgeFeedback").innerHTML=(ans===item.ans?'Correct. ':'Not quite. ')+item.explain;
+}
+
+/* Practice */
+function generatePractice(type){
+  $("practiceAnswer").classList.remove('show');
+  $("practiceVisual").innerHTML='';
+  let q='', a='';
+  if(type==='population'){
+    q='A city council wants to estimate the average time residents spend commuting. It surveys 200 people at a central train station on Monday morning. Identify the population, sample, and one possible bias.';
+    a='The population is all city residents, or all residents whose commuting time the council wants to estimate. The sample is the 200 people surveyed at the central train station on Monday morning. A possible bias is that people who commute by train and people travelling on Monday morning are overrepresented, while drivers, cyclists, remote workers, and people with different schedules may be missed.';
+  } else if(type==='datatype'){
+    q='Classify each variable as discrete or continuous: number of absences in a semester; time taken to complete a race; amount of rainfall in a day.';
+    a='Number of absences is discrete because it is counted. Time taken to complete a race is continuous because it is measured. Amount of rainfall is continuous because it is measured, even if it is rounded in the data table.';
+  } else if(type==='sampling'){
+    q='A school has 300 Grade 10 students, 240 Grade 11 students, and 180 Grade 12 students. A researcher wants a stratified sample of 60 students. How many should be selected from each grade?';
+    a=`The total population is:
+    \\[
+      300+240+180=720
+    \\]
+    The sample is \\(60\\), so the sampling fraction is \\(60/720=1/12\\).<br>
+    Grade 10: \\(300/12=25\\).<br>
+    Grade 11: \\(240/12=20\\).<br>
+    Grade 12: \\(180/12=15\\).<br>
+    Select randomly within each grade.`;
+  } else if(type==='bias'){
+    q='A website poll asks: “Do you agree that our excellent new design is better?” Explain two reasons the results may be unreliable.';
+    a='First, the sample is self-selected: only website visitors who choose to respond are included. Second, the wording is leading because “excellent new design” suggests a positive answer. The results may not represent all users.';
+  } else if(type==='outlier'){
+    q='For the data set \(12, 15, 18, 20, 21, 24, 25, 27, 28, 30, 32, 33, 180\), use the \(1.5\\times\\mathrm{IQR}\) rule to identify any outliers.';
+    a=`The sorted data are already in order. The median is 25. The lower half is \(12,15,18,20,21,24\), so
+    \\[
+      Q_1=\\frac{18+20}{2}=19
+    \\]
+    The upper half is \(27,28,30,32,33,180\), so
+    \\[
+      Q_3=\\frac{30+32}{2}=31
+    \\]
+    \[
+      \mathrm{IQR}=31-19=12
+    \]
+    Lower fence:
+    \[
+      19-1.5(12)=1
+    \]
+    Upper fence:
+    \[
+      31+1.5(12)=49
+    \]
+    Therefore \(180\) is an outlier. In context, it might be a valid long journey or a recording error.`;
+  } else {
+    q='A data set of ages in a school survey includes: 15, 16, 16, 17, missing, 16, 150, 15. Explain how you would treat the missing value and the value 150.';
+    a='The missing value should be reported and investigated if possible. If it cannot be recovered, the analysis should state that one value is missing. The value 150 is almost certainly a recording error for a school student age, so it should be checked against the original record. It should not be treated as a valid age without investigation.';
+  }
+  $("practiceQuestion").innerHTML=q;
+  $("practiceAnswer").innerHTML=a;
+  rerenderMath();
+}
+
+/* Init */
+initPopSampleChecks();
+initTypeQuestions();
+initMethodQuestions();
+initOutlierJudgements();
+newPopulation();
+generateBiasScenario();
+analyseOutliers();
+generatePractice('population');
+</script>
+</body>
+</html>

@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 2.2 Functions and Inverse Functions Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --ink:#18212d;
+    --muted:#5c6a79;
+    --paper:#ffffff;
+    --soft:#f5f7fb;
+    --line:#d7dee8;
+    --accent:#2364aa;
+    --accent2:#0ca678;
+    --accent3:#7048e8;
+    --warn:#f08c00;
+    --good:#2f9e44;
+    --bad:#c92a2a;
+    --shadow:0 14px 28px rgba(16,24,40,.10);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+      radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+      linear-gradient(#fff,#f7f9fc 48rem);
+    line-height:1.45;
+  }
+  header{
+    max-width:1200px;
+    margin:auto;
+    padding:34px 22px 18px;
+  }
+  .title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(2rem,5vw,4.3rem);
+    line-height:.95;
+    letter-spacing:-.06em;
+  }
+  h1 span{display:block;color:var(--accent)}
+  .subtitle{
+    margin:15px 0 0;
+    max-width:820px;
+    color:#344054;
+    font-size:1.12rem;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.55rem;
+    padding:9px 14px;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:999px;
+    box-shadow:0 5px 18px rgba(0,0,0,.06);
+    font-weight:800;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  main{
+    max-width:1200px;
+    margin:0 auto 70px;
+    padding:0 22px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:18px;
+  }
+  .card{
+    background:rgba(255,255,255,.93);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
+  .span-12{grid-column:span 12}
+  .span-8{grid-column:span 8}
+  .span-7{grid-column:span 7}
+  .span-6{grid-column:span 6}
+  .span-5{grid-column:span 5}
+  .span-4{grid-column:span 4}
+  @media(max-width:920px){
+    .span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
+  }
+  h2{
+    margin:0 0 12px;
+    font-size:1.55rem;
+    letter-spacing:-.025em;
+  }
+  h3{
+    margin:16px 0 8px;
+    font-size:1.12rem;
+  }
+  p{margin:8px 0}
+  .syllabus-table{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border:1px solid #9ca3af;
+    border-radius:14px;
+    overflow:hidden;
+    background:white;
+  }
+  .syllabus-table > div{
+    padding:14px 17px;
+    border-bottom:1px solid #9ca3af;
+  }
+  .syllabus-table .head{
+    background:#eef0f2;
+    color:#6b7280;
+    font-weight:850;
+    font-size:1.08rem;
+  }
+  .syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+  .syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+  @media(max-width:740px){
+    .syllabus-table{grid-template-columns:1fr}
+    .syllabus-table div:nth-child(odd){border-right:none}
+    .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+  }
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+  }
+  .tile{
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px;
+  }
+  .tile h3{margin-top:0}
+  .tabs{
+    position:sticky;
+    top:0;
+    z-index:10;
+    padding:12px;
+    margin:18px 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    background:rgba(247,249,252,.85);
+    border:1px solid var(--line);
+    border-radius:18px;
+    backdrop-filter:blur(12px);
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  button{
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    padding:10px 14px;
+    background:#e9eef6;
+    color:var(--ink);
+    font-weight:800;
+    cursor:pointer;
+    transition:.16s transform,.16s background,.16s color,.16s box-shadow;
+    font-size:.95rem;
+  }
+  button:hover{transform:translateY(-1px)}
+  button.active{background:var(--accent); color:white; box-shadow:0 8px 18px rgba(35,100,170,.24)}
+  button.secondary{background:#eef2ff;color:#3b2b98}
+  button.good{background:#d3f9d8;color:#1b5e20}
+  button.warn{background:#fff3bf;color:#7c4a00}
+  button.danger{background:#ffe3e3;color:#8a1717}
+  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block; animation:fade .25s ease}
+  @keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .formula{
+    background:#0f172a;
+    color:white;
+    border-radius:16px;
+    padding:18px;
+    margin:15px 0;
+    overflow-x:auto;
+  }
+  .note{
+    border-left:5px solid var(--accent);
+    background:#edf6ff;
+    padding:12px 14px;
+    border-radius:12px;
+    margin:12px 0;
+  }
+  .note.warn{border-color:var(--warn);background:#fff7e6}
+  .note.good{border-color:var(--good);background:#ebfbee}
+  .steps{
+    counter-reset:step;
+    list-style:none;
+    padding:0;
+    margin:12px 0;
+  }
+  .steps li{
+    counter-increment:step;
+    position:relative;
+    margin:10px 0;
+    padding:12px 12px 12px 48px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .steps li::before{
+    content:counter(step);
+    position:absolute;
+    left:12px; top:12px;
+    width:25px; height:25px;
+    display:grid; place-items:center;
+    border-radius:50%;
+    background:var(--accent); color:white; font-weight:900;
+  }
+  .mathline{
+    font-size:1.12rem;
+    padding:12px;
+    border:1px solid var(--line);
+    background:white;
+    border-radius:12px;
+    overflow-x:auto;
+  }
+  .eq-box{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+    padding:13px;
+    margin:10px 0;
+  }
+  .eq-label{
+    font-size:.85rem;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    font-weight:800;
+    margin-bottom:6px;
+  }
+  .feedback{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    min-height:48px;
+    background:#f1f5f9;
+  }
+  .feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+  .feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+  .feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+  .practice-card{
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    background:white;
+    margin:12px 0;
+  }
+  .answer{
+    display:none;
+    margin-top:10px;
+    padding:12px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+  }
+  .answer.show{display:block}
+  input, select{
+    width:100%;
+    padding:12px 13px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    font:inherit;
+    background:white;
+  }
+  label{display:block;margin:8px 0 5px;font-weight:850}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  .tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .graph-wrap{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px;
+    overflow:hidden;
+  }
+  .svg-graph{
+    width:100%;
+    aspect-ratio:1.12/1;
+    max-height:520px;
+    display:block;
+    background:linear-gradient(#fcfdff,#f6fbff);
+    border-radius:12px;
+    overflow:visible;
+  }
+  .range-wrap{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+    margin:10px 0;
+  }
+  input[type=range]{padding:0}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#edf2ff;
+    color:#364fc7;
+    font-size:.82rem;
+    font-weight:850;
+    margin:2px;
+  }
+  .pill.green{background:#e6fcf5;color:#087f5b}
+  .pill.orange{background:#fff3bf;color:#7c4a00}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:12px 0;
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:11px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th{background:#eef4fb}
+  .machine{
+    background:linear-gradient(135deg,#edf6ff,#e6fcf5);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px;
+  }
+  .machine-grid{
+    display:grid;
+    grid-template-columns:1fr auto 1fr auto 1fr;
+    gap:12px;
+    align-items:center;
+  }
+  .machine-box{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    text-align:center;
+  }
+  .arrow{
+    font-size:1.6rem;
+    color:var(--accent);
+    font-weight:900;
+  }
+  .chip{
+    display:inline-flex;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#eef2ff;
+    color:#364fc7;
+    font-size:.84rem;
+    font-weight:850;
+    margin:2px;
+  }
+  .context-svg{
+    width:100%;
+    display:block;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:white;
+  }
+  @media(max-width:740px){
+    .machine-grid{grid-template-columns:1fr; text-align:center}
+    .arrow{transform:rotate(90deg)}
+  }
+  @media print{
+    body{background:white}
+    .tabs,button{display:none!important}
+    .tab-panel{display:block!important}
+    .card{box-shadow:none;break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 2.2 <span>Functions and Inverse Functions</span></h1>
+      <p class="subtitle">An interactive resource on the concept of a function, domain and range, function notation, graphs as models, and inverse functions as “undoing” and as reflections in the line \(y=x\).</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Functions</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus-table">
+      <div class="head">Content</div>
+      <div class="head">Guidance, clarification and syllabus links</div>
+      <div>
+        Concept of a function, domain, range and graph.<br><br>
+        Function notation, for example \(f(x)\), \(v(t)\), \(C(n)\).<br><br>
+        The concept of a function as a mathematical model.<br><br>
+        Informal concept that an inverse function reverses or undoes the effect of a function.<br><br>
+        Inverse function as a reflection in the line \(y=x\), and the notation \(f^{-1}(x)\).
+      </div>
+      <div>
+        <strong>Example:</strong> \(f(x)=\sqrt{2-x}\), the domain is \(x\le 2\), range is \(f(x)\ge 0\).<br><br>
+        A graph is helpful in visualizing the range.<br><br>
+        <strong>Example:</strong> Solving \(f(x)=10\) is equivalent to finding \(f^{-1}(10)\).<br><br>
+        Students should be aware that inverse functions exist for one-to-one functions; the domain of \(f^{-1}(x)\) is equal to the range of \(f(x)\).
+      </div>
+    </div>
+    <div class="mini-grid" style="margin-top:14px">
+      <div class="tile"><h3>Function idea</h3><p>Each allowed input has exactly one output.</p></div>
+      <div class="tile"><h3>Domain</h3><p>The set of inputs you are allowed to use.</p></div>
+      <div class="tile"><h3>Range</h3><p>The set of outputs the function actually produces.</p></div>
+      <div class="tile"><h3>Inverse</h3><p>A function that undoes the original one, when the original is one-to-one.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore first</button>
+  <button class="tab-button" data-tab="domainrange">2. Domain & range</button>
+  <button class="tab-button" data-tab="notation">3. Function notation & models</button>
+  <button class="tab-button" data-tab="inverse">4. Inverse functions</button>
+  <button class="tab-button" data-tab="formalise">5. Formalise & examples</button>
+  <button class="tab-button" data-tab="practice">6. Exam generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore 1: a function machine</h2>
+      <p>Choose a rule, type an input, and see what comes out. A function gives exactly one output for each allowed input.</p>
+      <div class="machine">
+        <div class="machine-grid">
+          <div class="machine-box">
+            <div class="eq-label">Input</div>
+            <input id="machineInput" value="3" oninput="runMachine()" />
+          </div>
+          <div class="arrow">→</div>
+          <div class="machine-box">
+            <div class="eq-label">Rule</div>
+            <select id="machineRule" onchange="runMachine()">
+              <option value="linear">f(x)=2x+1</option>
+              <option value="square">f(x)=x²</option>
+              <option value="root">f(x)=√(6-x)</option>
+              <option value="recip">f(x)=1/(x-2)</option>
+            </select>
+          </div>
+          <div class="arrow">→</div>
+          <div class="machine-box">
+            <div class="eq-label">Output</div>
+            <div id="machineOutput" class="mathline">\(f(3)=7\)</div>
+          </div>
+        </div>
+      </div>
+      <div id="machineFeedback" class="feedback info">Try different inputs. Notice that some inputs are not allowed for some rules.</div>
+    </div>
+
+    <div class="card span-5">
+      <h2>What makes it a function?</h2>
+      <div class="note">
+        A relation is a function if each allowed input gives <strong>one and only one</strong> output.
+      </div>
+      <div class="mini-grid">
+        <div class="tile"><h3>Allowed</h3><p>\(x=3\mapsto 7\). One input, one output.</p></div>
+        <div class="tile"><h3>Not a function</h3><p>\(x=3\mapsto 5\) and \(x=3\mapsto 8\). Same input, two outputs.</p></div>
+      </div>
+      <h3>Think first</h3>
+      <ol class="steps">
+        <li>Can every input be used?</li>
+        <li>Does one input ever produce two outputs?</li>
+        <li>What pattern connects input to output?</li>
+      </ol>
+    </div>
+
+    <div class="card span-12">
+      <h2>Explore 2: graph and the vertical line test</h2>
+      <p>Choose a graph. A graph represents a function if no vertical line cuts it more than once.</p>
+      <div class="tight-row">
+        <button onclick="setRelation('parabola')">Parabola \(y=x^2\)</button>
+        <button onclick="setRelation('line')">Line \(y=2x+1\)</button>
+        <button onclick="setRelation('circle')">Circle \(x^2+y^2=9\)</button>
+        <button onclick="setRelation('sideways')">Sideways parabola</button>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div class="span-7">
+          <div class="graph-wrap">
+            <svg id="relationGraph" class="svg-graph" viewBox="0 0 520 450"></svg>
+          </div>
+          <div class="range-wrap">
+            <div>
+              <label for="vLineSlider">Move a vertical line across the graph</label>
+              <input id="vLineSlider" type="range" min="-8" max="8" step="0.5" value="1" oninput="drawRelationGraph()" />
+            </div>
+            <div class="pill" id="vLineLabel">x = 1</div>
+          </div>
+        </div>
+        <div class="span-5">
+          <div class="eq-box">
+            <div class="eq-label">Current relation</div>
+            <div id="relationName" class="mathline"></div>
+          </div>
+          <div class="eq-box">
+            <div class="eq-label">Vertical line test</div>
+            <div id="relationVerdict" class="mathline"></div>
+          </div>
+          <div id="relationFeedback" class="feedback info">Look at the number of intersection points with the vertical line.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="domainrange" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore domain and range graphically</h2>
+      <p>Select a function. The graph, domain, and range update together.</p>
+      <div class="tight-row">
+        <button onclick="chooseDRFunction('linear')">\(f(x)=2x+1\)</button>
+        <button onclick="chooseDRFunction('quadratic')">\(f(x)=x^2-4\)</button>
+        <button onclick="chooseDRFunction('root')">\(f(x)=\sqrt{2-x}\)</button>
+        <button onclick="chooseDRFunction('reciprocal')">\(f(x)=1/(x-2)\)</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="drGraph" class="svg-graph" viewBox="0 0 520 450"></svg>
+      </div>
+      <div class="mini-grid" style="margin-top:12px">
+        <div class="eq-box">
+          <div class="eq-label">Function</div>
+          <div id="drFunction" class="mathline"></div>
+        </div>
+        <div class="eq-box">
+          <div class="eq-label">Domain</div>
+          <div id="drDomain" class="mathline"></div>
+        </div>
+        <div class="eq-box">
+          <div class="eq-label">Range</div>
+          <div id="drRange" class="mathline"></div>
+        </div>
+      </div>
+      <div id="drSummary" class="feedback info">Choose a function and compare the graph with the domain and range statements.</div>
+    </div>
+
+    <div class="card span-5">
+      <h2>How to think about domain and range</h2>
+      <ol class="steps">
+        <li><strong>Domain:</strong> ask “What \(x\)-values are allowed?”</li>
+        <li><strong>Range:</strong> ask “What \(y\)-values does the function actually produce?”</li>
+        <li>Use the graph to see where the function exists horizontally and vertically.</li>
+        <li>Look out for square roots, denominators, and restricted graphs.</li>
+      </ol>
+      <div class="note warn">
+        For \(f(x)=\sqrt{2-x}\), the expression under the root must be non-negative, so \(2-x\ge 0\). That gives \(x\le 2\). Also square roots are never negative, so the range is \(f(x)\ge 0\).
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Quick domain/range checks</h2>
+      <div id="drChecks" class="mini-grid"></div>
+      <div id="drCheckFeedback" class="feedback">Choose the correct domain or range statement.</div>
+    </div>
+  </div>
+</section>
+
+<section id="notation" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Function notation</h2>
+      <div class="formula">
+        \[
+          f(x),\quad v(t),\quad C(n)
+        \]
+      </div>
+      <p>The letter outside the brackets names the function. The letter inside the brackets names the input variable.</p>
+      <div class="mini-grid">
+        <div class="tile"><strong>\(f(3)\)</strong><br>the output when the input is 3</div>
+        <div class="tile"><strong>\(v(t)\)</strong><br>velocity as a function of time</div>
+        <div class="tile"><strong>\(C(n)\)</strong><br>cost as a function of number of items</div>
+        <div class="tile"><strong>\(f^{-1}(10)\)</strong><br>the input that gives output 10</div>
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Function as a mathematical model</h2>
+      <p>Functions are useful because one quantity often depends on another.</p>
+      <table>
+        <tr><th>Context</th><th>Possible function</th><th>Meaning</th></tr>
+        <tr><td>Currency exchange</td><td>\(E(x)=1.09x\)</td><td>Euros from pounds</td></tr>
+        <tr><td>Temperature</td><td>\(F(C)=1.8C+32\)</td><td>Fahrenheit from Celsius</td></tr>
+        <tr><td>Taxi fare</td><td>\(C(d)=3+2.4d\)</td><td>Cost from distance</td></tr>
+        <tr><td>Projectile height</td><td>\(h(t)=-5t^2+20t+1\)</td><td>Height from time</td></tr>
+      </table>
+    </div>
+
+    <div class="card span-12">
+      <h2>Model explorer</h2>
+      <div class="tight-row">
+        <button onclick="chooseModel('currency')">Currency conversion</button>
+        <button onclick="chooseModel('temp')">Temperature</button>
+        <button onclick="chooseModel('cost')">Cost function</button>
+        <button onclick="chooseModel('projectile')">Projectile motion</button>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div class="span-7">
+          <div class="graph-wrap">
+            <svg id="modelGraph" class="svg-graph" viewBox="0 0 520 450"></svg>
+          </div>
+        </div>
+        <div class="span-5">
+          <div class="eq-box">
+            <div class="eq-label">Model</div>
+            <div id="modelEq" class="mathline"></div>
+          </div>
+          <div class="eq-box">
+            <div class="eq-label">Interpretation</div>
+            <div id="modelInterpret" class="mathline"></div>
+          </div>
+          <div class="practice-card">
+            <label for="modelInput">Choose an input</label>
+            <input id="modelInput" value="10" oninput="evaluateModel()" />
+            <div id="modelOutput" class="feedback info">Type a value to evaluate the model.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="inverse" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore inverse functions</h2>
+      <p>Select a one-to-one function. The inverse is drawn in a different colour, and the line \(y=x\) is shown as the mirror line.</p>
+      <div class="tight-row">
+        <button onclick="chooseInverse('linear')">\(f(x)=2x+1\)</button>
+        <button onclick="chooseInverse('cube')">\(f(x)=x^3\)</button>
+        <button onclick="chooseInverse('restricted')">\(f(x)=x^2,\ x\ge0\)</button>
+        <button onclick="chooseInverse('none')">\(f(x)=x^2\) on all real numbers</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="inverseGraph" class="svg-graph" viewBox="0 0 520 450"></svg>
+      </div>
+      <div class="range-wrap">
+        <div>
+          <label for="invXSlider">Choose an input \(x\) on \(f\)</label>
+          <input id="invXSlider" type="range" min="-4" max="4" step="0.5" value="2" oninput="updateInverseGraph()" />
+        </div>
+        <div class="pill" id="invXLabel">x = 2</div>
+      </div>
+    </div>
+
+    <div class="card span-5">
+      <h2>What to notice</h2>
+      <div class="eq-box">
+        <div class="eq-label">Current function</div>
+        <div id="inverseEq" class="mathline"></div>
+      </div>
+      <div class="eq-box">
+        <div class="eq-label">Inverse status</div>
+        <div id="inverseStatus" class="mathline"></div>
+      </div>
+      <div class="eq-box">
+        <div class="eq-label">Example mapping</div>
+        <div id="inverseMapping" class="mathline"></div>
+      </div>
+      <div class="note good">
+        If \(f(a)=b\), then \(f^{-1}(b)=a\).
+      </div>
+      <div class="note warn">
+        Not every function has an inverse function on its full domain. It must be one-to-one.
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Horizontal line test</h2>
+      <p>A function has an inverse function exactly when it is one-to-one. Graphically, that means any horizontal line should hit the graph at most once.</p>
+      <div class="mini-grid" id="hLineChecks"></div>
+      <div id="hLineFeedback" class="feedback">Decide whether each function is one-to-one on the stated domain.</div>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formalise the ideas</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Function</strong><br>Each input in the domain has exactly one output.</div>
+        <div class="tile"><strong>Domain</strong><br>The set of permitted inputs.</div>
+        <div class="tile"><strong>Range</strong><br>The set of actual outputs.</div>
+        <div class="tile"><strong>Inverse</strong><br>A function that reverses the original.</div>
+      </div>
+      <h3>Key facts</h3>
+      <ol class="steps">
+        <li>The graph helps you visualize domain and range.</li>
+        <li>To find the inverse algebraically, swap \(x\) and \(y\), then solve for \(y\).</li>
+        <li>The domain of \(f^{-1}\) is the range of \(f\).</li>
+        <li>The range of \(f^{-1}\) is the domain of \(f\).</li>
+      </ol>
+    </div>
+
+    <div class="card span-6">
+      <h2>Worked examples</h2>
+      <div class="practice-card">
+        <p><strong>Example 1.</strong> Let \(f(x)=\sqrt{2-x}\). Find the domain and range.</p>
+        <button onclick="toggleAnswer('formalEx1')">Reveal solution</button>
+        <div id="formalEx1" class="answer">\[
+          2-x\ge 0 \Rightarrow x\le 2
+        \]
+        so the domain is \(x\le 2\). Also square roots are non-negative, so the range is \(f(x)\ge 0\).</div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 2.</strong> If \(f(x)=2x+1\), find \(f^{-1}(x)\).</p>
+        <button onclick="toggleAnswer('formalEx2')">Reveal solution</button>
+        <div id="formalEx2" class="answer">Let \(y=2x+1\). Swap \(x\) and \(y\):
+        \[
+          x=2y+1
+        \]
+        Solve for \(y\):
+        \[
+          y=\frac{x-1}{2}
+        \]
+        Therefore,
+        \[
+          f^{-1}(x)=\frac{x-1}{2}.
+        \]</div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 3.</strong> If \(f(x)=3x-5\), solve \(f(x)=10\) using the inverse idea.</p>
+        <button onclick="toggleAnswer('formalEx3')">Reveal solution</button>
+        <div id="formalEx3" class="answer">Solve directly:
+        \[
+          3x-5=10 \Rightarrow 3x=15 \Rightarrow x=5
+        \]
+        Equivalently, \(f^{-1}(10)=5\). The inverse “undoes” the function.</div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Inverse algorithm builder</h2>
+      <p>Generate a function and then reveal the steps for finding the inverse.</p>
+      <div class="tight-row">
+        <button onclick="generateInverseSteps()">Generate function</button>
+        <button class="secondary" onclick="showInverseStep(1)">Step 1</button>
+        <button class="secondary" onclick="showInverseStep(2)">Step 2</button>
+        <button class="secondary" onclick="showInverseStep(3)">Step 3</button>
+        <button class="secondary" onclick="showInverseStep(4)">Show all</button>
+      </div>
+      <div class="practice-card">
+        <div id="invPrompt" class="mathline">Press “Generate function”.</div>
+        <div id="invSteps" class="answer show" style="display:block">Use the buttons to reveal the steps.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Exam-style question generator</h2>
+      <p>Choose a style of question, then reveal the worked solution when ready.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('domain')">Domain & range</button>
+        <button onclick="generatePractice('notation')">Function notation</button>
+        <button onclick="generatePractice('model')">Model interpretation</button>
+        <button onclick="generatePractice('inverse')">Find inverse</button>
+        <button onclick="generatePractice('solveinv')">Solve using inverse idea</button>
+        <button onclick="generatePractice('oneone')">One-to-one / inverse exists?</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Mini checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Function idea:</strong> can you explain “one input, one output”?</div>
+        <div class="tile"><strong>Domain:</strong> can you justify which inputs are allowed?</div>
+        <div class="tile"><strong>Range:</strong> can you read the outputs from the graph?</div>
+        <div class="tile"><strong>Inverse:</strong> can you explain why it is a reflection in \(y=x\)?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start with the function machine to build the basic idea of input and output.</li>
+        <li>Use the vertical line test to separate “a graph” from “a function graph”.</li>
+        <li>Move to domain and range, especially square root and reciprocal examples.</li>
+        <li>Introduce function notation in real models like currency and temperature.</li>
+        <li>Then build the inverse idea as “undoing”, before showing the reflection in \(y=x\).</li>
+        <li>Finish with the exam generator and revealable worked solutions.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Confusing domain with range.</td><td>Use “inputs” vs “outputs” language repeatedly.</td></tr>
+        <tr><td>Thinking every function has an inverse function.</td><td>Use \(y=x^2\) on all reals as the counterexample.</td></tr>
+        <tr><td>Reading \(f^{-1}(x)\) as \(1/f(x)\).</td><td>Stress the notation: inverse function, not reciprocal.</td></tr>
+        <tr><td>Ignoring restrictions from roots or denominators.</td><td>Always ask what makes an input invalid.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">What is the difference between a relation and a function?</div>
+        <div class="tile">State the domain and range of \(f(x)=x^2\).</div>
+        <div class="tile">Find \(f(3)\) if \(f(x)=4x-7\).</div>
+        <div class="tile">Explain why \(f(x)=x^2\) does not have an inverse on all real numbers.</div>
+        <div class="tile">Find \(f^{-1}(x)\) for \(f(x)=5x+2\).</div>
+        <div class="tile">Explain what \(C(n)\) might mean in a real context.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function rerenderMath(){
+  if(window.MathJax && window.MathJax.typesetPromise){
+    window.MathJax.typesetPromise();
+  }
+}
+
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.tab).classList.add('active');
+    rerenderMath();
+  });
+});
+
+function fmt(n){
+  if(typeof n !== 'number' || !isFinite(n)) return String(n);
+  if(Math.abs(n) < 1e-10) return '0';
+  let s = Number(n.toFixed(6)).toString();
+  return s;
+}
+function fracStr(num){
+  if(!isFinite(num)) return 'undefined';
+  if(Math.abs(num - Math.round(num)) < 1e-9) return String(Math.round(num));
+  const sign = num<0 ? -1 : 1;
+  num=Math.abs(num);
+  let bestN=1,bestD=1,bestErr=1e9;
+  for(let d=1; d<=24; d++){
+    const n=Math.round(num*d);
+    const err=Math.abs(num-n/d);
+    if(err<bestErr){bestErr=err; bestN=n; bestD=d;}
+  }
+  if(bestErr<1e-6){
+    if(bestD===1) return String(sign*bestN);
+    return (sign<0?'-':'') + `\\frac{${bestN}}{${bestD}}`;
+  }
+  return fmt(sign*num);
+}
+
+/* Graph utilities */
+function coordToPixel(x,y,w=520,h=450,xmin=-8,xmax=8,ymin=-8,ymax=8){
+  const px=(x-xmin)/(xmax-xmin)*w;
+  const py=h-(y-ymin)/(ymax-ymin)*h;
+  return {x:px,y:py};
+}
+function buildAxes(svgId, extras='', xmin=-8,xmax=8,ymin=-8,ymax=8){
+  const svg=$(svgId);
+  const w=520,h=450;
+  let g='';
+  for(let i=Math.ceil(xmin); i<=Math.floor(xmax); i++){
+    const p=coordToPixel(i,0,w,h,xmin,xmax,ymin,ymax);
+    g += `<line x1="${p.x}" y1="0" x2="${p.x}" y2="${h}" stroke="${i===0?'#64748b':'#e2e8f0'}" stroke-width="${i===0?2:1}"/>`;
+    if(i!==0) g += `<text x="${p.x+3}" y="${coordToPixel(0,0,w,h,xmin,xmax,ymin,ymax).y-4}" font-size="11" fill="#64748b">${i}</text>`;
+  }
+  for(let j=Math.ceil(ymin); j<=Math.floor(ymax); j++){
+    const p=coordToPixel(0,j,w,h,xmin,xmax,ymin,ymax);
+    g += `<line x1="0" y1="${p.y}" x2="${w}" y2="${p.y}" stroke="${j===0?'#64748b':'#e2e8f0'}" stroke-width="${j===0?2:1}"/>`;
+    if(j!==0) g += `<text x="${coordToPixel(0,0,w,h,xmin,xmax,ymin,ymax).x+5}" y="${p.y-3}" font-size="11" fill="#64748b">${j}</text>`;
+  }
+  svg.innerHTML = g + extras;
+}
+function samplePath(fn, xStart=-8, xEnd=8, step=0.05, color='#2364aa', xmin=-8,xmax=8,ymin=-8,ymax=8){
+  let d='', started=false;
+  for(let x=xStart; x<=xEnd+1e-9; x+=step){
+    let y=fn(x);
+    if(typeof y==='number' && isFinite(y) && y>=ymin-1 && y<=ymax+1){
+      const p=coordToPixel(x,y,520,450,xmin,xmax,ymin,ymax);
+      d += (started ? 'L' : 'M') + p.x + ' ' + p.y + ' ';
+      started=true;
+    } else {
+      started=false;
+    }
+  }
+  return `<path d="${d}" fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round"/>`;
+}
+function reflectPoint(x,y){ return {x:y,y:x}; }
+
+/* Explore 1 machine */
+function machineEval(rule, x){
+  if(!isFinite(x)) return {ok:false, message:'Please enter a valid number.'};
+  if(rule==='linear') return {ok:true, val:2*x+1, show:`\\(f(${fmt(x)})=${fmt(2*x+1)}\\)`};
+  if(rule==='square') return {ok:true, val:x*x, show:`\\(f(${fmt(x)})=${fmt(x*x)}\\)`};
+  if(rule==='root'){
+    if(6-x<0) return {ok:false, message:'For \\(f(x)=\\sqrt{6-x}\\), you need \\(6-x\\ge 0\\), so \\(x\\le 6\\).'};
+    const val=Math.sqrt(6-x);
+    return {ok:true, val, show:`\\(f(${fmt(x)})=\\sqrt{6-${fmt(x)}}=${fmt(val)}\\)`};
+  }
+  if(rule==='recip'){
+    if(Math.abs(x-2)<1e-9) return {ok:false, message:'For \\(f(x)=1/(x-2)\\), \\(x=2\\) is not allowed because it makes the denominator zero.'};
+    const val=1/(x-2);
+    return {ok:true, val, show:`\\(f(${fmt(x)})=\\frac{1}{${fmt(x)}-2}=${fmt(val)}\\)`};
+  }
+}
+function runMachine(){
+  const x=Number($("machineInput").value);
+  const rule=$("machineRule").value;
+  const out=machineEval(rule,x);
+  if(out.ok){
+    $("machineOutput").innerHTML=out.show;
+    $("machineFeedback").className="feedback good";
+    $("machineFeedback").innerHTML=`This input is allowed. One input gave one output, so this fits the function idea.`;
+  }else{
+    $("machineOutput").innerHTML=`No output`;
+    $("machineFeedback").className="feedback bad";
+    $("machineFeedback").innerHTML=out.message;
+  }
+  rerenderMath();
+}
+
+/* Explore 2 relation graph */
+let relationType='parabola';
+function setRelation(name){
+  relationType=name;
+  drawRelationGraph();
+}
+function relationIntersections(name,x){
+  if(name==='parabola') return [x*x];
+  if(name==='line') return [2*x+1];
+  if(name==='circle'){
+    const y2=9-x*x;
+    if(y2<0) return [];
+    const y=Math.sqrt(y2);
+    if(Math.abs(y)<1e-9) return [0];
+    return [y,-y];
+  }
+  if(name==='sideways'){
+    if(x<0) return [];
+    const y=Math.sqrt(x);
+    if(Math.abs(y)<1e-9) return [0];
+    return [y,-y];
+  }
+  return [];
+}
+function drawRelationGraph(){
+  const xv=Number($("vLineSlider").value);
+  $("vLineLabel").textContent=`x = ${xv}`;
+  let extras='', nameText='';
+  if(relationType==='parabola'){
+    nameText='\\(y=x^2\\)';
+    extras += samplePath(x=>x*x,-3,3,0.03,'#2364aa',-8,8,-8,8);
+  } else if(relationType==='line'){
+    nameText='\\(y=2x+1\\)';
+    extras += samplePath(x=>2*x+1,-8,8,0.03,'#2364aa',-8,8,-8,8);
+  } else if(relationType==='circle'){
+    nameText='\\(x^2+y^2=9\\)';
+    extras += `<circle cx="${coordToPixel(0,0).x}" cy="${coordToPixel(0,0).y}" r="${coordToPixel(3,0).x-coordToPixel(0,0).x}" fill="none" stroke="#2364aa" stroke-width="4"/>`;
+  } else {
+    nameText='\\(x=y^2\\)';
+    extras += samplePath(y=>y*y,-Math.sqrt(8),Math.sqrt(8),0.03,'#2364aa',-8,8,-8,8).replace(/x=>/g,'');
+    let d='', started=false;
+    for(let y=-Math.sqrt(8); y<=Math.sqrt(8); y+=0.03){
+      const x=y*y;
+      const p=coordToPixel(x,y);
+      d += (started?'L':'M') + p.x + ' ' + p.y + ' ';
+      started=true;
+    }
+    extras = `<path d="${d}" fill="none" stroke="#2364aa" stroke-width="4" stroke-linecap="round"/>`;
+  }
+  const p1=coordToPixel(xv,-8), p2=coordToPixel(xv,8);
+  extras += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="#c92a2a" stroke-width="3" stroke-dasharray="8 6"/>`;
+  const ints=relationIntersections(relationType,xv);
+  ints.forEach(y=>{
+    if(isFinite(y) && y>=-8 && y<=8){
+      const p=coordToPixel(xv,y);
+      extras += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#c92a2a" stroke="white" stroke-width="2"/>`;
+    }
+  });
+  buildAxes('relationGraph',extras,-8,8,-8,8);
+  $("relationName").innerHTML=nameText;
+  if(ints.length<=1){
+    $("relationVerdict").innerHTML=`At \\(x=${fmt(xv)}\\), the vertical line hits the graph ${ints.length===0?'zero or no': 'once'}. This passes the test here.`;
+    $("relationFeedback").className="feedback " + ((relationType==='circle' || relationType==='sideways') ? 'info' : 'good');
+    $("relationFeedback").innerHTML=(relationType==='circle' || relationType==='sideways')
+      ? 'This position happens to pass, but a function must pass for every vertical line.'
+      : 'This graph behaves like a function.'
+  } else {
+    $("relationVerdict").innerHTML=`At \\(x=${fmt(xv)}\\), the vertical line hits the graph ${ints.length} times. So this relation is not a function.`;
+    $("relationFeedback").className="feedback bad";
+    $("relationFeedback").innerHTML=`One input gives more than one output here.`;
+  }
+  rerenderMath();
+}
+
+/* Domain and range */
+let drType='linear';
+function chooseDRFunction(t){
+  drType=t;
+  drawDRGraph();
+}
+function drawDRGraph(){
+  let extras='', fnText='', domainText='', rangeText='', summary='';
+  if(drType==='linear'){
+    fnText='\\(f(x)=2x+1\\)';
+    domainText='all real numbers';
+    rangeText='all real numbers';
+    extras += samplePath(x=>2*x+1,-8,8,0.03,'#2364aa');
+    summary='A non-horizontal line continues forever in both directions, so its domain and range are all real numbers.';
+  } else if(drType==='quadratic'){
+    fnText='\\(f(x)=x^2-4\\)';
+    domainText='all real numbers';
+    rangeText='\\(y\\ge -4\\)';
+    extras += samplePath(x=>x*x-4,-4,4,0.03,'#2364aa');
+    const p=coordToPixel(0,-4);
+    extras += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#0ca678" stroke="white" stroke-width="2"/>`;
+    summary='Every \(x\)-value is allowed. The smallest output is \(-4\), so the range is \(y\\ge -4\).';
+  } else if(drType==='root'){
+    fnText='\\(f(x)=\\sqrt{2-x}\\)';
+    domainText='\\(x\\le 2\\)';
+    rangeText='\\(y\\ge 0\\)';
+    extras += samplePath(x=>Math.sqrt(2-x),-8,2,0.02,'#2364aa');
+    const p=coordToPixel(2,0);
+    extras += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#0ca678" stroke="white" stroke-width="2"/>`;
+    summary='The graph stops at \(x=2\) and only lives to the left. All outputs are non-negative.';
+  } else {
+    fnText='\\(f(x)=\\frac{1}{x-2}\\)';
+    domainText='\\(x\\ne 2\\)';
+    rangeText='\\(y\\ne 0\\)';
+    extras += samplePath(x=>1/(x-2),-8,1.8,0.03,'#2364aa');
+    extras += samplePath(x=>1/(x-2),2.2,8,0.03,'#2364aa');
+    const v1=coordToPixel(2,-8), v2=coordToPixel(2,8);
+    const h1=coordToPixel(-8,0), h2=coordToPixel(8,0);
+    extras += `<line x1="${v1.x}" y1="${v1.y}" x2="${v2.x}" y2="${v2.y}" stroke="#c92a2a" stroke-width="2" stroke-dasharray="7 6"/>`;
+    extras += `<line x1="${h1.x}" y1="${h1.y}" x2="${h2.x}" y2="${h2.y}" stroke="#c92a2a" stroke-width="2" stroke-dasharray="7 6"/>`;
+    summary='The graph never reaches \(x=2\) and never outputs \(0\).';
+  }
+  buildAxes('drGraph',extras,-8,8,-8,8);
+  $("drFunction").innerHTML=fnText;
+  $("drDomain").innerHTML=domainText;
+  $("drRange").innerHTML=rangeText;
+  $("drSummary").className="feedback info";
+  $("drSummary").innerHTML=summary;
+  rerenderMath();
+}
+const drCheckItems = [
+  {q:'For \\(f(x)=\\sqrt{5-x}\\), what is the domain?', answers:['\\(x\\le 5\\)','\\(x\\ge 5\\)','all real numbers'], ok:0, explain:'Inside the square root must be non-negative, so \\(5-x\\ge 0\\Rightarrow x\\le 5\\).'},
+  {q:'For \\(f(x)=x^2+3\\), what is the range?', answers:['\\(y\\ge 3\\)','\\(y\\le 3\\)','all real numbers'], ok:0, explain:'The parabola has minimum value 3.'},
+  {q:'For \\(f(x)=1/(x+4)\\), which input is not allowed?', answers:['\\(x=4\\)','\\(x=-4\\)','\\(x=0\\)'], ok:1, explain:'The denominator cannot be zero.'},
+  {q:'For \\(f(x)=2x-7\\), what is the range?', answers:['\\(y\\ne 0\\)','all real numbers','\\(y\\ge -7\\)'], ok:1, explain:'A non-horizontal linear function takes every real output.'}
+];
+function initDRChecks(){
+  const box=$("drChecks");
+  box.innerHTML='';
+  drCheckItems.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    let html=`<p>${item.q}</p>`;
+    item.answers.forEach((a,j)=>{
+      html += `<button onclick="checkDR(${i},${j})">${a}</button> `;
+    });
+    div.innerHTML=html;
+    box.appendChild(div);
+  });
+}
+function checkDR(i,j){
+  const item=drCheckItems[i];
+  $("drCheckFeedback").className='feedback ' + (j===item.ok ? 'good' : 'bad');
+  $("drCheckFeedback").innerHTML=(j===item.ok ? 'Correct. ' : 'Not quite. ') + item.explain;
+  rerenderMath();
+}
+
+/* Models */
+let modelType='currency';
+function chooseModel(t){
+  modelType=t;
+  drawModel();
+}
+function modelFn(t){
+  if(t==='currency') return {name:'\\(E(x)=1.09x\\)', eval:x=>1.09*x, domain:'pounds', range:'euros', interpret:'Converts pounds to euros.'};
+  if(t==='temp') return {name:'\\(F(C)=1.8C+32\\)', eval:x=>1.8*x+32, domain:'Celsius', range:'Fahrenheit', interpret:'Converts Celsius to Fahrenheit.'};
+  if(t==='cost') return {name:'\\(C(n)=5+2.5n\\)', eval:x=>5+2.5*x, domain:'number of items', range:'cost', interpret:'Fixed cost plus cost per item.'};
+  return {name:'\\(h(t)=-5t^2+20t+1\\)', eval:x=>-5*x*x+20*x+1, domain:'time', range:'height', interpret:'Height of a projectile over time.'};
+}
+function drawModel(){
+  const m=modelFn(modelType);
+  let extras='';
+  if(modelType==='currency') extras += samplePath(x=>1.09*x,0,8,0.03,'#2364aa',0,8,0,10);
+  else if(modelType==='temp') extras += samplePath(x=>1.8*x+32,-10,10,0.03,'#2364aa',-10,10,-10,50);
+  else if(modelType==='cost') extras += samplePath(x=>5+2.5*x,0,8,0.03,'#2364aa',0,8,0,30);
+  else extras += samplePath(x=>-5*x*x+20*x+1,0,4.2,0.02,'#2364aa',0,5,0,25);
+  const bounds = modelType==='currency' ? [0,8,0,10] : modelType==='temp' ? [-10,10,-10,50] : modelType==='cost' ? [0,8,0,30] : [0,5,0,25];
+  buildAxes('modelGraph',extras,...bounds);
+  $("modelEq").innerHTML=m.name;
+  $("modelInterpret").innerHTML=m.interpret + ` Input = ${m.domain}. Output = ${m.range}.`;
+  evaluateModel();
+  rerenderMath();
+}
+function evaluateModel(){
+  const m=modelFn(modelType);
+  const x=Number($("modelInput").value);
+  if(!isFinite(x)){ $("modelOutput").className='feedback bad'; $("modelOutput").innerHTML='Please enter a valid number.'; return; }
+  const y=m.eval(x);
+  $("modelOutput").className='feedback info';
+  let varname = modelType==='currency' ? 'E' : modelType==='temp' ? 'F' : modelType==='cost' ? 'C' : 'h';
+  $("modelOutput").innerHTML=`\\(${varname}(${fmt(x)})=${fmt(y)}\\)`;
+  rerenderMath();
+}
+
+/* Inverse */
+let invType='linear';
+function chooseInverse(t){
+  invType=t;
+  updateInverseGraph();
+}
+function invData(type){
+  if(type==='linear') return {
+    eq:'\\(f(x)=2x+1\\)', one:true,
+    f:x=>2*x+1, finv:y=>(y-1)/2,
+    domain:[-4,4], inverseEq:'\\(f^{-1}(x)=\\frac{x-1}{2}\\)'
+  };
+  if(type==='cube') return {
+    eq:'\\(f(x)=x^3\\)', one:true,
+    f:x=>x*x*x, finv:y=>Math.cbrt(y),
+    domain:[-2,2], inverseEq:'\\(f^{-1}(x)=\\sqrt[3]{x}\\)'
+  };
+  if(type==='restricted') return {
+    eq:'\\(f(x)=x^2,\\ x\\ge 0\\)', one:true,
+    f:x=>x*x, finv:y=>Math.sqrt(y),
+    domain:[0,3], inverseEq:'\\(f^{-1}(x)=\\sqrt{x}\\)'
+  };
+  return {
+    eq:'\\(f(x)=x^2\\) on all real numbers', one:false,
+    f:x=>x*x, finv:null,
+    domain:[-3,3], inverseEq:'No inverse function on the full domain.'
+  };
+}
+function updateInverseGraph(){
+  const data=invData(invType);
+  let x=Number($("invXSlider").value);
+  $("invXLabel").textContent=`x = ${x}`;
+  let extras='';
+  const bounds=[-5,5,-5,5];
+  extras += `<line x1="${coordToPixel(-5,-5,520,450,...bounds).x}" y1="${coordToPixel(-5,-5,520,450,...bounds).y}" x2="${coordToPixel(5,5,520,450,...bounds).x}" y2="${coordToPixel(5,5,520,450,...bounds).y}" stroke="#adb5bd" stroke-width="2" stroke-dasharray="7 6"/>`;
+  if(invType==='linear'){
+    extras += samplePath(data.f,-4,4,0.03,'#2364aa',...bounds);
+    extras += samplePath(data.finv,-5,5,0.03,'#0ca678',...bounds);
+  } else if(invType==='cube'){
+    extras += samplePath(data.f,-2,2,0.02,'#2364aa',...bounds);
+    extras += samplePath(data.finv,-5,5,0.02,'#0ca678',...bounds);
+  } else if(invType==='restricted'){
+    x=Math.max(0,x); $("invXSlider").value=x; $("invXLabel").textContent=`x = ${x}`;
+    extras += samplePath(data.f,0,Math.sqrt(5),0.02,'#2364aa',...bounds);
+    extras += samplePath(data.finv,0,5,0.02,'#0ca678',...bounds);
+  } else {
+    extras += samplePath(data.f,-Math.sqrt(5),Math.sqrt(5),0.02,'#2364aa',...bounds);
+  }
+  const y=data.f(x);
+  if(isFinite(y) && y>=-5 && y<=5){
+    const p=coordToPixel(x,y,520,450,...bounds);
+    extras += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#2364aa" stroke="white" stroke-width="2"/>`;
+    extras += `<text x="${p.x+8}" y="${p.y-8}" font-size="13" fill="#2364aa" font-weight="800">(${fmt(x)},${fmt(y)})</text>`;
+    if(data.one){
+      const rp=coordToPixel(y,x,520,450,...bounds);
+      extras += `<circle cx="${rp.x}" cy="${rp.y}" r="6" fill="#0ca678" stroke="white" stroke-width="2"/>`;
+      extras += `<text x="${rp.x+8}" y="${rp.y+16}" font-size="13" fill="#087f5b" font-weight="800">(${fmt(y)},${fmt(x)})</text>`;
+      extras += `<line x1="${p.x}" y1="${p.y}" x2="${rp.x}" y2="${rp.y}" stroke="#adb5bd" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+    }
+  }
+  buildAxes('inverseGraph',extras,...bounds);
+  $("inverseEq").innerHTML=data.eq + (data.one ? `<br>${data.inverseEq}` : '');
+  if(data.one){
+    $("inverseStatus").innerHTML=`This function is one-to-one on the stated domain, so an inverse function exists.<br>The domain of \(f^{-1}\) is the range of \(f\).`;
+    $("inverseMapping").innerHTML=`If \\(f(${fmt(x)})=${fmt(y)}\\), then \\(f^{-1}(${fmt(y)})=${fmt(x)}\\).`;
+  } else {
+    $("inverseStatus").innerHTML=`This function is <strong>not</strong> one-to-one on its full domain, so it does not have an inverse function unless the domain is restricted.`;
+    $("inverseMapping").innerHTML=`For example, \\(f(2)=4\\) and \\(f(-2)=4\\). One output comes from two inputs, so the inverse would fail to be a function.`;
+  }
+  rerenderMath();
+}
+const hLineItems = [
+  {q:'\\(f(x)=x^3\\)', ok:true, explain:'It passes the horizontal line test.'},
+  {q:'\\(f(x)=x^2\\) on all real numbers', ok:false, explain:'Many horizontal lines hit it twice.'},
+  {q:'\\(f(x)=x^2\\) for \\(x\\ge 0\\)', ok:true, explain:'The restriction makes it one-to-one.'},
+  {q:'\\(f(x)=\\sqrt{x}\\)', ok:true, explain:'It is increasing on its domain.'}
+];
+function initHLineChecks(){
+  const box=$("hLineChecks");
+  box.innerHTML='';
+  hLineItems.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    div.innerHTML=`<p>Does ${item.q} have an inverse function on the stated domain?</p>
+      <button onclick="checkHLine(${i},true)">Yes</button>
+      <button onclick="checkHLine(${i},false)">No</button>`;
+    box.appendChild(div);
+  });
+}
+function checkHLine(i,ans){
+  const item=hLineItems[i];
+  $("hLineFeedback").className='feedback ' + (ans===item.ok ? 'good' : 'bad');
+  $("hLineFeedback").innerHTML=(ans===item.ok ? 'Correct. ' : 'Not quite. ') + item.explain;
+  rerenderMath();
+}
+
+/* Formalise inverse steps */
+let inverseStepsState=null;
+function generateInverseSteps(){
+  const bank=[
+    {f:'\\(f(x)=3x+4\\)', steps:[
+      'Start by writing \\(y=3x+4\\).',
+      'Swap \\(x\\) and \\(y\\): \\(x=3y+4\\).',
+      'Solve for \\(y\\): \\(y=\\frac{x-4}{3}\\).',
+      'Therefore \\(f^{-1}(x)=\\frac{x-4}{3}\\).'
+    ]},
+    {f:'\\(f(x)=5x-2\\)', steps:[
+      'Write \\(y=5x-2\\).',
+      'Swap \\(x\\) and \\(y\\): \\(x=5y-2\\).',
+      'Solve for \\(y\\): \\(y=\\frac{x+2}{5}\\).',
+      'So \\(f^{-1}(x)=\\frac{x+2}{5}\\).'
+    ]},
+    {f:'\\(f(x)=x^2,\\ x\\ge 0\\)', steps:[
+      'Write \\(y=x^2\\) with the restriction \\(x\\ge 0\\).',
+      'Swap \\(x\\) and \\(y\\): \\(x=y^2\\).',
+      'Solve for \\(y\\): \\(y=\\sqrt{x}\\). Use the positive root because of the restriction \\(x\\ge 0\\).',
+      'Hence \\(f^{-1}(x)=\\sqrt{x}\\).'
+    ]}
+  ];
+  inverseStepsState = bank[Math.floor(Math.random()*bank.length)];
+  $("invPrompt").innerHTML=`Find the inverse of ${inverseStepsState.f}.`;
+  $("invSteps").innerHTML='Use the Step buttons to reveal the method.';
+  rerenderMath();
+}
+function showInverseStep(n){
+  if(!inverseStepsState){ $("invSteps").innerHTML='Generate a function first.'; return; }
+  const lim = n===4 ? inverseStepsState.steps.length : n;
+  let html='';
+  for(let i=0;i<lim;i++){
+    html += `<p><strong>Step ${i+1}.</strong> ${inverseStepsState.steps[i]}</p>`;
+  }
+  $("invSteps").innerHTML=html;
+  rerenderMath();
+}
+
+/* Practice generator */
+function toggleAnswer(id){
+  $(id).classList.toggle('show');
+  rerenderMath();
+}
+function generatePractice(type){
+  $("practiceAnswer").classList.remove('show');
+  $("practiceVisual").innerHTML='';
+  let q='', a='';
+  if(type==='domain'){
+    q='State the domain and range of \\(f(x)=\\sqrt{7-2x}\\).';
+    a=`For the square root to exist:
+    \\[
+      7-2x\\ge 0
+    \\]
+    so
+    \\[
+      -2x\\ge -7 \\Rightarrow x\\le \\frac72
+    \\]
+    Therefore the domain is \\(x\\le \\frac72\\). Since square roots are non-negative, the range is \\(f(x)\\ge 0\\).`;
+  } else if(type==='notation'){
+    q='Let \\(f(x)=3x^2-2x+1\\). Find \\(f(2)\\) and \\(f(-1)\\).';
+    a=`Substitute into the function:
+    \\[
+      f(2)=3(2)^2-2(2)+1=12-4+1=9
+    \\]
+    and
+    \\[
+      f(-1)=3(-1)^2-2(-1)+1=3+2+1=6.
+    \\]`;
+  } else if(type==='model'){
+    q='A taxi fare is modelled by \\(C(d)=4+2.5d\\), where \\(d\\) is distance in km and \\(C\\) is cost in dollars. Interpret \\(C(6)\\).';
+    a=`Substitute \\(d=6\\):
+    \\[
+      C(6)=4+2.5(6)=4+15=19
+    \\]
+    So a 6 km journey costs 19 dollars.`;
+  } else if(type==='inverse'){
+    q='Find the inverse of \\(f(x)=4x-3\\).';
+    a=`Write
+    \\[
+      y=4x-3
+    \\]
+    Swap \\(x\\) and \\(y\\):
+    \\[
+      x=4y-3
+    \\]
+    Solve for \\(y\\):
+    \\[
+      x+3=4y \\Rightarrow y=\\frac{x+3}{4}
+    \\]
+    Therefore
+    \\[
+      f^{-1}(x)=\\frac{x+3}{4}.
+    \\]`;
+  } else if(type==='solveinv'){
+    q='Let \\(f(x)=2x+5\\). Solve \\(f(x)=17\\) and explain the inverse idea.';
+    a=`Solve directly:
+    \\[
+      2x+5=17 \\Rightarrow 2x=12 \\Rightarrow x=6
+    \\]
+    The inverse function is \\(f^{-1}(x)=\\frac{x-5}{2}\\), so
+    \\[
+      f^{-1}(17)=\\frac{17-5}{2}=6.
+    \\]
+    This shows the inverse undoes the original function.`;
+  } else {
+    q='Does \\(f(x)=x^2\\) have an inverse function on all real numbers? If not, how can it be adjusted so that it does?';
+    a=`No. On all real numbers, \\(f(x)=x^2\\) is not one-to-one because different inputs can give the same output:
+    \\[
+      f(2)=4,\\qquad f(-2)=4.
+    \\]
+    So it fails the horizontal line test. If we restrict the domain to \\(x\\ge 0\\) (or \\(x\\le 0\\)), then it becomes one-to-one and has an inverse. For \\(x\\ge 0\\), the inverse is
+    \\[
+      f^{-1}(x)=\\sqrt{x}.
+    \\]`;
+  }
+  $("practiceQuestion").innerHTML=q;
+  $("practiceAnswer").innerHTML=a;
+  rerenderMath();
+}
+
+/* Init */
+initDRChecks();
+initHLineChecks();
+runMachine();
+setRelation('parabola');
+chooseDRFunction('linear');
+chooseModel('currency');
+chooseInverse('linear');
+generateInverseSteps();
+generatePractice('domain');
+</script>
+</body>
+</html>

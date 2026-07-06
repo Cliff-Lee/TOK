@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SL 2.1 Straight Lines Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --ink:#18212d;
+    --muted:#5c6a79;
+    --paper:#ffffff;
+    --soft:#f5f7fb;
+    --line:#d7dee8;
+    --accent:#2364aa;
+    --accent2:#0ca678;
+    --accent3:#7048e8;
+    --warn:#f08c00;
+    --good:#2f9e44;
+    --bad:#c92a2a;
+    --shadow:0 14px 28px rgba(16,24,40,.10);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color:var(--ink);
+    line-height:1.45;
+    background:
+      radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+      radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+      linear-gradient(#fff, #f7f9fc 48rem);
+  }
+  header{
+    max-width:1200px;
+    margin:auto;
+    padding:34px 22px 18px;
+  }
+  .title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(2.1rem,5vw,4.35rem);
+    line-height:.95;
+    letter-spacing:-.06em;
+  }
+  h1 span{display:block;color:var(--accent)}
+  .subtitle{
+    margin:15px 0 0;
+    max-width:820px;
+    color:#344054;
+    font-size:1.12rem;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.55rem;
+    padding:9px 14px;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:999px;
+    box-shadow:0 5px 18px rgba(0,0,0,.06);
+    font-weight:800;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  main{
+    max-width:1200px;
+    margin:0 auto 70px;
+    padding:0 22px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:18px;
+  }
+  .card{
+    background:rgba(255,255,255,.93);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
+  .span-12{grid-column:span 12}
+  .span-8{grid-column:span 8}
+  .span-7{grid-column:span 7}
+  .span-6{grid-column:span 6}
+  .span-5{grid-column:span 5}
+  .span-4{grid-column:span 4}
+  @media (max-width:920px){
+    .span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
+  }
+  h2{
+    margin:0 0 12px;
+    font-size:1.55rem;
+    letter-spacing:-.025em;
+  }
+  h3{
+    margin:16px 0 8px;
+    font-size:1.12rem;
+  }
+  p{margin:8px 0}
+  .syllabus-table{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border:1px solid #9ca3af;
+    border-radius:14px;
+    overflow:hidden;
+    background:white;
+  }
+  .syllabus-table > div{
+    padding:14px 17px;
+    border-bottom:1px solid #9ca3af;
+  }
+  .syllabus-table .head{
+    background:#eef0f2;
+    color:#6b7280;
+    font-weight:850;
+    font-size:1.08rem;
+  }
+  .syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+  .syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+  @media(max-width:740px){
+    .syllabus-table{grid-template-columns:1fr}
+    .syllabus-table div:nth-child(odd){border-right:none}
+    .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+  }
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+  }
+  .tile{
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px;
+  }
+  .tile h3{margin-top:0}
+  .tabs{
+    position:sticky;
+    top:0;
+    z-index:10;
+    padding:12px;
+    margin:18px 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    background:rgba(247,249,252,.85);
+    border:1px solid var(--line);
+    border-radius:18px;
+    backdrop-filter:blur(12px);
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  button{
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    padding:10px 14px;
+    background:#e9eef6;
+    color:var(--ink);
+    font-weight:800;
+    cursor:pointer;
+    transition:.16s transform,.16s background,.16s color,.16s box-shadow;
+    font-size:.95rem;
+  }
+  button:hover{transform:translateY(-1px)}
+  button.active{background:var(--accent); color:white; box-shadow:0 8px 18px rgba(35,100,170,.24)}
+  button.secondary{background:#eef2ff;color:#3b2b98}
+  button.good{background:#d3f9d8;color:#1b5e20}
+  button.warn{background:#fff3bf;color:#7c4a00}
+  button.danger{background:#ffe3e3;color:#8a1717}
+  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block; animation:fade .25s ease}
+  @keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .formula{
+    background:#0f172a;
+    color:white;
+    border-radius:16px;
+    padding:18px;
+    margin:15px 0;
+    overflow-x:auto;
+  }
+  .formula strong{color:#a5d8ff}
+  .note{
+    border-left:5px solid var(--accent);
+    background:#edf6ff;
+    padding:12px 14px;
+    border-radius:12px;
+    margin:12px 0;
+  }
+  .note.warn{border-color:var(--warn);background:#fff7e6}
+  .note.good{border-color:var(--good);background:#ebfbee}
+  .steps{
+    counter-reset:step;
+    list-style:none;
+    padding:0;
+    margin:12px 0;
+  }
+  .steps li{
+    counter-increment:step;
+    position:relative;
+    margin:10px 0;
+    padding:12px 12px 12px 48px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .steps li::before{
+    content:counter(step);
+    position:absolute;
+    left:12px; top:12px;
+    width:25px; height:25px;
+    display:grid; place-items:center;
+    border-radius:50%;
+    background:var(--accent); color:white; font-weight:900;
+  }
+  .mathline{
+    font-size:1.12rem;
+    padding:12px;
+    border:1px solid var(--line);
+    background:white;
+    border-radius:12px;
+    overflow-x:auto;
+  }
+  .eq-box{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+    padding:13px;
+    margin:10px 0;
+  }
+  .eq-label{
+    font-size:.85rem;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    font-weight:800;
+    margin-bottom:6px;
+  }
+  .feedback{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    min-height:48px;
+    background:#f1f5f9;
+  }
+  .feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+  .feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+  .feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+  .practice-card{
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    background:white;
+    margin:12px 0;
+  }
+  .answer{
+    display:none;
+    margin-top:10px;
+    padding:12px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+  }
+  .answer.show{display:block}
+  input, select{
+    width:100%;
+    padding:12px 13px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    font:inherit;
+    background:white;
+  }
+  label{display:block;margin:8px 0 5px;font-weight:850}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  .tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .graph-wrap{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px;
+    overflow:hidden;
+  }
+  .svg-graph{
+    width:100%;
+    aspect-ratio:1.15/1;
+    max-height:520px;
+    display:block;
+    touch-action:none;
+    background:linear-gradient(#fcfdff,#f6fbff);
+    border-radius:12px;
+  }
+  .range-wrap{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+    margin:10px 0;
+  }
+  input[type=range]{padding:0}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#edf2ff;
+    color:#364fc7;
+    font-size:.82rem;
+    font-weight:850;
+    margin:2px;
+  }
+  .pill.green{background:#e6fcf5;color:#087f5b}
+  .pill.orange{background:#fff3bf;color:#7c4a00}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:12px 0;
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:11px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th{background:#eef4fb}
+  .context-svg{
+    width:100%;
+    display:block;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:white;
+  }
+  .print-only{display:none}
+  @media print{
+    body{background:white}
+    .tabs,button{display:none!important}
+    .tab-panel{display:block!important}
+    .card{box-shadow:none;break-inside:avoid}
+    .print-only{display:block}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>SL 2.1 <span>Straight Lines</span></h1>
+      <p class="subtitle">An interactive resource on gradients, intercepts, graphical interpretation, converting between the different forms of a straight-line equation, and using parallel and perpendicular line ideas in real contexts.</p>
+    </div>
+    <div class="badge">IB DP Mathematics • Lines & Graphs</div>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+  <div class="card span-12">
+    <h2>Syllabus focus</h2>
+    <div class="syllabus-table">
+      <div class="head">Content</div>
+      <div class="head">Guidance, clarification and syllabus links</div>
+      <div>
+        Different forms of the equation of a straight line.<br><br>
+        Gradient; intercepts.<br><br>
+        Lines with gradients \(m_1\) and \(m_2\).<br><br>
+        Parallel lines \(m_1=m_2\).<br><br>
+        Perpendicular lines \(m_1\times m_2=-1\).
+      </div>
+      <div>
+        \(y=mx+c\) (gradient-intercept form).<br><br>
+        \(ax+by+d=0\) (general form).<br><br>
+        \(y-y_1=m(x-x_1)\) (point-gradient form).<br><br>
+        Calculate gradients of inclines such as mountain roads, bridges, etc.
+      </div>
+    </div>
+    <div class="mini-grid" style="margin-top:14px">
+      <div class="tile"><h3>Read graphs</h3><p>See the line first: is it rising, falling, flat, or vertical?</p></div>
+      <div class="tile"><h3>Interpret</h3><p>Link gradient to steepness and intercepts to where the line meets the axes.</p></div>
+      <div class="tile"><h3>Translate</h3><p>Move comfortably between slope-intercept, point-gradient, and general form.</p></div>
+      <div class="tile"><h3>Apply</h3><p>Use line equations to model roads, ramps, and other real contexts.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore first</button>
+  <button class="tab-button" data-tab="forms">2. Forms of a line</button>
+  <button class="tab-button" data-tab="convert">3. Converting forms</button>
+  <button class="tab-button" data-tab="relationships">4. Parallel & perpendicular</button>
+  <button class="tab-button" data-tab="real">5. Real contexts</button>
+  <button class="tab-button" data-tab="practice">6. Question generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore 1: what do gradient and intercept do?</h2>
+      <p>Move the sliders. Watch what changes on the graph and in the equation \(y=mx+c\).</p>
+      <div class="graph-wrap">
+        <svg id="mcGraph" class="svg-graph" viewBox="0 0 520 450" aria-label="Interactive graph for y=mx+c"></svg>
+      </div>
+      <div class="range-wrap">
+        <div>
+          <label for="mSlider">Gradient \(m\)</label>
+          <input id="mSlider" type="range" min="-5" max="5" step="0.5" value="1.5" oninput="updateMCGraph()" />
+        </div>
+        <div class="pill" id="mValue">m = 1.5</div>
+      </div>
+      <div class="range-wrap">
+        <div>
+          <label for="cSlider">Intercept \(c\)</label>
+          <input id="cSlider" type="range" min="-8" max="8" step="0.5" value="2" oninput="updateMCGraph()" />
+        </div>
+        <div class="pill green" id="cValue">c = 2</div>
+      </div>
+      <div id="mcSummary" class="feedback info">Move the sliders to explore.</div>
+    </div>
+
+    <div class="card span-5">
+      <h2>What to notice</h2>
+      <div class="note">
+        <strong>Gradient \(m\):</strong> tells you how steep the line is and whether it rises or falls.
+      </div>
+      <div class="note">
+        <strong>\(y\)-intercept \(c\):</strong> tells you where the line crosses the \(y\)-axis.
+      </div>
+      <div class="mini-grid">
+        <div class="tile"><h3>Positive gradient</h3><p>Line rises from left to right.</p></div>
+        <div class="tile"><h3>Negative gradient</h3><p>Line falls from left to right.</p></div>
+        <div class="tile"><h3>Zero gradient</h3><p>Horizontal line.</p></div>
+        <div class="tile"><h3>Large \(|m|\)</h3><p>Steeper line.</p></div>
+      </div>
+      <h3>Quick exploration prompts</h3>
+      <ol class="steps">
+        <li>Set \(m=0\). What kind of line do you get?</li>
+        <li>Keep \(m\) fixed and change \(c\). Which thing moves?</li>
+        <li>Keep \(c\) fixed and increase \(|m|\). What changes visually?</li>
+        <li>Choose a negative value of \(m\). What happens to the line direction?</li>
+      </ol>
+    </div>
+
+    <div class="card span-12">
+      <h2>Explore 2: define a line from two points</h2>
+      <p>Drag the points \(A\) and \(B\) on the graph. This is the bridge between the picture and the algebra.</p>
+      <div class="grid">
+        <div class="span-7">
+          <div class="graph-wrap">
+            <svg id="dragGraph" class="svg-graph" viewBox="0 0 520 450" aria-label="Draggable points graph"></svg>
+          </div>
+        </div>
+        <div class="span-5">
+          <div class="eq-box">
+            <div class="eq-label">Coordinates</div>
+            <div id="pointData" class="mathline">\(A(-4,-1)\), \(B(4,3)\)</div>
+          </div>
+          <div class="eq-box">
+            <div class="eq-label">Gradient and intercepts</div>
+            <div id="lineFeatures" class="mathline"></div>
+          </div>
+          <div class="eq-box">
+            <div class="eq-label">Gradient-intercept form</div>
+            <div id="eqSlopeIntercept" class="mathline"></div>
+          </div>
+          <div class="eq-box">
+            <div class="eq-label">General form</div>
+            <div id="eqGeneral" class="mathline"></div>
+          </div>
+          <div class="eq-box">
+            <div class="eq-label">Point-gradient form</div>
+            <div id="eqPointGradient" class="mathline"></div>
+          </div>
+          <div class="note warn">
+            <strong>Special case:</strong> if the points line up vertically, the gradient is undefined and the equation is \(x=k\).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="forms" class="tab-panel">
+  <div class="grid">
+    <div class="card span-4">
+      <h2>1. Gradient-intercept form</h2>
+      <div class="formula">\[
+        y = mx + c
+      \]</div>
+      <p><strong>Best when:</strong> you know the gradient and the \(y\)-intercept, or you want to sketch quickly.</p>
+      <div class="mini-grid">
+        <div class="tile"><strong>\(m\)</strong><br>gradient</div>
+        <div class="tile"><strong>\(c\)</strong><br>\(y\)-intercept</div>
+      </div>
+      <div class="example"></div>
+    </div>
+    <div class="card span-4">
+      <h2>2. General form</h2>
+      <div class="formula">\[
+        ax + by + d = 0
+      \]</div>
+      <p><strong>Best when:</strong> you want all terms on one side, or you are comparing equations algebraically.</p>
+      <div class="note">If \(b\neq0\), then you can rearrange to find the gradient: \(m=-\frac{a}{b}\).</div>
+    </div>
+    <div class="card span-4">
+      <h2>3. Point-gradient form</h2>
+      <div class="formula">\[
+        y-y_1 = m(x-x_1)
+      \]</div>
+      <p><strong>Best when:</strong> you know one point on the line and the gradient.</p>
+      <div class="note">This form is especially natural after finding gradient from two points.</div>
+    </div>
+
+    <div class="card span-12">
+      <h2>One line, three algebraic views</h2>
+      <p>Press the button to generate a new line. Then read the same line in three different forms.</p>
+      <div class="tight-row">
+        <button onclick="generateLineExample()">Generate new line</button>
+      </div>
+      <div class="practice-card">
+        <div id="formsGraphBox" class="graph-wrap" style="margin-bottom:12px">
+          <svg id="formsGraph" class="svg-graph" viewBox="0 0 520 450"></svg>
+        </div>
+        <div class="mini-grid">
+          <div class="eq-box"><div class="eq-label">From the graph</div><div id="formsFeatures" class="mathline"></div></div>
+          <div class="eq-box"><div class="eq-label">Gradient-intercept</div><div id="formsSI" class="mathline"></div></div>
+          <div class="eq-box"><div class="eq-label">General</div><div id="formsGF" class="mathline"></div></div>
+          <div class="eq-box"><div class="eq-label">Point-gradient</div><div id="formsPG" class="mathline"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="convert" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>How to convert between forms</h2>
+      <ol class="steps">
+        <li><strong>From \(y=mx+c\) to general form:</strong> move everything to one side.</li>
+        <li><strong>From general form to \(y=mx+c\):</strong> make \(y\) the subject.</li>
+        <li><strong>From point-gradient to \(y=mx+c\):</strong> expand the bracket and simplify.</li>
+        <li><strong>From points to equation:</strong> find the gradient first, then use point-gradient or \(y=mx+c\).</li>
+      </ol>
+      <div class="note good">
+        It often helps to move through point-gradient form first, because it uses the information “a point + a slope” directly.
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Conversion toolkit</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Gradient from two points</strong><br>\[
+          m=\frac{y_2-y_1}{x_2-x_1}
+        \]</div>
+        <div class="tile"><strong>Parallel lines</strong><br>same gradient</div>
+        <div class="tile"><strong>Perpendicular lines</strong><br>negative reciprocal gradient</div>
+        <div class="tile"><strong>General form gradient</strong><br>if \(ax+by+d=0\), then \(m=-\frac{a}{b}\)</div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Interactive conversion walk-through</h2>
+      <div class="tight-row">
+        <button onclick="generateConversion()">Generate example</button>
+        <button class="secondary" onclick="showConversionStep(1)">Step 1</button>
+        <button class="secondary" onclick="showConversionStep(2)">Step 2</button>
+        <button class="secondary" onclick="showConversionStep(3)">Step 3</button>
+        <button class="secondary" onclick="showConversionStep(4)">Show all</button>
+      </div>
+      <div class="practice-card">
+        <div id="convertPrompt" class="mathline">Press “Generate example”.</div>
+        <div id="convertSteps" class="answer show" style="display:block"></div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Sort the descriptions</h2>
+      <div class="mini-grid" id="sortDescriptions"></div>
+      <div id="sortFeedback" class="feedback">Decide which description matches each form.</div>
+    </div>
+  </div>
+</section>
+
+<section id="relationships" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Parallel lines</h2>
+      <div class="formula">\[
+        m_1 = m_2
+      \]</div>
+      <p>If two lines are parallel, they have the same gradient but different intercepts (unless they are the same line).</p>
+      <div class="graph-wrap">
+        <svg id="parallelGraph" class="svg-graph" viewBox="0 0 520 450"></svg>
+      </div>
+      <div id="parallelInfo" class="feedback info"></div>
+    </div>
+    <div class="card span-6">
+      <h2>Perpendicular lines</h2>
+      <div class="formula">\[
+        m_1m_2=-1
+      \]</div>
+      <p>If the lines are not vertical/horizontal, the gradients are negative reciprocals of each other.</p>
+      <div class="graph-wrap">
+        <svg id="perpGraph" class="svg-graph" viewBox="0 0 520 450"></svg>
+      </div>
+      <div id="perpInfo" class="feedback info"></div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Challenge generator</h2>
+      <div class="tight-row">
+        <button onclick="generateRelationshipQuestion('parallel')">Parallel line question</button>
+        <button onclick="generateRelationshipQuestion('perpendicular')">Perpendicular line question</button>
+      </div>
+      <div class="practice-card">
+        <div id="relQuestion" class="mathline">Choose a question type.</div>
+        <button onclick="toggleAnswer('relAnswer')">Reveal worked solution</button>
+        <div id="relAnswer" class="answer"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="real" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Real context: mountain road</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Mountain road">
+        <defs>
+          <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#dbeafe"/>
+            <stop offset="1" stop-color="#eff6ff"/>
+          </linearGradient>
+          <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#74c69d"/>
+            <stop offset="1" stop-color="#2d6a4f"/>
+          </linearGradient>
+        </defs>
+        <rect width="760" height="420" fill="url(#sky1)"/>
+        <path d="M0 330 C120 240, 170 250, 300 165 C405 95, 500 115, 620 45 L760 45 L760 420 L0 420 Z" fill="url(#hill1)"/>
+        <line x1="110" y1="300" x2="525" y2="120" stroke="#343a40" stroke-width="18" stroke-linecap="round"/>
+        <line x1="110" y1="300" x2="525" y2="120" stroke="#f8f9fa" stroke-width="3" stroke-dasharray="12 10"/>
+        <line x1="110" y1="300" x2="525" y2="300" stroke="#2364aa" stroke-width="5"/>
+        <line x1="525" y1="120" x2="525" y2="300" stroke="#c92a2a" stroke-width="5"/>
+        <text x="235" y="325" font-size="22" font-weight="800" fill="#174a7c">run = 420 m</text>
+        <text x="540" y="215" font-size="22" font-weight="800" fill="#8a1717">rise = 180 m</text>
+        <circle cx="110" cy="300" r="7" fill="#17212b"/>
+        <circle cx="525" cy="120" r="7" fill="#17212b"/>
+      </svg>
+      <div class="practice-card">
+        <p><strong>Question.</strong> A road rises \(180\) m over a horizontal distance of \(420\) m. Find the gradient and write an equation if the lower point is \((0,0)\).</p>
+        <button onclick="toggleAnswer('mountainAns')">Reveal solution</button>
+        <div id="mountainAns" class="answer">\[
+          m=\frac{180}{420}=\frac{3}{7}\approx0.429
+        \]
+        So the line can be modelled by \[
+          y=\frac{3}{7}x
+        \]
+        if the start point is the origin.</div>
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Real context: access ramp</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Access ramp">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <rect x="0" y="310" width="760" height="110" fill="#dee2e6"/>
+        <rect x="510" y="135" width="180" height="175" fill="#ced4da"/>
+        <line x1="130" y1="310" x2="510" y2="190" stroke="#495057" stroke-width="16" stroke-linecap="round"/>
+        <line x1="130" y1="310" x2="510" y2="310" stroke="#2364aa" stroke-width="5"/>
+        <line x1="510" y1="190" x2="510" y2="310" stroke="#c92a2a" stroke-width="5"/>
+        <text x="245" y="335" font-size="22" font-weight="800" fill="#174a7c">run = 6 m</text>
+        <text x="530" y="255" font-size="22" font-weight="800" fill="#8a1717">rise = 1.2 m</text>
+        <circle cx="130" cy="310" r="7" fill="#17212b"/>
+        <circle cx="510" cy="190" r="7" fill="#17212b"/>
+        <text x="132" y="372" font-size="22" font-weight="800" fill="#495057">entrance</text>
+        <text x="525" y="165" font-size="22" font-weight="800" fill="#495057">door</text>
+      </svg>
+      <div class="practice-card">
+        <p><strong>Question.</strong> The ramp rises \(1.2\) m over a horizontal distance of \(6\) m. Find the gradient. If the entrance is at \((2,0)\), write a point-gradient equation for the ramp.</p>
+        <button onclick="toggleAnswer('rampAns')">Reveal solution</button>
+        <div id="rampAns" class="answer">\[
+          m=\frac{1.2}{6}=0.2=\frac{1}{5}
+        \]
+        Through \((2,0)\), the point-gradient form is
+        \[
+          y-0=\frac{1}{5}(x-2)
+        \]
+        which simplifies to
+        \[
+          y=\frac{1}{5}x-\frac{2}{5}.
+        \]
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>TOK / representation prompt</h2>
+      <div class="note">
+        Descartes showed that geometric problems could be solved algebraically and vice versa. 
+        <strong>Discussion:</strong> what is gained when a picture becomes an equation? What might be lost?
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Example question generator</h2>
+      <p>Start with graphical interpretation, then move to algebraic forms and relationships.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('graph')">Graph → equation</button>
+        <button onclick="generatePractice('convert')">Convert forms</button>
+        <button onclick="generatePractice('twoPoints')">Two points</button>
+        <button onclick="generatePractice('parallel')">Parallel line</button>
+        <button onclick="generatePractice('perpendicular')">Perpendicular line</button>
+        <button onclick="generatePractice('intercepts')">Interpret intercepts</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Mini checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Graphical meaning:</strong> can you explain the gradient in words?</div>
+        <div class="tile"><strong>Intercepts:</strong> can you find where the line meets both axes?</div>
+        <div class="tile"><strong>Conversion:</strong> can you move from one form to another cleanly?</div>
+        <div class="tile"><strong>Relationships:</strong> can you spot parallel and perpendicular lines quickly?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start graphically with \(y=mx+c\). Let students notice the effect of \(m\) and \(c\).</li>
+        <li>Move to two-point exploration. Use the picture to introduce gradient and intercepts.</li>
+        <li>Firm up the algebra by naming and comparing the three forms.</li>
+        <li>Use conversion examples to show that the forms are equivalent views of the same line.</li>
+        <li>Only then shift into parallel / perpendicular line problems and real contexts.</li>
+        <li>Finish with the question generator for deliberate practice.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Confusing \(c\) with the \(x\)-intercept.</td><td>Keep linking \(c\) to where \(x=0\) on the graph.</td></tr>
+        <tr><td>Thinking steeper always means larger positive gradient.</td><td>Compare \(-4\) and \(-1\) to discuss magnitude versus sign.</td></tr>
+        <tr><td>Forgetting that perpendicular gradients are negative reciprocals.</td><td>Use easy pairs like \(2\) and \(-\frac12\).</td></tr>
+        <tr><td>Missing the special case of vertical lines.</td><td>Explicitly discuss \(x=k\) and undefined gradient.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">Sketch \(y=2x-3\) and identify the gradient and \(y\)-intercept.</div>
+        <div class="tile">Find the equation of the line through \((1,4)\) with gradient \(-3\).</div>
+        <div class="tile">Convert \(2x-y+5=0\) into gradient-intercept form.</div>
+        <div class="tile">Find the gradient of the line through \((-2,1)\) and \((4,7)\).</div>
+        <div class="tile">Write an equation of the line parallel to \(y=4x-1\) through \((0,5)\).</div>
+        <div class="tile">Write an equation of the line perpendicular to \(y=\frac12x+3\) through \((2,-1)\).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function rerenderMath(){
+  if(window.MathJax && window.MathJax.typesetPromise){
+    window.MathJax.typesetPromise();
+  }
+}
+
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.tab).classList.add('active');
+    rerenderMath();
+  });
+});
+
+/* Utilities */
+function gcd(a,b){ a=Math.abs(Math.round(a)); b=Math.abs(Math.round(b)); while(b){[a,b]=[b,a%b]} return a||1; }
+function fracStr(num){
+  if(!isFinite(num)) return 'undefined';
+  if(Math.abs(num - Math.round(num)) < 1e-9) return String(Math.round(num));
+  const sign = num<0 ? -1 : 1;
+  num=Math.abs(num);
+  const tol=1e-9;
+  let bestN=1,bestD=1,bestErr=Math.abs(num-1);
+  for(let d=1; d<=24; d++){
+    const n=Math.round(num*d);
+    const err=Math.abs(num - n/d);
+    if(err < bestErr - tol){ bestErr=err; bestN=n; bestD=d; }
+  }
+  if(bestErr < 1e-6){
+    const g=gcd(bestN,bestD);
+    bestN/=g; bestD/=g;
+    if(bestD===1) return String(sign*bestN);
+    return (sign<0?'-':'') + `\\frac{${bestN}}{${bestD}}`;
+  }
+  return Number(sign*num).toFixed(2).replace(/\.00$/,'');
+}
+function numText(num){
+  if(!isFinite(num)) return 'undefined';
+  if(Math.abs(num) < 1e-9) return '0';
+  let s = Number(num.toFixed(6)).toString();
+  return s;
+}
+function svgLineEqFromPoints(A,B){
+  if(A.x === B.x){
+    return {vertical:true, x:A.x};
+  }
+  const m = (B.y-A.y)/(B.x-A.x);
+  const c = A.y - m*A.x;
+  const xInt = Math.abs(m) < 1e-9 ? null : -c/m;
+  return {vertical:false,m,c,xInt};
+}
+function generalFormFromPoints(A,B){
+  // through two points: (y1-y2)x + (x2-x1)y + (x1y2-x2y1)=0
+  let a = A.y - B.y;
+  let b = B.x - A.x;
+  let d = A.x*B.y - B.x*A.y;
+  const g = gcd(gcd(a,b),d);
+  a/=g; b/=g; d/=g;
+  if(a<0 || (a===0 && b<0) || (a===0 && b===0 && d<0)){ a*=-1; b*=-1; d*=-1; }
+  return {a,b,d};
+}
+function formGeneralLatex(g){
+  const p1 = `${g.a===1?'':g.a===-1?'-':g.a}x`;
+  let middle = '';
+  if(g.b!==0){
+    const sign = g.b>0 ? ' + ' : ' - ';
+    const mag = Math.abs(g.b);
+    middle += sign + `${mag===1?'':mag}y`;
+  }
+  let tail = '';
+  if(g.d!==0){
+    tail += (g.d>0 ? ' + ' : ' - ') + Math.abs(g.d);
+  }
+  return `\\(${p1}${middle}${tail}=0\\)`;
+}
+function pointGradientLatex(A,m){
+  if(!isFinite(m)) return `\\(x=${A.x}\\)`;
+  const xPart = A.x>=0 ? `(x-${A.x})` : `(x+${Math.abs(A.x)})`;
+  const yPart = A.y>=0 ? `y-${A.y}` : `y+${Math.abs(A.y)}`;
+  return `\\(${yPart}=${fracStr(m)}${xPart}\\)`;
+}
+function slopeInterceptLatex(m,c){
+  if(!isFinite(m)) return '';
+  let s = 'y=';
+  if(Math.abs(m-1)<1e-9) s += 'x';
+  else if(Math.abs(m+1)<1e-9) s += '-x';
+  else s += `${fracStr(m)}x`;
+  if(Math.abs(c) < 1e-9) return `\\(${s}\\)`;
+  s += c>0 ? `+${numText(c)}` : `${numText(c)}`;
+  return `\\(${s}\\)`;
+}
+function featureSummary(A,B){
+  const eq=svgLineEqFromPoints(A,B);
+  if(eq.vertical){
+    return `Vertical line. Gradient is undefined. The line crosses the \(x\)-axis at \\(x=${A.x}\\).`;
+  }
+  const mWord = eq.m>0 ? 'positive' : Math.abs(eq.m)<1e-9 ? 'zero' : 'negative';
+  const xi = eq.xInt===null ? 'no x-intercept unless it lies on the axis' : `\\(x=${Number(eq.xInt.toFixed(3))}\\)`;
+  return `Gradient \\(m=${fracStr(eq.m)}\\) (${mWord}). \(y\)-intercept \\(c=${numText(eq.c)}\\). \(x\)-intercept: ${xi}.`;
+}
+function coordToPixel(x,y,w=520,h=450,xmin=-10,xmax=10,ymin=-10,ymax=10){
+  const px = (x-xmin)/(xmax-xmin)*w;
+  const py = h - (y-ymin)/(ymax-ymin)*h;
+  return {x:px,y:py};
+}
+function buildAxes(svgId, extras=''){
+  const svg=$(svgId);
+  const w=520,h=450, xmin=-10,xmax=10,ymin=-10,ymax=10;
+  let g='';
+  for(let i=xmin;i<=xmax;i++){
+    const p=coordToPixel(i,0,w,h,xmin,xmax,ymin,ymax);
+    g += `<line x1="${p.x}" y1="0" x2="${p.x}" y2="${h}" stroke="${i===0?'#64748b':'#e2e8f0'}" stroke-width="${i===0?2:1}"/>`;
+  }
+  for(let j=ymin;j<=ymax;j++){
+    const p=coordToPixel(0,j,w,h,xmin,xmax,ymin,ymax);
+    g += `<line x1="0" y1="${p.y}" x2="${w}" y2="${p.y}" stroke="${j===0?'#64748b':'#e2e8f0'}" stroke-width="${j===0?2:1}"/>`;
+  }
+  for(let i=xmin;i<=xmax;i++){
+    const p=coordToPixel(i,0,w,h,xmin,xmax,ymin,ymax);
+    if(i!==0) g += `<text x="${p.x+3}" y="${coordToPixel(0,0,w,h,xmin,xmax,ymin,ymax).y-4}" font-size="11" fill="#64748b">${i}</text>`;
+  }
+  for(let j=ymin;j<=ymax;j++){
+    const p=coordToPixel(0,j,w,h,xmin,xmax,ymin,ymax);
+    if(j!==0) g += `<text x="${coordToPixel(0,0,w,h,xmin,xmax,ymin,ymax).x+5}" y="${p.y-3}" font-size="11" fill="#64748b">${j}</text>`;
+  }
+  svg.innerHTML = g + extras;
+}
+function lineSegmentSVG(eq, color='#2364aa', label=''){
+  const w=520,h=450,xmin=-10,xmax=10,ymin=-10,ymax=10;
+  if(eq.vertical){
+    const p1=coordToPixel(eq.x,ymin,w,h,xmin,xmax,ymin,ymax);
+    const p2=coordToPixel(eq.x,ymax,w,h,xmin,xmax,ymin,ymax);
+    return `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="4"/>`;
+  }else{
+    const y1=eq.m*xmin+eq.c, y2=eq.m*xmax+eq.c;
+    const p1=coordToPixel(xmin,y1,w,h,xmin,xmax,ymin,ymax);
+    const p2=coordToPixel(xmax,y2,w,h,xmin,xmax,ymin,ymax);
+    return `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="4"/>`;
+  }
+}
+function pointSVG(P,color,label){
+  const p=coordToPixel(P.x,P.y);
+  return `<circle cx="${p.x}" cy="${p.y}" r="7" fill="${color}" stroke="white" stroke-width="2"/>
+    <text x="${p.x+10}" y="${p.y-10}" font-size="15" fill="${color}" font-weight="800">${label}</text>`;
+}
+
+/* Explore 1 */
+function updateMCGraph(){
+  const m=Number($("mSlider").value), c=Number($("cSlider").value);
+  $("mValue").textContent=`m = ${m}`;
+  $("cValue").textContent=`c = ${c}`;
+  const eq={vertical:false,m,c};
+  let extras = lineSegmentSVG(eq, '#2364aa');
+  const yi=coordToPixel(0,c);
+  extras += `<circle cx="${yi.x}" cy="${yi.y}" r="7" fill="#0ca678" stroke="white" stroke-width="2"/>
+             <text x="${yi.x+8}" y="${yi.y-8}" font-size="14" fill="#0b7c60" font-weight="800">y-int</text>`;
+  if(Math.abs(m) > 1e-9){
+    const xInt=-c/m;
+    if(xInt>=-10 && xInt<=10){
+      const xi=coordToPixel(xInt,0);
+      extras += `<circle cx="${xi.x}" cy="${xi.y}" r="6" fill="#c92a2a" stroke="white" stroke-width="2"/>
+                 <text x="${xi.x+8}" y="${xi.y+18}" font-size="14" fill="#8a1717" font-weight="800">x-int</text>`;
+    }
+  }
+  buildAxes('mcGraph', extras);
+  let direction = m>0 ? "rises from left to right" : (m<0 ? "falls from left to right" : "is horizontal");
+  $("mcSummary").className="feedback info";
+  $("mcSummary").innerHTML=`Equation: ${slopeInterceptLatex(m,c)}<br>The line ${direction}. The \(y\)-intercept is \\((0,${numText(c)})\\).`;
+  rerenderMath();
+}
+
+/* Explore 2 draggable */
+let A={x:-4,y:-1}, B={x:4,y:3};
+let draggingPoint=null;
+function renderDragGraph(){
+  const eq=svgLineEqFromPoints(A,B);
+  let extras = lineSegmentSVG(eq, '#7048e8') + pointSVG(A,'#2364aa','A') + pointSVG(B,'#0ca678','B');
+  buildAxes('dragGraph', extras);
+  $("pointData").innerHTML=`\\(A(${A.x},${A.y})\\),\\quad B(${B.x},${B.y})\\)`;
+  $("lineFeatures").innerHTML=featureSummary(A,B);
+  if(eq.vertical){
+    $("eqSlopeIntercept").innerHTML=`Not possible in the form \\(y=mx+c\\) because the gradient is undefined.`;
+    $("eqGeneral").innerHTML=`\\(x=${A.x}\\)`; 
+    $("eqPointGradient").innerHTML=`\\(x=${A.x}\\)`;
+  }else{
+    $("eqSlopeIntercept").innerHTML=slopeInterceptLatex(eq.m,eq.c);
+    $("eqGeneral").innerHTML=formGeneralLatex(generalFormFromPoints(A,B));
+    $("eqPointGradient").innerHTML=pointGradientLatex(A,eq.m);
+  }
+  rerenderMath();
+}
+function attachDrag(){
+  const svg=$("dragGraph");
+  function nearestPoint(evt){
+    const rect=svg.getBoundingClientRect();
+    const sx=(evt.clientX-rect.left)/rect.width*520;
+    const sy=(evt.clientY-rect.top)/rect.height*450;
+    const pA=coordToPixel(A.x,A.y), pB=coordToPixel(B.x,B.y);
+    const dA=Math.hypot(pA.x-sx,pA.y-sy), dB=Math.hypot(pB.x-sx,pB.y-sy);
+    if(dA<16) return 'A';
+    if(dB<16) return 'B';
+    return null;
+  }
+  function pixelToCoord(sx,sy){
+    let x = -10 + (sx/520)*20;
+    let y = -10 + ((450-sy)/450)*20;
+    x = Math.max(-10,Math.min(10,Math.round(x)));
+    y = Math.max(-10,Math.min(10,Math.round(y)));
+    return {x,y};
+  }
+  svg.addEventListener('pointerdown',e=>{
+    const n=nearestPoint(e);
+    if(n){ draggingPoint=n; svg.setPointerCapture(e.pointerId); }
+  });
+  svg.addEventListener('pointermove',e=>{
+    if(!draggingPoint) return;
+    const rect=svg.getBoundingClientRect();
+    const sx=(e.clientX-rect.left)/rect.width*520;
+    const sy=(e.clientY-rect.top)/rect.height*450;
+    const P=pixelToCoord(sx,sy);
+    if(draggingPoint==='A') A=P; else B=P;
+    renderDragGraph();
+  });
+  svg.addEventListener('pointerup',()=> draggingPoint=null);
+  svg.addEventListener('pointerleave',()=> draggingPoint=null);
+}
+
+/* Forms panel */
+let formsLine={A:{x:-5,y:-1}, B:{x:3,y:5}};
+function generateLineExample(){
+  let x1 = Math.floor(Math.random()*11)-5;
+  let y1 = Math.floor(Math.random()*11)-5;
+  let x2 = x1, y2 = y1;
+  while(x2===x1 && y2===y1){
+    x2 = Math.floor(Math.random()*11)-5;
+    y2 = Math.floor(Math.random()*11)-5;
+  }
+  formsLine={A:{x:x1,y:y1}, B:{x:x2,y:y2}};
+  const eq=svgLineEqFromPoints(formsLine.A,formsLine.B);
+  let extras=lineSegmentSVG(eq,'#2364aa') + pointSVG(formsLine.A,'#2364aa','A') + pointSVG(formsLine.B,'#0ca678','B');
+  buildAxes('formsGraph',extras);
+  $("formsFeatures").innerHTML=featureSummary(formsLine.A,formsLine.B);
+  if(eq.vertical){
+    $("formsSI").innerHTML=`Not possible in \\(y=mx+c\\).`;
+    $("formsGF").innerHTML=`\\(x=${formsLine.A.x}\\)`;
+    $("formsPG").innerHTML=`\\(x=${formsLine.A.x}\\)`;
+  }else{
+    $("formsSI").innerHTML=slopeInterceptLatex(eq.m,eq.c);
+    $("formsGF").innerHTML=formGeneralLatex(generalFormFromPoints(formsLine.A,formsLine.B));
+    $("formsPG").innerHTML=pointGradientLatex(formsLine.A,eq.m);
+  }
+  rerenderMath();
+}
+
+/* Conversion walkthrough */
+let conversionState=null;
+function generateConversion(){
+  const types=['si2g','g2si','pg2si','points'];
+  const t = types[Math.floor(Math.random()*types.length)];
+  let prompt='', steps=[];
+  if(t==='si2g'){
+    const m=[-3,-2,-1,-0.5,0.5,1,2,3][Math.floor(Math.random()*8)];
+    const c=Math.floor(Math.random()*9)-4;
+    prompt=`Convert ${slopeInterceptLatex(m,c)} into general form.`;
+    let expr = `\\(y=${fracStr(m)}x${c>0?'+':''}${numText(c)}\\)`;
+    steps=[
+      `Start with ${expr}.`,
+      `Move every term to one side.`,
+      `A clean rearrangement is \\(${fracStr(m)}x-y${c>0?'+':''}${numText(c)}=0\\).`,
+      `If you want integer coefficients, clear any fractions.`
+    ];
+  }else if(t==='g2si'){
+    const options=[
+      {a:2,b:-1,d:4},
+      {a:3,b:2,d:-6},
+      {a:-4,b:2,d:8},
+      {a:1,b:2,d:-5}
+    ];
+    const g=options[Math.floor(Math.random()*options.length)];
+    prompt=`Convert ${formGeneralLatex(g)} into gradient-intercept form.`;
+    steps=[
+      `Start with ${formGeneralLatex(g)}.`,
+      `Move the \(x\)-term and constant to the other side.`,
+      `Then divide by the coefficient of \(y\).`,
+      `This gives \\(y=${fracStr(-g.a/g.b)}x${(-g.d/g.b)>=0?'+':''}${numText(-g.d/g.b)}\\).`
+    ];
+  }else if(t==='pg2si'){
+    const pts=[{x:2,y:1,m:-2},{x:-3,y:4,m:0.5},{x:1,y:-2,m:3}];
+    const q=pts[Math.floor(Math.random()*pts.length)];
+    prompt=`Expand ${pointGradientLatex({x:q.x,y:q.y},q.m)} into gradient-intercept form.`;
+    const c=q.y-q.m*q.x;
+    steps=[
+      `Start with ${pointGradientLatex({x:q.x,y:q.y},q.m)}.`,
+      `Expand the bracket on the right-hand side.`,
+      `Add or subtract to make \(y\) the subject.`,
+      `The result is ${slopeInterceptLatex(q.m,c)}.`
+    ];
+  }else{
+    const P1={x:-2,y:3}, P2={x:4,y:0};
+    const eq=svgLineEqFromPoints(P1,P2);
+    prompt=`Find an equation of the line through \\((-2,3)\\) and \\((4,0)\\).`;
+    steps=[
+      `Find the gradient: \\(m=\\frac{0-3}{4-(-2)}=-\\frac{3}{6}=-\\frac12\\).`,
+      `Use point-gradient form through one point: \\(y-3=-\\frac12(x+2)\\).`,
+      `Expand and simplify.`,
+      `A final answer is ${slopeInterceptLatex(eq.m,eq.c)} or ${formGeneralLatex(generalFormFromPoints(P1,P2))}.`
+    ];
+  }
+  conversionState={prompt,steps};
+  $("convertPrompt").innerHTML=prompt;
+  $("convertSteps").innerHTML=`<p>Use the Step buttons to reveal the method.</p>`;
+  rerenderMath();
+}
+function showConversionStep(n){
+  if(!conversionState){ $("convertSteps").innerHTML="Generate an example first."; return; }
+  let html='';
+  const limit = n===4 ? conversionState.steps.length : n;
+  for(let i=0;i<limit;i++){
+    html += `<p><strong>Step ${i+1}.</strong> ${conversionState.steps[i]}</p>`;
+  }
+  $("convertSteps").innerHTML=html;
+  rerenderMath();
+}
+const descCards = [
+  {text:"Best when you know a point and a gradient.", form:"Point-gradient"},
+  {text:"Best for seeing the \(y\)-intercept immediately.", form:"Gradient-intercept"},
+  {text:"Puts all terms on one side, useful for algebraic manipulation.", form:"General"},
+  {text:"Lets you read the line as ‘slope + intercept’.", form:"Gradient-intercept"},
+  {text:"Often used straight after finding the gradient from two points.", form:"Point-gradient"},
+  {text:"Can be rearranged to show \(m=-a/b\).", form:"General"}
+];
+function initSortDescriptions(){
+  const box=$("sortDescriptions");
+  box.innerHTML='';
+  descCards.forEach((c,i)=>{
+    const div=document.createElement('div');
+    div.className='tile';
+    div.innerHTML=`<p>${c.text}</p>
+      <div class="tight-row">
+        <button onclick="checkDesc(${i},'Gradient-intercept')">Gradient-intercept</button>
+        <button onclick="checkDesc(${i},'General')">General</button>
+        <button onclick="checkDesc(${i},'Point-gradient')">Point-gradient</button>
+      </div>`;
+    box.appendChild(div);
+  });
+}
+function checkDesc(i,choice){
+  const c=descCards[i];
+  $("sortFeedback").className = "feedback " + (choice===c.form ? "good" : "bad");
+  $("sortFeedback").innerHTML = (choice===c.form ? "Correct. " : "Not quite. ") + `This description matches <strong>${c.form}</strong>.`;
+}
+
+/* Relationship graphs */
+function renderRelationshipGraphs(){
+  buildAxes('parallelGraph', 
+    lineSegmentSVG({vertical:false,m:1.5,c:2},'#2364aa') +
+    lineSegmentSVG({vertical:false,m:1.5,c:-3},'#0ca678')
+  );
+  $("parallelInfo").innerHTML=`Example: \\(y=1.5x+2\\) and \\(y=1.5x-3\\) are parallel because they have the same gradient.`;
+
+  buildAxes('perpGraph',
+    lineSegmentSVG({vertical:false,m:2,c:-1},'#7048e8') +
+    lineSegmentSVG({vertical:false,m:-0.5,c:3},'#c92a2a')
+  );
+  $("perpInfo").innerHTML=`Example: \\(y=2x-1\\) and \\(y=-\\frac12x+3\\) are perpendicular because \\(2\\times -\\frac12=-1\\).`;
+  rerenderMath();
+}
+function generateRelationshipQuestion(kind){
+  let q='', a='';
+  if(kind==='parallel'){
+    const m=[-3,-2,-1,-0.5,0.5,1,2,3][Math.floor(Math.random()*8)];
+    const x=Math.floor(Math.random()*7)-3;
+    const y=Math.floor(Math.random()*9)-4;
+    const c=y-m*x;
+    q=`Find an equation of the line parallel to ${slopeInterceptLatex(m,2)} and passing through \\((${x},${y})\\).`;
+    a=`Parallel lines have the same gradient, so \\(m=${fracStr(m)}\\). Use the point \\((${x},${y})\\):<br>
+      \\[
+        y-${y}=${fracStr(m)}(x${x>=0?'-'+x:'+'+Math.abs(x)})
+      \\]
+      Simplifying gives ${slopeInterceptLatex(m,c)}.`;
+  }else{
+    const m=[-3,-2,-1,-0.5,0.5,1,2,3][Math.floor(Math.random()*8)];
+    if(Math.abs(m)<1e-9) m=2;
+    const mp = -1/m;
+    const x=Math.floor(Math.random()*7)-3;
+    const y=Math.floor(Math.random()*9)-4;
+    const c=y-mp*x;
+    q=`Find an equation of the line perpendicular to ${slopeInterceptLatex(m,1)} and passing through \\((${x},${y})\\).`;
+    a=`The perpendicular gradient is the negative reciprocal of \\(${fracStr(m)}\\), so \\(m=${fracStr(mp)}\\).<br>
+      Through \\((${x},${y})\\), the point-gradient form is
+      \\[
+        y-${y}=${fracStr(mp)}(x${x>=0?'-'+x:'+'+Math.abs(x)})
+      \\]
+      which simplifies to ${slopeInterceptLatex(mp,c)}.`;
+  }
+  $("relQuestion").innerHTML=q;
+  $("relAnswer").innerHTML=a;
+  $("relAnswer").classList.remove('show');
+  rerenderMath();
+}
+
+/* Practice generator */
+function practiceGraphSVG(A,B){
+  const eq=svgLineEqFromPoints(A,B);
+  let extras = lineSegmentSVG(eq,'#2364aa') + pointSVG(A,'#2364aa','A') + pointSVG(B,'#0ca678','B');
+  const temp=document.createElement('div');
+  temp.innerHTML=`<div class="graph-wrap"><svg id="tempPracticeGraph" class="svg-graph" viewBox="0 0 520 450"></svg></div>`;
+  $("practiceVisual").innerHTML='';
+  $("practiceVisual").appendChild(temp.firstChild);
+  buildAxes('tempPracticeGraph', extras);
+}
+function toggleAnswer(id){
+  $(id).classList.toggle('show');
+  rerenderMath();
+}
+function randomPointPair(nonVertical=false){
+  let A={x:Math.floor(Math.random()*9)-4,y:Math.floor(Math.random()*9)-4};
+  let B={x:A.x,y:A.y};
+  while(B.x===A.x && B.y===A.y){
+    B={x:Math.floor(Math.random()*9)-4,y:Math.floor(Math.random()*9)-4};
+  }
+  if(nonVertical){
+    while(B.x===A.x){ B.x=Math.floor(Math.random()*9)-4; }
+  }
+  return {A,B};
+}
+function generatePractice(type){
+  $("practiceAnswer").classList.remove('show');
+  let q='', a='', visual='';
+  if(type==='graph'){
+    const pair=randomPointPair(true);
+    practiceGraphSVG(pair.A,pair.B);
+    const eq=svgLineEqFromPoints(pair.A,pair.B);
+    q=`Write an equation of the line shown on the graph. You may give your answer in any correct form.`;
+    a=`From the graph, the line goes through \\(${pair.A.x},${pair.A.y}\\) and \\(${pair.B.x},${pair.B.y}\\).<br>
+       Gradient:
+       \\[
+         m=\\frac{${pair.B.y}-(${pair.A.y})}{${pair.B.x}-(${pair.A.x})}=${fracStr(eq.m)}
+       \\]
+       Using point-gradient form through \\((${pair.A.x},${pair.A.y})\\):
+       \\[
+         ${pointGradientLatex(pair.A,eq.m).replace(/\\\(|\\\)/g,'')}
+       \\]
+       A simplified form is ${slopeInterceptLatex(eq.m,eq.c)}.`;
+  } else if(type==='convert'){
+    $("practiceVisual").innerHTML='';
+    const ex = {a:3,b:-2,d:6};
+    q=`Convert ${formGeneralLatex(ex)} into gradient-intercept form, and state the gradient and \(y\)-intercept.`;
+    a=`Start with \\(3x-2y+6=0\\).<br>
+       Move terms: \\(-2y=-3x-6\\).<br>
+       Divide by \\(-2\\):
+       \\[
+         y=\\frac32x+3
+       \\]
+       So gradient \\(m=\\frac32\\), and \(y\)-intercept is \\(3\\).`;
+  } else if(type==='twoPoints'){
+    $("practiceVisual").innerHTML='';
+    const P1={x:-2,y:5}, P2={x:4,y:-1};
+    const eq=svgLineEqFromPoints(P1,P2);
+    q=`Find the equation of the line through \\((-2,5)\\) and \\((4,-1)\\).`;
+    a=`Gradient:
+      \\[
+        m=\\frac{-1-5}{4-(-2)}=\\frac{-6}{6}=-1
+      \\]
+      Using point-gradient form:
+      \\[
+        y-5=-1(x+2)
+      \\]
+      Simplifying:
+      \\[
+        y=-x+3
+      \\]
+      General form:
+      \\[
+        x+y-3=0
+      \\]`;
+  } else if(type==='parallel'){
+    $("practiceVisual").innerHTML='';
+    q=`Find an equation of the line parallel to \\(y=-2x+7\\) and passing through \\((3,1)\\).`;
+    a=`Parallel lines have the same gradient, so \\(m=-2\\).<br>
+      Use point-gradient form:
+      \\[
+        y-1=-2(x-3)
+      \\]
+      Expand:
+      \\[
+        y-1=-2x+6
+      \\]
+      hence
+      \\[
+        y=-2x+7
+      \\]
+      In this case, the point lies on the original line, so the answer is the same line.`;
+  } else if(type==='perpendicular'){
+    $("practiceVisual").innerHTML='';
+    q=`Find an equation of the line perpendicular to \\(y=\\frac12x-4\\) through \\((2,3)\\).`;
+    a=`The perpendicular gradient is the negative reciprocal of \\(\\frac12\\), so it is \\(-2\\).<br>
+      Point-gradient form:
+      \\[
+        y-3=-2(x-2)
+      \\]
+      Simplifying:
+      \\[
+        y=-2x+7
+      \\]`;
+  } else if(type==='intercepts'){
+    const pair={A:{x:-6,y:0}, B:{x:0,y:4}};
+    practiceGraphSVG(pair.A,pair.B);
+    q=`Read the intercepts from the graph and then write an equation of the line.`;
+    a=`The line crosses the \(x\)-axis at \\((-6,0)\\) and the \(y\)-axis at \\((0,4)\\).<br>
+      Gradient:
+      \\[
+        m=\\frac{4-0}{0-(-6)}=\\frac46=\\frac23
+      \\]
+      Since the \(y\)-intercept is 4, the equation is
+      \\[
+        y=\\frac23x+4
+      \\]`;
+  }
+  $("practiceQuestion").innerHTML=q;
+  $("practiceAnswer").innerHTML=a;
+  rerenderMath();
+}
+
+/* init */
+initSortDescriptions();
+updateMCGraph();
+renderDragGraph();
+attachDrag();
+generateLineExample();
+generateConversion();
+renderRelationshipGraphs();
+generatePractice('graph');
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AHL 4.17 Poisson Distribution Resource</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --ink:#18212d; --muted:#5c6a79; --paper:#fff; --soft:#f5f7fb; --line:#d7dee8;
+  --accent:#2364aa; --accent2:#0ca678; --accent3:#7048e8; --warn:#f08c00;
+  --good:#2f9e44; --bad:#c92a2a; --shadow:0 14px 28px rgba(16,24,40,.10);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(35,100,170,.11), transparent 36rem),
+    radial-gradient(circle at top right, rgba(112,72,232,.09), transparent 30rem),
+    linear-gradient(#fff,#f7f9fc 48rem);
+  line-height:1.45;
+}
+header{max-width:1220px;margin:auto;padding:34px 22px 18px}
+.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(2rem,5vw,4.3rem);line-height:.95;letter-spacing:-.06em}
+h1 span{display:block;color:var(--accent)}
+.subtitle{margin:15px 0 0;max-width:920px;color:#344054;font-size:1.12rem}
+.badge{
+  display:inline-flex;align-items:center;gap:.55rem;padding:9px 14px;background:white;
+  border:1px solid var(--line);border-radius:999px;box-shadow:0 5px 18px rgba(0,0,0,.06);
+  font-weight:800;color:var(--accent);white-space:nowrap;
+}
+main{max-width:1220px;margin:0 auto 70px;padding:0 22px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.card{
+  background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+@media(max-width:940px){.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}}
+h2{margin:0 0 12px;font-size:1.55rem;letter-spacing:-.025em}
+h3{margin:16px 0 8px;font-size:1.12rem}
+p{margin:8px 0}
+.syllabus-table{
+  display:grid;grid-template-columns:1fr 1fr;border:1px solid #9ca3af;border-radius:14px;overflow:hidden;background:white;
+}
+.syllabus-table>div{padding:14px 17px;border-bottom:1px solid #9ca3af}
+.syllabus-table .head{background:#eef0f2;color:#6b7280;font-weight:850;font-size:1.08rem}
+.syllabus-table div:nth-child(odd){border-right:1px solid #9ca3af}
+.syllabus-table div:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:740px){
+  .syllabus-table{grid-template-columns:1fr}
+  .syllabus-table div:nth-child(odd){border-right:none}
+  .syllabus-table div:nth-last-child(2){border-bottom:1px solid #9ca3af}
+}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}
+.tile h3{margin-top:0}
+.tabs{
+  position:sticky;top:0;z-index:10;padding:12px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;
+  background:rgba(247,249,252,.86);border:1px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+button{
+  appearance:none;border:none;border-radius:999px;padding:10px 14px;background:#e9eef6;color:var(--ink);
+  font-weight:800;cursor:pointer;transition:.16s transform,.16s background,.16s color,.16s box-shadow;font-size:.95rem;
+}
+button:hover{transform:translateY(-1px)}
+button.active{background:var(--accent);color:white;box-shadow:0 8px 18px rgba(35,100,170,.24)}
+button.secondary{background:#eef2ff;color:#3b2b98}
+button.good{background:#d3f9d8;color:#1b5e20}
+button.warn{background:#fff3bf;color:#7c4a00}
+button.danger{background:#ffe3e3;color:#8a1717}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+.formula{background:#0f172a;color:white;border-radius:16px;padding:18px;margin:15px 0;overflow-x:auto}
+.note{border-left:5px solid var(--accent);background:#edf6ff;padding:12px 14px;border-radius:12px;margin:12px 0}
+.note.warn{border-color:var(--warn);background:#fff7e6}
+.note.good{border-color:var(--good);background:#ebfbee}
+.steps{counter-reset:step;list-style:none;padding:0;margin:12px 0}
+.steps li{
+  counter-increment:step;position:relative;margin:10px 0;padding:12px 12px 12px 48px;
+  background:#f8fafc;border:1px solid var(--line);border-radius:14px;
+}
+.steps li::before{
+  content:counter(step);position:absolute;left:12px;top:12px;width:25px;height:25px;
+  display:grid;place-items:center;border-radius:50%;background:var(--accent);color:white;font-weight:900;
+}
+.mathline{font-size:1.08rem;padding:12px;border:1px solid var(--line);background:white;border-radius:12px;overflow-x:auto}
+.eq-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px;margin:10px 0}
+.eq-label{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:6px}
+.feedback{margin-top:10px;padding:12px 14px;border-radius:12px;min-height:48px;background:#f1f5f9}
+.feedback.good{background:#ebfbee;border:1px solid #b2f2bb;color:#1b5e20}
+.feedback.bad{background:#fff5f5;border:1px solid #ffc9c9;color:#8a1717}
+.feedback.info{background:#edf6ff;border:1px solid #bee3f8;color:#174a7c}
+.practice-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin:12px 0}
+.answer{display:none;margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.answer.show{display:block}
+input, textarea, select{
+  width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:white;
+}
+textarea{min-height:90px;resize:vertical}
+label{display:block;margin:8px 0 5px;font-weight:850}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.tight-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.range-wrap{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:10px 0}
+input[type=range]{padding:0}
+.graph-wrap{background:white;border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden}
+.svg-graph{
+  width:100%;aspect-ratio:1.45/1;max-height:540px;display:block;
+  background:linear-gradient(#fcfdff,#f6fbff);border-radius:12px;overflow:visible;
+}
+.context-svg{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:white}
+.pill{
+  display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#edf2ff;color:#364fc7;
+  font-size:.82rem;font-weight:850;margin:2px;
+}
+.pill.green{background:#e6fcf5;color:#087f5b}.pill.orange{background:#fff3bf;color:#7c4a00}.pill.red{background:#ffe3e3;color:#8a1717}
+table{width:100%;border-collapse:collapse;margin:12px 0;background:white;border-radius:14px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}
+th{background:#eef4fb}
+.arrival-chip{
+  display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:34px;border-radius:12px;
+  background:#edf2ff;border:1px solid #cdd7ff;color:#174a7c;font-weight:900;margin:3px;
+}
+.dist-card{
+  border:1px solid var(--line);border-radius:16px;background:white;padding:14px;margin:10px 0;
+}
+.dist-card.selected{outline:3px solid var(--accent);background:#edf6ff}
+.timeline{
+  height:100px;border:1px solid var(--line);border-radius:14px;background:#fff;position:relative;overflow:hidden;margin-top:12px;
+}
+.tick{position:absolute;top:64px;width:1px;height:12px;background:#64748b}
+.tick-label{position:absolute;top:78px;transform:translateX(-50%);font-size:.78rem;color:#64748b}
+.event-dot{position:absolute;top:28px;width:13px;height:13px;border-radius:50%;background:#2364aa;transform:translate(-50%,-50%)}
+.event-dot.two{background:#0ca678}
+.nspire{
+  border-radius:22px;background:#202a35;color:white;padding:18px;max-width:360px;margin:0 auto;
+  box-shadow:inset 0 -8px 0 rgba(0,0,0,.18),0 12px 25px rgba(0,0,0,.2);
+}
+.nspire-screen{
+  background:#d7f5e3;color:#0f2b19;border:5px solid #101720;border-radius:12px;padding:12px;
+  min-height:155px;font-family:"Courier New",monospace;margin-bottom:14px;
+}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.key{background:#3b4552;color:white;text-align:center;border-radius:9px;padding:8px 4px;font-weight:850;font-size:.82rem}
+.key.blue{background:#1d4ed8}.key.orange{background:#b45309}.key.green{background:#087f5b}.key.light{background:#667085}
+@media print{
+  body{background:white}.tabs,button{display:none!important}.tab-panel{display:block!important}.card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <h1>AHL 4.17 <span>Poisson Distribution</span></h1>
+      <p class="subtitle">An interactive higher-level resource for modelling counts with the Poisson distribution, understanding its mean and variance, adding independent Poisson variables, and choosing between Poisson, binomial and normal models in context.</p>
+    </div>
+    <div class="badge">IB DP Mathematics AHL • Probability & Statistics</div>
+  </div>
+</header>
+
+<main>
+<nav class="tabs" aria-label="Resource tabs">
+  <button class="tab-button active" data-tab="explore">1. Explore first</button>
+  <button class="tab-button" data-tab="formula">2. Formula & shape</button>
+  <button class="tab-button" data-tab="conditions">3. When is Poisson appropriate?</button>
+  <button class="tab-button" data-tab="calculator">4. Probability calculator</button>
+  <button class="tab-button" data-tab="meanvar">5. Mean & variance</button>
+  <button class="tab-button" data-tab="sums">6. Sum of Poissons</button>
+  <button class="tab-button" data-tab="chooser">7. Poisson vs binomial vs normal</button>
+  <button class="tab-button" data-tab="technology">8. Technology guide</button>
+  <button class="tab-button" data-tab="contexts">9. Contexts & TOK</button>
+  <button class="tab-button" data-tab="formalise">10. Formalise</button>
+  <button class="tab-button" data-tab="practice">11. Exam generator</button>
+  <button class="tab-button" data-tab="teacher">Teacher notes</button>
+</nav>
+
+<section id="explore" class="tab-panel active">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Explore: random arrivals at an average rate</h2>
+      <p>Imagine calls arriving at a help desk. The average rate is \(\lambda\) calls per minute. Simulate one minute, then many minutes, and compare observed counts with a Poisson model.</p>
+      <div class="range-wrap">
+        <div>
+          <label for="exploreLambda">Average rate \(\lambda\) per interval</label>
+          <input id="exploreLambda" type="range" min="0.2" max="12" step="0.2" value="3" oninput="updateExploreLambda()">
+        </div>
+        <div class="pill" id="exploreLambdaLabel">\(\lambda=3\)</div>
+      </div>
+      <div class="tight-row">
+        <button onclick="simulateOneInterval()">Simulate one interval</button>
+        <button onclick="simulateManyIntervals(20)">20 intervals</button>
+        <button onclick="simulateManyIntervals(200)">200 intervals</button>
+        <button onclick="simulateManyIntervals(2000)">2000 intervals</button>
+        <button class="secondary" onclick="resetExplore()">Reset</button>
+      </div>
+      <div class="timeline" id="arrivalTimeline"></div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="exploreGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Live simulation</h2>
+      <div class="eq-box"><div class="eq-label">Current interval</div><div id="oneIntervalBox" class="mathline">Simulate one interval.</div></div>
+      <div class="eq-box"><div class="eq-label">Many intervals</div><div id="manyIntervalsBox" class="mathline">No repeated simulation yet.</div></div>
+      <div id="exploreFeedback" class="feedback info">Poisson models counts: 0 calls, 1 call, 2 calls, and so on. The count is discrete, but the interval can be time, space, length or area.</div>
+      <h3>What to notice</h3>
+      <ol class="steps">
+        <li>The same average rate does not mean the same count every interval.</li>
+        <li>Small samples are noisy; many intervals reveal the shape more clearly.</li>
+        <li>As \(\lambda\) increases, the centre moves right and the shape becomes more symmetric.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="formula" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>The Poisson formula</h2>
+      <div class="formula">
+        \[
+          X\sim \mathrm{Po}(\lambda)
+        \]
+        \[
+          P(X=x)=\frac{e^{-\lambda}\lambda^x}{x!},\qquad x=0,1,2,\ldots
+        \]
+      </div>
+      <p>\(\lambda\) is the mean number of events in the interval. The random variable \(X\) counts how many events occur.</p>
+      <div class="practice-card">
+        <p><strong>Example.</strong> Calls arrive at an average rate of 4 per minute. Find \(P(X=2)\).</p>
+        <button onclick="toggleAnswer('formulaExample')">Reveal solution</button>
+        <div id="formulaExample" class="answer">
+          Here \(X\sim\mathrm{Po}(4)\).
+          \[
+            P(X=2)=\frac{e^{-4}4^2}{2!}
+            =\frac{16e^{-4}}{2}
+            =8e^{-4}
+            \approx 0.1465.
+          \]
+        </div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Shape explorer</h2>
+      <div class="range-wrap">
+        <div>
+          <label for="shapeLambda">Choose \(\lambda\)</label>
+          <input id="shapeLambda" type="range" min="0.2" max="20" step="0.2" value="3" oninput="drawShape()">
+        </div>
+        <div class="pill" id="shapeLambdaLabel">\(\lambda=3\)</div>
+      </div>
+      <div class="graph-wrap">
+        <svg id="shapeGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div id="shapeFeedback" class="feedback info">Move the slider to see how the distribution changes.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Reading the bars</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Bar position</h3><p>The \(x\)-axis shows the number of events: \(0,1,2,\ldots\)</p></div>
+        <div class="tile"><h3>Bar height</h3><p>The height is the probability of that count.</p></div>
+        <div class="tile"><h3>Total area</h3><p>The sum of all bar probabilities is 1.</p></div>
+        <div class="tile"><h3>Large \(\lambda\)</h3><p>The distribution becomes more symmetric and bell-like, but it is still discrete.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="conditions" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>When is Poisson appropriate?</h2>
+      <ol class="steps">
+        <li>The variable is a <strong>count</strong> of events in a fixed interval.</li>
+        <li>Events occur <strong>independently</strong>.</li>
+        <li>Events occur at a <strong>uniform average rate</strong> during the period of interest.</li>
+        <li>The events are not naturally limited by a fixed small number of trials.</li>
+      </ol>
+      <div class="note good">
+        Poisson often appears when we count rare-ish events across time, space or text: calls per minute, typos per page, mutations per strand, accidents per day.
+      </div>
+      <div class="note warn">
+        If the rate changes during the interval, or events trigger other events, a simple Poisson model may be unreliable.
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Model suitability checker</h2>
+      <div class="practice-card">
+        <div id="conditionScenario" class="mathline">Press generate.</div>
+        <div class="tight-row" style="margin-top:10px">
+          <button onclick="generateConditionScenario()">Generate scenario</button>
+          <button onclick="answerCondition(true)">Poisson appropriate</button>
+          <button onclick="answerCondition(false)">Not appropriate</button>
+        </div>
+        <div id="conditionFeedback" class="feedback">Choose whether a Poisson model is reasonable.</div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Condition visual: uniform rate vs changing rate</h2>
+      <svg class="context-svg" viewBox="0 0 1100 420" aria-label="Uniform and changing rate comparison">
+        <rect width="1100" height="420" fill="#f8fafc"/>
+        <text x="275" y="55" text-anchor="middle" font-size="28" font-weight="900" fill="#174a7c">Uniform average rate</text>
+        <text x="825" y="55" text-anchor="middle" font-size="28" font-weight="900" fill="#8a1717">Changing rate</text>
+        <line x1="80" y1="210" x2="520" y2="210" stroke="#2364aa" stroke-width="6" stroke-linecap="round"/>
+        <line x1="620" y1="320" x2="1040" y2="100" stroke="#c92a2a" stroke-width="6" stroke-linecap="round"/>
+        <g fill="#2364aa">
+          <circle cx="115" cy="210" r="10"/><circle cx="175" cy="210" r="10"/><circle cx="245" cy="210" r="10"/><circle cx="315" cy="210" r="10"/><circle cx="390" cy="210" r="10"/><circle cx="465" cy="210" r="10"/>
+        </g>
+        <g fill="#c92a2a">
+          <circle cx="645" cy="305" r="10"/><circle cx="740" cy="255" r="10"/><circle cx="815" cy="215" r="10"/><circle cx="875" cy="182" r="10"/><circle cx="925" cy="156" r="10"/><circle cx="970" cy="132" r="10"/><circle cx="1010" cy="112" r="10"/>
+        </g>
+        <text x="275" y="320" text-anchor="middle" font-size="22" fill="#344054">e.g. typo rate across similar pages</text>
+        <text x="825" y="360" text-anchor="middle" font-size="22" fill="#344054">e.g. emergency admissions varying by time of day</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="calculator" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Poisson probability calculator</h2>
+      <p>Calculate exact, cumulative and interval probabilities.</p>
+      <div class="row">
+        <div><label for="calcLambda">\(\lambda\)</label><input id="calcLambda" value="4"></div>
+        <div><label for="calcK">Value \(k\)</label><input id="calcK" value="2"></div>
+      </div>
+      <div class="row">
+        <div><label for="calcA">Lower value \(a\)</label><input id="calcA" value="2"></div>
+        <div><label for="calcB">Upper value \(b\)</label><input id="calcB" value="6"></div>
+      </div>
+      <div class="tight-row">
+        <button onclick="poissonCalc('eq')">\(P(X=k)\)</button>
+        <button onclick="poissonCalc('le')">\(P(X\le k)\)</button>
+        <button onclick="poissonCalc('lt')">\(P(X\lt k)\)</button>
+        <button onclick="poissonCalc('ge')">\(P(X\ge k)\)</button>
+        <button onclick="poissonCalc('gt')">\(P(X>k)\)</button>
+        <button onclick="poissonCalc('between')">\(P(a\le X\le b)\)</button>
+      </div>
+      <div id="calcOutput" class="feedback info">Enter values and choose a probability.</div>
+    </div>
+    <div class="card span-6">
+      <h2>Calculator graph</h2>
+      <div class="graph-wrap">
+        <svg id="calcGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+      <div class="note">
+        Shaded bars show the probability being calculated.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Common probability translations</h2>
+      <table>
+        <tr><th>Words</th><th>Symbol</th><th>Calculator idea</th></tr>
+        <tr><td>exactly 5</td><td>\(P(X=5)\)</td><td>one bar</td></tr>
+        <tr><td>at most 5</td><td>\(P(X\le5)\)</td><td>bars 0 through 5</td></tr>
+        <tr><td>less than 5</td><td>\(P(X\lt 5)=P(X\le4)\)</td><td>bars 0 through 4</td></tr>
+        <tr><td>at least 5</td><td>\(P(X\ge5)\)</td><td>use complement \(1-P(X\le4)\)</td></tr>
+        <tr><td>more than 5</td><td>\(P(X>5)=1-P(X\le5)\)</td><td>right tail</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="meanvar" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Mean and variance</h2>
+      <div class="formula">
+        \[
+          X\sim\mathrm{Po}(\lambda)
+        \]
+        \[
+          E(X)=\lambda
+        \]
+        \[
+          \mathrm{Var}(X)=\lambda
+        \]
+        \[
+          \sigma=\sqrt{\lambda}
+        \]
+      </div>
+      <p>The mean and variance are equal for a Poisson distribution. This is a distinctive feature of the model.</p>
+      <div class="note warn">
+        A data set whose sample mean and sample variance are very different may suggest the simple Poisson model is not suitable.
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Mean–variance simulator</h2>
+      <div class="range-wrap">
+        <div>
+          <label for="mvLambda">Choose \(\lambda\)</label>
+          <input id="mvLambda" type="range" min="0.5" max="15" step="0.5" value="5" oninput="drawMeanVar()">
+        </div>
+        <div class="pill" id="mvLambdaLabel">\(\lambda=5\)</div>
+      </div>
+      <div class="tight-row">
+        <button onclick="simulateMeanVar(25)">Simulate 25 counts</button>
+        <button onclick="simulateMeanVar(200)">Simulate 200 counts</button>
+        <button onclick="simulateMeanVar(2000)">Simulate 2000 counts</button>
+      </div>
+      <div id="mvOutput" class="feedback info">Simulate counts to compare sample mean and sample variance.</div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="mvGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Interpretation</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Mean</h3><p>The expected count in the interval.</p></div>
+        <div class="tile"><h3>Variance</h3><p>For Poisson, the spread is tied to the mean.</p></div>
+        <div class="tile"><h3>Standard deviation</h3><p>\(\sqrt{\lambda}\), useful for judging typical variation.</p></div>
+        <div class="tile"><h3>Model check</h3><p>Observed data may show overdispersion: variance larger than the mean.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sums" class="tab-panel">
+  <div class="grid">
+    <div class="card span-7">
+      <h2>Sum of independent Poisson distributions</h2>
+      <p>If two independent counts are Poisson, their sum is also Poisson, with parameter equal to the sum of parameters.</p>
+      <div class="formula">
+        \[
+          X\sim\mathrm{Po}(\lambda_1),\quad Y\sim\mathrm{Po}(\lambda_2),\quad X\perp Y
+        \]
+        \[
+          X+Y\sim\mathrm{Po}(\lambda_1+\lambda_2)
+        \]
+      </div>
+      <div class="row">
+        <div><label for="lambda1">\(\lambda_1\)</label><input id="lambda1" value="3" oninput="drawSumPoisson()"></div>
+        <div><label for="lambda2">\(\lambda_2\)</label><input id="lambda2" value="5" oninput="drawSumPoisson()"></div>
+      </div>
+      <div class="tight-row">
+        <button onclick="simulateSumPoisson(100)">Simulate 100 sums</button>
+        <button onclick="simulateSumPoisson(2000)">Simulate 2000 sums</button>
+        <button onclick="resetSumPoisson()">Reset simulation</button>
+      </div>
+      <div class="graph-wrap" style="margin-top:12px">
+        <svg id="sumGraph" class="svg-graph" viewBox="0 0 760 520"></svg>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Context example</h2>
+      <div class="practice-card">
+        <p>Calls to two independent support teams arrive at average rates of 3 and 5 per hour. What is the distribution of the total number of calls per hour?</p>
+        <button onclick="toggleAnswer('sumExample')">Reveal solution</button>
+        <div id="sumExample" class="answer">
+          Let \(X\sim\mathrm{Po}(3)\) and \(Y\sim\mathrm{Po}(5)\). If the two call streams are independent, then
+          \[
+            X+Y\sim\mathrm{Po}(3+5)=\mathrm{Po}(8).
+          \]
+        </div>
+      </div>
+      <div class="eq-box"><div class="eq-label">Current result</div><div id="sumInfo" class="mathline"></div></div>
+      <div class="note warn">
+        Independence matters. If one event stream affects the other, the simple sum rule may not apply.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="chooser" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Choose the distribution: normal, binomial or Poisson?</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Binomial</h3><p>Fixed number of independent trials. Two outcomes per trial. Same probability each trial. Counts successes.</p></div>
+        <div class="tile"><h3>Poisson</h3><p>Counts events in a fixed interval. Independent events. Uniform average rate.</p></div>
+        <div class="tile"><h3>Normal</h3><p>Continuous measurement. Bell-shaped. Often suitable for naturally varying measurements or approximations.</p></div>
+      </div>
+    </div>
+    <div class="card span-7">
+      <h2>Distribution chooser activity</h2>
+      <div class="practice-card">
+        <div id="chooserScenario" class="mathline">Press generate.</div>
+        <div class="tight-row" style="margin-top:10px">
+          <button onclick="generateChooser()">Generate scenario</button>
+          <button onclick="answerChooser('poisson')">Poisson</button>
+          <button onclick="answerChooser('binomial')">Binomial</button>
+          <button onclick="answerChooser('normal')">Normal</button>
+        </div>
+        <div id="chooserFeedback" class="feedback">Choose the most appropriate distribution.</div>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Decision tree</h2>
+      <ol class="steps">
+        <li>Is the variable a continuous measurement? Consider normal.</li>
+        <li>Is it a count of successes out of a fixed number of trials? Consider binomial.</li>
+        <li>Is it a count of events in a fixed interval with uniform rate? Consider Poisson.</li>
+        <li>Check assumptions before calculating.</li>
+      </ol>
+    </div>
+    <div class="card span-12">
+      <h2>Common traps</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Two dice sums</h3><p>Not Poisson; use sample space or another discrete distribution.</p></div>
+        <div class="tile"><h3>Number defective in 50 items</h3><p>Usually binomial: fixed number of trials.</p></div>
+        <div class="tile"><h3>Waiting time</h3><p>The count may be Poisson, but waiting time itself is not Poisson.</p></div>
+        <div class="tile"><h3>Changing rates</h3><p>Rush hour traffic may not have a uniform average rate across the whole day.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="technology" class="tab-panel">
+  <div class="grid">
+    <div class="card span-5">
+      <h2>TI-Nspire CX: Poisson probabilities</h2>
+      <div class="nspire">
+        <div class="nspire-screen">
+          Calculator page<br>
+          menu > Statistics<br>
+          Distributions<br>
+          Poisson Pdf<br>
+          Poisson Cdf<br><br>
+          λ = 4, x = 2
+        </div>
+        <div class="keys">
+          <div class="key blue">home</div><div class="key">doc</div><div class="key">menu</div><div class="key">tab</div><div class="key orange">enter</div>
+          <div class="key">ctrl</div><div class="key">esc</div><div class="key">var</div><div class="key">x</div><div class="key green">stat</div>
+          <div class="key light">7</div><div class="key light">8</div><div class="key light">9</div><div class="key">/</div><div class="key">^</div>
+        </div>
+      </div>
+    </div>
+    <div class="card span-7">
+      <h2>Step-by-step technology guide</h2>
+      <ol class="steps">
+        <li>Use <strong>Poisson Pdf</strong> for exactly \(x\): \(P(X=x)\).</li>
+        <li>Use <strong>Poisson Cdf</strong> for cumulative probability: \(P(X\le x)\).</li>
+        <li>For \(P(X\lt x)\), calculate \(P(X\le x-1)\).</li>
+        <li>For \(P(X\ge x)\), use \(1-P(X\le x-1)\).</li>
+        <li>For \(P(X>x)\), use \(1-P(X\le x)\).</li>
+        <li>For an interval \(P(a\le X\le b)\), calculate \(P(X\le b)-P(X\le a-1)\).</li>
+      </ol>
+      <div class="note good">
+        Always write the distribution first, for example \(X\sim\mathrm{Po}(4)\), then show the probability statement before using technology.
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Technology wording examples</h2>
+      <table>
+        <tr><th>Question wording</th><th>Mathematical statement</th><th>Technology action</th></tr>
+        <tr><td>Exactly 3 calls</td><td>\(P(X=3)\)</td><td>Poisson Pdf</td></tr>
+        <tr><td>At most 3 calls</td><td>\(P(X\le3)\)</td><td>Poisson Cdf</td></tr>
+        <tr><td>Fewer than 3 calls</td><td>\(P(X\le2)\)</td><td>Poisson Cdf with 2</td></tr>
+        <tr><td>At least 3 calls</td><td>\(1-P(X\le2)\)</td><td>1 − Poisson Cdf with 2</td></tr>
+        <tr><td>Between 3 and 7 inclusive</td><td>\(P(X\le7)-P(X\le2)\)</td><td>Subtract two CDF values</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="contexts" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Telecommunications and call management</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Call centre context">
+        <rect width="760" height="420" fill="#f8fafc"/>
+        <rect x="70" y="90" width="620" height="240" rx="28" fill="#edf6ff" stroke="#2364aa" stroke-width="4"/>
+        <text x="380" y="55" text-anchor="middle" font-size="30" font-weight="900" fill="#17212d">Calls per minute</text>
+        <g fill="#2364aa">
+          <circle cx="150" cy="170" r="28"/><circle cx="270" cy="170" r="28"/><circle cx="390" cy="170" r="28"/><circle cx="510" cy="170" r="28"/><circle cx="630" cy="170" r="28"/>
+        </g>
+        <g fill="white" font-size="24" font-weight="900" text-anchor="middle">
+          <text x="150" y="178">☎</text><text x="270" y="178">☎</text><text x="390" y="178">☎</text><text x="510" y="178">☎</text><text x="630" y="178">☎</text>
+        </g>
+        <path d="M130 260 C210 220, 280 300, 360 260 S520 220, 640 260" fill="none" stroke="#0ca678" stroke-width="8" stroke-linecap="round"/>
+        <text x="380" y="370" text-anchor="middle" font-size="22" font-weight="850" fill="#344054">Useful for staffing and queue planning.</text>
+      </svg>
+    </div>
+    <div class="card span-6">
+      <h2>Emergency room admissions</h2>
+      <svg class="context-svg" viewBox="0 0 760 420" aria-label="Emergency room context">
+        <rect width="760" height="420" fill="#fff5f5"/>
+        <rect x="110" y="100" width="540" height="220" rx="24" fill="white" stroke="#c92a2a" stroke-width="5"/>
+        <rect x="330" y="135" width="100" height="150" fill="#c92a2a"/>
+        <rect x="305" y="160" width="150" height="100" fill="#c92a2a"/>
+        <text x="380" y="55" text-anchor="middle" font-size="30" font-weight="900" fill="#8a1717">Admissions per hour</text>
+        <text x="380" y="360" text-anchor="middle" font-size="22" font-weight="850" fill="#344054">Check whether the rate is uniform across the time period.</text>
+      </svg>
+    </div>
+    <div class="card span-6">
+      <h2>Biological mutations and typos</h2>
+      <div class="mini-grid">
+        <div class="tile"><h3>Mutations</h3><p>Count mutations per DNA segment, assuming rare independent events at an approximately uniform rate.</p></div>
+        <div class="tile"><h3>Typos</h3><p>Count typos per page or per 1000 words, if pages/text sections are comparable.</p></div>
+        <div class="tile"><h3>Traffic</h3><p>Count vehicles arriving in a short interval, if flow is roughly constant.</p></div>
+        <div class="tile"><h3>Failures</h3><p>Count faults per machine-hour or server errors per minute, if events are independent.</p></div>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>TOK: trust in models</h2>
+      <div class="practice-card">
+        <p><strong>Prompt.</strong> To what extent can mathematical models such as the Poisson distribution be trusted?</p>
+        <button onclick="toggleAnswer('tokModel')">Reveal discussion angles</button>
+        <div id="tokModel" class="answer">
+          A model can be trusted only relative to its assumptions and purpose. A Poisson model may give useful planning estimates even when it is not perfectly true. But if independence or uniform rate fails, the model can become misleading. The TOK issue is not whether the formula is true, but whether the world matches the model closely enough for the intended decision.
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Prompt.</strong> What role do mathematical models play in other areas of knowledge?</p>
+        <button onclick="toggleAnswer('tokAreas')">Reveal discussion angles</button>
+        <div id="tokAreas" class="answer">
+          Models simplify reality so that we can reason, predict and decide. In sciences, models help explain and forecast; in economics and politics, they guide policy; in medicine, they estimate risk. But every model highlights some features and ignores others.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="formalise" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Formal summary</h2>
+      <table>
+        <tr><th>Idea</th><th>Meaning</th></tr>
+        <tr><td>\(X\sim\mathrm{Po}(\lambda)\)</td><td>\(X\) counts events in a fixed interval with average rate \(\lambda\).</td></tr>
+        <tr><td>Probability</td><td>\(P(X=x)=\frac{e^{-\lambda}\lambda^x}{x!}\)</td></tr>
+        <tr><td>Mean</td><td>\(E(X)=\lambda\)</td></tr>
+        <tr><td>Variance</td><td>\(\mathrm{Var}(X)=\lambda\)</td></tr>
+        <tr><td>Sum rule</td><td>If independent, \(\mathrm{Po}(\lambda_1)+\mathrm{Po}(\lambda_2)=\mathrm{Po}(\lambda_1+\lambda_2)\)</td></tr>
+      </table>
+    </div>
+    <div class="card span-6">
+      <h2>Worked examples</h2>
+      <div class="practice-card">
+        <p><strong>Example 1.</strong> Typos occur at a mean rate of 1.5 per page. Find the probability of exactly 2 typos on a page.</p>
+        <button onclick="toggleAnswer('formalEx1')">Reveal solution</button>
+        <div id="formalEx1" class="answer">
+          Let \(X\sim\mathrm{Po}(1.5)\).
+          \[
+            P(X=2)=\frac{e^{-1.5}1.5^2}{2!}\approx 0.251.
+          \]
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 2.</strong> Emergency admissions occur at a mean rate of 6 per hour. Find \(P(X\ge 8)\).</p>
+        <button onclick="toggleAnswer('formalEx2')">Reveal solution</button>
+        <div id="formalEx2" class="answer">
+          Let \(X\sim\mathrm{Po}(6)\).
+          \[
+            P(X\ge8)=1-P(X\le7).
+          \]
+          Using technology,
+          \[
+            P(X\ge8)\approx 0.256.
+          \]
+        </div>
+      </div>
+      <div class="practice-card">
+        <p><strong>Example 3.</strong> Two independent roads have mean accident counts 0.8 and 1.3 per month. Find the distribution of total accidents.</p>
+        <button onclick="toggleAnswer('formalEx3')">Reveal solution</button>
+        <div id="formalEx3" class="answer">
+          If \(X\sim\mathrm{Po}(0.8)\), \(Y\sim\mathrm{Po}(1.3)\), and they are independent, then
+          \[
+            X+Y\sim\mathrm{Po}(0.8+1.3)=\mathrm{Po}(2.1).
+          \]
+        </div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Poisson modelling checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Count variable:</strong> \(0,1,2,\ldots\), not a continuous measurement.</div>
+        <div class="tile"><strong>Fixed interval:</strong> time, area, page, kilometre, machine-hour.</div>
+        <div class="tile"><strong>Average rate:</strong> identify \(\lambda\) for that exact interval.</div>
+        <div class="tile"><strong>Independence:</strong> one event does not make another more or less likely.</div>
+        <div class="tile"><strong>Uniformity:</strong> rate is roughly constant during the interval.</div>
+        <div class="tile"><strong>Choose model:</strong> compare with binomial and normal before calculating.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practice" class="tab-panel">
+  <div class="grid">
+    <div class="card span-12">
+      <h2>Exam-style question generator</h2>
+      <p>Generate a question, attempt it, then reveal the worked solution. The generator now varies contexts, wording, assumptions, intervals and applications.</p>
+      <div class="tight-row">
+        <button onclick="generatePractice('exact')">Exact probability</button>
+        <button onclick="generatePractice('cumulative')">Cumulative / tail</button>
+        <button onclick="generatePractice('meanvar')">Mean & variance</button>
+        <button onclick="generatePractice('sum')">Sum of Poissons</button>
+        <button onclick="generatePractice('choose')">Choose distribution</button>
+        <button onclick="generatePractice('conditions')">Model assumptions</button>
+      </div>
+      <div class="practice-card">
+        <div id="practiceQuestion" class="mathline">Choose a question type to begin.</div>
+        <div id="practiceVisual" style="margin-top:12px"></div>
+        <button onclick="toggleAnswer('practiceAnswer')">Reveal worked solution</button>
+        <div id="practiceAnswer" class="answer"></div>
+      </div>
+    </div>
+    <div class="card span-12">
+      <h2>Exam checklist</h2>
+      <div class="mini-grid">
+        <div class="tile"><strong>Define \(X\):</strong> say exactly what is being counted.</div>
+        <div class="tile"><strong>State distribution:</strong> \(X\sim\mathrm{Po}(\lambda)\).</div>
+        <div class="tile"><strong>Match interval:</strong> adjust \(\lambda\) if the time/space interval changes.</div>
+        <div class="tile"><strong>Translate wording:</strong> exactly, at most, fewer than, at least, more than.</div>
+        <div class="tile"><strong>Use complement:</strong> \(P(X\ge k)=1-P(X\le k-1)\).</div>
+        <div class="tile"><strong>Justify model:</strong> independence and uniform average rate.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab-panel">
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Suggested lesson flow</h2>
+      <ol class="steps">
+        <li>Start with the arrivals simulator: calls per minute or typos per page.</li>
+        <li>Introduce \(X\sim\mathrm{Po}(\lambda)\) as a count model, not just a formula.</li>
+        <li>Use the shape explorer to connect \(\lambda\), centre and spread.</li>
+        <li>Practise exact, cumulative and tail probabilities with careful wording.</li>
+        <li>Use the mean–variance simulator to show \(E(X)=\mathrm{Var}(X)=\lambda\).</li>
+        <li>Introduce the independent sum rule through two call streams or two roads.</li>
+        <li>Finish by choosing between normal, binomial and Poisson distributions in context.</li>
+      </ol>
+    </div>
+    <div class="card span-6">
+      <h2>Misconceptions to watch</h2>
+      <table>
+        <tr><th>Misconception</th><th>Intervention</th></tr>
+        <tr><td>Using Poisson for any discrete count.</td><td>Check fixed interval, independence and uniform rate.</td></tr>
+        <tr><td>Forgetting to adjust \(\lambda\) when the interval changes.</td><td>Ask “mean for what interval?” before calculating.</td></tr>
+        <tr><td>Confusing \(P(X\lt k)\) and \(P(X\le k)\).</td><td>Use a number-line/bar-chart interpretation.</td></tr>
+        <tr><td>Adding Poisson variables without independence.</td><td>Stress that the sum rule requires independent counts.</td></tr>
+        <tr><td>Choosing binomial and Poisson by “which formula I remember”.</td><td>Use model choice questions before calculation questions.</td></tr>
+      </table>
+    </div>
+    <div class="card span-12">
+      <h2>Quick starter prompts</h2>
+      <div class="mini-grid">
+        <div class="tile">A website has an average of 2.4 errors per day. Define \(X\) and state its distribution.</div>
+        <div class="tile">If \(X\sim\mathrm{Po}(5)\), what are \(E(X)\) and \(\mathrm{Var}(X)\)?</div>
+        <div class="tile">Translate “at least 4 calls” into a probability statement.</div>
+        <div class="tile">Two independent call lines have means 2 and 7 per hour. What is the total distribution?</div>
+        <div class="tile">When would emergency admissions not be well modelled by a single Poisson distribution?</div>
+        <div class="tile">Choose a model: defective items in a fixed batch of 50.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function rerenderMath(){ if(window.MathJax && window.MathJax.typesetPromise){ window.MathJax.typesetPromise(); } }
+document.querySelectorAll('.tab-button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); $(btn.dataset.tab).classList.add('active'); rerenderMath();
+  });
+});
+function toggleAnswer(id){ $(id).classList.toggle('show'); rerenderMath(); }
+function fmt(x){ if(!isFinite(x)) return String(x); if(Math.abs(x)<1e-10) return '0'; return Number(x.toFixed(4)).toString(); }
+function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
+function variancePop(arr){const m=mean(arr); return mean(arr.map(x=>(x-m)*(x-m)));}
+function factorial(n){let f=1; for(let i=2;i<=n;i++) f*=i; return f;}
+function poissonPmf(k,lambda){
+  if(k<0 || Math.floor(k)!==k) return 0;
+  if(lambda<0) return NaN;
+  let p=Math.exp(-lambda);
+  for(let i=1;i<=k;i++) p*=lambda/i;
+  return p;
+}
+function poissonCdf(k,lambda){
+  k=Math.floor(k);
+  if(k<0) return 0;
+  let p=Math.exp(-lambda), sum=p;
+  for(let i=1;i<=k;i++){p*=lambda/i; sum+=p;}
+  return Math.min(1,sum);
+}
+function poissonSample(lambda){
+  const L=Math.exp(-lambda);
+  let k=0, p=1;
+  do{k++; p*=Math.random();}while(p>L);
+  return k-1;
+}
+
+/* SVG utilities */
+function svgAxes(w=760,h=520,xmin=0,xmax=15,ymin=0,ymax=1,xlab='x',ylab='probability'){
+  const x0=60,y0=h-58,plotW=w-95,plotH=h-95;
+  let g=`<rect width="${w}" height="${h}" fill="#fcfdff"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0+plotW}" y2="${y0}" stroke="#17212d" stroke-width="2"/>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-plotH}" stroke="#17212d" stroke-width="2"/>`;
+  for(let i=0;i<=5;i++){
+    const yv=ymin+(ymax-ymin)*i/5, yp=y0-plotH*i/5;
+    g+=`<text x="${x0-10}" y="${yp+4}" text-anchor="end" font-size="12" fill="#64748b">${fmt(yv)}</text>`;
+    g+=`<line x1="${x0-7}" y1="${yp}" x2="${x0}" y2="${yp}" stroke="#64748b"/>`;
+    if(i>0) g+=`<line x1="${x0}" y1="${yp}" x2="${x0+plotW}" y2="${yp}" stroke="#e2e8f0"/>`;
+  }
+  for(let i=0;i<=5;i++){
+    const xv=xmin+(xmax-xmin)*i/5, xp=x0+plotW*i/5;
+    g+=`<line x1="${xp}" y1="${y0}" x2="${xp}" y2="${y0+7}" stroke="#64748b"/>`;
+    g+=`<text x="${xp}" y="${y0+24}" text-anchor="middle" font-size="12" fill="#64748b">${fmt(xv)}</text>`;
+  }
+  g+=`<text x="${x0+plotW/2}" y="${h-16}" text-anchor="middle" font-size="15" font-weight="850" fill="#17212d">${xlab}</text>`;
+  g+=`<text x="20" y="${y0-plotH/2}" transform="rotate(-90 20 ${y0-plotH/2})" text-anchor="middle" font-size="15" font-weight="850" fill="#17212d">${ylab}</text>`;
+  return {g,x0,y0,plotW,plotH,w,h};
+}
+function mapPlot(x,y,ax,xmin,xmax,ymin,ymax){
+  return {x:ax.x0+(x-xmin)/(xmax-xmin)*ax.plotW, y:ax.y0-(y-ymin)/(ymax-ymin)*ax.plotH};
+}
+function drawPoissonBars(svgId,lambda,highlightFn=()=>false,compareCounts=null){
+  const maxX=Math.max(10,Math.ceil(lambda+5*Math.sqrt(lambda+1)));
+  const probs=[];
+  for(let k=0;k<=maxX;k++) probs.push(poissonPmf(k,lambda));
+  const maxP=Math.max(...probs, compareCounts?Math.max(...compareCounts.map(c=>c.y)):0)*1.15;
+  const ax=svgAxes(760,520,0,maxX,0,maxP,'count x','probability');
+  let g=ax.g;
+  const barW=ax.plotW/(maxX+1)*0.75;
+  for(let k=0;k<=maxX;k++){
+    const p=probs[k];
+    const pt=mapPlot(k,p,ax,0,maxX,0,maxP);
+    const base=mapPlot(k,0,ax,0,maxX,0,maxP);
+    const fill=highlightFn(k)?'#f08c00':'#2364aa';
+    g+=`<rect x="${pt.x-barW/2}" y="${pt.y}" width="${barW}" height="${base.y-pt.y}" fill="${fill}" opacity=".82" stroke="white"/>`;
+  }
+  if(compareCounts && compareCounts.length){
+    compareCounts.forEach(c=>{
+      const pt=mapPlot(c.x,c.y,ax,0,maxX,0,maxP);
+      const base=mapPlot(c.x,0,ax,0,maxX,0,maxP);
+      g+=`<circle cx="${pt.x}" cy="${pt.y}" r="5" fill="#c92a2a" opacity=".8"/>`;
+      g+=`<line x1="${pt.x}" y1="${base.y}" x2="${pt.x}" y2="${pt.y}" stroke="#c92a2a" stroke-width="2" opacity=".55"/>`;
+    });
+  }
+  $(svgId).innerHTML=g;
+}
+
+/* Explore */
+let exploreCounts=[];
+function updateExploreLambda(){
+  const l=Number($("exploreLambda").value);
+  $("exploreLambdaLabel").innerHTML=`\\(\\lambda=${fmt(l)}\\)`;
+  resetExplore(false);
+  rerenderMath();
+}
+function resetExplore(clearTimeline=true){
+  exploreCounts=[];
+  drawPoissonBars('exploreGraph',Number($("exploreLambda").value));
+  $("manyIntervalsBox").innerHTML='No repeated simulation yet.';
+  if(clearTimeline) $("oneIntervalBox").innerHTML='Simulate one interval.';
+  drawTimeline([]);
+  rerenderMath();
+}
+function simulateOneInterval(){
+  const lambda=Number($("exploreLambda").value);
+  const k=poissonSample(lambda);
+  const times=Array.from({length:k},()=>Math.random()).sort((a,b)=>a-b);
+  drawTimeline(times);
+  $("oneIntervalBox").innerHTML=`This interval had \\(${k}\\) events.<br>The model average is \\(\\lambda=${fmt(lambda)}\\) events per interval.`;
+  rerenderMath();
+}
+function simulateManyIntervals(n){
+  const lambda=Number($("exploreLambda").value);
+  for(let i=0;i<n;i++) exploreCounts.push(poissonSample(lambda));
+  const counts={};
+  exploreCounts.forEach(x=>counts[x]=(counts[x]||0)+1);
+  const freqs=Object.keys(counts).map(k=>({x:Number(k),y:counts[k]/exploreCounts.length}));
+  drawPoissonBars('exploreGraph',lambda,()=>false,freqs);
+  $("manyIntervalsBox").innerHTML=`Intervals simulated: \\(${exploreCounts.length}\\)<br>Sample mean: \\(${fmt(mean(exploreCounts))}\\)<br>Sample variance: \\(${fmt(variancePop(exploreCounts))}\\)`;
+  $("exploreFeedback").innerHTML=`The red markers show experimental relative frequencies. Blue bars show the theoretical Poisson probabilities for \\(\\lambda=${fmt(lambda)}\\).`;
+  rerenderMath();
+}
+function drawTimeline(times){
+  const box=$("arrivalTimeline");
+  let html='';
+  for(let i=0;i<=5;i++){
+    html+=`<div class="tick" style="left:${i*20}%"></div><div class="tick-label" style="left:${i*20}%">${i/5}</div>`;
+  }
+  times.forEach(t=>html+=`<div class="event-dot" style="left:${t*100}%"></div>`);
+  box.innerHTML=html;
+}
+
+/* Shape */
+function drawShape(){
+  const l=Number($("shapeLambda").value);
+  $("shapeLambdaLabel").innerHTML=`\\(\\lambda=${fmt(l)}\\)`;
+  drawPoissonBars('shapeGraph',l);
+  const skew=l<2?'strongly right-skewed':l<6?'right-skewed but becoming more balanced':'quite symmetric and bell-like';
+  $("shapeFeedback").innerHTML=`Mean \\(=${fmt(l)}\\), variance \\(=${fmt(l)}\\), standard deviation \\(=${fmt(Math.sqrt(l))}\\). The shape is ${skew}.`;
+  rerenderMath();
+}
+
+/* Conditions */
+const conditionScenarios=[
+  {q:'A call centre receives calls at a roughly steady average rate during a quiet hour. Calls are independent. Count calls in that hour.', ok:true, explain:'This is a typical Poisson setting: count in a fixed interval, independent events, uniform average rate.'},
+  {q:'Count the number of defective items in a batch of exactly 50, where each item is defective with probability 0.03.', ok:false, explain:'This is more naturally binomial: fixed number of trials with success/failure.'},
+  {q:'Count emergency admissions over a whole day, but the rate is much higher in the evening than at night.', ok:false, explain:'A single uniform-rate Poisson model may be poor because the rate changes strongly.'},
+  {q:'Count typos per page in a book, assuming pages have similar length and typo occurrences are independent.', ok:true, explain:'This is a reasonable Poisson model if the average rate is roughly uniform across pages.'},
+  {q:'Count cars arriving at a junction during a five-minute period of steady traffic.', ok:true, explain:'A Poisson model may be reasonable if arrivals are independent and the rate is steady.'},
+  {q:'Count infections after a party where one infected person can infect several others in clusters.', ok:false, explain:'Events may not be independent; one event can trigger others.'}
+];
+let currentCondition=null;
+function generateConditionScenario(){
+  currentCondition=conditionScenarios[Math.floor(Math.random()*conditionScenarios.length)];
+  $("conditionScenario").innerHTML=currentCondition.q;
+  $("conditionFeedback").className='feedback';
+  $("conditionFeedback").innerHTML='Choose whether a Poisson model is reasonable.';
+}
+function answerCondition(ans){
+  if(!currentCondition) generateConditionScenario();
+  $("conditionFeedback").className='feedback '+(ans===currentCondition.ok?'good':'bad');
+  $("conditionFeedback").innerHTML=(ans===currentCondition.ok?'Correct. ':'Not quite. ')+currentCondition.explain;
+}
+
+/* Calculator */
+let calcHighlight=()=>false;
+function poissonCalc(type){
+  const lambda=Number($("calcLambda").value), k=Math.floor(Number($("calcK").value)), a=Math.floor(Number($("calcA").value)), b=Math.floor(Number($("calcB").value));
+  if(!isFinite(lambda)||lambda<0){
+    $("calcOutput").className='feedback bad';
+    $("calcOutput").innerHTML='Enter a valid \\(\\lambda\\ge0\\).';
+    return;
+  }
+  let val=0, statement='', explanation='', highlight=()=>false;
+  if(type==='eq'){
+    val=poissonPmf(k,lambda);
+    statement=`P(X=${k})`;
+    explanation=`\\(${statement}=\\frac{e^{-${fmt(lambda)}}${fmt(lambda)}^{${k}}}{${k}!}\\approx ${fmt(val)}\\)`;
+    highlight=x=>x===k;
+  }else if(type==='le'){
+    val=poissonCdf(k,lambda); statement=`P(X\\le ${k})`;
+    explanation=`\\(${statement}\\approx ${fmt(val)}\\)`;
+    highlight=x=>x<=k;
+  }else if(type==='lt'){
+    val=poissonCdf(k-1,lambda); statement=`P(X<${k})=P(X\\le ${k-1})`;
+    explanation=`\\(${statement}\\approx ${fmt(val)}\\)`;
+    highlight=x=>x<k;
+  }else if(type==='ge'){
+    val=1-poissonCdf(k-1,lambda); statement=`P(X\\ge ${k})=1-P(X\\le ${k-1})`;
+    explanation=`\\(${statement}\\approx ${fmt(val)}\\)`;
+    highlight=x=>x>=k;
+  }else if(type==='gt'){
+    val=1-poissonCdf(k,lambda); statement=`P(X>${k})=1-P(X\\le ${k})`;
+    explanation=`\\(${statement}\\approx ${fmt(val)}\\)`;
+    highlight=x=>x>k;
+  }else{
+    const lo=Math.min(a,b), hi=Math.max(a,b);
+    val=poissonCdf(hi,lambda)-poissonCdf(lo-1,lambda); statement=`P(${lo}\\le X\\le ${hi})`;
+    explanation=`\\(${statement}=P(X\\le ${hi})-P(X\\le ${lo-1})\\approx ${fmt(val)}\\)`;
+    highlight=x=>x>=lo&&x<=hi;
+  }
+  $("calcOutput").className='feedback good';
+  $("calcOutput").innerHTML=`Let \\(X\\sim\\mathrm{Po}(${fmt(lambda)})\\).<br>${explanation}`;
+  drawPoissonBars('calcGraph',lambda,highlight);
+  rerenderMath();
+}
+
+/* Mean variance */
+function drawMeanVar(){
+  const l=Number($("mvLambda").value);
+  $("mvLambdaLabel").innerHTML=`\\(\\lambda=${fmt(l)}\\)`;
+  drawPoissonBars('mvGraph',l);
+  $("mvOutput").innerHTML=`Theoretical mean \\(=${fmt(l)}\\). Theoretical variance \\(=${fmt(l)}\\). Theoretical standard deviation \\(=${fmt(Math.sqrt(l))}\\).`;
+  rerenderMath();
+}
+function simulateMeanVar(n){
+  const l=Number($("mvLambda").value);
+  const data=Array.from({length:n},()=>poissonSample(l));
+  const counts={}; data.forEach(x=>counts[x]=(counts[x]||0)+1);
+  const freqs=Object.keys(counts).map(k=>({x:Number(k),y:counts[k]/data.length}));
+  drawPoissonBars('mvGraph',l,()=>false,freqs);
+  $("mvOutput").innerHTML=`Simulated \\(${n}\\) counts from \\(\\mathrm{Po}(${fmt(l)})\\).<br>Sample mean \\(=${fmt(mean(data))}\\).<br>Sample variance \\(=${fmt(variancePop(data))}\\).<br>Theory says both should be close to \\(${fmt(l)}\\) in large samples.`;
+  rerenderMath();
+}
+
+/* Sum of Poissons */
+let sumSamples=[];
+function resetSumPoisson(){
+  sumSamples=[];
+  drawSumPoisson();
+}
+function drawSumPoisson(){
+  const l1=Number($("lambda1").value), l2=Number($("lambda2").value), total=l1+l2;
+  const counts={}; sumSamples.forEach(x=>counts[x]=(counts[x]||0)+1);
+  const freqs=Object.keys(counts).map(k=>({x:Number(k),y:counts[k]/Math.max(1,sumSamples.length)}));
+  drawPoissonBars('sumGraph',total,()=>false,freqs);
+  $("sumInfo").innerHTML=`\\(X\\sim\\mathrm{Po}(${fmt(l1)})\\), \\(Y\\sim\\mathrm{Po}(${fmt(l2)})\\).<br>If independent, \\(X+Y\\sim\\mathrm{Po}(${fmt(total)})\\).<br>${sumSamples.length?`Simulated sums: \\(${sumSamples.length}\\), mean \\(${fmt(mean(sumSamples))}\\).`:''}`;
+  rerenderMath();
+}
+function simulateSumPoisson(n){
+  const l1=Number($("lambda1").value), l2=Number($("lambda2").value);
+  for(let i=0;i<n;i++) sumSamples.push(poissonSample(l1)+poissonSample(l2));
+  drawSumPoisson();
+}
+
+/* Chooser */
+const chooserScenarios=[
+  {q:'The number of calls arriving at a help desk in a 10-minute period, with steady traffic.', ans:'poisson', explain:'A count in a fixed time interval with roughly uniform rate.'},
+  {q:'The number of defective bulbs in a box of 40 bulbs, each independently defective with probability 0.02.', ans:'binomial', explain:'Fixed number of trials, success/failure for each bulb.'},
+  {q:'The heights of adult men in a city.', ans:'normal', explain:'A continuous measurement that may be modelled as bell-shaped.'},
+  {q:'The number of typos per 1000 words in a manuscript.', ans:'poisson', explain:'A count in a fixed length of text, assuming uniform typo rate.'},
+  {q:'The number of heads in 20 coin flips.', ans:'binomial', explain:'Fixed 20 trials, each with two outcomes.'},
+  {q:'The mass of cereal in boxes filled by a machine.', ans:'normal', explain:'Continuous measurement with manufacturing variation.'},
+  {q:'The number of mutations in a fixed DNA segment.', ans:'poisson', explain:'A count in a fixed segment, if mutations are independent and rate is uniform.'}
+];
+let currentChooser=null;
+function generateChooser(){
+  currentChooser=chooserScenarios[Math.floor(Math.random()*chooserScenarios.length)];
+  $("chooserScenario").innerHTML=currentChooser.q;
+  $("chooserFeedback").className='feedback';
+  $("chooserFeedback").innerHTML='Choose the most appropriate distribution.';
+}
+function answerChooser(ans){
+  if(!currentChooser) generateChooser();
+  $("chooserFeedback").className='feedback '+(ans===currentChooser.ans?'good':'bad');
+  $("chooserFeedback").innerHTML=(ans===currentChooser.ans?'Correct. ':'Not quite. ')+currentChooser.explain;
+}
+
+/* Practice */
+const practiceContexts = [
+  {area:'Telecommunications', event:'dropped connections', interval:'minute', place:'mobile network', rate:[1.2,6.4], note:'assuming network conditions are steady'},
+  {area:'Telecommunications', event:'data packets arriving', interval:'second', place:'router', rate:[4.5,14.5], note:'assuming arrivals are independent'},
+  {area:'Call management', event:'support calls', interval:'10 minutes', place:'IT help desk', rate:[1.5,8.5], note:'during a quiet period'},
+  {area:'Call management', event:'booking requests', interval:'hour', place:'hotel reservation line', rate:[2.2,10.2], note:'assuming a steady booking rate'},
+  {area:'Traffic management', event:'cars passing a sensor', interval:'minute', place:'toll booth', rate:[3.5,15.5], note:'during steady traffic'},
+  {area:'Traffic management', event:'buses arriving', interval:'hour', place:'bus station', rate:[1.0,7.0], note:'assuming arrivals are independent'},
+  {area:'Biological mutations', event:'mutations', interval:'DNA segment', place:'genetic sample', rate:[0.4,3.2], note:'assuming mutations occur independently'},
+  {area:'Biological mutations', event:'copying errors', interval:'million bases', place:'DNA sequence', rate:[0.6,4.6], note:'assuming a uniform mutation rate'},
+  {area:'Emergency room', event:'admissions', interval:'hour', place:'emergency department', rate:[2.5,12.5], note:'during a period with a roughly constant rate'},
+  {area:'Emergency room', event:'ambulance arrivals', interval:'30 minutes', place:'hospital entrance', rate:[0.8,5.8], note:'assuming arrivals are independent'},
+  {area:'Publishing', event:'typos', interval:'page', place:'manuscript', rate:[0.3,3.0], note:'assuming pages have similar length'},
+  {area:'Publishing', event:'OCR errors', interval:'1000 words', place:'scanned document', rate:[0.8,5.5], note:'assuming text quality is similar'},
+  {area:'Computing', event:'server errors', interval:'hour', place:'website', rate:[0.7,6.7], note:'assuming the server load is steady'},
+  {area:'Manufacturing', event:'surface flaws', interval:'metre of fabric', place:'textile factory', rate:[0.5,4.5], note:'assuming flaws occur independently'},
+  {area:'Retail', event:'customer complaints', interval:'day', place:'online shop', rate:[1.0,7.0], note:'assuming no unusual sale or outage'},
+  {area:'Security', event:'false alarms', interval:'week', place:'security system', rate:[0.5,4.0], note:'assuming alarms are independent'}
+];
+const badPoissonScenarios = [
+  {q:'Emergency room admissions are counted over a whole day, but the rate is much higher in the evening than at night.', reason:'the average rate is not uniform over the whole day'},
+  {q:'Customer calls are counted during a lunch promotion, when one advert causes a sudden burst of calls.', reason:'the rate changes suddenly, so a single constant rate is doubtful'},
+  {q:'Website errors are counted during a cyberattack, where one failure triggers several related failures.', reason:'events may not be independent'},
+  {q:'Cars are counted across an entire day including rush hour and midnight.', reason:'traffic rate is not uniform'},
+  {q:'Infections are counted after a party where one infection can cause clusters of further infections.', reason:'events are not independent'},
+  {q:'Typos are counted across pages with very different amounts of text.', reason:'the average rate per page is not uniform'}
+];
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function randChoice(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function randRate(lo,hi){return Number((lo+Math.random()*(hi-lo)).toFixed(1));}
+function exactProbText(lambda,k){return fmt(poissonPmf(k,lambda));}
+function cdfProbText(lambda,k){return fmt(poissonCdf(k,lambda));}
+function tailProbText(lambda,k,kind){
+  if(kind==='le') return fmt(poissonCdf(k,lambda));
+  if(kind==='lt') return fmt(poissonCdf(k-1,lambda));
+  if(kind==='ge') return fmt(1-poissonCdf(k-1,lambda));
+  if(kind==='gt') return fmt(1-poissonCdf(k,lambda));
+  return '';
+}
+function poissonVisualHTML(context){
+  return `<div class="note good"><strong>Context:</strong> ${context.area}. Poisson is reasonable only if events are independent and the average rate is roughly uniform for the chosen interval.</div>`;
+}
+function generatePractice(type){
+  $('practiceAnswer').classList.remove('show'); $('practiceVisual').innerHTML='';
+  const c=randChoice(practiceContexts);
+  const lambda=randRate(c.rate[0],c.rate[1]);
+  let q='',a='';
+  if(type==='exact'){
+    const k=randInt(0,Math.max(3,Math.round(lambda+2)));
+    q=`In a ${c.place}, the number of ${c.event} has mean ${lambda} per ${c.interval}. Let \(X\) be the number of ${c.event} in one ${c.interval}. Find \(P(X=${k})\).`;
+    a=`Let \(X\sim\mathrm{Po}(${lambda})\). Since this asks for exactly ${k}, use one Poisson probability.\[
+P(X=${k})=\frac{e^{-${lambda}}${lambda}^{${k}}}{${k}!}\approx ${exactProbText(lambda,k)}.
+\]`;
+  }else if(type==='cumulative'){
+    const kinds=[
+      {word:'at most', sym:'\\le', kind:'le'},
+      {word:'fewer than', sym:'<', kind:'lt'},
+      {word:'at least', sym:'\\ge', kind:'ge'},
+      {word:'more than', sym:'>', kind:'gt'}
+    ];
+    const choice=randChoice(kinds), k=randInt(1,Math.max(4,Math.round(lambda+3)));
+    q=`In a ${c.place}, ${c.event} occur at an average rate of ${lambda} per ${c.interval}. Find the probability of ${choice.word} ${k} ${c.event} in one ${c.interval}.`;
+    let trans = choice.kind==='lt' ? `P(X<${k})=P(X\le ${k-1})` : choice.kind==='ge' ? `P(X\ge ${k})=1-P(X\le ${k-1})` : choice.kind==='gt' ? `P(X>${k})=1-P(X\le ${k})` : `P(X\le ${k})`;
+    a=`Let \(X\sim\mathrm{Po}(${lambda})\). Translate the wording carefully: \(${trans}\). Using Poisson Cdf/complement,\[
+${trans}\approx ${tailProbText(lambda,k,choice.kind)}.
+\]`;
+  }else if(type==='meanvar'){
+    q=`The number of ${c.event} in a ${c.interval} is modelled by \(X\sim\mathrm{Po}(${lambda})\). State the mean, variance and standard deviation. Interpret the mean in context.`;
+    a=`For \(X\sim\mathrm{Po}(\lambda)\), \(E(X)=\lambda\) and \(\mathrm{Var}(X)=\lambda\). So \(E(X)=${lambda}\), \(\mathrm{Var}(X)=${lambda}\), and \(\sigma=\sqrt{${lambda}}\approx ${fmt(Math.sqrt(lambda))}\). The mean means about ${lambda} ${c.event} per ${c.interval}.`;
+  }else if(type==='sum'){
+    const c2=randChoice(practiceContexts.filter(x=>x.area===c.area || x.interval===c.interval));
+    const l1=lambda, l2=randRate(c.rate[0],c.rate[1]);
+    q=`Two independent sources are monitored in the same ${c.interval}. Source A has mean ${l1} ${c.event}; source B has mean ${l2} ${c.event}. Find the distribution of the total number of ${c.event}.`;
+    a=`Let \(X\sim\mathrm{Po}(${l1})\) and \(Y\sim\mathrm{Po}(${l2})\). Since the sources are independent,\[
+X+Y\sim\mathrm{Po}(${l1}+${l2})=\mathrm{Po}(${fmt(l1+l2)}).
+\]The independence condition is essential for this sum rule.`;
+  }else if(type==='choose'){
+    const scenarios=[
+      {q:`A factory tests exactly ${randInt(40,120)} items and records how many are defective.`, ans:'Binomial', why:'there is a fixed number of trials and each item is defective or not defective'},
+      {q:`A ${c.place} records the number of ${c.event} in one ${c.interval}, with ${c.note}.`, ans:'Poisson', why:'it is a count in a fixed interval with independent events and a roughly uniform average rate'},
+      {q:`A hospital records the waiting times of patients in minutes.`, ans:'Normal or another continuous model', why:'waiting time is continuous; it is not itself a Poisson count'},
+      {q:`A machine fills bags and the mass of each bag is measured.`, ans:'Normal', why:'mass is a continuous measurement, not a count of events'},
+      {q:`A survey of ${randInt(50,200)} people records how many support a proposal.`, ans:'Binomial', why:'there is a fixed number of people and each response is success/failure'}
+    ];
+    const s=randChoice(scenarios);
+    q=`Choose the most appropriate distribution and justify your choice: ${s.q}`;
+    a=`Most appropriate: <strong>${s.ans}</strong>, because ${s.why}. Always decide from the structure of the situation before calculating.`;
+  }else{
+    const useBad=Math.random()<0.55;
+    if(useBad){
+      const b=randChoice(badPoissonScenarios);
+      q=`A student suggests using a Poisson distribution for this situation: ${b.q} Explain one possible problem with the model.`;
+      a=`A simple Poisson model may be inappropriate because ${b.reason}. For Poisson, events should be independent and occur at a roughly uniform average rate over the interval.`;
+    }else{
+      q=`A ${c.place} models the number of ${c.event} per ${c.interval} using a Poisson distribution. State two assumptions that should be checked, and explain them in context.`;
+      a=`Two key assumptions are: (1) the ${c.event} occur independently, so one event does not make another much more or less likely; (2) the average rate is roughly uniform during the ${c.interval}. Here that means ${c.note}.`;
+    }
+  }
+  $('practiceQuestion').innerHTML=q;
+  $('practiceVisual').innerHTML=poissonVisualHTML(c);
+  $('practiceAnswer').innerHTML=a;
+  rerenderMath();
+}
+
+/* Init */
+function init(){
+  updateExploreLambda();
+  drawShape();
+  generateConditionScenario();
+  poissonCalc('eq');
+  drawMeanVar();
+  drawSumPoisson();
+  generateChooser();
+  generatePractice('exact');
+}
+init();
+</script>
+</body>
+</html>
